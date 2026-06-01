@@ -29,9 +29,29 @@ interface IncomingCall {
   offer: RTCSessionDescriptionInit;
 }
 
+// STUN finds your public IP; TURN relays media when both peers are behind
+// strict NATs/firewalls (most home & office networks). Without TURN the call
+// shows "connecting" forever with no audio. These are OpenRelay's free public
+// TURN servers — fine for a trial. For production, swap in your own
+// (Twilio / Cloudflare Calls / Metered) credentials.
 const ICE_SERVERS: RTCIceServer[] = [
   { urls: "stun:stun.l.google.com:19302" },
   { urls: "stun:stun1.l.google.com:19302" },
+  {
+    urls: "turn:openrelay.metered.ca:80",
+    username: "openrelayproject",
+    credential: "openrelayproject",
+  },
+  {
+    urls: "turn:openrelay.metered.ca:443",
+    username: "openrelayproject",
+    credential: "openrelayproject",
+  },
+  {
+    urls: "turn:openrelay.metered.ca:443?transport=tcp",
+    username: "openrelayproject",
+    credential: "openrelayproject",
+  },
 ];
 
 function randId() {
