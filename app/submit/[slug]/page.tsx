@@ -33,6 +33,7 @@ export default function DynamicSubmitPage() {
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [callFile, setCallFile] = useState<File | null>(null);
+  const [doneStatus, setDoneStatus] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setForm] = useState({
@@ -140,7 +141,7 @@ export default function DynamicSubmitPage() {
         }
       }
 
-      setStatusMsg("Analyzing call...");
+      setStatusMsg(callFile ? "AI is listening to the call & verifying the lead..." : "AI is verifying the lead...");
       const res = await fetch("/api/leads/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -148,22 +149,32 @@ export default function DynamicSubmitPage() {
       });
       const json = await res.json().catch(() => ({}));
 
-      if (res.ok) setStatusMsg(`Done! Lead marked: ${json.status}`);
-      else setStatusMsg(`Submitted but analysis failed: ${json.error || "unknown"}`);
+      if (!res.ok) {
+        // Analysis failed — surface the error, keep the form so they can retry
+        throw new Error(json.error || "AI analysis failed. Please try again.");
+      }
 
-      setForm({
-        date: new Date().toISOString().split("T")[0],
-        caller_id: "", campaign_id: "",
-        owner_name: "", phone_number: "",
-        property_address: "", asking_price: "", reason: "",
-      });
-      setCallFile(null);
-      setTimeout(() => setStatusMsg(null), 6000);
+      // Success — show the dedicated confirmation screen
+      setStatusMsg(null);
+      setDoneStatus(json.status || "Submitted");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Submission failed");
       setStatusMsg(null);
     }
     setSubmitting(false);
+  };
+
+  const resetForNewLead = () => {
+    setForm({
+      date: new Date().toISOString().split("T")[0],
+      caller_id: "", campaign_id: "",
+      owner_name: "", phone_number: "",
+      property_address: "", asking_price: "", reason: "",
+    });
+    setCallFile(null);
+    setError("");
+    setStatusMsg(null);
+    setDoneStatus(null);
   };
 
   if (loading) {
@@ -213,18 +224,64 @@ export default function DynamicSubmitPage() {
           <p style={{ fontSize: 13, color: SLATE }}>Submit a lead — AI evaluation runs automatically.</p>
         </div>
 
-        {statusMsg && (
-          <div style={{ padding: "12px 16px", borderRadius: 10, marginBottom: 16, background: "#ECFDF5", border: "1px solid #A7F3D0", display: "flex", alignItems: "center", gap: 10, color: "#059669", fontSize: 13, fontWeight: 600 }}>
-            <CheckCircle2 size={16} /> {statusMsg}
-          </div>
-        )}
-        {error && (
+        {error && !doneStatus && (
           <div style={{ padding: "12px 16px", borderRadius: 10, marginBottom: 16, background: "#FEF2F2", border: "1px solid #FCA5A5", display: "flex", alignItems: "center", gap: 10, color: "#DC2626", fontSize: 13, fontWeight: 600 }}>
             <AlertCircle size={16} /> {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} style={{ background: "#FFF", borderRadius: 14, padding: 24, border: "1px solid rgba(10,30,63,0.08)", boxShadow: "0 2px 12px rgba(10,30,63,0.06)" }}>
+        {/* ── SUCCESS SCREEN ── */}
+        {doneStatus ? (
+          <div style={{
+            background: "#FFF", borderRadius: 16, padding: "40px 28px",
+            border: "1px solid rgba(10,30,63,0.08)", boxShadow: "0 2px 12px rgba(10,30,63,0.06)",
+            textAlign: "center",
+          }}>
+            <div style={{
+              width: 72, height: 72, borderRadius: "50%", background: "#ECFDF5",
+              display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 18px",
+            }}>
+              <CheckCircle2 size={36} color="#059669" />
+            </div>
+            <h2 style={{ fontSize: 22, fontWeight: 800, color: NAVY, marginBottom: 8 }}>
+              Lead submitted successfully!
+            </h2>
+            <p style={{ fontSize: 14, color: SLATE, lineHeight: 1.6, marginBottom: 6 }}>
+              Our AI has reviewed the call and verified this lead.
+            </p>
+            <div style={{
+              display: "inline-flex", alignItems: "center", gap: 8,
+              padding: "8px 16px", borderRadius: 999, marginBottom: 28,
+              background: doneStatus === "Qualified" ? "#ECFDF5" : doneStatus === "Disqualified" ? "#FEF2F2" : "#FFFBEB",
+              color: doneStatus === "Qualified" ? "#059669" : doneStatus === "Disqualified" ? "#DC2626" : "#92400E",
+              fontSize: 13, fontWeight: 800,
+            }}>
+              Verdict: {doneStatus}
+            </div>
+            <button onClick={resetForNewLead} style={{
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+              width: "100%", padding: "14px 24px", borderRadius: 11,
+              background: NAVY, color: "#fff", fontSize: 14, fontWeight: 800,
+              border: "none", cursor: "pointer", boxShadow: `0 6px 20px rgba(10,30,63,0.25)`,
+            }}>
+              <Send size={15} /> Submit New Lead
+            </button>
+          </div>
+        ) : (
+        <form onSubmit={handleSubmit} style={{ background: "#FFF", borderRadius: 14, padding: 24, border: "1px solid rgba(10,30,63,0.08)", boxShadow: "0 2px 12px rgba(10,30,63,0.06)", position: "relative" }}>
+          {submitting && (
+            <div style={{
+              position: "absolute", inset: 0, borderRadius: 14, zIndex: 5,
+              background: "rgba(255,255,255,0.92)", backdropFilter: "blur(2px)",
+              display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14,
+            }}>
+              <Loader2 size={34} className="animate-spin" style={{ color: NAVY }} />
+              <p style={{ fontSize: 14, fontWeight: 700, color: NAVY }}>{statusMsg || "Processing..."}</p>
+              <p style={{ fontSize: 12, color: SLATE, maxWidth: 320, textAlign: "center", lineHeight: 1.5 }}>
+                Please keep this page open — the lead is added only after the AI finishes verifying it.
+              </p>
+            </div>
+          )}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
             <select value={formData.caller_id} onChange={e => setForm({ ...formData, caller_id: e.target.value })} required style={inputStyle}>
               <option value="">Select Cold Caller *</option>
@@ -262,6 +319,7 @@ export default function DynamicSubmitPage() {
             {submitting ? <><Loader2 size={15} className="animate-spin" /> Processing...</> : <><Send size={15} /> Submit & Analyze</>}
           </button>
         </form>
+        )}
       </div>
     </div>
   );
