@@ -58,7 +58,6 @@ export async function POST(req: NextRequest) {
     }
     const supabase = client;
 
-    // Accept both JSON body { csv, userId } and multipart/form-data { file, userId }
     let csv = "";
     let userId = "";
     const contentType = req.headers.get("content-type") || "";
@@ -89,78 +88,115 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "CSV is empty or missing data rows" }, { status: 400 });
     }
 
+    // ── De-dupe inputs ───────────────────────────────────────
+    const uniqueTeamNames    = Array.from(new Set(rows.map(r => r.team_name).filter(Boolean)));
+    const uniqueTrainerNames = Array.from(new Set(rows.map(r => r.trainer_name).filter(Boolean)));
+    const uniqueCallers      = Array.from(new Map(
+      rows
+        .filter(r => r.agent_name)
+        .map(r => [r.agent_name, { name: r.agent_name, team_name: r.team_name, hiring_date: r.hiring_date }] as const)
+    ).values());
+
     const stats = { rows: rows.length, teams: 0, callers: 0, trainers: 0, errors: [] as string[] };
 
-    // 1) Teams
-    const teams: Record<string, string> = {};
-    for (const row of rows) {
-      if (!row.team_name || teams[row.team_name]) continue;
-      try {
-        const { data: existing } = await supabase
-          .from("teams").select("id")
-          .eq("name", row.team_name).eq("manager_id", userId).maybeSingle();
-        if (existing) { teams[row.team_name] = existing.id; continue; }
+    // ── 1) TEAMS: one SELECT for existing, one bulk INSERT for new ──
+    const teamIdByName: Record<string, string> = {};
+    if (uniqueTeamNames.length) {
+      const { data: existingTeams, error: selErr } = await supabase
+        .from("teams")
+        .select("id, name")
+        .eq("manager_id", userId)
+        .in("name", uniqueTeamNames);
+      if (selErr) {
+        return NextResponse.json({ error: `Reading teams failed: ${selErr.message}` }, { status: 500 });
+      }
+      (existingTeams || []).forEach(t => { teamIdByName[t.name] = t.id; });
 
-        const { data: created, error } = await supabase
-          .from("teams").insert({ name: row.team_name, manager_id: userId })
-          .select("id").single();
-        if (error) { stats.errors.push(`team "${row.team_name}": ${error.message}`); continue; }
-        if (created) { teams[row.team_name] = created.id; stats.teams++; }
-      } catch (e) {
-        stats.errors.push(`team "${row.team_name}": ${e instanceof Error ? e.message : "unknown"}`);
+      const toInsert = uniqueTeamNames
+        .filter(n => !teamIdByName[n])
+        .map(n => ({ name: n, manager_id: userId }));
+      if (toInsert.length) {
+        const { data: inserted, error: insErr } = await supabase
+          .from("teams").insert(toInsert).select("id, name");
+        if (insErr) {
+          stats.errors.push(`Bulk team insert: ${insErr.message}`);
+        } else {
+          (inserted || []).forEach(t => { teamIdByName[t.name] = t.id; });
+          stats.teams = inserted?.length || 0;
+        }
       }
     }
 
-    // 2) Cold callers
-    const callers: Record<string, string> = {};
-    for (const row of rows) {
-      if (!row.agent_name || callers[row.agent_name]) continue;
-      try {
-        const { data: existing } = await supabase
-          .from("cold_callers").select("id")
-          .eq("name", row.agent_name).eq("user_id", userId).maybeSingle();
-        if (existing) { callers[row.agent_name] = existing.id; continue; }
+    // ── 2) TRAINERS: one SELECT, one bulk INSERT ──
+    const trainerIdByName: Record<string, string> = {};
+    if (uniqueTrainerNames.length) {
+      const { data: existingTrainers, error: selErr } = await supabase
+        .from("trainers")
+        .select("id, name")
+        .eq("user_id", userId)
+        .in("name", uniqueTrainerNames);
+      if (selErr) {
+        stats.errors.push(`Reading trainers: ${selErr.message}`);
+      } else {
+        (existingTrainers || []).forEach(t => { trainerIdByName[t.name] = t.id; });
 
-        const { data: created, error } = await supabase
-          .from("cold_callers").insert({
-            name: row.agent_name,
+        const toInsert = uniqueTrainerNames
+          .filter(n => !trainerIdByName[n])
+          .map(n => ({
+            name: n,
             user_id: userId,
-            team_id: row.team_name ? teams[row.team_name] || null : null,
-            hiring_date: row.hiring_date || null,
-          }).select("id").single();
-        if (error) { stats.errors.push(`caller "${row.agent_name}": ${error.message}`); continue; }
-        if (created) { callers[row.agent_name] = created.id; stats.callers++; }
-      } catch (e) {
-        stats.errors.push(`caller "${row.agent_name}": ${e instanceof Error ? e.message : "unknown"}`);
+            email: `${n.toLowerCase().replace(/\s+/g, ".")}@hms.local`,
+          }));
+        if (toInsert.length) {
+          const { data: inserted, error: insErr } = await supabase
+            .from("trainers").insert(toInsert).select("id, name");
+          if (insErr) {
+            stats.errors.push(`Bulk trainer insert: ${insErr.message}`);
+          } else {
+            (inserted || []).forEach(t => { trainerIdByName[t.name] = t.id; });
+            stats.trainers = inserted?.length || 0;
+          }
+        }
       }
     }
 
-    // 3) Trainers
-    const trainers: Record<string, string> = {};
-    for (const row of rows) {
-      if (!row.trainer_name || trainers[row.trainer_name]) continue;
-      try {
-        const { data: existing } = await supabase
-          .from("trainers").select("id")
-          .eq("name", row.trainer_name).eq("user_id", userId).maybeSingle();
-        if (existing) { trainers[row.trainer_name] = existing.id; continue; }
+    // ── 3) COLD CALLERS: one SELECT, one bulk INSERT ──
+    const callerNames = uniqueCallers.map(c => c.name);
+    const callerIdByName: Record<string, string> = {};
+    if (callerNames.length) {
+      const { data: existingCallers, error: selErr } = await supabase
+        .from("cold_callers")
+        .select("id, name")
+        .eq("user_id", userId)
+        .in("name", callerNames);
+      if (selErr) {
+        stats.errors.push(`Reading callers: ${selErr.message}`);
+      } else {
+        (existingCallers || []).forEach(c => { callerIdByName[c.name] = c.id; });
 
-        const { data: created, error } = await supabase
-          .from("trainers").insert({
-            name: row.trainer_name,
+        const toInsert = uniqueCallers
+          .filter(c => !callerIdByName[c.name])
+          .map(c => ({
+            name: c.name,
             user_id: userId,
-            email: `${row.trainer_name.toLowerCase().replace(/\s+/g, ".")}@hms.local`,
-          }).select("id").single();
-        if (error) { stats.errors.push(`trainer "${row.trainer_name}": ${error.message}`); continue; }
-        if (created) { trainers[row.trainer_name] = created.id; stats.trainers++; }
-      } catch (e) {
-        stats.errors.push(`trainer "${row.trainer_name}": ${e instanceof Error ? e.message : "unknown"}`);
+            team_id: c.team_name ? teamIdByName[c.team_name] || null : null,
+            hiring_date: c.hiring_date || null,
+          }));
+        if (toInsert.length) {
+          const { data: inserted, error: insErr } = await supabase
+            .from("cold_callers").insert(toInsert).select("id, name");
+          if (insErr) {
+            stats.errors.push(`Bulk caller insert: ${insErr.message}`);
+          } else {
+            (inserted || []).forEach(c => { callerIdByName[c.name] = c.id; });
+            stats.callers = inserted?.length || 0;
+          }
+        }
       }
     }
 
     return NextResponse.json({ success: true, stats });
   } catch (error) {
-    // Catch-all — guarantees JSON response, never HTML
     console.error("CSV import error:", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Unexpected server error" },
@@ -169,13 +205,14 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// GET = health check so you can verify the route is reachable
+// GET = health check
 export async function GET() {
-  const hasUrl = !!process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const hasKey = !!process.env.SUPABASE_SERVICE_ROLE_KEY;
   return NextResponse.json({
     ok: true,
     route: "/api/csv-import",
-    env: { NEXT_PUBLIC_SUPABASE_URL: hasUrl, SUPABASE_SERVICE_ROLE_KEY: hasKey },
+    env: {
+      NEXT_PUBLIC_SUPABASE_URL: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+      SUPABASE_SERVICE_ROLE_KEY: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+    },
   });
 }
