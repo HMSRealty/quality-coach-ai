@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { X, Flag, Calendar, MapPin, DollarSign, Phone, User, FileText, Loader2, CheckCircle2 } from "lucide-react";
 
-const NAVY = "#0A1E3F";
-const TEAL = "#0DAFAF";
-const GOLD = "#C8A24B";
+const NAVY = "#0038B8";
+const TEAL = "#2E6FE0";
+const GOLD = "#0038B8";
 const SLATE = "#475569";
 
 interface Lead {

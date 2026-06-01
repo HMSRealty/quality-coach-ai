@@ -11,8 +11,8 @@ import {
   Headphones, Flag, Power,
 } from "lucide-react";
 
-const NAVY = "#0A1E3F";
-const TEAL = "#0DAFAF";
+const NAVY = "#0038B8";
+const TEAL = "#2E6FE0";
 const RED = NAVY;
 
 const NAV_PRIMARY = [
@@ -38,16 +38,23 @@ const PLAN_COLORS: Record<string, string> = {
   free: "#6B7280", starter: "#059669", professional: RED, enterprise: "#7C3AED",
 };
 
+function StarOfDavid({ size = 24, color = NAVY }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 48 48" fill="none">
+      {/* Upward triangle */}
+      <path d="M24 5 L43 38 L5 38 Z" stroke={color} strokeWidth="2.6" strokeLinejoin="round" fill="none"/>
+      {/* Downward triangle */}
+      <path d="M24 43 L5 10 L43 10 Z" stroke={color} strokeWidth="2.6" strokeLinejoin="round" fill="none"/>
+    </svg>
+  );
+}
+
 function HMSIcon({ size = 26 }: { size?: number }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
-      <svg width={size} height={size * 0.62} viewBox="0 0 40 24" fill="none">
-        {/* Modern geometric roof */}
-        <path d="M2 22 L20 4 L38 22" stroke={NAVY} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-        <path d="M8 22 L20 11 L32 22" stroke={TEAL} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.9"/>
-      </svg>
-      <span style={{ fontSize: size * 0.28, fontWeight: 800, letterSpacing: "0.14em", color: NAVY, lineHeight: 1, marginTop: 3 }}>
-        HMS REALTY
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+      <StarOfDavid size={size} color={NAVY} />
+      <span style={{ fontSize: size * 0.24, fontWeight: 800, letterSpacing: "0.08em", color: NAVY, lineHeight: 1, marginTop: 2 }}>
+        WINNERCOACH
       </span>
     </div>
   );
@@ -119,14 +126,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         boxShadow: "1px 0 0 #F3F4F6",
       }}>
 
-        {/* Logo */}
-        <div style={{ padding: "20px 18px 16px", borderBottom: "1px solid #F3F4F6", display: "flex", alignItems: "center", gap: 12 }}>
+        {/* Logo — clickable, routes to dashboard */}
+        <Link href="/dashboard" style={{ textDecoration: "none", padding: "20px 18px 16px", borderBottom: "1px solid #F3F4F6", display: "flex", alignItems: "center", gap: 12 }}>
           <HSMIcon size={28} />
           <div>
-            <p style={{ fontSize: 14, fontWeight: 800, color: NAVY, lineHeight: 1 }}>HMS Realty</p>
-            <p style={{ fontSize: 10, color: "#94A3B8", marginTop: 2, fontWeight: 500 }}>Outbound Intelligence</p>
+            <p style={{ fontSize: 14, fontWeight: 800, color: NAVY, lineHeight: 1 }}>WinnerCoach</p>
+            <p style={{ fontSize: 10, color: "#94A3B8", marginTop: 2, fontWeight: 500 }}>Quality &amp; Coaching</p>
           </div>
-        </div>
+        </Link>
 
         {/* Nav */}
         <div style={{ padding: "14px 10px 8px" }}>

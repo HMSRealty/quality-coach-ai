@@ -20,7 +20,7 @@ interface Lead {
   campaigns?: { name: string } | null;
 }
 
-const NAVY = "#0A1E3F";
+const NAVY = "#0038B8";
 const SLATE = "#475569";
 
 const STATUS_OPTS = ["All", "Qualified", "Warm", "Call Back", "Disqualified", "Duplicate", "Processing", "Error"];

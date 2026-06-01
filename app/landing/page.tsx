@@ -8,28 +8,28 @@ import {
   TrendingUp,
 } from "lucide-react";
 
-const NAVY = "#0A1E3F";
-const NAVY_2 = "#142850";
-const TEAL = "#0DAFAF";
-const GOLD = "#C8A24B";
+const NAVY = "#0038B8";
+const NAVY_2 = "#0030A0";
+const TEAL = "#2E6FE0";
+const GOLD = "#0038B8";
 const SLATE = "#475569";
 
 function HMSLogo({ size = 36, light = false }: { size?: number; light?: boolean }) {
-  const navy = light ? "#fff" : NAVY;
-  const teal = light ? "rgba(255,255,255,0.7)" : TEAL;
+  const c = light ? "#fff" : NAVY;
+  const star = size * 1.05;
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-      <svg width={size} height={size * 0.62} viewBox="0 0 40 24" fill="none">
-        <path d="M2 22 L20 4 L38 22" stroke={navy} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-        <path d="M8 22 L20 11 L32 22" stroke={teal} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.9"/>
+    <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
+      <svg width={star} height={star} viewBox="0 0 48 48" fill="none">
+        <path d="M24 5 L43 38 L5 38 Z" stroke={c} strokeWidth="2.6" strokeLinejoin="round" fill="none"/>
+        <path d="M24 43 L5 10 L43 10 Z" stroke={c} strokeWidth="2.6" strokeLinejoin="round" fill="none"/>
       </svg>
       <span style={{
-        fontSize: size * 0.5, fontWeight: 800, letterSpacing: "0.06em",
+        fontSize: size * 0.5, fontWeight: 800, letterSpacing: "0.04em",
         color: light ? "#fff" : NAVY, lineHeight: 1,
       }}>
-        HMS Realty
+        WinnerCoach
       </span>
-    </div>
+    </Link>
   );
 }
 
@@ -428,7 +428,7 @@ export default function LandingPage() {
           display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16,
         }}>
           <HMSLogo size={26} light />
-          <p style={{ fontSize: 13 }}>© 2026 HMS Realty. All rights reserved.</p>
+          <p style={{ fontSize: 13 }}>© 2026 WinnerCoach. All rights reserved.</p>
         </div>
       </footer>
     </div>

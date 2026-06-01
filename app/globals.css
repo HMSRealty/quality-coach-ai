@@ -1,30 +1,30 @@
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════════════════════════════
-   HMS REALTY — ENTERPRISE DESIGN SYSTEM
-   Deep Navy · Slate Gray · Crisp Teal · Refined Gold
+   WINNERCOACH — DESIGN SYSTEM
+   Israel-flag palette · Azure Blue #0038B8 · White · Sky accents
 ═══════════════════════════════════════════════════════════════ */
 
 :root {
-  /* ── HMS Brand: Navy primary, Teal accent, Gold premium ── */
-  --navy:        #0A1E3F;   /* Deep brand navy */
-  --navy-2:      #142850;   /* Lifted navy */
-  --navy-3:      #1E3A5F;   /* Hover navy */
-  --navy-light:  #E8EEF7;   /* Navy tint background */
-  --navy-border: #C7D2E0;
-  --navy-glow:   rgba(10,30,63,0.16);
-  --navy-ring:   rgba(10,30,63,0.30);
-  --navy-dim:    rgba(10,30,63,0.06);
+  /* ── WinnerCoach Brand: Israel azure blue primary, sky accent ── */
+  --navy:        #0038B8;   /* Israel-flag azure blue (primary) */
+  --navy-2:      #0030A0;   /* Lifted blue */
+  --navy-3:      #002A8C;   /* Hover/deep blue */
+  --navy-light:  #E6EEFB;   /* Blue tint background */
+  --navy-border: #B9CCEF;
+  --navy-glow:   rgba(0,56,184,0.16);
+  --navy-ring:   rgba(0,56,184,0.30);
+  --navy-dim:    rgba(0,56,184,0.06);
 
-  --teal:        #0DAFAF;   /* Crisp teal accent */
-  --teal-2:      #0A9494;
-  --teal-light:  #E0F7F7;
-  --teal-border: #99E0E0;
-  --teal-glow:   rgba(13,175,175,0.18);
+  --teal:        #2E6FE0;   /* Sky-blue accent */
+  --teal-2:      #1F5BC4;
+  --teal-light:  #E6EEFB;
+  --teal-border: #B9CCEF;
+  --teal-glow:   rgba(46,111,224,0.18);
 
-  --gold:        #C8A24B;   /* Premium gold for Enterprise */
-  --gold-2:      #B08A35;
-  --gold-light:  #FAF4E4;
+  --gold:        #0038B8;   /* Premium accent now matches brand blue */
+  --gold-2:      #002A8C;
+  --gold-light:  #E6EEFB;
 
   --slate:       #475569;
   --slate-2:     #64748B;

@@ -16,16 +16,16 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "HMS Realty — Outbound Intelligence",
-    template: "%s · HMS Realty",
+    default: "WinnerCoach — Quality & Coaching",
+    template: "%s · WinnerCoach",
   },
   description:
-    "Enterprise outbound real estate platform. Run teams, track KPIs, score every call, and scale revenue.",
-  keywords: ["real estate outbound", "cold calling", "team management", "call analytics", "lead intake"],
+    "WinnerCoach: outbound quality assurance and coaching platform. Run teams, track KPIs, score every call.",
+  keywords: ["cold calling", "call coaching", "quality assurance", "team management", "call analytics"],
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0A1E3F",
+  themeColor: "#0038B8",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
