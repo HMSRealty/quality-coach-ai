@@ -5,12 +5,12 @@ import { supabase } from "@/lib/supabase";
 import { Loader2, Download, Search, ExternalLink, Database } from "lucide-react";
 import Link from "next/link";
 
-const BG = "#0B1220";
-const PANEL = "#121A2B";
-const PANEL_2 = "#0F1828";
-const TEAL = "#00FFCC";
-const TXT = "#E6ECF5";
-const MUTED = "#8B9AB5";
+const BG = "#F4F6FA";
+const PANEL = "#FFFFFF";
+const PANEL_2 = "#F4F7FB";
+const TEAL = "#059669";
+const TXT = "#0A1E3F";
+const MUTED = "#475569";
 
 interface Lead {
   id: string;
@@ -132,9 +132,9 @@ export default function AdminLeadsPage() {
           <button onClick={exportAll} style={{
             display: "inline-flex", alignItems: "center", gap: 8,
             padding: "12px 20px", borderRadius: 10,
-            background: TEAL, color: "#000",
+            background: "#0A1E3F", color: "#fff",
             fontSize: 13, fontWeight: 800, border: "none", cursor: "pointer",
-            boxShadow: `0 6px 22px rgba(0,255,204,0.30)`,
+            boxShadow: `0 6px 22px rgba(10,30,63,0.25)`,
           }}>
             <Download size={14} /> Export All Leads
           </button>
@@ -149,7 +149,7 @@ export default function AdminLeadsPage() {
               style={{
                 width: "100%", padding: "10px 12px 10px 36px", borderRadius: 10,
                 background: PANEL, color: TXT,
-                border: "1px solid rgba(255,255,255,0.06)", outline: "none",
+                border: "1px solid rgba(10,30,63,0.10)", outline: "none",
                 fontSize: 13,
               }}
             />
@@ -157,7 +157,7 @@ export default function AdminLeadsPage() {
           <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} style={{
             padding: "10px 12px", borderRadius: 10,
             background: PANEL, color: TXT,
-            border: "1px solid rgba(255,255,255,0.06)", outline: "none",
+            border: "1px solid rgba(10,30,63,0.10)", outline: "none",
             fontSize: 13,
           }}>
             {statuses.map(s => <option key={s} value={s}>{s}</option>)}
@@ -166,7 +166,7 @@ export default function AdminLeadsPage() {
 
         <div style={{
           borderRadius: 14, overflow: "hidden",
-          background: PANEL, border: `1px solid rgba(0,255,204,0.10)`,
+          background: PANEL, border: `1px solid rgba(10,30,63,0.08)`,
           boxShadow: `0 4px 16px rgba(0,0,0,0.30)`,
         }}>
           {loading ? (
@@ -194,7 +194,7 @@ export default function AdminLeadsPage() {
                 </thead>
                 <tbody>
                   {filtered.map(l => (
-                    <tr key={l.id} style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}>
+                    <tr key={l.id} style={{ borderTop: "1px solid rgba(10,30,63,0.05)" }}>
                       <td style={{ padding: "11px 14px", fontSize: 12, color: MUTED, whiteSpace: "nowrap" }}>
                         {new Date(l.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                       </td>
@@ -220,8 +220,8 @@ export default function AdminLeadsPage() {
                       <td style={{ padding: "11px 14px" }}>
                         <Link href={`/dashboard/leads/${l.id}`} style={{
                           padding: "5px 10px", borderRadius: 7,
-                          background: "rgba(0,255,204,0.10)", color: TEAL,
-                          border: "1px solid rgba(0,255,204,0.20)",
+                          background: "#E8EEF7", color: "#0A1E3F",
+                          border: "1px solid rgba(10,30,63,0.12)",
                           fontSize: 11, fontWeight: 700, textDecoration: "none",
                           display: "inline-flex", alignItems: "center", gap: 4,
                         }}>

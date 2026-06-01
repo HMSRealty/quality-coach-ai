@@ -87,7 +87,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   );
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", background: "#0B1220", color: "#E6ECF5" }}>
+    <div style={{ display: "flex", minHeight: "100vh", background: "var(--canvas)", color: "var(--text-1)" }}>
 
       {/* Sidebar */}
       <aside style={{
@@ -98,15 +98,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         position: "fixed", top: 0, left: 0, bottom: 0,
         zIndex: 40, overflowY: "auto",
       }}>
-        {/* Logo */}
-        <div style={{ padding: "16px 14px 12px", borderBottom: "1px solid var(--border-1)" }}>
+        {/* Logo — clickable */}
+        <a href="/admin" style={{ textDecoration: "none", display: "block", padding: "16px 14px 12px", borderBottom: "1px solid var(--border-1)" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 8 }}>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
-              <svg width="32" height="20" viewBox="0 0 40 24" fill="none">
-                <path d="M2 22 L20 4 L38 22" stroke="#0A1E3F" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-                <path d="M8 22 L20 11 L32 22" stroke="#0DAFAF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.9"/>
-              </svg>
-            </div>
+            <svg width="30" height="19" viewBox="0 0 40 24" fill="none">
+              <path d="M2 22 L20 4 L38 22" stroke="#0A1E3F" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+              <path d="M8 22 L20 11 L32 22" stroke="#0DAFAF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.9"/>
+            </svg>
             <span style={{ fontSize: 13, fontWeight: 700, color: "#0A1E3F" }}>HMS <span style={{ color: "#0DAFAF" }}>Realty</span></span>
           </div>
           <div style={{
@@ -117,7 +115,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           }}>
             <ShieldAlert size={10} /> Admin Portal
           </div>
-        </div>
+        </a>
 
         {/* Nav */}
         <div style={{ padding: "14px 8px 8px" }}>
