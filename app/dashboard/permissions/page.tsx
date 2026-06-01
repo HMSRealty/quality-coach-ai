@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { Loader2, Search, Link2, Copy, Check, ExternalLink, Power } from "lucide-react";
 
-const NAVY = "#0038B8";
-const TEAL = "#2E6FE0";
+const NAVY = "#0A1E3F";
+const TEAL = "#0DAFAF";
 const SLATE = "#475569";
 
 interface UserRow {

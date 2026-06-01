@@ -5,22 +5,22 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { Eye, EyeOff, Loader2, ArrowRight, Home } from "lucide-react";
 
-const RED   = "#0038B8";
-const RED_L = "#E6EEFB";
+const RED   = "#C41E3A";
+const RED_L = "#FEF2F2";
 
 type Tab = "signin" | "signup";
 
 function HSMLogo() {
   return (
-    <Link href="/landing" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, textDecoration: "none" }}>
-      <svg width="42" height="42" viewBox="0 0 48 48" fill="none">
-        <path d="M24 5 L43 38 L5 38 Z" stroke="#0038B8" strokeWidth="2.6" strokeLinejoin="round" fill="none"/>
-        <path d="M24 43 L5 10 L43 10 Z" stroke="#0038B8" strokeWidth="2.6" strokeLinejoin="round" fill="none"/>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+      <svg width="52" height="32" viewBox="0 0 40 24" fill="none">
+        <path d="M2 22 L20 4 L38 22" stroke="#0A1E3F" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+        <path d="M8 22 L20 11 L32 22" stroke="#0DAFAF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.9"/>
       </svg>
-      <span style={{ fontSize: 14, fontWeight: 800, letterSpacing: "0.1em", color: "#0038B8", lineHeight: 1 }}>
-        WINNERCOACH
+      <span style={{ fontSize: 13, fontWeight: 800, letterSpacing: "0.12em", color: "#0A1E3F", lineHeight: 1 }}>
+        HMS REALTY
       </span>
-    </Link>
+    </div>
   );
 }
 
@@ -72,7 +72,7 @@ export default function AuthPage() {
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 28 }}>
           <HSMLogo />
           <p style={{ fontSize: 13, color: "#6B7280", marginTop: 10, fontWeight: 500 }}>
-            Quality &amp; Coaching Platform
+            Outbound Intelligence Platform
           </p>
         </div>
 

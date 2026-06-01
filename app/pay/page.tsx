@@ -127,8 +127,8 @@ function PayInner() {
         <div className="max-w-5xl w-full mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="w-7 h-7 rounded flex items-center justify-center text-xs font-black"
-              style={{ background: "var(--accent)", color: "#fff" }}>W</span>
-            <span className="text-sm font-bold">Winner<span style={{ color: "var(--accent)" }}>Coach</span></span>
+              style={{ background: "var(--accent)", color: "#000" }}>H</span>
+            <span className="text-sm font-bold">HMS <span style={{ color: "var(--accent)" }}>Realty</span></span>
           </div>
           <Link href="/landing"
             className="flex items-center gap-1.5 text-xs font-medium"

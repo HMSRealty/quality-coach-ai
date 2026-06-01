@@ -5,8 +5,8 @@ import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { Send, Loader2, CheckCircle2, AlertCircle, Upload, Lock } from "lucide-react";
 
-const NAVY = "#0038B8";
-const TEAL = "#2E6FE0";
+const NAVY = "#0A1E3F";
+const TEAL = "#0DAFAF";
 const SLATE = "#475569";
 
 interface FormOwner {
@@ -203,11 +203,11 @@ export default function DynamicSubmitPage() {
       <div style={{ maxWidth: 640, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 32 }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
-            <svg width={32} height={32} viewBox="0 0 48 48" fill="none">
-              <path d="M24 5 L43 38 L5 38 Z" stroke={NAVY} strokeWidth="2.6" strokeLinejoin="round"/>
-              <path d="M24 43 L5 10 L43 10 Z" stroke={NAVY} strokeWidth="2.6" strokeLinejoin="round"/>
+            <svg width={40} height={26} viewBox="0 0 40 24" fill="none">
+              <path d="M2 22 L20 4 L38 22" stroke={NAVY} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M8 22 L20 11 L32 22" stroke={TEAL} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            <span style={{ fontSize: 20, fontWeight: 800, color: NAVY, letterSpacing: "0.04em" }}>WinnerCoach</span>
+            <span style={{ fontSize: 20, fontWeight: 800, color: NAVY, letterSpacing: "0.06em" }}>HMS Realty</span>
           </div>
           <h1 style={{ fontSize: 26, fontWeight: 900, color: NAVY, marginBottom: 8 }}>{owner?.form_name}</h1>
           <p style={{ fontSize: 13, color: SLATE }}>Submit a lead — AI evaluation runs automatically.</p>

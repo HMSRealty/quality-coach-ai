@@ -8,9 +8,9 @@ import {
   Volume2, VolumeX, Search, Loader2, PhoneIncoming,
 } from "lucide-react";
 
-const NAVY = "#0038B8";
-const TEAL = "#2E6FE0";
-const GOLD = "#0038B8";
+const NAVY = "#0A1E3F";
+const TEAL = "#0DAFAF";
+const GOLD = "#C8A24B";
 const SLATE = "#475569";
 
 type CallState = "idle" | "calling" | "ringing-incoming" | "connected";

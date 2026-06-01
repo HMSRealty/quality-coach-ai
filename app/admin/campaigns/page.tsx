@@ -6,7 +6,7 @@ import { Card } from "@/app/_components/Card";
 import { CampaignCSVImport } from "@/app/_components/CampaignCSVImport";
 import { FolderCog, Loader2, Search } from "lucide-react";
 
-const NAVY = "#0038B8";
+const NAVY = "#0A1E3F";
 const SLATE = "#475569";
 
 interface Campaign {

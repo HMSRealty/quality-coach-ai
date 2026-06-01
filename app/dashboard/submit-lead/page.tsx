@@ -5,8 +5,8 @@ import { supabase } from "@/lib/supabase";
 import { Card } from "@/app/_components/Card";
 import { Send, Loader2, CheckCircle2, Link2, Copy, Check, Users, ExternalLink } from "lucide-react";
 
-const NAVY = "#0038B8";
-const TEAL = "#2E6FE0";
+const NAVY = "#0A1E3F";
+const TEAL = "#0DAFAF";
 const SLATE = "#475569";
 
 interface Campaign { id: string; name: string; }

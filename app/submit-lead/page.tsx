@@ -4,8 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 import { Send, Loader2, CheckCircle2, AlertCircle, Upload } from "lucide-react";
 
-const NAVY = "#0038B8";
-const TEAL = "#2E6FE0";
+const NAVY = "#0A1E3F";
+const TEAL = "#0DAFAF";
 const SLATE = "#475569";
 
 interface Caller { id: string; name: string; team_id?: string; }
@@ -206,12 +206,12 @@ export default function PublicSubmitLeadPage() {
         {/* Logo + Header */}
         <div style={{ textAlign: "center", marginBottom: 36 }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
-            <svg width={34} height={34} viewBox="0 0 48 48" fill="none">
-              <path d="M24 5 L43 38 L5 38 Z" stroke={NAVY} strokeWidth="2.6" strokeLinejoin="round"/>
-              <path d="M24 43 L5 10 L43 10 Z" stroke={NAVY} strokeWidth="2.6" strokeLinejoin="round"/>
+            <svg width={44} height={28} viewBox="0 0 40 24" fill="none">
+              <path d="M2 22 L20 4 L38 22" stroke={NAVY} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M8 22 L20 11 L32 22" stroke={TEAL} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.9"/>
             </svg>
-            <span style={{ fontSize: 22, fontWeight: 800, color: NAVY, letterSpacing: "0.04em" }}>
-              WinnerCoach
+            <span style={{ fontSize: 22, fontWeight: 800, color: NAVY, letterSpacing: "0.06em" }}>
+              HMS Realty
             </span>
           </div>
           <h1 style={{ fontSize: 28, fontWeight: 900, color: NAVY, marginBottom: 10, letterSpacing: "-0.02em" }}>
@@ -420,7 +420,7 @@ export default function PublicSubmitLeadPage() {
           </button>
 
           <p style={{ textAlign: "center", fontSize: 11, color: SLATE, marginTop: 20 }}>
-            Powered by <strong style={{ color: NAVY }}>WinnerCoach</strong> • Secure submission
+            Powered by <strong style={{ color: NAVY }}>HMS Realty</strong> • Secure submission
           </p>
         </form>
       </div>
