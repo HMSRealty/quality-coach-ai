@@ -1,0 +1,183 @@
+@import "tailwindcss";
+
+/* ═══════════════════════════════════════════════════════════════
+   HMS REALTY — ENTERPRISE DESIGN SYSTEM
+   Deep Navy · Slate Gray · Crisp Teal · Refined Gold
+═══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── HMS Brand: Navy primary, Teal accent, Gold premium ── */
+  --navy:        #0A1E3F;   /* Deep brand navy */
+  --navy-2:      #142850;   /* Lifted navy */
+  --navy-3:      #1E3A5F;   /* Hover navy */
+  --navy-light:  #E8EEF7;   /* Navy tint background */
+  --navy-border: #C7D2E0;
+  --navy-glow:   rgba(10,30,63,0.16);
+  --navy-ring:   rgba(10,30,63,0.30);
+  --navy-dim:    rgba(10,30,63,0.06);
+
+  --teal:        #0DAFAF;   /* Crisp teal accent */
+  --teal-2:      #0A9494;
+  --teal-light:  #E0F7F7;
+  --teal-border: #99E0E0;
+  --teal-glow:   rgba(13,175,175,0.18);
+
+  --gold:        #C8A24B;   /* Premium gold for Enterprise */
+  --gold-2:      #B08A35;
+  --gold-light:  #FAF4E4;
+
+  --slate:       #475569;
+  --slate-2:     #64748B;
+  --slate-3:     #94A3B8;
+
+  /* Back-compat: legacy "red" tokens now route to navy */
+  --red:         var(--navy);
+  --red-hover:   var(--navy-3);
+  --red-light:   var(--navy-light);
+  --red-border:  var(--navy-border);
+  --red-glow:    var(--navy-glow);
+  --red-ring:    var(--navy-ring);
+  --red-dim:     var(--navy-dim);
+
+  /* ── Canvas Layers ── */
+  --canvas:    #F4F6FA;
+  --surface-1: #FFFFFF;
+  --surface-2: #FFFFFF;
+  --surface-3: #F1F4F9;
+  --surface-4: #E6EBF2;
+  --surface-5: #D5DCE6;
+
+  /* ── Borders ── */
+  --border-1: rgba(10,30,63,0.05);
+  --border-2: rgba(10,30,63,0.10);
+  --border-3: rgba(10,30,63,0.16);
+  --border-4: rgba(10,30,63,0.24);
+  --border-brand: rgba(10,30,63,0.30);
+
+  /* ── Text ── */
+  --text-1: #0A1E3F;
+  --text-2: #475569;
+  --text-3: #94A3B8;
+  --text-4: #CBD5E1;
+
+  /* ── Semantic aliases ── */
+  --brand-300: #6B89B5;
+  --brand-400: var(--navy);
+  --brand-500: var(--navy);
+  --brand-600: var(--navy-3);
+  --brand-dim: var(--navy-dim);
+  --brand-glow: var(--navy-glow);
+  --brand-ring: var(--navy-ring);
+
+  /* ── Semantic Colors ── */
+  --emerald:     #059669;
+  --emerald-lt:  #10B981;
+  --emerald-bg:  #ECFDF5;
+  --amber:       #F59E0B;
+  --amber-bg:    #FFFBEB;
+  --rose:        #E11D48;
+  --rose-bg:     #FFF1F2;
+  --sky:         #0284C7;
+  --sky-bg:      #F0F9FF;
+  --violet:      #7C3AED;
+  --violet-bg:   #F5F3FF;
+
+  /* ── Shadows ── */
+  --shadow-sm:  0 1px 2px rgba(10,30,63,0.05);
+  --shadow-md:  0 4px 12px rgba(10,30,63,0.08);
+  --shadow-lg:  0 12px 32px rgba(10,30,63,0.12);
+  --shadow-xl:  0 24px 60px rgba(10,30,63,0.16);
+  --shadow-brand: 0 6px 24px rgba(10,30,63,0.20);
+
+  /* ── Radius ── */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-xl: 18px;
+  --r-2xl: 24px;
+
+  /* ── Springs (weight-based physics) ── */
+  --spring-soft:   cubic-bezier(0.34, 1.56, 0.64, 1);
+  --spring-snap:   cubic-bezier(0.22, 1.20, 0.36, 1);
+  --spring-heavy:  cubic-bezier(0.16, 1, 0.30, 1);
+  --ease-out:      cubic-bezier(0.16, 1, 0.30, 1);
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Inter, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0; padding: 0;
+  background: var(--canvas);
+  color: var(--text-1);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "cv11","ss01","ss03";
+}
+
+/* Global smooth transitions for premium feel */
+button, a, input, select, textarea {
+  transition: background 200ms var(--spring-heavy),
+              color 200ms var(--spring-heavy),
+              border-color 200ms var(--spring-heavy),
+              box-shadow 240ms var(--spring-heavy),
+              transform 260ms var(--spring-snap);
+}
+
+/* Eliminate jarring layout shifts */
+html { scroll-behavior: smooth; }
+img, video { max-width: 100%; height: auto; }
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--surface-4); border-radius: 5px; }
+::-webkit-scrollbar-thumb:hover { background: var(--slate-3); }
+
+/* ── Animations ── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes shimmer {
+  0%   { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.5; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 24px rgba(13,175,175,0.20); }
+  50%      { box-shadow: 0 0 40px rgba(13,175,175,0.40); }
+}
+
+.animate-in        { animation: fadeIn 420ms var(--spring-heavy) both; }
+.animate-scale     { animation: fadeInScale 360ms var(--spring-soft) both; }
+.animate-slide-right { animation: slideInRight 320ms var(--spring-heavy) both; }
+.animate-spin      { animation: spin 0.8s linear infinite; }
+.animate-pulse     { animation: pulse 2s ease-in-out infinite; }
+.animate-float     { animation: float 4s ease-in-out infinite; }
+.animate-glow      { animation: glow 3s ease-in-out infinite; }
+
+/* Performance / smoothness */
+* { -webkit-tap-highlight-color: transparent; }
+.gpu { transform: translateZ(0); will-change: transform; }

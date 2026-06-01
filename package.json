@@ -1,0 +1,35 @@
+{
+  "name": "quality-coach-ai",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "pages:build": "npx @cloudflare/next-on-pages",
+    "pages:preview": "npm run pages:build && wrangler pages dev .vercel/output/static --compatibility-flag=nodejs_compat",
+    "pages:deploy": "npm run pages:build && wrangler pages deploy .vercel/output/static --project-name=quality-coach-ai"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.10.3",
+    "@supabase/supabase-js": "^2.106.2",
+    "lucide-react": "^1.17.0",
+    "next": "16.2.6",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "recharts": "^2.15.4"
+  },
+  "devDependencies": {
+    "@cloudflare/next-on-pages": "^1.13.5",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.6",
+    "tailwindcss": "^4",
+    "typescript": "^5",
+    "wrangler": "^3.99.0"
+  }
+}
