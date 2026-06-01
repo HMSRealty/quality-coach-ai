@@ -6,23 +6,31 @@ import React from "react";
  * causes React to unmount/remount on every render, which kills input focus.
  */
 export function Card({
-  children, title, style, padding = 20,
+  children,
+  title,
+  style,
+  padding = 20,
+  className,
 }: {
   children: React.ReactNode;
-  title?: string;
+  title?: React.ReactNode;
   style?: React.CSSProperties;
   padding?: number;
+  className?: string;
 }) {
   return (
-    <div style={{
-      background: "#FFFFFF",
-      border: "1px solid rgba(10,30,63,0.08)",
-      borderRadius: 14,
-      padding,
-      marginBottom: 16,
-      boxShadow: "0 2px 8px rgba(10,30,63,0.04)",
-      ...style,
-    }}>
+    <div
+      className={className}
+      style={{
+        background: "#FFFFFF",
+        border: "1px solid rgba(10,30,63,0.08)",
+        borderRadius: 14,
+        padding,
+        marginBottom: 16,
+        boxShadow: "0 2px 8px rgba(10,30,63,0.04)",
+        ...style,
+      }}
+    >
       {title && (
         <h3 style={{ fontSize: 14, fontWeight: 700, color: "#0A1E3F", marginBottom: 14 }}>
           {title}
