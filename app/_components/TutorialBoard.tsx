@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 
-const NAVY = "#0A1E3F";
-const NAVY_2 = "#142850";
-const TEAL = "#0DAFAF";
-const SLATE = "#475569";
-const ARROW = "#0DAFAF";
+const NAVY = "#1A1A1A";
+const NAVY_2 = "#2B2520";
+const TEAL = "#C75B39";
+const SLATE = "#5B5249";
+const ARROW = "#C75B39";
 
 interface Step {
   key: string;
@@ -19,14 +19,14 @@ interface Step {
 // ── small UI primitives for the mock screens ──
 function Chrome({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div style={{ borderRadius: 14, overflow: "hidden", border: "1px solid rgba(10,30,63,0.12)", background: "#fff", boxShadow: "0 12px 40px rgba(10,30,63,0.12)" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 14px", background: "#F1F4F9", borderBottom: "1px solid rgba(10,30,63,0.08)" }}>
+    <div style={{ borderRadius: 14, overflow: "hidden", border: "1px solid rgba(26,26,26,0.12)", background: "#fff", boxShadow: "0 12px 40px rgba(26,26,26,0.12)" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 14px", background: "#F2EDE5", borderBottom: "1px solid rgba(26,26,26,0.08)" }}>
         <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#FF5F57" }} />
         <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#FEBC2E" }} />
         <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#28C840" }} />
         <span style={{ marginLeft: 10, fontSize: 11, color: SLATE, fontWeight: 600 }}>{title}</span>
       </div>
-      <div style={{ padding: 18, position: "relative", minHeight: 230, background: "#FAFBFC" }}>{children}</div>
+      <div style={{ padding: 18, position: "relative", minHeight: 230, background: "#FAF8F4" }}>{children}</div>
     </div>
   );
 }
@@ -37,7 +37,7 @@ function Arrow({ label, top, left }: { label: string; top: number; left: number 
       <div style={{
         background: NAVY, color: "#fff", fontSize: 11, fontWeight: 800,
         padding: "5px 10px", borderRadius: 8, whiteSpace: "nowrap",
-        boxShadow: "0 4px 14px rgba(10,30,63,0.30)",
+        boxShadow: "0 4px 14px rgba(26,26,26,0.30)",
       }}>{label}</div>
       <svg width="40" height="24" viewBox="0 0 40 24" style={{ overflow: "visible" }}>
         <line x1="0" y1="12" x2="32" y2="12" stroke={ARROW} strokeWidth="2.5" />
@@ -53,8 +53,8 @@ function Field({ label, value, highlight }: { label: string; value: string; high
       <p style={{ fontSize: 9, fontWeight: 700, color: SLATE, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 3 }}>{label}</p>
       <div style={{
         padding: "8px 10px", borderRadius: 7, fontSize: 11, color: NAVY,
-        background: highlight ? "#E0F7F7" : "#fff",
-        border: `1px solid ${highlight ? TEAL : "rgba(10,30,63,0.10)"}`,
+        background: highlight ? "#F4E7E0" : "#fff",
+        border: `1px solid ${highlight ? TEAL : "rgba(26,26,26,0.10)"}`,
       }}>{value}</div>
     </div>
   );
@@ -69,7 +69,7 @@ const STEPS: Step[] = [
       <Chrome title="RealTrack — Settings">
         <p style={{ fontSize: 13, fontWeight: 800, color: NAVY, marginBottom: 14 }}>Import Team Structure</p>
         <div style={{
-          border: "2px dashed " + TEAL + "55", borderRadius: 12, background: "#F0FAFA",
+          border: "2px dashed " + TEAL + "55", borderRadius: 12, background: "#F8EFE9",
           padding: "26px 18px", textAlign: "center", maxWidth: 360,
         }}>
           <div style={{ fontSize: 24, marginBottom: 6 }}>📄</div>
@@ -90,7 +90,7 @@ const STEPS: Step[] = [
         <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "9px 14px", borderRadius: 9, background: NAVY, color: "#fff", fontSize: 12, fontWeight: 700 }}>
           🔗 Generate Link
         </div>
-        <div style={{ marginTop: 14, padding: "10px 12px", borderRadius: 9, background: "#E0F7F7", border: `1px solid ${TEAL}55`, fontSize: 11, color: NAVY, fontFamily: "monospace", maxWidth: 360 }}>
+        <div style={{ marginTop: 14, padding: "10px 12px", borderRadius: 9, background: "#F4E7E0", border: `1px solid ${TEAL}55`, fontSize: 11, color: NAVY, fontFamily: "monospace", maxWidth: 360 }}>
           realtrack.app/submit/your-team
         </div>
         <Arrow label="Click to create a public link" top={56} left={210} />
@@ -111,7 +111,7 @@ const STEPS: Step[] = [
           <Field label="Zestimate" value="$275,000" highlight />
           <Field label="Asking Price" value="$210,000" highlight />
         </div>
-        <div style={{ marginTop: 12, padding: "10px 12px", borderRadius: 9, border: `2px dashed ${TEAL}55`, background: "#F0FAFA", fontSize: 11, fontWeight: 700, color: NAVY, maxWidth: 420, textAlign: "center" }}>
+        <div style={{ marginTop: 12, padding: "10px 12px", borderRadius: 9, border: `2px dashed ${TEAL}55`, background: "#F8EFE9", fontSize: 11, fontWeight: 700, color: NAVY, maxWidth: 420, textAlign: "center" }}>
           ⬆ Attach call recording
         </div>
         <Arrow label="AI reads the rest from the call" top={150} left={300} />
@@ -128,7 +128,7 @@ const STEPS: Step[] = [
           <span style={{ padding: "5px 12px", borderRadius: 999, background: "#ECFDF5", color: "#059669", fontSize: 11, fontWeight: 800 }}>✓ Qualified</span>
           <span style={{ fontSize: 12, color: SLATE }}>123 Oak St, Miami FL</span>
         </div>
-        <div style={{ padding: 12, borderRadius: 9, background: "#fff", border: "1px solid rgba(10,30,63,0.08)", maxWidth: 420 }}>
+        <div style={{ padding: 12, borderRadius: 9, background: "#fff", border: "1px solid rgba(26,26,26,0.08)", maxWidth: 420 }}>
           <p style={{ fontSize: 10, fontWeight: 700, color: "#7C3AED", marginBottom: 4 }}>WHAT HAPPENED ON THE CALL</p>
           <p style={{ fontSize: 11, color: NAVY, lineHeight: 1.6 }}>Owner is relocating, motivated to close within 60 days. Asking $210k vs $275k Zestimate — a deep discount with clear motivation.</p>
         </div>
@@ -147,7 +147,7 @@ const STEPS: Step[] = [
           {["[02:14] Acknowledge seller's divorce before pivoting to repairs.",
             "[04:30] Strong price anchor — repeat this on every call.",
             "[06:02] Ask for the decision-maker earlier next time."].map((t, i) => (
-            <div key={i} style={{ display: "flex", gap: 8, padding: "8px 10px", borderRadius: 8, background: "#F4F7FB", fontSize: 11, color: NAVY }}>
+            <div key={i} style={{ display: "flex", gap: 8, padding: "8px 10px", borderRadius: 8, background: "#FAF8F4", fontSize: 11, color: NAVY }}>
               <span style={{ minWidth: 18, height: 18, borderRadius: "50%", background: NAVY, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 800 }}>{i + 1}</span>
               {t}
             </div>
@@ -165,7 +165,7 @@ const STEPS: Step[] = [
       <Chrome title="RealTrack — Team Leader">
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, maxWidth: 420, marginBottom: 14 }}>
           {[["Callers", "8"], ["Qualified", "41"], ["Pass Rate", "57%"]].map(([l, v]) => (
-            <div key={l} style={{ padding: 12, borderRadius: 9, background: "#fff", border: "1px solid rgba(10,30,63,0.08)" }}>
+            <div key={l} style={{ padding: 12, borderRadius: 9, background: "#fff", border: "1px solid rgba(26,26,26,0.08)" }}>
               <p style={{ fontSize: 9, color: SLATE, fontWeight: 700 }}>{l}</p>
               <p style={{ fontSize: 20, fontWeight: 900, color: NAVY }}>{v}</p>
             </div>
@@ -193,7 +193,7 @@ export function TutorialBoard() {
         {STEPS.map((s, i) => (
           <button key={s.key} onClick={() => setActive(i)} style={{
             padding: "8px 16px", borderRadius: 999, cursor: "pointer",
-            border: `1px solid ${i === active ? NAVY : "rgba(10,30,63,0.12)"}`,
+            border: `1px solid ${i === active ? NAVY : "rgba(26,26,26,0.12)"}`,
             background: i === active ? NAVY : "#fff",
             color: i === active ? "#fff" : SLATE,
             fontSize: 12.5, fontWeight: 700, transition: "all 160ms ease",

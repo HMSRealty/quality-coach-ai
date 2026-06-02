@@ -8,10 +8,10 @@ import {
   Volume2, VolumeX, Search, Loader2, PhoneIncoming,
 } from "lucide-react";
 
-const NAVY = "#0A1E3F";
-const TEAL = "#0DAFAF";
-const GOLD = "#C8A24B";
-const SLATE = "#475569";
+const NAVY = "#1A1A1A";
+const TEAL = "#C75B39";
+const GOLD = "#B0703A";
+const SLATE = "#5B5249";
 
 type CallState = "idle" | "calling" | "ringing-incoming" | "connected";
 
@@ -477,12 +477,12 @@ export default function DialerPage() {
         <div style={{
           display: "flex", alignItems: "center", gap: 8,
           padding: "8px 14px", borderRadius: 999,
-          background: callState === "connected" ? "#ECFDF5" : "#F1F4F9",
-          border: `1px solid ${callState === "connected" ? "#A7F3D0" : "rgba(10,30,63,0.08)"}`,
+          background: callState === "connected" ? "#ECFDF5" : "#F2EDE5",
+          border: `1px solid ${callState === "connected" ? "#A7F3D0" : "rgba(26,26,26,0.08)"}`,
         }}>
           <div style={{
             width: 8, height: 8, borderRadius: "50%",
-            background: callState === "connected" ? "#10B981" : "#94A3B8",
+            background: callState === "connected" ? "#10B981" : "#9C9286",
             animation: callState === "connected" ? "pulse 2s ease-in-out infinite" : "none",
           }} />
           <span style={{ fontSize: 12, fontWeight: 700, color: callState === "connected" ? "#059669" : SLATE }}>
@@ -494,7 +494,7 @@ export default function DialerPage() {
       <div style={{ display: "grid", gridTemplateColumns: "340px 1fr", gap: 22 }}>
         {/* Roster */}
         <Card padding={0}>
-          <div style={{ padding: "16px 18px", borderBottom: "1px solid rgba(10,30,63,0.06)" }}>
+          <div style={{ padding: "16px 18px", borderBottom: "1px solid rgba(26,26,26,0.06)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
               <Users size={16} color={NAVY} />
               <h3 style={{ fontSize: 13, fontWeight: 700, color: NAVY }}>Users on Platform</h3>
@@ -507,7 +507,7 @@ export default function DialerPage() {
                 placeholder="Search..."
                 style={{
                   width: "100%", padding: "8px 10px 8px 32px", borderRadius: 8,
-                  background: "#F1F4F9", border: "1px solid rgba(10,30,63,0.06)",
+                  background: "#F2EDE5", border: "1px solid rgba(26,26,26,0.06)",
                   fontSize: 12, color: NAVY, outline: "none",
                 }}
               />
@@ -528,13 +528,13 @@ export default function DialerPage() {
                   style={{
                     display: "flex", alignItems: "center", gap: 10,
                     width: "100%", padding: "10px 12px", borderRadius: 10,
-                    background: selectedPeer?.user_id === peer.user_id ? "#E8EEF7" : "transparent",
+                    background: selectedPeer?.user_id === peer.user_id ? "#EFE9E0" : "transparent",
                     border: "none", textAlign: "left",
                     cursor: callState === "idle" ? "pointer" : "not-allowed",
                     opacity: callState === "idle" ? 1 : 0.5,
                     transition: "background 200ms",
                   }}
-                  onMouseEnter={e => { if (callState === "idle") e.currentTarget.style.background = "#F1F4F9"; }}
+                  onMouseEnter={e => { if (callState === "idle") e.currentTarget.style.background = "#F2EDE5"; }}
                   onMouseLeave={e => { if (selectedPeer?.user_id !== peer.user_id) e.currentTarget.style.background = "transparent"; }}
                 >
                   <div style={{
@@ -637,8 +637,8 @@ export default function DialerPage() {
                 <div style={{ display: "flex", gap: 14, justifyContent: "center" }}>
                   <button onClick={toggleMute} disabled={callState !== "connected"} style={{
                     width: 56, height: 56, borderRadius: "50%",
-                    background: muted ? "#FEF2F2" : "#F1F4F9",
-                    border: `1px solid ${muted ? "#FCA5A5" : "rgba(10,30,63,0.08)"}`,
+                    background: muted ? "#FBEEE8" : "#F2EDE5",
+                    border: `1px solid ${muted ? "#E7B8A6" : "rgba(26,26,26,0.08)"}`,
                     display: "flex", alignItems: "center", justifyContent: "center",
                     cursor: callState === "connected" ? "pointer" : "not-allowed",
                     opacity: callState === "connected" ? 1 : 0.5,

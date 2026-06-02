@@ -237,8 +237,8 @@ function PayInner() {
                 onDragLeave={() => setDragging(false)}
                 className="cursor-pointer rounded-xl border-2 border-dashed p-8 text-center transition-all"
                 style={{
-                  borderColor: dragging ? "var(--accent)" : file ? "rgba(0,255,204,0.3)" : "var(--border-light)",
-                  background: dragging ? "var(--accent-dim)" : file ? "rgba(0,255,204,0.03)" : "var(--surface)",
+                  borderColor: dragging ? "var(--accent)" : file ? "rgba(226,115,75,0.3)" : "var(--border-light)",
+                  background: dragging ? "var(--accent-dim)" : file ? "rgba(226,115,75,0.03)" : "var(--surface)",
                 }}
               >
                 <input ref={inputRef} type="file" accept="image/*,.pdf" onChange={e => e.target.files?.[0] && setFile(e.target.files[0])} className="hidden" />

@@ -7,28 +7,28 @@
 
 :root {
   /* ── HMS Brand: Navy primary, Teal accent, Gold premium ── */
-  --navy:        #0A1E3F;   /* Deep brand navy */
-  --navy-2:      #142850;   /* Lifted navy */
-  --navy-3:      #1E3A5F;   /* Hover navy */
-  --navy-light:  #E8EEF7;   /* Navy tint background */
-  --navy-border: #C7D2E0;
-  --navy-glow:   rgba(10,30,63,0.16);
-  --navy-ring:   rgba(10,30,63,0.30);
-  --navy-dim:    rgba(10,30,63,0.06);
+  --navy:        #1A1A1A;   /* Deep brand navy */
+  --navy-2:      #2B2520;   /* Lifted navy */
+  --navy-3:      #3A2E26;   /* Hover navy */
+  --navy-light:  #EFE9E0;   /* Navy tint background */
+  --navy-border: #DCD2C3;
+  --navy-glow:   rgba(26,26,26,0.16);
+  --navy-ring:   rgba(26,26,26,0.30);
+  --navy-dim:    rgba(26,26,26,0.06);
 
-  --teal:        #0DAFAF;   /* Crisp teal accent */
-  --teal-2:      #0A9494;
-  --teal-light:  #E0F7F7;
-  --teal-border: #99E0E0;
-  --teal-glow:   rgba(13,175,175,0.18);
+  --teal:        #C75B39;   /* Crisp teal accent */
+  --teal-2:      #A8482B;
+  --teal-light:  #F4E7E0;
+  --teal-border: #E7C9BC;
+  --teal-glow:   rgba(199,91,57,0.18);
 
-  --gold:        #C8A24B;   /* Premium gold for Enterprise */
-  --gold-2:      #B08A35;
-  --gold-light:  #FAF4E4;
+  --gold:        #B0703A;   /* Premium gold for Enterprise */
+  --gold-2:      #946031;
+  --gold-light:  #F3EADF;
 
-  --slate:       #475569;
-  --slate-2:     #64748B;
-  --slate-3:     #94A3B8;
+  --slate:       #5B5249;
+  --slate-2:     #6E635A;
+  --slate-3:     #9C9286;
 
   /* Back-compat: legacy "red" tokens now route to navy */
   --red:         var(--navy);
@@ -40,24 +40,24 @@
   --red-dim:     var(--navy-dim);
 
   /* ── Canvas Layers ── */
-  --canvas:    #F4F6FA;
+  --canvas:    #FAF8F4;
   --surface-1: #FFFFFF;
   --surface-2: #FFFFFF;
-  --surface-3: #F1F4F9;
-  --surface-4: #E6EBF2;
-  --surface-5: #D5DCE6;
+  --surface-3: #F2EDE5;
+  --surface-4: #E5DDD0;
+  --surface-5: #DCD2C3;
 
   /* ── Borders ── */
-  --border-1: rgba(10,30,63,0.05);
-  --border-2: rgba(10,30,63,0.10);
-  --border-3: rgba(10,30,63,0.16);
-  --border-4: rgba(10,30,63,0.24);
-  --border-brand: rgba(10,30,63,0.30);
+  --border-1: rgba(26,26,26,0.05);
+  --border-2: rgba(26,26,26,0.10);
+  --border-3: rgba(26,26,26,0.16);
+  --border-4: rgba(26,26,26,0.24);
+  --border-brand: rgba(26,26,26,0.30);
 
   /* ── Text ── */
-  --text-1: #0A1E3F;
-  --text-2: #475569;
-  --text-3: #94A3B8;
+  --text-1: #1A1A1A;
+  --text-2: #5B5249;
+  --text-3: #9C9286;
   --text-4: #CBD5E1;
 
   /* ── Semantic aliases ── */
@@ -83,11 +83,11 @@
   --violet-bg:   #F5F3FF;
 
   /* ── Shadows ── */
-  --shadow-sm:  0 1px 2px rgba(10,30,63,0.05);
-  --shadow-md:  0 4px 12px rgba(10,30,63,0.08);
-  --shadow-lg:  0 12px 32px rgba(10,30,63,0.12);
-  --shadow-xl:  0 24px 60px rgba(10,30,63,0.16);
-  --shadow-brand: 0 6px 24px rgba(10,30,63,0.20);
+  --shadow-sm:  0 1px 2px rgba(26,26,26,0.05);
+  --shadow-md:  0 4px 12px rgba(26,26,26,0.08);
+  --shadow-lg:  0 12px 32px rgba(26,26,26,0.12);
+  --shadow-xl:  0 24px 60px rgba(26,26,26,0.16);
+  --shadow-brand: 0 6px 24px rgba(26,26,26,0.20);
 
   /* ── Radius ── */
   --r-sm: 6px;
@@ -166,8 +166,8 @@ img, video { max-width: 100%; height: auto; }
   50%      { transform: translateY(-6px); }
 }
 @keyframes glow {
-  0%, 100% { box-shadow: 0 0 24px rgba(13,175,175,0.20); }
-  50%      { box-shadow: 0 0 40px rgba(13,175,175,0.40); }
+  0%, 100% { box-shadow: 0 0 24px rgba(199,91,57,0.20); }
+  50%      { box-shadow: 0 0 40px rgba(199,91,57,0.40); }
 }
 
 .animate-in        { animation: fadeIn 420ms var(--spring-heavy) both; }

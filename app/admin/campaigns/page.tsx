@@ -6,8 +6,8 @@ import { Card } from "@/app/_components/Card";
 import { CampaignCSVImport } from "@/app/_components/CampaignCSVImport";
 import { FolderCog, Loader2, Search } from "lucide-react";
 
-const NAVY = "#0A1E3F";
-const SLATE = "#475569";
+const NAVY = "#1A1A1A";
+const SLATE = "#5B5249";
 
 interface Campaign {
   id: string;
@@ -57,13 +57,13 @@ export default function AdminCampaignsPage() {
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name or owner..."
           style={{
             width: "100%", padding: "10px 12px 10px 36px", borderRadius: 10,
-            background: "#FFF", border: "1px solid rgba(10,30,63,0.10)",
+            background: "#FFF", border: "1px solid rgba(26,26,26,0.10)",
             fontSize: 13, color: NAVY, outline: "none",
           }} />
       </div>
 
       <Card padding={0}>
-        <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(10,30,63,0.06)" }}>
+        <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(26,26,26,0.06)" }}>
           <h3 style={{ fontSize: 14, fontWeight: 700, color: NAVY }}>Campaigns ({filtered.length})</h3>
         </div>
         {loading ? (
@@ -78,7 +78,7 @@ export default function AdminCampaignsPage() {
         ) : (
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
-              <tr style={{ background: "#F4F7FB" }}>
+              <tr style={{ background: "#FAF8F4" }}>
                 {["Name", "Owner", "Status", "Rules Preview"].map(h => (
                   <th key={h} style={{ padding: "12px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: SLATE, textTransform: "uppercase", letterSpacing: "0.05em" }}>{h}</th>
                 ))}
@@ -86,13 +86,13 @@ export default function AdminCampaignsPage() {
             </thead>
             <tbody>
               {filtered.map(c => (
-                <tr key={c.id} style={{ borderTop: "1px solid rgba(10,30,63,0.05)" }}>
+                <tr key={c.id} style={{ borderTop: "1px solid rgba(26,26,26,0.05)" }}>
                   <td style={{ padding: "12px 16px", fontSize: 13, color: NAVY, fontWeight: 700 }}>{c.name}</td>
                   <td style={{ padding: "12px 16px", fontSize: 12, color: SLATE }}>{users[c.user_id] || c.user_id.slice(0, 8)}</td>
                   <td style={{ padding: "12px 16px" }}>
                     <span style={{
                       padding: "3px 10px", borderRadius: 999, fontSize: 11, fontWeight: 700,
-                      background: c.is_active ? "#ECFDF5" : "#F1F4F9",
+                      background: c.is_active ? "#ECFDF5" : "#F2EDE5",
                       color: c.is_active ? "#059669" : SLATE,
                     }}>{c.is_active ? "Active" : "Paused"}</span>
                   </td>

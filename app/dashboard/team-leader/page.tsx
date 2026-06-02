@@ -8,13 +8,13 @@ import {
 } from "recharts";
 import { Users, Loader2, TrendingUp, Target, Phone, AlertCircle } from "lucide-react";
 
-const BG = "#0B1220";
-const PANEL = "#121A2B";
-const PANEL_2 = "#0F1828";
-const TEAL = "#00FFCC";
-const TEAL_DIM = "rgba(0,255,204,0.18)";
-const TXT = "#E6ECF5";
-const MUTED = "#8B9AB5";
+const BG = "#171310";
+const PANEL = "#221C16";
+const PANEL_2 = "#1C160F";
+const TEAL = "#E2734B";
+const TEAL_DIM = "rgba(226,115,75,0.18)";
+const TXT = "#F3ECE2";
+const MUTED = "#A89A88";
 const GOLD = "#FFC857";
 const ROSE = "#FF5C7C";
 
@@ -142,7 +142,7 @@ export default function TeamLeaderPage() {
               style={{
                 padding: "9px 14px", borderRadius: 10,
                 background: PANEL, color: TXT,
-                border: `1px solid rgba(0,255,204,0.20)`,
+                border: `1px solid rgba(226,115,75,0.20)`,
                 fontSize: 13, fontWeight: 600, outline: "none",
                 minWidth: 220,
               }}
@@ -165,7 +165,7 @@ export default function TeamLeaderPage() {
             <div key={s.label} style={{
               padding: 18, borderRadius: 14,
               background: PANEL,
-              border: `1px solid rgba(0,255,204,0.10)`,
+              border: `1px solid rgba(226,115,75,0.10)`,
               boxShadow: `0 4px 16px rgba(0,0,0,0.30)`,
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
@@ -260,7 +260,7 @@ function DarkPanel({ title, children }: { title: string; children: React.ReactNo
   return (
     <div style={{
       padding: 20, borderRadius: 14,
-      background: PANEL, border: `1px solid rgba(0,255,204,0.10)`,
+      background: PANEL, border: `1px solid rgba(226,115,75,0.10)`,
       boxShadow: `0 4px 16px rgba(0,0,0,0.30)`,
     }}>
       <h3 style={{ fontSize: 13, fontWeight: 700, color: TXT, marginBottom: 14, letterSpacing: "0.02em" }}>{title}</h3>

@@ -9,11 +9,11 @@ import {
   TrendingUp,
 } from "lucide-react";
 
-const NAVY = "#0A1E3F";
-const NAVY_2 = "#142850";
-const TEAL = "#0DAFAF";
-const GOLD = "#C8A24B";
-const SLATE = "#475569";
+const NAVY = "#1A1A1A";
+const NAVY_2 = "#2B2520";
+const TEAL = "#C75B39";
+const GOLD = "#B0703A";
+const SLATE = "#5B5249";
 
 function HMSLogo({ size = 36, light = false }: { size?: number; light?: boolean }) {
   const navy = light ? "#fff" : NAVY;
@@ -50,7 +50,7 @@ export default function LandingPage() {
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 50,
         background: scrolled ? "rgba(255,255,255,0.92)" : "transparent",
         backdropFilter: scrolled ? "blur(20px)" : "none",
-        borderBottom: scrolled ? `1px solid rgba(10,30,63,0.08)` : "1px solid transparent",
+        borderBottom: scrolled ? `1px solid rgba(26,26,26,0.08)` : "1px solid transparent",
         transition: "all 400ms cubic-bezier(0.16,1,0.30,1)",
       }}>
         <div style={{
@@ -67,7 +67,7 @@ export default function LandingPage() {
             <Link href="/" style={{
               padding: "10px 20px", borderRadius: 10, background: NAVY,
               color: "#fff", fontSize: 13, fontWeight: 700, textDecoration: "none",
-              boxShadow: "0 4px 14px rgba(10,30,63,0.25)",
+              boxShadow: "0 4px 14px rgba(26,26,26,0.25)",
             }}>
               Get Started
             </Link>
@@ -78,7 +78,7 @@ export default function LandingPage() {
       {/* HERO */}
       <section style={{
         position: "relative", padding: "140px 32px 80px",
-        background: "linear-gradient(180deg, #FFFFFF 0%, #F4F7FB 60%, #FFFFFF 100%)",
+        background: "linear-gradient(180deg, #FFFFFF 0%, #FAF8F4 60%, #FFFFFF 100%)",
         overflow: "hidden",
       }}>
         <div className="animate-float" style={{
@@ -98,8 +98,8 @@ export default function LandingPage() {
           <div style={{
             display: "inline-flex", alignItems: "center", gap: 8,
             padding: "8px 16px", borderRadius: 999,
-            background: "#fff", border: `1px solid rgba(10,30,63,0.10)`,
-            boxShadow: "0 4px 16px rgba(10,30,63,0.06)", marginBottom: 28,
+            background: "#fff", border: `1px solid rgba(26,26,26,0.10)`,
+            boxShadow: "0 4px 16px rgba(26,26,26,0.06)", marginBottom: 28,
           }}>
             <Sparkles size={13} color={TEAL} />
             <span style={{ fontSize: 12, fontWeight: 600, color: NAVY }}>
@@ -137,7 +137,7 @@ export default function LandingPage() {
               padding: "16px 28px", borderRadius: 12,
               background: NAVY, color: "#fff",
               fontSize: 15, fontWeight: 700, textDecoration: "none",
-              boxShadow: "0 8px 24px rgba(10,30,63,0.30)",
+              boxShadow: "0 8px 24px rgba(26,26,26,0.30)",
             }}>
               Start free trial <ArrowRight size={16} />
             </Link>
@@ -145,9 +145,9 @@ export default function LandingPage() {
               display: "inline-flex", alignItems: "center", gap: 8,
               padding: "16px 28px", borderRadius: 12,
               background: "#fff", color: NAVY,
-              border: "1px solid rgba(10,30,63,0.12)",
+              border: "1px solid rgba(26,26,26,0.12)",
               fontSize: 15, fontWeight: 600, textDecoration: "none",
-              boxShadow: "0 4px 12px rgba(10,30,63,0.06)",
+              boxShadow: "0 4px 12px rgba(26,26,26,0.06)",
             }}>
               See it in action
             </a>
@@ -156,8 +156,8 @@ export default function LandingPage() {
           <div style={{
             display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 24,
             marginTop: 80, padding: "32px 40px", background: "#fff",
-            borderRadius: 18, border: "1px solid rgba(10,30,63,0.08)",
-            boxShadow: "0 12px 40px rgba(10,30,63,0.06)",
+            borderRadius: 18, border: "1px solid rgba(26,26,26,0.08)",
+            boxShadow: "0 12px 40px rgba(26,26,26,0.06)",
           }}>
             {[
               { v: "3.4×", l: "Conversion lift" },
@@ -175,7 +175,7 @@ export default function LandingPage() {
       </section>
 
       {/* FEATURES */}
-      <section id="features" style={{ padding: "100px 32px", background: "#FAFBFC" }}>
+      <section id="features" style={{ padding: "100px 32px", background: "#FAF8F4" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 64 }}>
             <p style={{ fontSize: 13, fontWeight: 700, color: TEAL, letterSpacing: "0.12em", marginBottom: 12 }}>
@@ -204,18 +204,18 @@ export default function LandingPage() {
             ].map(({ i: Icon, t, d }) => (
               <div key={t} style={{
                 padding: 28, background: "#fff", borderRadius: 16,
-                border: "1px solid rgba(10,30,63,0.08)",
+                border: "1px solid rgba(26,26,26,0.08)",
                 transition: "all 300ms cubic-bezier(0.16,1,0.30,1)",
               }}
               onMouseEnter={e => {
                 e.currentTarget.style.transform = "translateY(-4px)";
-                e.currentTarget.style.boxShadow = "0 16px 40px rgba(10,30,63,0.12)";
+                e.currentTarget.style.boxShadow = "0 16px 40px rgba(26,26,26,0.12)";
                 e.currentTarget.style.borderColor = TEAL;
               }}
               onMouseLeave={e => {
                 e.currentTarget.style.transform = "translateY(0)";
                 e.currentTarget.style.boxShadow = "none";
-                e.currentTarget.style.borderColor = "rgba(10,30,63,0.08)";
+                e.currentTarget.style.borderColor = "rgba(26,26,26,0.08)";
               }}
               >
                 <div style={{
@@ -268,7 +268,7 @@ export default function LandingPage() {
       </section>
 
       {/* TUTORIAL */}
-      <section id="tutorial" style={{ padding: "100px 32px", background: "#FAFBFC" }}>
+      <section id="tutorial" style={{ padding: "100px 32px", background: "#FAF8F4" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 48 }}>
             <p style={{ fontSize: 13, fontWeight: 700, color: TEAL, letterSpacing: "0.12em", marginBottom: 12 }}>TUTORIAL</p>
@@ -287,7 +287,7 @@ export default function LandingPage() {
       {/* PRICING */}
       <section id="pricing" style={{
         padding: "100px 32px",
-        background: `linear-gradient(180deg, #F4F7FB 0%, #FFFFFF 100%)`,
+        background: `linear-gradient(180deg, #FAF8F4 0%, #FFFFFF 100%)`,
       }}>
         <div style={{ maxWidth: 1000, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 64 }}>
@@ -306,8 +306,8 @@ export default function LandingPage() {
             {/* Professional */}
             <div style={{
               padding: 36, background: "#fff", borderRadius: 20,
-              border: "1px solid rgba(10,30,63,0.10)",
-              boxShadow: "0 8px 24px rgba(10,30,63,0.06)",
+              border: "1px solid rgba(26,26,26,0.10)",
+              boxShadow: "0 8px 24px rgba(26,26,26,0.06)",
             }}>
               <div style={{ marginBottom: 24 }}>
                 <p style={{ fontSize: 12, fontWeight: 700, color: SLATE, letterSpacing: "0.1em", marginBottom: 8 }}>PROFESSIONAL</p>
@@ -347,7 +347,7 @@ export default function LandingPage() {
             <div style={{
               padding: 36, background: `linear-gradient(160deg, ${NAVY} 0%, ${NAVY_2} 100%)`,
               borderRadius: 20, color: "#fff", position: "relative", overflow: "hidden",
-              boxShadow: "0 24px 60px rgba(10,30,63,0.30)",
+              boxShadow: "0 24px 60px rgba(26,26,26,0.30)",
             }}>
               <div style={{
                 position: "absolute", top: 24, right: 24,

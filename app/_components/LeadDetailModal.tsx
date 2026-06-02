@@ -4,10 +4,10 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { X, Flag, Calendar, MapPin, DollarSign, Phone, User, FileText, Loader2, CheckCircle2 } from "lucide-react";
 
-const NAVY = "#0A1E3F";
-const TEAL = "#0DAFAF";
-const GOLD = "#C8A24B";
-const SLATE = "#475569";
+const NAVY = "#1A1A1A";
+const TEAL = "#C75B39";
+const GOLD = "#B0703A";
+const SLATE = "#5B5249";
 
 interface Lead {
   id: string;
@@ -67,18 +67,18 @@ export function LeadDetailModal({ leadId, onClose }: { leadId: string; onClose: 
 
   return (
     <div onClick={onClose} style={{
-      position: "fixed", inset: 0, background: "rgba(10,30,63,0.55)",
+      position: "fixed", inset: 0, background: "rgba(26,26,26,0.55)",
       display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200,
       backdropFilter: "blur(4px)", padding: 20, overflowY: "auto",
     }}>
       <div onClick={e => e.stopPropagation()} style={{
         background: "#FFF", borderRadius: 18, maxWidth: 720, width: "100%",
         maxHeight: "90vh", overflowY: "auto",
-        boxShadow: "0 24px 80px rgba(10,30,63,0.30)",
+        boxShadow: "0 24px 80px rgba(26,26,26,0.30)",
       }} className="animate-scale">
         {/* Header */}
         <div style={{
-          padding: "20px 24px", borderBottom: "1px solid rgba(10,30,63,0.08)",
+          padding: "20px 24px", borderBottom: "1px solid rgba(26,26,26,0.08)",
           display: "flex", alignItems: "center", justifyContent: "space-between",
           background: `linear-gradient(135deg, ${NAVY}03 0%, ${TEAL}08 100%)`,
         }}>
@@ -107,8 +107,8 @@ export function LeadDetailModal({ leadId, onClose }: { leadId: string; onClose: 
               return (
                 <div style={{
                   padding: "10px 14px", borderRadius: 10, marginBottom: 20,
-                  background: ok ? "#ECFDF5" : bad ? "#F1F4F9" : "#FFFBEB",
-                  border: `1px solid ${ok ? "#A7F3D0" : bad ? "rgba(10,30,63,0.10)" : "#FCD34D"}`,
+                  background: ok ? "#ECFDF5" : bad ? "#F2EDE5" : "#FFFBEB",
+                  border: `1px solid ${ok ? "#A7F3D0" : bad ? "rgba(26,26,26,0.10)" : "#FCD34D"}`,
                   fontSize: 12, fontWeight: 700,
                   color: ok ? "#059669" : bad ? NAVY : "#92400E",
                 }}>
@@ -140,7 +140,7 @@ export function LeadDetailModal({ leadId, onClose }: { leadId: string; onClose: 
 
             {/* Reasoning */}
             {lead.qualification_reason && (
-              <div style={{ marginBottom: 20, padding: 14, borderRadius: 10, background: "#F4F7FB", border: "1px solid rgba(10,30,63,0.06)" }}>
+              <div style={{ marginBottom: 20, padding: 14, borderRadius: 10, background: "#FAF8F4", border: "1px solid rgba(26,26,26,0.06)" }}>
                 <h3 style={{ fontSize: 13, fontWeight: 700, color: NAVY, marginBottom: 8 }}>
                   <FileText size={13} style={{ display: "inline", marginRight: 5, marginBottom: -2 }} />
                   Reasoning
@@ -160,8 +160,8 @@ export function LeadDetailModal({ leadId, onClose }: { leadId: string; onClose: 
             {/* Follow-up section */}
             <div style={{
               padding: 16, borderRadius: 12,
-              background: flag ? `${GOLD}10` : "#F4F7FB",
-              border: flag ? `1px solid ${GOLD}50` : "1px solid rgba(10,30,63,0.08)",
+              background: flag ? `${GOLD}10` : "#FAF8F4",
+              border: flag ? `1px solid ${GOLD}50` : "1px solid rgba(26,26,26,0.08)",
               transition: "all 240ms cubic-bezier(0.16,1,0.30,1)",
             }}>
               <label style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer", marginBottom: flag ? 14 : 0 }}>
@@ -177,7 +177,7 @@ export function LeadDetailModal({ leadId, onClose }: { leadId: string; onClose: 
                       <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: SLATE, marginBottom: 4 }}>Date</label>
                       <input type="date" value={date} onChange={e => setDate(e.target.value)} style={{
                         width: "100%", padding: "8px 10px", borderRadius: 8,
-                        background: "#FFF", border: "1px solid rgba(10,30,63,0.10)",
+                        background: "#FFF", border: "1px solid rgba(26,26,26,0.10)",
                         fontSize: 12, color: NAVY, outline: "none",
                       }} />
                     </div>
@@ -185,7 +185,7 @@ export function LeadDetailModal({ leadId, onClose }: { leadId: string; onClose: 
                       <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: SLATE, marginBottom: 4 }}>Priority</label>
                       <select value={priority} onChange={e => setPriority(e.target.value)} style={{
                         width: "100%", padding: "8px 10px", borderRadius: 8,
-                        background: "#FFF", border: "1px solid rgba(10,30,63,0.10)",
+                        background: "#FFF", border: "1px solid rgba(26,26,26,0.10)",
                         fontSize: 12, color: NAVY, outline: "none",
                       }}>
                         <option value="low">Low</option>
@@ -199,7 +199,7 @@ export function LeadDetailModal({ leadId, onClose }: { leadId: string; onClose: 
                     <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: SLATE, marginBottom: 4 }}>Notes</label>
                     <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} placeholder="e.g. Wants to be called back in 2 months" style={{
                       width: "100%", padding: "8px 10px", borderRadius: 8,
-                      background: "#FFF", border: "1px solid rgba(10,30,63,0.10)",
+                      background: "#FFF", border: "1px solid rgba(26,26,26,0.10)",
                       fontSize: 12, color: NAVY, outline: "none", resize: "vertical",
                       fontFamily: "var(--font-sans)",
                     }} />
@@ -222,7 +222,7 @@ export function LeadDetailModal({ leadId, onClose }: { leadId: string; onClose: 
               </button>
               <button onClick={onClose} style={{
                 padding: "11px 18px", borderRadius: 10,
-                background: "#F4F7FB", color: NAVY, border: "1px solid rgba(10,30,63,0.10)",
+                background: "#FAF8F4", color: NAVY, border: "1px solid rgba(26,26,26,0.10)",
                 fontSize: 13, fontWeight: 600, cursor: "pointer",
               }}>
                 Close
@@ -248,7 +248,7 @@ function Fact({ icon: Icon, label, value }: { icon: React.ComponentType<{ size?:
 
 function BANTChip({ label, value }: { label: string; value: string }) {
   return (
-    <div style={{ padding: "8px 12px", borderRadius: 8, background: "#E0F7F7", border: `1px solid ${TEAL}30` }}>
+    <div style={{ padding: "8px 12px", borderRadius: 8, background: "#F4E7E0", border: `1px solid ${TEAL}30` }}>
       <p style={{ fontSize: 10, fontWeight: 700, color: TEAL, marginBottom: 2 }}>{label}</p>
       <p style={{ fontSize: 12, color: NAVY }}>{value}</p>
     </div>

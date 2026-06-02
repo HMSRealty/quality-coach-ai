@@ -7,9 +7,9 @@ import {
   Users2, Phone, XCircle, MessageSquare, Award, ChevronRight,
 } from "lucide-react";
 
-const NAVY = "#0A1E3F";
-const TEAL = "#0DAFAF";
-const SLATE = "#475569";
+const NAVY = "#1A1A1A";
+const TEAL = "#C75B39";
+const SLATE = "#5B5249";
 
 interface Caller {
   id: string;
@@ -102,7 +102,7 @@ export default function CallersPage() {
       <p style={{ fontSize: 13, color: SLATE, marginBottom: 24 }}>Track KPIs and coaching for each team member.</p>
       <div style={{
         padding: 60, textAlign: "center", borderRadius: 16,
-        background: "#FFF", border: "1px solid rgba(10,30,63,0.08)",
+        background: "#FFF", border: "1px solid rgba(26,26,26,0.08)",
       }}>
         <Users2 size={36} color={SLATE} style={{ margin: "0 auto 12px", opacity: 0.4 }} />
         <p style={{ fontSize: 15, fontWeight: 700, color: NAVY }}>No callers yet</p>
@@ -138,10 +138,10 @@ export default function CallersPage() {
         {/* ── Roster (sticky, scrollable) ── */}
         <div style={{
           position: "sticky", top: 76,
-          background: "#FFF", border: "1px solid rgba(10,30,63,0.08)", borderRadius: 14,
-          overflow: "hidden", boxShadow: "0 2px 8px rgba(10,30,63,0.04)",
+          background: "#FFF", border: "1px solid rgba(26,26,26,0.08)", borderRadius: 14,
+          overflow: "hidden", boxShadow: "0 2px 8px rgba(26,26,26,0.04)",
         }}>
-          <div style={{ padding: "14px 14px 10px", borderBottom: "1px solid rgba(10,30,63,0.06)" }}>
+          <div style={{ padding: "14px 14px 10px", borderBottom: "1px solid rgba(26,26,26,0.06)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
               <Users2 size={15} color={NAVY} />
               <span style={{ fontSize: 13, fontWeight: 700, color: NAVY }}>Callers</span>
@@ -154,7 +154,7 @@ export default function CallersPage() {
                 placeholder="Search callers..."
                 style={{
                   width: "100%", padding: "8px 10px 8px 30px", borderRadius: 8,
-                  background: "#F4F7FB", border: "1px solid rgba(10,30,63,0.06)",
+                  background: "#FAF8F4", border: "1px solid rgba(26,26,26,0.06)",
                   fontSize: 12, color: NAVY, outline: "none",
                 }}
               />
@@ -170,11 +170,11 @@ export default function CallersPage() {
                   style={{
                     width: "100%", display: "flex", alignItems: "center", gap: 10,
                     padding: "10px 10px", marginBottom: 4, borderRadius: 10,
-                    background: active ? "#E8EEF7" : "transparent",
+                    background: active ? "#EFE9E0" : "transparent",
                     border: "none", cursor: "pointer", textAlign: "left",
                     transition: "background 120ms ease",
                   }}
-                  onMouseEnter={e => { if (!active) e.currentTarget.style.background = "#F4F7FB"; }}
+                  onMouseEnter={e => { if (!active) e.currentTarget.style.background = "#FAF8F4"; }}
                   onMouseLeave={e => { if (!active) e.currentTarget.style.background = "transparent"; }}
                 >
                   <div style={{
@@ -209,7 +209,7 @@ export default function CallersPage() {
             {/* Caller header */}
             <div style={{
               display: "flex", alignItems: "center", gap: 14, padding: "18px 20px",
-              borderRadius: 14, background: `linear-gradient(135deg, ${NAVY} 0%, #142850 100%)`,
+              borderRadius: 14, background: `linear-gradient(135deg, ${NAVY} 0%, #2B2520 100%)`,
               color: "#fff",
             }}>
               <div style={{
@@ -236,7 +236,7 @@ export default function CallersPage() {
                 { label: "Avg Price", value: s.avgPrice ? `$${(s.avgPrice / 1000).toFixed(0)}k` : "—", icon: Target, color: "#7C3AED" },
               ].map(({ label, value, icon: Icon, color }) => (
                 <div key={label} style={{
-                  background: "#FFFFFF", border: "1px solid rgba(10,30,63,0.08)", borderRadius: 12, padding: 16,
+                  background: "#FFFFFF", border: "1px solid rgba(26,26,26,0.08)", borderRadius: 12, padding: 16,
                 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
                     <Icon size={14} color={color} />
@@ -248,7 +248,7 @@ export default function CallersPage() {
             </div>
 
             {/* Outcome breakdown bar */}
-            <div style={{ background: "#FFF", border: "1px solid rgba(10,30,63,0.08)", borderRadius: 12, padding: 18 }}>
+            <div style={{ background: "#FFF", border: "1px solid rgba(26,26,26,0.08)", borderRadius: 12, padding: 18 }}>
               <h3 style={{ fontSize: 13, fontWeight: 700, color: NAVY, marginBottom: 12 }}>Outcome Breakdown</h3>
               {s.total === 0 ? (
                 <p style={{ fontSize: 12, color: SLATE }}>No leads processed for this caller yet.</p>
@@ -276,12 +276,12 @@ export default function CallersPage() {
             </div>
 
             {/* Latest AI feedback */}
-            <div style={{ background: "#FFF", border: "1px solid rgba(10,30,63,0.08)", borderRadius: 12, padding: 18 }}>
+            <div style={{ background: "#FFF", border: "1px solid rgba(26,26,26,0.08)", borderRadius: 12, padding: 18 }}>
               <h3 style={{ fontSize: 13, fontWeight: 700, color: NAVY, marginBottom: 12, display: "flex", alignItems: "center", gap: 8 }}>
                 <MessageSquare size={15} color={TEAL} /> Latest Feedback
               </h3>
               {lastFeedback ? (
-                <p style={{ fontSize: 13, color: NAVY, lineHeight: 1.7, padding: "12px 14px", background: "#F4F7FB", borderRadius: 8 }}>
+                <p style={{ fontSize: 13, color: NAVY, lineHeight: 1.7, padding: "12px 14px", background: "#FAF8F4", borderRadius: 8 }}>
                   {lastFeedback}
                 </p>
               ) : (
@@ -292,7 +292,7 @@ export default function CallersPage() {
             </div>
 
             {/* Top coaching points */}
-            <div style={{ background: "#FFF", border: "1px solid rgba(10,30,63,0.08)", borderRadius: 12, padding: 18 }}>
+            <div style={{ background: "#FFF", border: "1px solid rgba(26,26,26,0.08)", borderRadius: 12, padding: 18 }}>
               <h3 style={{ fontSize: 13, fontWeight: 700, color: NAVY, marginBottom: 12, display: "flex", alignItems: "center", gap: 8 }}>
                 <Award size={15} color="#7C3AED" /> Recurring Coaching Points
               </h3>
@@ -305,7 +305,7 @@ export default function CallersPage() {
                   {topCoaching.map(([text, count], i) => (
                     <li key={i} style={{
                       display: "flex", alignItems: "center", gap: 12,
-                      padding: "10px 12px", borderRadius: 8, background: "#F4F7FB",
+                      padding: "10px 12px", borderRadius: 8, background: "#FAF8F4",
                     }}>
                       <span style={{
                         minWidth: 30, height: 24, padding: "0 8px", borderRadius: 6,

@@ -23,16 +23,16 @@ export function Card({
       className={className}
       style={{
         background: "#FFFFFF",
-        border: "1px solid rgba(10,30,63,0.08)",
+        border: "1px solid rgba(26,26,26,0.08)",
         borderRadius: 14,
         padding,
         marginBottom: 16,
-        boxShadow: "0 2px 8px rgba(10,30,63,0.04)",
+        boxShadow: "0 2px 8px rgba(26,26,26,0.04)",
         ...style,
       }}
     >
       {title && (
-        <h3 style={{ fontSize: 14, fontWeight: 700, color: "#0A1E3F", marginBottom: 14 }}>
+        <h3 style={{ fontSize: 14, fontWeight: 700, color: "#1A1A1A", marginBottom: 14 }}>
           {title}
         </h3>
       )}

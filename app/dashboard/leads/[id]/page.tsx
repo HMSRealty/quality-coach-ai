@@ -9,10 +9,10 @@ import {
   MessageSquare, TrendingUp, AlertTriangle, RefreshCw, Upload, Download,
 } from "lucide-react";
 
-const NAVY = "#0A1E3F";
-const TEAL = "#0DAFAF";
-const GOLD = "#C8A24B";
-const SLATE = "#475569";
+const NAVY = "#1A1A1A";
+const TEAL = "#C75B39";
+const GOLD = "#B0703A";
+const SLATE = "#5B5249";
 
 interface Lead {
   id: string;
@@ -47,15 +47,15 @@ interface ExtractedItem {
 }
 
 const STATUS_CONFIG: Record<string, { bg: string; color: string; icon: typeof CheckCircle2 }> = {
-  Hot:          { bg: "#FEF2F2", color: "#DC2626", icon: CheckCircle2 },
+  Hot:          { bg: "#FBEEE8", color: "#DC2626", icon: CheckCircle2 },
   Warm:         { bg: "#FFF7ED", color: "#EA580C", icon: CheckCircle2 },
   Cold:         { bg: "#F0F9FF", color: "#0284C7", icon: CheckCircle2 },
-  Disqualified: { bg: "#F1F4F9", color: "#475569", icon: XCircle },
+  Disqualified: { bg: "#F2EDE5", color: "#5B5249", icon: XCircle },
   "Call Back":  { bg: "#FFFBEB", color: "#92400E", icon: Phone },
-  Processing:   { bg: "#F1F4F9", color: "#475569", icon: Clock },
-  Duplicate:    { bg: "#FAF4E4", color: "#92400E", icon: AlertTriangle },
+  Processing:   { bg: "#F2EDE5", color: "#5B5249", icon: Clock },
+  Duplicate:    { bg: "#F3EADF", color: "#92400E", icon: AlertTriangle },
   Commercial:   { bg: "#F5F3FF", color: "#7C3AED", icon: AlertTriangle },
-  Error:        { bg: "#FEF2F2", color: "#DC2626", icon: AlertTriangle },
+  Error:        { bg: "#FBEEE8", color: "#DC2626", icon: AlertTriangle },
 };
 
 export default function LeadDetailPage() {
@@ -156,8 +156,8 @@ export default function LeadDetailPage() {
       {/* Header */}
       <div style={{
         padding: 28, borderRadius: 18,
-        background: `linear-gradient(135deg, ${NAVY} 0%, #142850 100%)`,
-        color: "#fff", boxShadow: "0 12px 40px rgba(10,30,63,0.30)",
+        background: `linear-gradient(135deg, ${NAVY} 0%, #2B2520 100%)`,
+        color: "#fff", boxShadow: "0 12px 40px rgba(26,26,26,0.30)",
       }}>
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 18, flexWrap: "wrap", gap: 12 }}>
           <div>
@@ -244,10 +244,10 @@ export default function LeadDetailPage() {
               const extra = (m.additional_properties as Array<{ address?: string; zestimate?: string; asking_price?: string }> | undefined) || [];
               if (!extra.length) return null;
               return (
-                <div style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid rgba(10,30,63,0.06)" }}>
+                <div style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid rgba(26,26,26,0.06)" }}>
                   <p style={{ fontSize: 11, fontWeight: 700, color: SLATE, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>Additional Properties</p>
                   {extra.map((p, i) => (
-                    <div key={i} style={{ fontSize: 12.5, color: NAVY, padding: "6px 0", borderBottom: i < extra.length - 1 ? "1px solid rgba(10,30,63,0.05)" : "none" }}>
+                    <div key={i} style={{ fontSize: 12.5, color: NAVY, padding: "6px 0", borderBottom: i < extra.length - 1 ? "1px solid rgba(26,26,26,0.05)" : "none" }}>
                       <strong>{p.address || "—"}</strong>
                       {(p.zestimate || p.asking_price) && (
                         <span style={{ color: SLATE }}> · Zestimate {p.zestimate || "—"} · Asking {p.asking_price ? `$${Number(p.asking_price).toLocaleString()}` : "—"}</span>
@@ -299,7 +299,7 @@ export default function LeadDetailPage() {
             {lead.ai_coaching_points.map((pt, i) => (
               <li key={i} style={{
                 padding: "12px 14px", borderRadius: 10,
-                background: "#F4F7FB", border: "1px solid rgba(10,30,63,0.06)",
+                background: "#FAF8F4", border: "1px solid rgba(26,26,26,0.06)",
                 display: "flex", gap: 10, alignItems: "flex-start",
               }}>
                 <div style={{
@@ -348,8 +348,8 @@ export default function LeadDetailPage() {
             {template && (
               <Section icon={FileText} title="Lead Template (extracted from call)" accent={NAVY}>
                 <pre style={{
-                  margin: 0, padding: 16, borderRadius: 10, background: "#F4F7FB",
-                  border: "1px solid rgba(10,30,63,0.06)", whiteSpace: "pre-wrap",
+                  margin: 0, padding: 16, borderRadius: 10, background: "#FAF8F4",
+                  border: "1px solid rgba(26,26,26,0.06)", whiteSpace: "pre-wrap",
                   fontFamily: "var(--font-mono)", fontSize: 12.5, color: NAVY, lineHeight: 1.7,
                 }}>{template}</pre>
               </Section>
@@ -373,8 +373,8 @@ export default function LeadDetailPage() {
                   {items.map((it, i) => (
                     <div key={i} style={{
                       padding: 14, borderRadius: 10,
-                      background: it.is_deal_breaker ? "#FEF2F2" : "#F4F7FB",
-                      border: `1px solid ${it.is_deal_breaker ? "#FCA5A5" : "rgba(10,30,63,0.06)"}`,
+                      background: it.is_deal_breaker ? "#FBEEE8" : "#FAF8F4",
+                      border: `1px solid ${it.is_deal_breaker ? "#E7B8A6" : "rgba(26,26,26,0.06)"}`,
                     }}>
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 6 }}>
                         <span style={{ fontSize: 13, fontWeight: 800, color: it.is_deal_breaker ? "#DC2626" : NAVY }}>
@@ -405,7 +405,7 @@ export default function LeadDetailPage() {
                 <div style={{
                   display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 10,
                   padding: "4px 12px", borderRadius: 999,
-                  background: compliancePassed ? "#ECFDF5" : "#FEF2F2",
+                  background: compliancePassed ? "#ECFDF5" : "#FBEEE8",
                   color: compliancePassed ? "#059669" : "#DC2626", fontSize: 12, fontWeight: 800,
                 }}>
                   {compliancePassed ? "PASSED" : "FAILED"}
@@ -437,7 +437,7 @@ export default function LeadDetailPage() {
               <a href={lead.call_recording_url} download target="_blank" rel="noreferrer" style={{
                 display: "inline-flex", alignItems: "center", gap: 6,
                 padding: "8px 14px", borderRadius: 8,
-                background: "#F4F7FB", color: NAVY, border: "1px solid rgba(10,30,63,0.10)",
+                background: "#FAF8F4", color: NAVY, border: "1px solid rgba(26,26,26,0.10)",
                 fontSize: 12, fontWeight: 700, textDecoration: "none",
               }}>
                 <Download size={13} /> Download Call
@@ -447,7 +447,7 @@ export default function LeadDetailPage() {
         ) : (
           <div style={{
             padding: 20, borderRadius: 10,
-            background: "#F4F7FB", border: "2px dashed rgba(10,30,63,0.10)",
+            background: "#FAF8F4", border: "2px dashed rgba(26,26,26,0.10)",
             textAlign: "center",
           }}>
             <Upload size={24} color={SLATE} style={{ margin: "0 auto 8px" }} />
@@ -481,7 +481,7 @@ export default function LeadDetailPage() {
           background: NAVY, color: "#fff",
           fontSize: 13, fontWeight: 700, border: "none",
           cursor: reanalyzing ? "wait" : "pointer",
-          boxShadow: "0 4px 14px rgba(10,30,63,0.25)",
+          boxShadow: "0 4px 14px rgba(26,26,26,0.25)",
         }}>
           {reanalyzing ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
           Re-run Review
@@ -506,8 +506,8 @@ function HeaderStat({ icon: Icon, label, value }: { icon: React.ComponentType<{ 
 function Section({ icon: Icon, title, accent, children }: { icon: React.ComponentType<{ size?: number; color?: string }>; title: string; accent: string; children: React.ReactNode }) {
   return (
     <div style={{
-      background: "#FFFFFF", border: "1px solid rgba(10,30,63,0.08)",
-      borderRadius: 14, padding: 22, boxShadow: "0 2px 8px rgba(10,30,63,0.04)",
+      background: "#FFFFFF", border: "1px solid rgba(26,26,26,0.08)",
+      borderRadius: 14, padding: 22, boxShadow: "0 2px 8px rgba(26,26,26,0.04)",
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14, paddingBottom: 12, borderBottom: `1px solid ${accent}20` }}>
         <div style={{ width: 28, height: 28, borderRadius: 7, background: `${accent}15`, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -528,8 +528,8 @@ function BantBlock({ label, value }: { label: string; value: string | null }) {
   return (
     <div style={{
       padding: 12, borderRadius: 10,
-      background: value ? "#E0F7F7" : "#F4F7FB",
-      border: `1px solid ${value ? `${TEAL}30` : "rgba(10,30,63,0.06)"}`,
+      background: value ? "#F4E7E0" : "#FAF8F4",
+      border: `1px solid ${value ? `${TEAL}30` : "rgba(26,26,26,0.06)"}`,
     }}>
       <p style={{ fontSize: 10, fontWeight: 700, color: value ? TEAL : SLATE, marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>{label}</p>
       <p style={{ fontSize: 12, color: value ? NAVY : SLATE, lineHeight: 1.5 }}>{value || "Not extracted"}</p>

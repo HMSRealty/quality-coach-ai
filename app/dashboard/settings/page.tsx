@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { Upload, Download, Loader2, CheckCircle2, AlertCircle, FileUp } from "lucide-react";
 import { Card } from "@/app/_components/Card";
 
-const RED = "#0A1E3F";
+const RED = "#1A1A1A";
 
 export default function SettingsPage() {
   const [uploading, setUploading] = useState(false);
@@ -83,16 +83,16 @@ jane@example.com,Alice Johnson,Sales Team B,Mike Brown,2024-03-10`;
     <div style={{ maxWidth: 700, margin: "0 auto", display: "flex", flexDirection: "column", gap: 22 }} className="animate-in">
       {/* Header */}
       <div>
-        <h1 style={{ fontSize: 22, fontWeight: 800, color: "#111827", marginBottom: 4 }}>Settings</h1>
-        <p style={{ fontSize: 13, color: "#6B7280" }}>Manage your team structure and organization.</p>
+        <h1 style={{ fontSize: 22, fontWeight: 800, color: "#1A1A1A", marginBottom: 4 }}>Settings</h1>
+        <p style={{ fontSize: 13, color: "#6E635A" }}>Manage your team structure and organization.</p>
       </div>
 
       {/* Messages */}
       {message && (
         <div style={{
           padding: "12px 16px", borderRadius: 10,
-          background: message.type === "success" ? "#ECFDF5" : "#FEF2F2",
-          border: `1px solid ${message.type === "success" ? "#A7F3D0" : "#FCA5A5"}`,
+          background: message.type === "success" ? "#ECFDF5" : "#FBEEE8",
+          border: `1px solid ${message.type === "success" ? "#A7F3D0" : "#E7B8A6"}`,
           display: "flex", alignItems: "center", gap: 10,
           color: message.type === "success" ? "#059669" : RED,
           fontSize: 13, fontWeight: 600,
@@ -104,7 +104,7 @@ jane@example.com,Alice Johnson,Sales Team B,Mike Brown,2024-03-10`;
 
       {/* Team Import */}
       <Card title="Import Team Structure">
-        <p style={{ fontSize: 13, color: "#6B7280", marginBottom: 14, lineHeight: 1.65 }}>
+        <p style={{ fontSize: 13, color: "#6E635A", marginBottom: 14, lineHeight: 1.65 }}>
           Upload a CSV file to bulk import your team members, trainers, and managers. This will automatically create teams, assign agents, and set up trainers for your organization.
         </p>
 
@@ -113,7 +113,7 @@ jane@example.com,Alice Johnson,Sales Team B,Mike Brown,2024-03-10`;
             display: "flex", alignItems: "center", gap: 6,
             padding: "9px 16px", borderRadius: 8,
             background: "#F3F4F6", border: "1px solid #E5E7EB",
-            color: "#374151", fontSize: 12, fontWeight: 600, cursor: "pointer",
+            color: "#3A322B", fontSize: 12, fontWeight: 600, cursor: "pointer",
             transition: "all 120ms ease",
           }}
           onMouseEnter={e => e.currentTarget.style.background = "#E5E7EB"}
@@ -134,7 +134,7 @@ jane@example.com,Alice Johnson,Sales Team B,Mike Brown,2024-03-10`;
           onDragOver={e => {
             e.preventDefault();
             e.currentTarget.style.borderColor = RED;
-            e.currentTarget.style.background = "#FEF2F2";
+            e.currentTarget.style.background = "#FBEEE8";
           }}
           onDragLeave={e => {
             e.currentTarget.style.borderColor = "#E5E7EB";
@@ -152,11 +152,11 @@ jane@example.com,Alice Johnson,Sales Team B,Mike Brown,2024-03-10`;
           }}
           onClick={() => fileInputRef.current?.click()}
         >
-          <FileUp size={28} style={{ margin: "0 auto 10px", color: "#9CA3AF" }} />
-          <p style={{ fontSize: 13, fontWeight: 600, color: "#111827", marginBottom: 4 }}>
+          <FileUp size={28} style={{ margin: "0 auto 10px", color: "#9C9286" }} />
+          <p style={{ fontSize: 13, fontWeight: 600, color: "#1A1A1A", marginBottom: 4 }}>
             {uploading ? "Uploading..." : "Drop CSV file or click to browse"}
           </p>
-          <p style={{ fontSize: 11, color: "#6B7280" }}>CSV with Manager, Agent Name, Team Name, Trainer Name, Hiring Date</p>
+          <p style={{ fontSize: 11, color: "#6E635A" }}>CSV with Manager, Agent Name, Team Name, Trainer Name, Hiring Date</p>
           <input
             ref={fileInputRef}
             type="file"
@@ -172,8 +172,8 @@ jane@example.com,Alice Johnson,Sales Team B,Mike Brown,2024-03-10`;
       <Card title="CSV Format">
         <div style={{
           padding: "12px", borderRadius: 8,
-          background: "#F9FAFB", border: "1px solid #E5E7EB",
-          fontFamily: "var(--font-mono)", fontSize: 12, color: "#4B5563",
+          background: "#F4EFE7", border: "1px solid #E5E7EB",
+          fontFamily: "var(--font-mono)", fontSize: 12, color: "#5B5249",
           lineHeight: 1.6, overflowX: "auto",
         }}>
           <p style={{ marginBottom: 8 }}>Manager,Agent Name,Team Name,Trainer Name,Hiring Date</p>

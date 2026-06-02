@@ -6,14 +6,14 @@ import { Card } from "@/app/_components/Card";
 import { startImpersonation } from "@/lib/impersonation";
 import { UserPlus, Loader2, Eye, CheckCircle2, AlertCircle, UserCog } from "lucide-react";
 
-const NAVY = "#0A1E3F";
-const SLATE = "#475569";
+const NAVY = "#1A1A1A";
+const SLATE = "#5B5249";
 
 interface SubUser { id: string; email: string; plan_tier: string; created_at: string; }
 
 const inputStyle: React.CSSProperties = {
   width: "100%", padding: "10px 12px", borderRadius: 9,
-  background: "#F4F7FB", border: "1px solid rgba(10,30,63,0.10)",
+  background: "#FAF8F4", border: "1px solid rgba(26,26,26,0.10)",
   fontSize: 13, color: NAVY, outline: "none",
 };
 
@@ -84,8 +84,8 @@ export default function SubUsersPage() {
       {toast && (
         <div style={{
           padding: "12px 16px", borderRadius: 10,
-          background: toast.type === "ok" ? "#ECFDF5" : "#FEF2F2",
-          border: `1px solid ${toast.type === "ok" ? "#A7F3D0" : "#FCA5A5"}`,
+          background: toast.type === "ok" ? "#ECFDF5" : "#FBEEE8",
+          border: `1px solid ${toast.type === "ok" ? "#A7F3D0" : "#E7B8A6"}`,
           color: toast.type === "ok" ? "#059669" : "#DC2626",
           fontSize: 13, fontWeight: 600, display: "flex", gap: 8, alignItems: "center",
         }}>
@@ -117,7 +117,7 @@ export default function SubUsersPage() {
       </Card>
 
       <Card padding={0}>
-        <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(10,30,63,0.06)" }}>
+        <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(26,26,26,0.06)" }}>
           <h3 style={{ fontSize: 14, fontWeight: 700, color: NAVY }}>Your Sub-Users ({subUsers.length})</h3>
         </div>
         {loading ? (
@@ -134,7 +134,7 @@ export default function SubUsersPage() {
             {subUsers.map(u => (
               <div key={u.id} style={{
                 display: "flex", alignItems: "center", gap: 12,
-                padding: "14px 20px", borderTop: "1px solid rgba(10,30,63,0.05)",
+                padding: "14px 20px", borderTop: "1px solid rgba(26,26,26,0.05)",
               }}>
                 <div style={{
                   width: 34, height: 34, borderRadius: "50%", background: NAVY, color: "#fff",
@@ -147,7 +147,7 @@ export default function SubUsersPage() {
                 <button onClick={() => actAs(u.id)} disabled={actingId === u.id} style={{
                   display: "inline-flex", alignItems: "center", gap: 6,
                   padding: "7px 14px", borderRadius: 8,
-                  background: "#E8EEF7", color: NAVY, border: "1px solid rgba(10,30,63,0.10)",
+                  background: "#EFE9E0", color: NAVY, border: "1px solid rgba(26,26,26,0.10)",
                   fontSize: 12, fontWeight: 700, cursor: actingId === u.id ? "wait" : "pointer",
                 }}>
                   {actingId === u.id ? <Loader2 size={12} className="animate-spin" /> : <Eye size={12} />} Act as

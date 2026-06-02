@@ -4,9 +4,9 @@ import { useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Upload, Download, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 
-const NAVY = "#0A1E3F";
-const TEAL = "#0DAFAF";
-const SLATE = "#475569";
+const NAVY = "#1A1A1A";
+const TEAL = "#C75B39";
+const SLATE = "#5B5249";
 
 function parseCSV(text: string): Array<{ name: string; rules: string }> {
   const rows: string[][] = [];
@@ -90,8 +90,8 @@ export function CampaignCSVImport({ onImported }: { onImported?: () => void }) {
   return (
     <div style={{
       padding: 18, borderRadius: 12,
-      background: "#FFF", border: "1px solid rgba(10,30,63,0.08)",
-      boxShadow: "0 2px 8px rgba(10,30,63,0.04)",
+      background: "#FFF", border: "1px solid rgba(26,26,26,0.08)",
+      boxShadow: "0 2px 8px rgba(26,26,26,0.04)",
     }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
         <div>
@@ -101,7 +101,7 @@ export function CampaignCSVImport({ onImported }: { onImported?: () => void }) {
         <button onClick={download} style={{
           display: "inline-flex", alignItems: "center", gap: 6,
           padding: "7px 12px", borderRadius: 8,
-          background: "#F4F7FB", color: NAVY, border: "1px solid rgba(10,30,63,0.08)",
+          background: "#FAF8F4", color: NAVY, border: "1px solid rgba(26,26,26,0.08)",
           fontSize: 11, fontWeight: 700, cursor: "pointer",
         }}>
           <Download size={12} /> Template
@@ -111,8 +111,8 @@ export function CampaignCSVImport({ onImported }: { onImported?: () => void }) {
       {msg && (
         <div style={{
           padding: "10px 12px", borderRadius: 8, marginBottom: 12,
-          background: msg.type === "ok" ? "#ECFDF5" : "#FEF2F2",
-          border: `1px solid ${msg.type === "ok" ? "#A7F3D0" : "#FCA5A5"}`,
+          background: msg.type === "ok" ? "#ECFDF5" : "#FBEEE8",
+          border: `1px solid ${msg.type === "ok" ? "#A7F3D0" : "#E7B8A6"}`,
           color: msg.type === "ok" ? "#059669" : "#DC2626",
           fontSize: 12, fontWeight: 600, display: "flex", gap: 8, alignItems: "center",
         }}>
@@ -125,7 +125,7 @@ export function CampaignCSVImport({ onImported }: { onImported?: () => void }) {
         onClick={() => inputRef.current?.click()}
         style={{
           padding: 16, borderRadius: 10,
-          border: `2px dashed ${TEAL}40`, background: "#F0FAFA",
+          border: `2px dashed ${TEAL}40`, background: "#F8EFE9",
           textAlign: "center", cursor: busy ? "wait" : "pointer",
         }}
       >

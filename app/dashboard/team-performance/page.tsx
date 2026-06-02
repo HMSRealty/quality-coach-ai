@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { BarChart3, TrendingUp, Target, Zap, Loader2 } from "lucide-react";
 
-const RED = "#C41E3A";
+const RED = "#C75B39";
 
 interface TeamPerf { id: string; name: string; calls: number; qualified: number; conversion: number; trend: number; }
 
@@ -65,7 +65,7 @@ export default function TeamPerformancePage() {
   if (loading) return (
     <div style={{ textAlign: "center", padding: "40px 24px" }}>
       <Loader2 size={24} className="animate-spin" style={{ margin: "0 auto 12px", color: RED }} />
-      <p style={{ color: "#6B7280" }}>Loading team performance...</p>
+      <p style={{ color: "#6E635A" }}>Loading team performance...</p>
     </div>
   );
 
@@ -73,8 +73,8 @@ export default function TeamPerformancePage() {
     <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", flexDirection: "column", gap: 22 }} className="animate-in">
       {/* Header */}
       <div>
-        <h1 style={{ fontSize: 22, fontWeight: 800, color: "#111827", marginBottom: 4 }}>Team Performance Tracker</h1>
-        <p style={{ fontSize: 13, color: "#6B7280" }}>Real-time KPI tracking and performance analytics for all teams.</p>
+        <h1 style={{ fontSize: 22, fontWeight: 800, color: "#1A1A1A", marginBottom: 4 }}>Team Performance Tracker</h1>
+        <p style={{ fontSize: 13, color: "#6E635A" }}>Real-time KPI tracking and performance analytics for all teams.</p>
       </div>
 
       {/* KPI Summary — weighted by call volume, not naive avg of percentages */}
@@ -96,7 +96,7 @@ export default function TeamPerformancePage() {
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
               <Icon size={16} color={color} />
-              <p style={{ fontSize: 11, color: "#6B7280", fontWeight: 600 }}>{label}</p>
+              <p style={{ fontSize: 11, color: "#6E635A", fontWeight: 600 }}>{label}</p>
             </div>
             <p style={{ fontSize: 24, fontWeight: 900, color }}>{value}</p>
           </div>
@@ -109,15 +109,15 @@ export default function TeamPerformancePage() {
         overflow: "hidden",
       }}>
         <div style={{ padding: "18px 20px", borderBottom: "1px solid #E5E7EB", background: "#FAFAFA" }}>
-          <h3 style={{ fontSize: 14, fontWeight: 700, color: "#111827" }}>Team Rankings</h3>
+          <h3 style={{ fontSize: 14, fontWeight: 700, color: "#1A1A1A" }}>Team Rankings</h3>
         </div>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
-            <tr style={{ background: "#F9FAFB", borderBottom: "1px solid #E5E7EB" }}>
+            <tr style={{ background: "#F4EFE7", borderBottom: "1px solid #E5E7EB" }}>
               {["Rank", "Team", "Calls", "Qualified", "Conversion", "Trend"].map(h => (
                 <th key={h} style={{
                   padding: "12px 16px", textAlign: "left", fontSize: 11,
-                  fontWeight: 700, color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.05em",
+                  fontWeight: 700, color: "#9C9286", textTransform: "uppercase", letterSpacing: "0.05em",
                 }}>
                   {h}
                 </th>
@@ -131,8 +131,8 @@ export default function TeamPerformancePage() {
                 onMouseLeave={e => e.currentTarget.style.background = "transparent"}
               >
                 <td style={{ padding: "12px 16px", fontSize: 13, fontWeight: 700, color: RED }}>{idx + 1}</td>
-                <td style={{ padding: "12px 16px", fontSize: 13, fontWeight: 600, color: "#111827" }}>{team.name}</td>
-                <td style={{ padding: "12px 16px", fontSize: 13, color: "#4B5563" }}>{team.calls}</td>
+                <td style={{ padding: "12px 16px", fontSize: 13, fontWeight: 600, color: "#1A1A1A" }}>{team.name}</td>
+                <td style={{ padding: "12px 16px", fontSize: 13, color: "#5B5249" }}>{team.calls}</td>
                 <td style={{ padding: "12px 16px", fontSize: 13, color: "#059669", fontWeight: 600 }}>{team.qualified}</td>
                 <td style={{
                   padding: "12px 16px", fontSize: 13, fontWeight: 700,
@@ -143,7 +143,7 @@ export default function TeamPerformancePage() {
                 <td style={{ padding: "12px 16px", fontSize: 13 }}>
                   <span style={{
                     padding: "2px 6px", borderRadius: 4,
-                    background: team.trend > 0 ? "#ECFDF5" : "#FEF2F2",
+                    background: team.trend > 0 ? "#ECFDF5" : "#FBEEE8",
                     color: team.trend > 0 ? "#059669" : RED,
                     fontWeight: 600, fontSize: 11,
                   }}>
