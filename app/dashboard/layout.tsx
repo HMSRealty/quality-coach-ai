@@ -4,11 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { impersonationTarget, stopImpersonation } from "@/lib/impersonation";
 import {
   LayoutDashboard, PhoneCall, FolderCog, Zap,
   UserCircle, LogOut, Bell, ChevronRight, Shield,
   BarChart3, Send, Users2, Briefcase, TrendingUp,
-  Headphones, Flag, Power,
+  Headphones, Flag, Power, UserCog, Eye,
 } from "lucide-react";
 
 const NAVY = "#0A1E3F";
@@ -28,6 +29,7 @@ const NAV_TEAM = [
   { label: "Team Leader",  href: "/dashboard/team-leader",    icon: BarChart3 },
   { label: "Performance",  href: "/dashboard/team-performance", icon: TrendingUp },
   { label: "Permissions",  href: "/dashboard/permissions",    icon: Power },
+  { label: "Sub-Users",    href: "/dashboard/sub-users",      icon: UserCog },
 ];
 const NAV_SECONDARY = [
   { label: "Profile",          href: "/dashboard/profile",        icon: UserCircle },
@@ -89,8 +91,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [plan, setPlan]       = useState("free");
   const [initials, setInit]   = useState("?");
   const [isAdmin, setIsAdmin] = useState(false);
+  const [actingAs, setActingAs] = useState<string | null>(null);
 
   useEffect(() => {
+    setActingAs(impersonationTarget());
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { window.location.href = "/"; return; }
@@ -235,6 +239,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* ── Main ── */}
       <div style={{ marginLeft: 240, flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
+        {/* Impersonation banner */}
+        {actingAs && (
+          <div style={{
+            display: "flex", alignItems: "center", justifyContent: "center", gap: 14,
+            padding: "8px 16px", background: "#F59E0B", color: "#111827",
+            fontSize: 13, fontWeight: 700, position: "sticky", top: 0, zIndex: 50,
+          }}>
+            <Eye size={14} /> You are acting as <strong>{actingAs}</strong>
+            <button onClick={() => stopImpersonation()} style={{
+              padding: "4px 12px", borderRadius: 7, border: "none", cursor: "pointer",
+              background: "#111827", color: "#fff", fontSize: 12, fontWeight: 700,
+            }}>
+              Exit impersonation
+            </button>
+          </div>
+        )}
         {/* Topbar */}
         <header style={{
           height: 56, background: "#FFFFFF",

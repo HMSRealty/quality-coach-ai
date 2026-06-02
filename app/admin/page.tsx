@@ -3,9 +3,10 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { Card } from "@/app/_components/Card";
+import { startImpersonation } from "@/lib/impersonation";
 import {
   Users, ShieldCheck, RefreshCw, Loader2, UserPlus, Key, Trash2,
-  Search, X, Phone, Power, CheckCircle2, AlertCircle, Database, TrendingUp,
+  Search, X, Phone, Power, CheckCircle2, AlertCircle, Database, TrendingUp, Eye,
 } from "lucide-react";
 
 const NAVY = "#0A1E3F";
@@ -145,6 +146,14 @@ export default function AdminPage() {
     loadData();
   };
 
+  const actAs = async (u: UserRow) => {
+    try {
+      await startImpersonation(u.id);
+    } catch (e) {
+      showToast("err", e instanceof Error ? e.message : "Could not act as user");
+    }
+  };
+
   const toggle = async (u: UserRow, field: "can_receive_leads" | "allow_call_uploads") => {
     setSavingId(u.id);
     const val = !u[field];
@@ -282,6 +291,14 @@ export default function AdminPage() {
                   </td>
                   <td style={{ padding: "12px 16px" }}>
                     <div style={{ display: "flex", gap: 6 }}>
+                      <button onClick={() => actAs(u)} title="Act as this user" style={{
+                        padding: "5px 10px", borderRadius: 7,
+                        background: "#E8EEF7", color: NAVY, border: "1px solid rgba(10,30,63,0.12)",
+                        fontSize: 11, fontWeight: 700, cursor: "pointer",
+                        display: "flex", alignItems: "center", gap: 4,
+                      }}>
+                        <Eye size={11} /> Act as
+                      </button>
                       <button onClick={() => setPwUser(u)} title="Change password" style={{
                         padding: "5px 10px", borderRadius: 7,
                         background: "#F1F4F9", color: NAVY, border: "1px solid rgba(10,30,63,0.08)",

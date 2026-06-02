@@ -11,7 +11,8 @@ function admin() {
   return createClient(url, key, { auth: { persistSession: false } });
 }
 
-async function assertOwner(req: NextRequest) {
+// Returns { user, role } for the authenticated caller, or throws.
+async function getCaller(req: NextRequest) {
   const auth = req.headers.get("authorization") || "";
   const token = auth.replace(/^Bearer\s+/i, "");
   if (!token) throw new Error("Unauthorized");
@@ -19,29 +20,44 @@ async function assertOwner(req: NextRequest) {
   const { data: { user }, error } = await sa.auth.getUser(token);
   if (error || !user) throw new Error("Unauthorized");
   const { data: profile } = await sa.from("profiles").select("role").eq("id", user.id).maybeSingle();
-  if (profile?.role !== "admin") throw new Error("Forbidden — admin only");
+  return { user, role: profile?.role || "user" };
+}
+
+async function assertOwner(req: NextRequest) {
+  const { user, role } = await getCaller(req);
+  if (role !== "admin") throw new Error("Forbidden — admin only");
   return user;
 }
 
-// CREATE user
+// CREATE user (admins create anyone; regular users create SUB-USERS under themselves)
 export async function POST(req: NextRequest) {
   try {
-    await assertOwner(req);
-    const { email, password, role = "user", plan_tier = "starter" } = await req.json();
+    const { user: caller, role: callerRole } = await getCaller(req);
+    const isAdmin = callerRole === "admin";
+
+    const body = await req.json();
+    const { email, password, plan_tier = "starter" } = body;
     if (!email || !password) {
       return NextResponse.json({ error: "email and password are required" }, { status: 400 });
     }
+
+    // Non-admins may only create sub-users (role forced to 'user', parented to them).
+    const role = isAdmin ? (body.role || "user") : "user";
+    const parent_user_id = isAdmin
+      ? (body.parent_user_id || null)
+      : caller.id;
+
     const sa = admin();
     const { data: created, error } = await sa.auth.admin.createUser({
       email, password, email_confirm: true,
     });
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
 
-    // Provision profile row
     if (created.user) {
       await sa.from("profiles").upsert({
         id: created.user.id, email, role, plan_tier,
         can_receive_leads: true,
+        parent_user_id,
       });
     }
     return NextResponse.json({ ok: true, user: created.user });
