@@ -120,7 +120,9 @@ export default function DynamicSubmitPage() {
       if (insertError) throw insertError;
       if (!lead) throw new Error("Insert failed");
 
-      let audioUrl: string | undefined;
+      // Best-effort: store the recording for playback/library (needs the
+      // 'call-uploads' bucket). If the bucket is missing this silently skips —
+      // analysis still runs because we send the file bytes directly below.
       if (callFile && owner.allow_call_uploads) {
         setStatusMsg("Uploading recording...");
         const ext = callFile.name.split(".").pop();
@@ -128,25 +130,34 @@ export default function DynamicSubmitPage() {
         const { error: upErr } = await supabase.storage.from("call-uploads").upload(path, callFile);
         if (!upErr) {
           const { data: pub } = supabase.storage.from("call-uploads").getPublicUrl(path);
-          audioUrl = pub.publicUrl;
           await supabase.from("call_uploads").insert({
             lead_id: lead.id, user_id: owner.user_id,
             file_name: callFile.name, file_path: path,
-            file_size_bytes: callFile.size, storage_url: audioUrl, status: "uploaded",
+            file_size_bytes: callFile.size, storage_url: pub.publicUrl, status: "uploaded",
           });
           await supabase.from("leads").update({
-            call_recording_url: audioUrl,
-            audio_size_bytes: callFile.size,
+            call_recording_url: pub.publicUrl, audio_size_bytes: callFile.size,
           }).eq("id", lead.id);
         }
       }
 
       setStatusMsg(callFile ? "AI is listening to the call & verifying the lead..." : "AI is verifying the lead...");
-      const res = await fetch("/api/leads/analyze", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ leadId: lead.id, audioUrl }),
-      });
+
+      // Send the audio DIRECTLY to the analyzer (multipart) so it works even
+      // if storage is unavailable. Falls back to JSON when there's no file.
+      let res: Response;
+      if (callFile) {
+        const fd = new FormData();
+        fd.append("leadId", lead.id);
+        fd.append("file", callFile);
+        res = await fetch("/api/leads/analyze", { method: "POST", body: fd });
+      } else {
+        res = await fetch("/api/leads/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ leadId: lead.id }),
+        });
+      }
       const json = await res.json().catch(() => ({}));
 
       if (!res.ok) {
