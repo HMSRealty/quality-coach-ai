@@ -9,10 +9,10 @@ import {
   Search, X, Phone, Power, CheckCircle2, AlertCircle, Database, TrendingUp, Eye,
 } from "lucide-react";
 
-const NAVY = "#1A1A1A";
-const TEAL = "#C75B39";
-const GOLD = "#B0703A";
-const SLATE = "#5B5249";
+const NAVY = "#0B0F19";
+const TEAL = "#2F6BFF";
+const GOLD = "#2F6BFF";
+const SLATE = "#4B5563";
 
 interface UserRow {
   id: string;
@@ -31,7 +31,7 @@ function Toggle({ on, onChange, busy }: { on: boolean; onChange: () => void; bus
   return (
     <button onClick={onChange} disabled={busy} style={{
       position: "relative", width: 38, height: 22, borderRadius: 999,
-      background: on ? TEAL : "#DCD2C3", border: "none",
+      background: on ? TEAL : "#D8DEE9", border: "none",
       cursor: busy ? "wait" : "pointer", padding: 0,
       transition: "background 240ms cubic-bezier(0.16,1,0.30,1)",
     }}>
@@ -186,7 +186,7 @@ export default function AdminPage() {
           <button onClick={loadData} style={{
             display: "inline-flex", alignItems: "center", gap: 6,
             padding: "9px 14px", borderRadius: 9,
-            background: "#FFF", color: NAVY, border: "1px solid rgba(26,26,26,0.10)",
+            background: "#FFF", color: NAVY, border: "1px solid rgba(11,15,25,0.10)",
             fontSize: 12, fontWeight: 700, cursor: "pointer",
           }}>
             <RefreshCw size={13} /> Refresh
@@ -196,7 +196,7 @@ export default function AdminPage() {
             padding: "9px 16px", borderRadius: 9,
             background: NAVY, color: "#fff", border: "none",
             fontSize: 12, fontWeight: 700, cursor: "pointer",
-            boxShadow: "0 4px 14px rgba(26,26,26,0.25)",
+            boxShadow: "0 4px 14px rgba(11,15,25,0.25)",
           }}>
             <UserPlus size={13} /> Create User
           </button>
@@ -247,7 +247,7 @@ export default function AdminPage() {
           placeholder="Search users by email..."
           style={{
             width: "100%", padding: "10px 12px 10px 36px", borderRadius: 10,
-            background: "#FFF", border: "1px solid rgba(26,26,26,0.10)",
+            background: "#FFF", border: "1px solid rgba(11,15,25,0.10)",
             fontSize: 13, color: NAVY, outline: "none",
           }}
         />
@@ -255,13 +255,13 @@ export default function AdminPage() {
 
       {/* Users table */}
       <Card padding={0}>
-        <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(26,26,26,0.06)" }}>
+        <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(11,15,25,0.06)" }}>
           <h3 style={{ fontSize: 14, fontWeight: 700, color: NAVY }}>Users ({filtered.length})</h3>
         </div>
         <div style={{ overflowX: "auto" }}>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
-              <tr style={{ background: "#FAF8F4" }}>
+              <tr style={{ background: "#F7F8FA" }}>
                 {["User", "Role", "Plan", "Receive Leads", "Call Uploads", "Actions"].map(h => (
                   <th key={h} style={{ padding: "12px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: SLATE, textTransform: "uppercase", letterSpacing: "0.05em" }}>
                     {h}
@@ -271,12 +271,12 @@ export default function AdminPage() {
             </thead>
             <tbody>
               {filtered.map(u => (
-                <tr key={u.id} style={{ borderTop: "1px solid rgba(26,26,26,0.05)" }}>
+                <tr key={u.id} style={{ borderTop: "1px solid rgba(11,15,25,0.05)" }}>
                   <td style={{ padding: "12px 16px", fontSize: 13, color: NAVY, fontWeight: 600 }}>{u.email}</td>
                   <td style={{ padding: "12px 16px" }}>
                     <span style={{
                       padding: "3px 10px", borderRadius: 999, fontSize: 11, fontWeight: 700,
-                      background: u.role === "admin" ? "#F3EADF" : "#F2EDE5",
+                      background: u.role === "admin" ? "#EAF0FF" : "#F1F4F9",
                       color: u.role === "admin" ? "#92400E" : SLATE,
                     }}>
                       {u.role}
@@ -293,7 +293,7 @@ export default function AdminPage() {
                     <div style={{ display: "flex", gap: 6 }}>
                       <button onClick={() => actAs(u)} title="Act as this user" style={{
                         padding: "5px 10px", borderRadius: 7,
-                        background: "#EFE9E0", color: NAVY, border: "1px solid rgba(26,26,26,0.12)",
+                        background: "#EEF1F6", color: NAVY, border: "1px solid rgba(11,15,25,0.12)",
                         fontSize: 11, fontWeight: 700, cursor: "pointer",
                         display: "flex", alignItems: "center", gap: 4,
                       }}>
@@ -301,7 +301,7 @@ export default function AdminPage() {
                       </button>
                       <button onClick={() => setPwUser(u)} title="Change password" style={{
                         padding: "5px 10px", borderRadius: 7,
-                        background: "#F2EDE5", color: NAVY, border: "1px solid rgba(26,26,26,0.08)",
+                        background: "#F1F4F9", color: NAVY, border: "1px solid rgba(11,15,25,0.08)",
                         fontSize: 11, fontWeight: 600, cursor: "pointer",
                         display: "flex", alignItems: "center", gap: 4,
                       }}>
@@ -372,14 +372,14 @@ export default function AdminPage() {
 // Module-scope to keep input identity stable
 const modalInputStyle: React.CSSProperties = {
   width: "100%", padding: "10px 12px", borderRadius: 9,
-  background: "#FAF8F4", border: "1px solid rgba(26,26,26,0.10)",
+  background: "#F7F8FA", border: "1px solid rgba(11,15,25,0.10)",
   fontSize: 13, color: NAVY, outline: "none",
 };
 
 const modalBtnStyle = (disabled: boolean): React.CSSProperties => ({
   display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
   padding: "11px 16px", borderRadius: 10,
-  background: disabled ? "#E5DDD0" : NAVY,
+  background: disabled ? "#E5E9F0" : NAVY,
   color: disabled ? SLATE : "#fff",
   fontSize: 13, fontWeight: 700, border: "none",
   cursor: disabled ? "not-allowed" : "pointer",
@@ -398,13 +398,13 @@ function ModalInput({ label, value, onChange, placeholder, type = "text" }: { la
 function Modal({ children, onClose, title }: { children: React.ReactNode; onClose: () => void; title: string }) {
   return (
     <div onClick={onClose} style={{
-      position: "fixed", inset: 0, background: "rgba(26,26,26,0.50)",
+      position: "fixed", inset: 0, background: "rgba(11,15,25,0.50)",
       display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100,
       backdropFilter: "blur(4px)", padding: 20,
     }}>
       <div onClick={e => e.stopPropagation()} style={{
         background: "#FFF", borderRadius: 16, padding: 28, maxWidth: 440, width: "100%",
-        boxShadow: "0 24px 80px rgba(26,26,26,0.30)",
+        boxShadow: "0 24px 80px rgba(11,15,25,0.30)",
       }} className="animate-scale">
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
           <h2 style={{ fontSize: 17, fontWeight: 800, color: NAVY }}>{title}</h2>

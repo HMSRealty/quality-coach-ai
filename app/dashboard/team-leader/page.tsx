@@ -8,13 +8,13 @@ import {
 } from "recharts";
 import { Users, Loader2, TrendingUp, Target, Phone, AlertCircle } from "lucide-react";
 
-const BG = "#171310";
-const PANEL = "#221C16";
-const PANEL_2 = "#1C160F";
-const TEAL = "#E2734B";
+const BG = "#0B0F19";
+const PANEL = "#121826";
+const PANEL_2 = "#0E1320";
+const TEAL = "#4D82FF";
 const TEAL_DIM = "rgba(226,115,75,0.18)";
-const TXT = "#F3ECE2";
-const MUTED = "#A89A88";
+const TXT = "#E8ECF3";
+const MUTED = "#8A97AB";
 const GOLD = "#FFC857";
 const ROSE = "#FF5C7C";
 

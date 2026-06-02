@@ -4,9 +4,9 @@ import { useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Upload, Download, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 
-const NAVY = "#1A1A1A";
-const TEAL = "#C75B39";
-const SLATE = "#5B5249";
+const NAVY = "#0B0F19";
+const TEAL = "#2F6BFF";
+const SLATE = "#4B5563";
 
 function parseCSV(text: string): Array<{ name: string; rules: string }> {
   const rows: string[][] = [];
@@ -90,8 +90,8 @@ export function CampaignCSVImport({ onImported }: { onImported?: () => void }) {
   return (
     <div style={{
       padding: 18, borderRadius: 12,
-      background: "#FFF", border: "1px solid rgba(26,26,26,0.08)",
-      boxShadow: "0 2px 8px rgba(26,26,26,0.04)",
+      background: "#FFF", border: "1px solid rgba(11,15,25,0.08)",
+      boxShadow: "0 2px 8px rgba(11,15,25,0.04)",
     }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
         <div>
@@ -101,7 +101,7 @@ export function CampaignCSVImport({ onImported }: { onImported?: () => void }) {
         <button onClick={download} style={{
           display: "inline-flex", alignItems: "center", gap: 6,
           padding: "7px 12px", borderRadius: 8,
-          background: "#FAF8F4", color: NAVY, border: "1px solid rgba(26,26,26,0.08)",
+          background: "#F7F8FA", color: NAVY, border: "1px solid rgba(11,15,25,0.08)",
           fontSize: 11, fontWeight: 700, cursor: "pointer",
         }}>
           <Download size={12} /> Template
@@ -125,7 +125,7 @@ export function CampaignCSVImport({ onImported }: { onImported?: () => void }) {
         onClick={() => inputRef.current?.click()}
         style={{
           padding: 16, borderRadius: 10,
-          border: `2px dashed ${TEAL}40`, background: "#F8EFE9",
+          border: `2px dashed ${TEAL}40`, background: "#EEF3FF",
           textAlign: "center", cursor: busy ? "wait" : "pointer",
         }}
       >

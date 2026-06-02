@@ -4,9 +4,9 @@ import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 import { Send, Loader2, CheckCircle2, AlertCircle, Upload } from "lucide-react";
 
-const NAVY = "#1A1A1A";
-const TEAL = "#C75B39";
-const SLATE = "#5B5249";
+const NAVY = "#0B0F19";
+const TEAL = "#2F6BFF";
+const SLATE = "#4B5563";
 
 interface Caller { id: string; name: string; team_id?: string; }
 interface Campaign { id: string; name: string; }
@@ -21,7 +21,7 @@ interface Campaign { id: string; name: string; }
 
 const inputStyle: React.CSSProperties = {
   width: "100%", padding: "10px 12px", borderRadius: 9,
-  background: "#FAF8F4", border: "1px solid rgba(26,26,26,0.08)",
+  background: "#F7F8FA", border: "1px solid rgba(11,15,25,0.08)",
   fontSize: 13, color: NAVY, outline: "none",
   transition: "all 200ms cubic-bezier(0.16,1,0.30,1)",
 };
@@ -33,9 +33,9 @@ const labelStyle: React.CSSProperties = {
 function Card({ children, title }: { children: React.ReactNode; title: string }) {
   return (
     <div style={{
-      background: "#FFFFFF", border: "1px solid rgba(26,26,26,0.08)", borderRadius: 14,
+      background: "#FFFFFF", border: "1px solid rgba(11,15,25,0.08)", borderRadius: 14,
       padding: "22px", marginBottom: 18,
-      boxShadow: "0 2px 8px rgba(26,26,26,0.04)",
+      boxShadow: "0 2px 8px rgba(11,15,25,0.04)",
     }}>
       <h3 style={{ fontSize: 14, fontWeight: 800, color: NAVY, marginBottom: 16 }}>{title}</h3>
       {children}
@@ -199,7 +199,7 @@ export default function PublicSubmitLeadPage() {
   return (
     <div style={{
       minHeight: "100vh",
-      background: `linear-gradient(180deg, #FAF8F4 0%, #FFFFFF 100%)`,
+      background: `linear-gradient(180deg, #F7F8FA 0%, #FFFFFF 100%)`,
       padding: "40px 24px",
     }} className="animate-in">
       <div style={{ maxWidth: 720, margin: "0 auto" }}>
@@ -353,16 +353,16 @@ export default function PublicSubmitLeadPage() {
               <div
                 style={{
                   padding: "24px", borderRadius: 12,
-                  border: `2px dashed ${TEAL}40`, background: "#F8EFE9",
+                  border: `2px dashed ${TEAL}40`, background: "#EEF3FF",
                   textAlign: "center", cursor: "pointer",
                   transition: "all 200ms",
                 }}
                 onClick={() => fileInputRef.current?.click()}
-                onDragOver={e => { e.preventDefault(); e.currentTarget.style.background = "#F4E7E0"; }}
-                onDragLeave={e => { e.currentTarget.style.background = "#F8EFE9"; }}
+                onDragOver={e => { e.preventDefault(); e.currentTarget.style.background = "#E8EFFF"; }}
+                onDragLeave={e => { e.currentTarget.style.background = "#EEF3FF"; }}
                 onDrop={e => {
                   e.preventDefault();
-                  e.currentTarget.style.background = "#F8EFE9";
+                  e.currentTarget.style.background = "#EEF3FF";
                   if (fileInputRef.current && e.dataTransfer.files[0]) {
                     fileInputRef.current.files = e.dataTransfer.files;
                     handleFileSelect(e as unknown as React.ChangeEvent<HTMLInputElement>);
@@ -407,10 +407,10 @@ export default function PublicSubmitLeadPage() {
           <button type="submit" disabled={submitting} style={{
             display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
             width: "100%", padding: "16px 28px", borderRadius: 12,
-            background: submitting ? "#E5DDD0" : NAVY,
+            background: submitting ? "#E5E9F0" : NAVY,
             color: submitting ? SLATE : "#fff",
             fontSize: 15, fontWeight: 800, border: "none", cursor: "pointer",
-            boxShadow: submitting ? "none" : `0 8px 24px rgba(26,26,26,0.30)`,
+            boxShadow: submitting ? "none" : `0 8px 24px rgba(11,15,25,0.30)`,
             transition: "all 240ms cubic-bezier(0.16,1,0.30,1)",
           }}
           onMouseEnter={e => { if (!submitting) e.currentTarget.style.transform = "translateY(-1px)"; }}

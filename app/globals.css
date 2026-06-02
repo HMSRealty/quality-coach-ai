@@ -1,34 +1,34 @@
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════════════════════════════
-   HMS REALTY — ENTERPRISE DESIGN SYSTEM
-   Deep Navy · Slate Gray · Crisp Teal · Refined Gold
+   REALTRACK — DESIGN SYSTEM (Leadspicker-inspired)
+   Deep Navy · White · Electric Blue · Clean geometric sans
 ═══════════════════════════════════════════════════════════════ */
 
 :root {
-  /* ── HMS Brand: Navy primary, Teal accent, Gold premium ── */
-  --navy:        #1A1A1A;   /* Deep brand navy */
-  --navy-2:      #2B2520;   /* Lifted navy */
-  --navy-3:      #3A2E26;   /* Hover navy */
-  --navy-light:  #EFE9E0;   /* Navy tint background */
-  --navy-border: #DCD2C3;
-  --navy-glow:   rgba(26,26,26,0.16);
-  --navy-ring:   rgba(26,26,26,0.30);
-  --navy-dim:    rgba(26,26,26,0.06);
+  /* ── RealTrack Brand: Navy primary, Electric-blue accent ── */
+  --navy:        #0B0F19;   /* Deep brand navy */
+  --navy-2:      #141A26;   /* Lifted navy */
+  --navy-3:      #1E2738;   /* Hover navy */
+  --navy-light:  #EEF1F6;   /* Navy tint background */
+  --navy-border: #D8DEE9;
+  --navy-glow:   rgba(11,15,25,0.16);
+  --navy-ring:   rgba(11,15,25,0.30);
+  --navy-dim:    rgba(11,15,25,0.06);
 
-  --teal:        #C75B39;   /* Crisp teal accent */
-  --teal-2:      #A8482B;
-  --teal-light:  #F4E7E0;
-  --teal-border: #E7C9BC;
-  --teal-glow:   rgba(199,91,57,0.18);
+  --teal:        #2F6BFF;   /* Crisp teal accent */
+  --teal-2:      #1E50D8;
+  --teal-light:  #E8EFFF;
+  --teal-border: #BBD0FF;
+  --teal-glow:   rgba(47,107,255,0.18);
 
-  --gold:        #B0703A;   /* Premium gold for Enterprise */
-  --gold-2:      #946031;
-  --gold-light:  #F3EADF;
+  --gold:        #2F6BFF;   /* Premium gold for Enterprise */
+  --gold-2:      #1E50D8;
+  --gold-light:  #EAF0FF;
 
-  --slate:       #5B5249;
-  --slate-2:     #6E635A;
-  --slate-3:     #9C9286;
+  --slate:       #4B5563;
+  --slate-2:     #64748B;
+  --slate-3:     #94A3B8;
 
   /* Back-compat: legacy "red" tokens now route to navy */
   --red:         var(--navy);
@@ -40,24 +40,24 @@
   --red-dim:     var(--navy-dim);
 
   /* ── Canvas Layers ── */
-  --canvas:    #FAF8F4;
+  --canvas:    #F7F8FA;
   --surface-1: #FFFFFF;
   --surface-2: #FFFFFF;
-  --surface-3: #F2EDE5;
-  --surface-4: #E5DDD0;
-  --surface-5: #DCD2C3;
+  --surface-3: #F1F4F9;
+  --surface-4: #E5E9F0;
+  --surface-5: #D8DEE9;
 
   /* ── Borders ── */
-  --border-1: rgba(26,26,26,0.05);
-  --border-2: rgba(26,26,26,0.10);
-  --border-3: rgba(26,26,26,0.16);
-  --border-4: rgba(26,26,26,0.24);
-  --border-brand: rgba(26,26,26,0.30);
+  --border-1: rgba(11,15,25,0.05);
+  --border-2: rgba(11,15,25,0.10);
+  --border-3: rgba(11,15,25,0.16);
+  --border-4: rgba(11,15,25,0.24);
+  --border-brand: rgba(11,15,25,0.30);
 
   /* ── Text ── */
-  --text-1: #1A1A1A;
-  --text-2: #5B5249;
-  --text-3: #9C9286;
+  --text-1: #0B0F19;
+  --text-2: #4B5563;
+  --text-3: #94A3B8;
   --text-4: #CBD5E1;
 
   /* ── Semantic aliases ── */
@@ -83,18 +83,18 @@
   --violet-bg:   #F5F3FF;
 
   /* ── Shadows ── */
-  --shadow-sm:  0 1px 2px rgba(26,26,26,0.05);
-  --shadow-md:  0 4px 12px rgba(26,26,26,0.08);
-  --shadow-lg:  0 12px 32px rgba(26,26,26,0.12);
-  --shadow-xl:  0 24px 60px rgba(26,26,26,0.16);
-  --shadow-brand: 0 6px 24px rgba(26,26,26,0.20);
+  --shadow-sm:  0 1px 2px rgba(11,15,25,0.05);
+  --shadow-md:  0 4px 12px rgba(11,15,25,0.08);
+  --shadow-lg:  0 12px 32px rgba(11,15,25,0.12);
+  --shadow-xl:  0 24px 60px rgba(11,15,25,0.16);
+  --shadow-brand: 0 6px 24px rgba(11,15,25,0.20);
 
-  /* ── Radius (softer, editorial) ── */
-  --r-sm: 9px;
-  --r-md: 13px;
-  --r-lg: 18px;
-  --r-xl: 24px;
-  --r-2xl: 30px;
+  /* ── Radius (sharp / minimal, Leadspicker) ── */
+  --r-sm: 5px;
+  --r-md: 8px;
+  --r-lg: 10px;
+  --r-xl: 14px;
+  --r-2xl: 18px;
 
   /* ── Springs (weight-based physics) ── */
   --spring-soft:   cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -109,30 +109,30 @@
 
 /* ── DARK THEME (token-level) ── */
 [data-theme="dark"] {
-  --canvas:    #15120E;   /* warm near-black */
-  --surface-1: #1E1A15;
-  --surface-2: #1E1A15;
-  --surface-3: #262119;
-  --surface-4: #322B21;
-  --surface-5: #3E3527;
+  --canvas:    #0B0F19;   /* warm near-black */
+  --surface-1: #121826;
+  --surface-2: #121826;
+  --surface-3: #161D2B;
+  --surface-4: #1E2738;
+  --surface-5: #2A3346;
 
-  --navy:        #F0E9DE;  /* "ink" inverts to warm paper-white for text/primary */
-  --navy-2:      #E5DCCD;
+  --navy:        #E8ECF3;  /* "ink" inverts to warm paper-white for text/primary */
+  --navy-2:      #D2D9E6;
   --navy-3:      #FFFFFF;
-  --navy-light:  #2A241C;
-  --navy-border: #3A3226;
+  --navy-light:  #161D2B;
+  --navy-border: #283246;
   --navy-glow:   rgba(0,0,0,0.40);
   --navy-dim:    rgba(240,233,222,0.06);
 
-  --teal:        #E2734B;  /* terracotta stays the accent, slightly brighter on dark */
-  --teal-2:      #C75B39;
+  --teal:        #4D82FF;  /* terracotta stays the accent, slightly brighter on dark */
+  --teal-2:      #2F6BFF;
   --teal-light:  #2E2018;
 
-  --gold:        #D8A45E;
-  --gold-2:      #B0703A;
+  --gold:        #5B8CFF;
+  --gold-2:      #2F6BFF;
 
-  --slate:       #B8AC9A;
-  --slate-2:     #9C9286;
+  --slate:       #9AA6B8;
+  --slate-2:     #94A3B8;
   --slate-3:     #7C7264;
 
   --canvas-rgb: 21,18,14;
@@ -141,10 +141,10 @@
   --border-3: rgba(240,233,222,0.18);
   --border-4: rgba(240,233,222,0.26);
 
-  --text-1: #F3ECE2;
-  --text-2: #B8AC9A;
-  --text-3: #8C8273;
-  --text-4: #5C5346;
+  --text-1: #E8ECF3;
+  --text-2: #9AA6B8;
+  --text-3: #6E7C90;
+  --text-4: #3A4761;
 
   --brand-400: var(--teal);
   --brand-500: var(--teal);
@@ -216,8 +216,8 @@ img, video { max-width: 100%; height: auto; }
   50%      { transform: translateY(-6px); }
 }
 @keyframes glow {
-  0%, 100% { box-shadow: 0 0 24px rgba(199,91,57,0.20); }
-  50%      { box-shadow: 0 0 40px rgba(199,91,57,0.40); }
+  0%, 100% { box-shadow: 0 0 24px rgba(47,107,255,0.20); }
+  50%      { box-shadow: 0 0 40px rgba(47,107,255,0.40); }
 }
 
 .animate-in        { animation: fadeIn 420ms var(--spring-heavy) both; }

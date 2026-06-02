@@ -54,14 +54,14 @@ export default function ProfilesPage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
-      <header className="bg-[#221C16] p-6 rounded-lg border border-[#333333]">
+      <header className="bg-[#121826] p-6 rounded-lg border border-[#333333]">
         <h1 className="text-2xl font-bold text-white tracking-wide">
           USER PROFILE DIRECTORY
         </h1>
         <p className="text-gray-400 mt-1">Monitor tenant access privileges and credit quotas from one central terminal.</p>
       </header>
 
-      <div className="bg-[#221C16] rounded-lg border border-[#333333] overflow-hidden">
+      <div className="bg-[#121826] rounded-lg border border-[#333333] overflow-hidden">
         <table className="w-full text-left text-sm text-gray-400">
           <thead className="bg-[#121212] text-gray-300">
             <tr>

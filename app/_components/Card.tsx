@@ -24,7 +24,7 @@ export function Card({
       style={{
         background: "var(--surface-2)",
         border: "1px solid var(--border-2)",
-        borderRadius: 18,
+        borderRadius: 12,
         padding,
         marginBottom: 16,
         boxShadow: "var(--shadow-sm)",

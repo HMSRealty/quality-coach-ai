@@ -20,8 +20,8 @@ interface Lead {
   campaigns?: { name: string } | null;
 }
 
-const NAVY = "#1A1A1A";
-const SLATE = "#5B5249";
+const NAVY = "#0B0F19";
+const SLATE = "#4B5563";
 
 const STATUS_OPTS = ["All", "Hot", "Warm", "Cold", "Call Back", "Disqualified", "Duplicate", "Processing", "Error"];
 const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
@@ -29,9 +29,9 @@ const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
   Warm:         { bg: "#FFF7ED", color: "#EA580C" },
   Cold:         { bg: "#F0F9FF", color: "#0284C7" },
   "Call Back":  { bg: "#FFFBEB", color: "#92400E" },
-  Disqualified: { bg: "#F2EDE5", color: SLATE },
-  Duplicate:    { bg: "#F3EADF", color: "#92400E" },
-  Processing:   { bg: "#F2EDE5", color: SLATE },
+  Disqualified: { bg: "#F1F4F9", color: SLATE },
+  Duplicate:    { bg: "#EAF0FF", color: "#92400E" },
+  Processing:   { bg: "#F1F4F9", color: SLATE },
   Error:        { bg: "#FBEEE8", color: "#DC2626" },
   Commercial:   { bg: "#F5F3FF", color: "#7C3AED" },
 };
@@ -187,7 +187,7 @@ export default function CallsPage() {
           <button onClick={exportCSV} style={{
             display: "inline-flex", alignItems: "center", gap: 6,
             padding: "9px 14px", borderRadius: 9,
-            background: "#FFF", color: NAVY, border: "1px solid rgba(26,26,26,0.10)",
+            background: "#FFF", color: NAVY, border: "1px solid rgba(11,15,25,0.10)",
             fontSize: 12, fontWeight: 700, cursor: "pointer",
           }}>
             <Download size={13} /> Export CSV
@@ -197,7 +197,7 @@ export default function CallsPage() {
             padding: "9px 14px", borderRadius: 9,
             background: NAVY, color: "#fff", border: "none",
             fontSize: 12, fontWeight: 700, cursor: "pointer",
-            boxShadow: "0 4px 14px rgba(26,26,26,0.25)",
+            boxShadow: "0 4px 14px rgba(11,15,25,0.25)",
           }}>
             <RotateCcw size={13} /> Refresh
           </button>
@@ -206,8 +206,8 @@ export default function CallsPage() {
 
       <div style={{
         display: "flex", gap: 10, padding: 14, borderRadius: 12,
-        background: "#FFFFFF", border: "1px solid rgba(26,26,26,0.08)",
-        boxShadow: "0 2px 8px rgba(26,26,26,0.04)",
+        background: "#FFFFFF", border: "1px solid rgba(11,15,25,0.08)",
+        boxShadow: "0 2px 8px rgba(11,15,25,0.04)",
       }}>
         <div style={{ position: "relative", flex: 1 }}>
           <Search size={14} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: SLATE }} />
@@ -216,21 +216,21 @@ export default function CallsPage() {
             placeholder="Search address or agent..."
             style={{
               width: "100%", padding: "9px 12px 9px 36px", borderRadius: 9,
-              background: "#FAF8F4", border: "1px solid rgba(26,26,26,0.08)",
+              background: "#F7F8FA", border: "1px solid rgba(11,15,25,0.08)",
               fontSize: 13, color: NAVY, outline: "none",
             }}
           />
         </div>
         <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} style={{
           padding: "9px 12px", borderRadius: 9,
-          background: "#FAF8F4", border: "1px solid rgba(26,26,26,0.08)",
+          background: "#F7F8FA", border: "1px solid rgba(11,15,25,0.08)",
           fontSize: 13, color: NAVY, outline: "none",
         }}>
           {STATUS_OPTS.map(s => <option key={s} value={s}>{s}</option>)}
         </select>
         <select value={campaignFilter} onChange={e => setCampaignFilter(e.target.value)} style={{
           padding: "9px 12px", borderRadius: 9,
-          background: "#FAF8F4", border: "1px solid rgba(26,26,26,0.08)",
+          background: "#F7F8FA", border: "1px solid rgba(11,15,25,0.08)",
           fontSize: 13, color: NAVY, outline: "none",
         }}>
           <option value="All">All Campaigns</option>
@@ -239,8 +239,8 @@ export default function CallsPage() {
       </div>
 
       <div style={{
-        background: "#FFFFFF", border: "1px solid rgba(26,26,26,0.08)",
-        borderRadius: 12, overflow: "hidden", boxShadow: "0 2px 8px rgba(26,26,26,0.04)",
+        background: "#FFFFFF", border: "1px solid rgba(11,15,25,0.08)",
+        borderRadius: 12, overflow: "hidden", boxShadow: "0 2px 8px rgba(11,15,25,0.04)",
       }}>
         {loading ? (
           <div style={{ padding: 60, textAlign: "center" }}>
@@ -254,7 +254,7 @@ export default function CallsPage() {
         ) : (
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
-              <tr style={{ background: "#FAF8F4" }}>
+              <tr style={{ background: "#F7F8FA" }}>
                 {["Date", "Agent", "Address", "Status", "Campaign", "Reason", "Actions"].map(h => (
                   <th key={h} style={{ padding: "12px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: SLATE, textTransform: "uppercase", letterSpacing: "0.05em" }}>
                     {h}
@@ -264,11 +264,11 @@ export default function CallsPage() {
             </thead>
             <tbody>
               {filtered.map((lead) => {
-                const sc = STATUS_COLORS[lead.status] || { bg: "#F2EDE5", color: SLATE };
+                const sc = STATUS_COLORS[lead.status] || { bg: "#F1F4F9", color: SLATE };
                 return (
                   <tr key={lead.id}
-                    style={{ borderTop: "1px solid rgba(26,26,26,0.05)", cursor: "pointer", transition: "background 120ms" }}
-                    onMouseEnter={e => e.currentTarget.style.background = "#FAF8F4"}
+                    style={{ borderTop: "1px solid rgba(11,15,25,0.05)", cursor: "pointer", transition: "background 120ms" }}
+                    onMouseEnter={e => e.currentTarget.style.background = "#F7F8FA"}
                     onMouseLeave={e => e.currentTarget.style.background = "transparent"}
                     onClick={() => window.location.href = `/dashboard/leads/${lead.id}`}
                   >
@@ -304,7 +304,7 @@ export default function CallsPage() {
                       <div style={{ display: "flex", gap: 6 }}>
                         <Link href={`/dashboard/leads/${lead.id}`} onClick={e => e.stopPropagation()} style={{
                           padding: "5px 10px", borderRadius: 7,
-                          background: "#F2EDE5", color: NAVY, border: "1px solid rgba(26,26,26,0.08)",
+                          background: "#F1F4F9", color: NAVY, border: "1px solid rgba(11,15,25,0.08)",
                           fontSize: 11, fontWeight: 600, textDecoration: "none",
                           display: "flex", alignItems: "center", gap: 4,
                         }}>
@@ -312,7 +312,7 @@ export default function CallsPage() {
                         </Link>
                         <button onClick={(e) => { e.stopPropagation(); rerun(lead); }} disabled={rerunId === lead.id} style={{
                           padding: "5px 10px", borderRadius: 7,
-                          background: "#FFF", color: NAVY, border: "1px solid rgba(26,26,26,0.08)",
+                          background: "#FFF", color: NAVY, border: "1px solid rgba(11,15,25,0.08)",
                           fontSize: 11, fontWeight: 600, cursor: "pointer",
                           display: "flex", alignItems: "center", gap: 4,
                           opacity: rerunId === lead.id ? 0.5 : 1,

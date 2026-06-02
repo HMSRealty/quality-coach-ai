@@ -13,8 +13,8 @@ import {
   Headphones, Flag, Power, UserCog, Eye,
 } from "lucide-react";
 
-const NAVY = "#1A1A1A";
-const TEAL = "#C75B39";
+const NAVY = "#0B0F19";
+const TEAL = "#2F6BFF";
 const RED = NAVY;
 
 const NAV_PRIMARY = [
@@ -38,7 +38,7 @@ const NAV_SECONDARY = [
 ];
 
 const PLAN_COLORS: Record<string, string> = {
-  free: "#6E635A", starter: "#059669", professional: RED, enterprise: "#7C3AED",
+  free: "#64748B", starter: "#059669", professional: RED, enterprise: "#7C3AED",
 };
 
 function HMSIcon({ size = 26 }: { size?: number }) {
@@ -65,8 +65,8 @@ function NavLink({ item, active }: { item: typeof NAV_PRIMARY[0]; active: boolea
       display: "flex", alignItems: "center", gap: 10,
       padding: "9px 12px", borderRadius: 10,
       textDecoration: "none",
-      background: active ? "#EFE9E0" : hovered ? "#F4EFE7" : "transparent",
-      color: active ? RED : hovered ? "#1A1A1A" : "#5B5249",
+      background: active ? "#EEF1F6" : hovered ? "#F4EFE7" : "transparent",
+      color: active ? RED : hovered ? "#0B0F19" : "#4B5563",
       fontSize: 13, fontWeight: active ? 700 : 400,
       transition: "all 120ms ease",
       position: "relative",
@@ -80,7 +80,7 @@ function NavLink({ item, active }: { item: typeof NAV_PRIMARY[0]; active: boolea
           width: 3, height: 18, background: RED, borderRadius: "0 2px 2px 0",
         }} />
       )}
-      <Icon size={15} color={active ? RED : hovered ? "#1A1A1A" : "#6E635A"} strokeWidth={active ? 2.2 : 1.8} />
+      <Icon size={15} color={active ? RED : hovered ? "#0B0F19" : "#64748B"} strokeWidth={active ? 2.2 : 1.8} />
       {item.label}
     </Link>
   );
@@ -108,7 +108,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, []);
 
   const logout = async () => { await supabase.auth.signOut(); window.location.href = "/"; };
-  const planColor = PLAN_COLORS[plan] ?? "#6E635A";
+  const planColor = PLAN_COLORS[plan] ?? "#64748B";
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "var(--canvas)" }}>
@@ -129,13 +129,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <HSMIcon size={28} />
           <div>
             <p style={{ fontSize: 14, fontWeight: 800, color: NAVY, lineHeight: 1 }}>RealTrack</p>
-            <p style={{ fontSize: 10, color: "#9C9286", marginTop: 2, fontWeight: 500 }}>Performance Suite</p>
+            <p style={{ fontSize: 10, color: "#94A3B8", marginTop: 2, fontWeight: 500 }}>Performance Suite</p>
           </div>
         </div>
 
         {/* Nav */}
         <div style={{ padding: "14px 10px 8px" }}>
-          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.10em", color: "#9C9286", textTransform: "uppercase", padding: "0 10px", marginBottom: 6 }}>
+          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.10em", color: "#94A3B8", textTransform: "uppercase", padding: "0 10px", marginBottom: 6 }}>
             Workspace
           </p>
           <nav style={{ display: "flex", flexDirection: "column", gap: 1 }}>
@@ -146,7 +146,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div style={{ height: 1, background: "#F3F4F6", margin: "8px 18px" }} />
 
         <div style={{ padding: "14px 10px 8px" }}>
-          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.10em", color: "#9C9286", textTransform: "uppercase", padding: "0 10px", marginBottom: 6 }}>
+          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.10em", color: "#94A3B8", textTransform: "uppercase", padding: "0 10px", marginBottom: 6 }}>
             Team Management
           </p>
           <nav style={{ display: "flex", flexDirection: "column", gap: 1 }}>
@@ -166,7 +166,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 color: RED, fontSize: 13, fontWeight: 600,
                 transition: "background 120ms",
               }}
-              onMouseEnter={e => e.currentTarget.style.background = "#EFE9E0"}
+              onMouseEnter={e => e.currentTarget.style.background = "#EEF1F6"}
               onMouseLeave={e => e.currentTarget.style.background = "transparent"}
               >
                 <Shield size={15} color={RED} strokeWidth={1.8} />
@@ -183,15 +183,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div style={{ padding: "0 12px 10px" }}>
             <Link href="/landing#pricing" style={{
               display: "block", padding: "10px 12px", borderRadius: 10,
-              background: "#EFE9E0", border: `1px solid #DCD2C3`,
+              background: "#EEF1F6", border: `1px solid #D8DEE9`,
               textDecoration: "none",
               transition: "background 120ms",
             }}
-            onMouseEnter={e => e.currentTarget.style.background = "#DCD2C3"}
-            onMouseLeave={e => e.currentTarget.style.background = "#EFE9E0"}
+            onMouseEnter={e => e.currentTarget.style.background = "#D8DEE9"}
+            onMouseLeave={e => e.currentTarget.style.background = "#EEF1F6"}
             >
               <p style={{ fontSize: 11, fontWeight: 700, color: RED, marginBottom: 2 }}>Upgrade your plan</p>
-              <p style={{ fontSize: 10, color: "#9C9286", display: "flex", alignItems: "center", gap: 3 }}>
+              <p style={{ fontSize: 10, color: "#94A3B8", display: "flex", alignItems: "center", gap: 3 }}>
                 Unlock more analyses <ChevronRight size={9} />
               </p>
             </Link>
@@ -210,12 +210,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           >
             <div style={{
               width: 30, height: 30, borderRadius: "50%", flexShrink: 0,
-              background: "#EFE9E0", border: `2px solid #DCD2C3`,
+              background: "#EEF1F6", border: `2px solid #D8DEE9`,
               display: "flex", alignItems: "center", justifyContent: "center",
               fontSize: 11, fontWeight: 800, color: RED,
             }}>{initials}</div>
             <div style={{ minWidth: 0 }}>
-              <p style={{ fontSize: 11, fontWeight: 700, color: "#1A1A1A", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: "#0B0F19", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {email || "Loading..."}
               </p>
               <p style={{ fontSize: 10, color: planColor, fontWeight: 600, textTransform: "capitalize", marginTop: 1 }}>
@@ -227,11 +227,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             display: "flex", alignItems: "center", gap: 8,
             padding: "8px 10px", borderRadius: 10, width: "100%",
             background: "none", border: "none", cursor: "pointer",
-            fontSize: 12, color: "#6E635A", marginTop: 2,
+            fontSize: 12, color: "#64748B", marginTop: 2,
             transition: "all 120ms ease",
           }}
-          onMouseEnter={e => { e.currentTarget.style.background = "#EFE9E0"; e.currentTarget.style.color = RED; }}
-          onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#6E635A"; }}
+          onMouseEnter={e => { e.currentTarget.style.background = "#EEF1F6"; e.currentTarget.style.color = RED; }}
+          onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#64748B"; }}
           >
             <LogOut size={14} /> Sign out
           </button>
@@ -244,13 +244,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {actingAs && (
           <div style={{
             display: "flex", alignItems: "center", justifyContent: "center", gap: 14,
-            padding: "8px 16px", background: "#F59E0B", color: "#1A1A1A",
+            padding: "8px 16px", background: "#F59E0B", color: "#0B0F19",
             fontSize: 13, fontWeight: 700, position: "sticky", top: 0, zIndex: 50,
           }}>
             <Eye size={14} /> You are acting as <strong>{actingAs}</strong>
             <button onClick={() => stopImpersonation()} style={{
               padding: "4px 12px", borderRadius: 7, border: "none", cursor: "pointer",
-              background: "#1A1A1A", color: "#fff", fontSize: 12, fontWeight: 700,
+              background: "#0B0F19", color: "#fff", fontSize: 12, fontWeight: 700,
             }}>
               Exit impersonation
             </button>
@@ -265,9 +265,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
         }}>
           <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 6 }}>
-            <span style={{ fontSize: 12, color: "#9C9286" }}>Workspace</span>
+            <span style={{ fontSize: 12, color: "#94A3B8" }}>Workspace</span>
             <ChevronRight size={12} color="#D1D5DB" />
-            <span style={{ fontSize: 12, fontWeight: 600, color: "#5B5249", textTransform: "capitalize" }}>
+            <span style={{ fontSize: 12, fontWeight: 600, color: "#4B5563", textTransform: "capitalize" }}>
               {pathname.split("/").pop()?.replace(/-/g, " ") || "overview"}
             </span>
           </div>
@@ -276,17 +276,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             width: 32, height: 32, borderRadius: 9,
             background: "#F4EFE7", border: "1px solid #E5E7EB",
             display: "flex", alignItems: "center", justifyContent: "center",
-            cursor: "pointer", color: "#6E635A",
+            cursor: "pointer", color: "#64748B",
             transition: "all 120ms ease",
           }}
-          onMouseEnter={e => { e.currentTarget.style.background = "#F3F4F6"; e.currentTarget.style.color = "#1A1A1A"; }}
-          onMouseLeave={e => { e.currentTarget.style.background = "#F4EFE7"; e.currentTarget.style.color = "#6E635A"; }}
+          onMouseEnter={e => { e.currentTarget.style.background = "#F3F4F6"; e.currentTarget.style.color = "#0B0F19"; }}
+          onMouseLeave={e => { e.currentTarget.style.background = "#F4EFE7"; e.currentTarget.style.color = "#64748B"; }}
           >
             <Bell size={15} />
           </button>
           <Link href="/dashboard/profile" style={{
             width: 30, height: 30, borderRadius: "50%",
-            background: "#EFE9E0", border: `2px solid #DCD2C3`,
+            background: "#EEF1F6", border: `2px solid #D8DEE9`,
             display: "flex", alignItems: "center", justifyContent: "center",
             fontSize: 11, fontWeight: 800, color: RED,
             transition: "transform 120ms ease",

@@ -5,12 +5,12 @@ import { supabase } from "@/lib/supabase";
 import { Loader2, Download, Search, ExternalLink, Database } from "lucide-react";
 import Link from "next/link";
 
-const BG = "#FAF8F4";
+const BG = "#F7F8FA";
 const PANEL = "#FFFFFF";
-const PANEL_2 = "#FAF8F4";
+const PANEL_2 = "#F7F8FA";
 const TEAL = "#059669";
-const TXT = "#1A1A1A";
-const MUTED = "#5B5249";
+const TXT = "#0B0F19";
+const MUTED = "#4B5563";
 
 interface Lead {
   id: string;
@@ -36,7 +36,7 @@ const STATUS_COLOR: Record<string, string> = {
   Warm: "#FFAA00",
   Cold: "#5BA8FF",
   "Call Back": "#FFC857",
-  Disqualified: "#A89A88",
+  Disqualified: "#8A97AB",
   Processing: MUTED,
   Duplicate: "#FFC857",
   Commercial: "#B58CFF",
@@ -135,9 +135,9 @@ export default function AdminLeadsPage() {
           <button onClick={exportAll} style={{
             display: "inline-flex", alignItems: "center", gap: 8,
             padding: "12px 20px", borderRadius: 10,
-            background: "#1A1A1A", color: "#fff",
+            background: "#0B0F19", color: "#fff",
             fontSize: 13, fontWeight: 800, border: "none", cursor: "pointer",
-            boxShadow: `0 6px 22px rgba(26,26,26,0.25)`,
+            boxShadow: `0 6px 22px rgba(11,15,25,0.25)`,
           }}>
             <Download size={14} /> Export All Leads
           </button>
@@ -152,7 +152,7 @@ export default function AdminLeadsPage() {
               style={{
                 width: "100%", padding: "10px 12px 10px 36px", borderRadius: 10,
                 background: PANEL, color: TXT,
-                border: "1px solid rgba(26,26,26,0.10)", outline: "none",
+                border: "1px solid rgba(11,15,25,0.10)", outline: "none",
                 fontSize: 13,
               }}
             />
@@ -160,7 +160,7 @@ export default function AdminLeadsPage() {
           <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} style={{
             padding: "10px 12px", borderRadius: 10,
             background: PANEL, color: TXT,
-            border: "1px solid rgba(26,26,26,0.10)", outline: "none",
+            border: "1px solid rgba(11,15,25,0.10)", outline: "none",
             fontSize: 13,
           }}>
             {statuses.map(s => <option key={s} value={s}>{s}</option>)}
@@ -169,7 +169,7 @@ export default function AdminLeadsPage() {
 
         <div style={{
           borderRadius: 14, overflow: "hidden",
-          background: PANEL, border: `1px solid rgba(26,26,26,0.08)`,
+          background: PANEL, border: `1px solid rgba(11,15,25,0.08)`,
           boxShadow: `0 4px 16px rgba(0,0,0,0.30)`,
         }}>
           {loading ? (
@@ -197,7 +197,7 @@ export default function AdminLeadsPage() {
                 </thead>
                 <tbody>
                   {filtered.map(l => (
-                    <tr key={l.id} style={{ borderTop: "1px solid rgba(26,26,26,0.05)" }}>
+                    <tr key={l.id} style={{ borderTop: "1px solid rgba(11,15,25,0.05)" }}>
                       <td style={{ padding: "11px 14px", fontSize: 12, color: MUTED, whiteSpace: "nowrap" }}>
                         {new Date(l.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                       </td>
@@ -223,8 +223,8 @@ export default function AdminLeadsPage() {
                       <td style={{ padding: "11px 14px" }}>
                         <Link href={`/dashboard/leads/${l.id}`} style={{
                           padding: "5px 10px", borderRadius: 7,
-                          background: "#EFE9E0", color: "#1A1A1A",
-                          border: "1px solid rgba(26,26,26,0.12)",
+                          background: "#EEF1F6", color: "#0B0F19",
+                          border: "1px solid rgba(11,15,25,0.12)",
                           fontSize: 11, fontWeight: 700, textDecoration: "none",
                           display: "inline-flex", alignItems: "center", gap: 4,
                         }}>

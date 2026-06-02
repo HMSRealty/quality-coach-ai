@@ -4,9 +4,9 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { Loader2, Search, Link2, Copy, Check, ExternalLink, Power } from "lucide-react";
 
-const NAVY = "#1A1A1A";
-const TEAL = "#C75B39";
-const SLATE = "#5B5249";
+const NAVY = "#0B0F19";
+const TEAL = "#2F6BFF";
+const SLATE = "#4B5563";
 
 interface UserRow {
   id: string;
@@ -136,17 +136,17 @@ export default function PermissionsPage() {
           placeholder="Search users by email..."
           style={{
             width: "100%", padding: "10px 12px 10px 36px", borderRadius: 10,
-            background: "#FFF", border: "1px solid rgba(26,26,26,0.10)",
+            background: "#FFF", border: "1px solid rgba(11,15,25,0.10)",
             fontSize: 13, color: NAVY, outline: "none",
           }}
         />
       </div>
 
       {/* Table */}
-      <div style={{ background: "#FFF", border: "1px solid rgba(26,26,26,0.08)", borderRadius: 14, overflow: "hidden" }}>
+      <div style={{ background: "#FFF", border: "1px solid rgba(11,15,25,0.08)", borderRadius: 14, overflow: "hidden" }}>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
-            <tr style={{ background: "#FAF8F4", borderBottom: "1px solid rgba(26,26,26,0.08)" }}>
+            <tr style={{ background: "#F7F8FA", borderBottom: "1px solid rgba(11,15,25,0.08)" }}>
               {["User", "Role", "Form Link", "Form Active", "Can Receive Leads", "Allow Call Uploads"].map(h => (
                 <th key={h} style={{
                   padding: "12px 16px", textAlign: "left", fontSize: 11,
@@ -157,12 +157,12 @@ export default function PermissionsPage() {
           </thead>
           <tbody>
             {filtered.map(u => (
-              <tr key={u.id} style={{ borderBottom: "1px solid rgba(26,26,26,0.05)" }}>
+              <tr key={u.id} style={{ borderBottom: "1px solid rgba(11,15,25,0.05)" }}>
                 <td style={{ padding: "12px 16px", fontSize: 13, color: NAVY, fontWeight: 600 }}>{u.email}</td>
                 <td style={{ padding: "12px 16px" }}>
                   <span style={{
                     padding: "3px 10px", borderRadius: 999, fontSize: 11, fontWeight: 700,
-                    background: u.role === "admin" ? "#F3EADF" : "#F2EDE5",
+                    background: u.role === "admin" ? "#EAF0FF" : "#F1F4F9",
                     color: u.role === "admin" ? "#92400E" : SLATE,
                   }}>
                     {u.role}
@@ -171,7 +171,7 @@ export default function PermissionsPage() {
                 <td style={{ padding: "12px 16px" }}>
                   {u.form_slug ? (
                     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <code style={{ fontSize: 11, color: TEAL, background: "#F4E7E0", padding: "2px 6px", borderRadius: 4 }}>
+                      <code style={{ fontSize: 11, color: TEAL, background: "#E8EFFF", padding: "2px 6px", borderRadius: 4 }}>
                         /submit/{u.form_slug}
                       </code>
                       <button onClick={() => copyLink(u)} title="Copy link" style={{
@@ -243,7 +243,7 @@ function Toggle({ on, onChange, busy }: { on: boolean; onChange: () => void; bus
       disabled={busy}
       style={{
         position: "relative", width: 38, height: 22, borderRadius: 999,
-        background: on ? TEAL : "#DCD2C3",
+        background: on ? TEAL : "#D8DEE9",
         border: "none", cursor: busy ? "wait" : "pointer", padding: 0,
         transition: "background 240ms cubic-bezier(0.16,1,0.30,1)",
       }}

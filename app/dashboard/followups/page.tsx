@@ -4,10 +4,10 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { Flag, Calendar, Phone, Clock, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
 
-const NAVY = "#1A1A1A";
-const TEAL = "#C75B39";
-const GOLD = "#B0703A";
-const SLATE = "#5B5249";
+const NAVY = "#0B0F19";
+const TEAL = "#2F6BFF";
+const GOLD = "#2F6BFF";
+const SLATE = "#4B5563";
 
 interface Followup {
   id: string;
@@ -98,7 +98,7 @@ export default function FollowupsPage() {
               padding: "8px 14px", borderRadius: 9,
               background: filter === f.id ? NAVY : "#FFFFFF",
               color: filter === f.id ? "#fff" : NAVY,
-              border: `1px solid ${filter === f.id ? NAVY : "rgba(26,26,26,0.10)"}`,
+              border: `1px solid ${filter === f.id ? NAVY : "rgba(11,15,25,0.10)"}`,
               fontSize: 12, fontWeight: 700, cursor: "pointer",
               display: "flex", alignItems: "center", gap: 6,
             }}
@@ -106,7 +106,7 @@ export default function FollowupsPage() {
             {f.label}
             <span style={{
               padding: "1px 7px", borderRadius: 999, fontSize: 10,
-              background: filter === f.id ? "rgba(255,255,255,0.2)" : "#F2EDE5",
+              background: filter === f.id ? "rgba(255,255,255,0.2)" : "#F1F4F9",
               color: filter === f.id ? "#fff" : SLATE,
             }}>
               {f.count}
@@ -119,7 +119,7 @@ export default function FollowupsPage() {
       {filtered.length === 0 ? (
         <div style={{
           padding: 60, textAlign: "center", borderRadius: 14,
-          background: "#FFFFFF", border: "1px solid rgba(26,26,26,0.08)",
+          background: "#FFFFFF", border: "1px solid rgba(11,15,25,0.08)",
         }}>
           <Flag size={36} color={SLATE} style={{ margin: "0 auto 12px", opacity: 0.4 }} />
           <p style={{ fontSize: 14, fontWeight: 700, color: NAVY }}>No flagged follow-ups</p>
@@ -132,10 +132,10 @@ export default function FollowupsPage() {
           {filtered.map(f => (
             <div key={f.id} style={{
               padding: 18, background: "#FFFFFF", borderRadius: 14,
-              border: "1px solid rgba(26,26,26,0.08)",
+              border: "1px solid rgba(11,15,25,0.08)",
               borderLeft: `4px solid ${priorityColor(f.followup_priority)}`,
               display: "grid", gridTemplateColumns: "1fr auto", gap: 16,
-              boxShadow: "0 2px 8px rgba(26,26,26,0.04)",
+              boxShadow: "0 2px 8px rgba(11,15,25,0.04)",
             }}>
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
@@ -167,7 +167,7 @@ export default function FollowupsPage() {
                   Agent: <strong style={{ color: NAVY }}>{f.agent_name || "Unassigned"}</strong>
                 </p>
                 {f.followup_notes && (
-                  <p style={{ fontSize: 12, color: SLATE, fontStyle: "italic", padding: "8px 10px", background: "#FAF8F4", borderRadius: 6 }}>
+                  <p style={{ fontSize: 12, color: SLATE, fontStyle: "italic", padding: "8px 10px", background: "#F7F8FA", borderRadius: 6 }}>
                     "{f.followup_notes}"
                   </p>
                 )}
@@ -186,7 +186,7 @@ export default function FollowupsPage() {
                   style={{
                     display: "flex", alignItems: "center", gap: 6,
                     padding: "6px 12px", borderRadius: 8,
-                    background: "transparent", color: SLATE, border: "1px solid rgba(26,26,26,0.10)",
+                    background: "transparent", color: SLATE, border: "1px solid rgba(11,15,25,0.10)",
                     fontSize: 11, fontWeight: 600, cursor: "pointer",
                   }}
                 >

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { Eye, EyeOff, Loader2, ArrowRight, Home } from "lucide-react";
 
-const RED   = "#C75B39";
+const RED   = "#2F6BFF";
 const RED_L = "#FBEEE8";
 
 type Tab = "signin" | "signup";
@@ -14,10 +14,10 @@ function HSMLogo() {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
       <svg width="52" height="32" viewBox="0 0 40 24" fill="none">
-        <path d="M2 22 L20 4 L38 22" stroke="#1A1A1A" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-        <path d="M8 22 L20 11 L32 22" stroke="#C75B39" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.9"/>
+        <path d="M2 22 L20 4 L38 22" stroke="#0B0F19" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+        <path d="M8 22 L20 11 L32 22" stroke="#2F6BFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.9"/>
       </svg>
-      <span style={{ fontSize: 13, fontWeight: 800, letterSpacing: "0.12em", color: "#1A1A1A", lineHeight: 1 }}>
+      <span style={{ fontSize: 13, fontWeight: 800, letterSpacing: "0.12em", color: "#0B0F19", lineHeight: 1 }}>
         REALTRACK
       </span>
     </div>
@@ -51,13 +51,13 @@ export default function AuthPage() {
   const inputBase: React.CSSProperties = {
     width: "100%", padding: "11px 14px",
     background: "#F4EFE7", border: "1.5px solid #E5E7EB",
-    borderRadius: 10, fontSize: 14, color: "#1A1A1A",
+    borderRadius: 10, fontSize: 14, color: "#0B0F19",
     outline: "none",
   };
 
   return (
     <div style={{
-      minHeight: "100vh", background: "#FAF8F4",
+      minHeight: "100vh", background: "#F7F8FA",
       display: "flex", alignItems: "center", justifyContent: "center",
       padding: 24,
     }}>
@@ -71,7 +71,7 @@ export default function AuthPage() {
         {/* Logo */}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 28 }}>
           <HSMLogo />
-          <p style={{ fontSize: 13, color: "#6E635A", marginTop: 10, fontWeight: 500 }}>
+          <p style={{ fontSize: 13, color: "#64748B", marginTop: 10, fontWeight: 500 }}>
             Performance &amp; Coaching Suite
           </p>
         </div>
@@ -88,7 +88,7 @@ export default function AuthPage() {
               borderRadius: 9, border: "none", cursor: "pointer",
               fontSize: 13, fontWeight: 600,
               background: tab === t ? "#FFFFFF" : "transparent",
-              color: tab === t ? "#1A1A1A" : "#6E635A",
+              color: tab === t ? "#0B0F19" : "#64748B",
               boxShadow: tab === t ? "0 1px 4px rgba(0,0,0,0.08)" : "none",
               transition: "all 140ms ease",
             }}>
@@ -99,7 +99,7 @@ export default function AuthPage() {
 
         <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <div>
-            <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#3A322B", marginBottom: 7, letterSpacing: "0.02em" }}>
+            <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 7, letterSpacing: "0.02em" }}>
               Email address
             </label>
             <input
@@ -108,7 +108,7 @@ export default function AuthPage() {
             />
           </div>
           <div>
-            <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#3A322B", marginBottom: 7, letterSpacing: "0.02em" }}>
+            <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 7, letterSpacing: "0.02em" }}>
               Password
             </label>
             <div style={{ position: "relative" }}>
@@ -120,11 +120,11 @@ export default function AuthPage() {
               />
               <button type="button" onClick={() => setShowPw(!showPw)} style={{
                 position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)",
-                background: "none", border: "none", cursor: "pointer", color: "#9C9286",
+                background: "none", border: "none", cursor: "pointer", color: "#94A3B8",
                 display: "flex", padding: 0, transition: "color 120ms",
               }}
-              onMouseEnter={e => e.currentTarget.style.color = "#5B5249"}
-              onMouseLeave={e => e.currentTarget.style.color = "#9C9286"}
+              onMouseEnter={e => e.currentTarget.style.color = "#4B5563"}
+              onMouseLeave={e => e.currentTarget.style.color = "#94A3B8"}
               >
                 {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
@@ -145,7 +145,7 @@ export default function AuthPage() {
           <button type="submit" disabled={loading} style={{
             width: "100%", padding: "12px",
             background: loading ? "#F3F4F6" : RED,
-            color: loading ? "#9C9286" : "#fff",
+            color: loading ? "#94A3B8" : "#fff",
             border: "none", borderRadius: 10,
             fontSize: 14, fontWeight: 700, cursor: loading ? "not-allowed" : "pointer",
             display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
@@ -153,14 +153,14 @@ export default function AuthPage() {
             transition: "all 130ms ease",
             marginTop: 4,
           }}
-          onMouseEnter={e => { if (!loading) { e.currentTarget.style.background = "#A8482B"; e.currentTarget.style.transform = "translateY(-1px)"; } }}
+          onMouseEnter={e => { if (!loading) { e.currentTarget.style.background = "#1E50D8"; e.currentTarget.style.transform = "translateY(-1px)"; } }}
           onMouseLeave={e => { if (!loading) { e.currentTarget.style.background = RED; e.currentTarget.style.transform = "translateY(0)"; } }}
           >
             {loading ? <><Loader2 size={15} className="animate-spin" /> Please wait...</> : <>{tab === "signin" ? "Sign In" : "Create Account"} <ArrowRight size={15} /></>}
           </button>
         </form>
 
-        <p style={{ textAlign: "center", fontSize: 12, color: "#9C9286", marginTop: 22 }}>
+        <p style={{ textAlign: "center", fontSize: 12, color: "#94A3B8", marginTop: 22 }}>
           <Link href="/landing" style={{ color: RED, fontWeight: 600 }}>
             View platform overview →
           </Link>

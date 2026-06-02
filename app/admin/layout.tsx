@@ -102,10 +102,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <a href="/admin" style={{ textDecoration: "none", display: "block", padding: "16px 14px 12px", borderBottom: "1px solid var(--border-1)" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 8 }}>
             <svg width="30" height="19" viewBox="0 0 40 24" fill="none">
-              <path d="M2 22 L20 4 L38 22" stroke="#1A1A1A" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-              <path d="M8 22 L20 11 L32 22" stroke="#C75B39" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.9"/>
+              <path d="M2 22 L20 4 L38 22" stroke="#0B0F19" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+              <path d="M8 22 L20 11 L32 22" stroke="#2F6BFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.9"/>
             </svg>
-            <span style={{ fontSize: 13, fontWeight: 700, color: "#1A1A1A" }}>Real<span style={{ color: "#C75B39" }}>Track</span></span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: "#0B0F19" }}>Real<span style={{ color: "#2F6BFF" }}>Track</span></span>
           </div>
           <div style={{
             display: "inline-flex", alignItems: "center", gap: 6,
