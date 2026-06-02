@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "HMS Realty — Outbound Intelligence",
-    template: "%s · HMS Realty",
+    default: "HMSRealty.CRM",
+    template: "%s · HMSRealty.CRM",
   },
   description:
     "Enterprise outbound real estate platform. Run teams, track KPIs, score every call, and scale revenue.",

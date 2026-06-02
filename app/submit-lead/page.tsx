@@ -211,7 +211,7 @@ export default function PublicSubmitLeadPage() {
               <path d="M8 22 L20 11 L32 22" stroke={TEAL} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.9"/>
             </svg>
             <span style={{ fontSize: 22, fontWeight: 800, color: NAVY, letterSpacing: "0.06em" }}>
-              HMS Realty
+              HMSRealty.CRM
             </span>
           </div>
           <h1 style={{ fontSize: 28, fontWeight: 900, color: NAVY, marginBottom: 10, letterSpacing: "-0.02em" }}>
@@ -420,7 +420,7 @@ export default function PublicSubmitLeadPage() {
           </button>
 
           <p style={{ textAlign: "center", fontSize: 11, color: SLATE, marginTop: 20 }}>
-            Powered by <strong style={{ color: NAVY }}>HMS Realty</strong> • Secure submission
+            Powered by <strong style={{ color: NAVY }}>HMSRealty.CRM</strong> • Secure submission
           </p>
         </form>
       </div>

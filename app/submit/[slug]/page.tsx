@@ -229,7 +229,7 @@ export default function DynamicSubmitPage() {
               <path d="M2 22 L20 4 L38 22" stroke={NAVY} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"/>
               <path d="M8 22 L20 11 L32 22" stroke={TEAL} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            <span style={{ fontSize: 20, fontWeight: 800, color: NAVY, letterSpacing: "0.06em" }}>HMS Realty</span>
+            <span style={{ fontSize: 20, fontWeight: 800, color: NAVY, letterSpacing: "0.04em" }}>HMSRealty.CRM</span>
           </div>
           <h1 style={{ fontSize: 26, fontWeight: 900, color: NAVY, marginBottom: 8 }}>{owner?.form_name}</h1>
           <p style={{ fontSize: 13, color: SLATE }}>Submit a lead — AI evaluation runs automatically.</p>

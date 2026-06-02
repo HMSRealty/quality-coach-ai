@@ -105,7 +105,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <path d="M2 22 L20 4 L38 22" stroke="#0A1E3F" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
               <path d="M8 22 L20 11 L32 22" stroke="#0DAFAF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.9"/>
             </svg>
-            <span style={{ fontSize: 13, fontWeight: 700, color: "#0A1E3F" }}>HMS <span style={{ color: "#0DAFAF" }}>Realty</span></span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: "#0A1E3F" }}>HMSRealty<span style={{ color: "#0DAFAF" }}>.CRM</span></span>
           </div>
           <div style={{
             display: "inline-flex", alignItems: "center", gap: 6,

@@ -27,7 +27,7 @@ function HMSLogo({ size = 36, light = false }: { size?: number; light?: boolean 
         fontSize: size * 0.5, fontWeight: 800, letterSpacing: "0.06em",
         color: light ? "#fff" : NAVY, lineHeight: 1,
       }}>
-        HMS Realty
+        HMSRealty.CRM
       </span>
     </div>
   );
@@ -428,7 +428,7 @@ export default function LandingPage() {
           display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16,
         }}>
           <HMSLogo size={26} light />
-          <p style={{ fontSize: 13 }}>© 2026 HMS Realty. All rights reserved.</p>
+          <p style={{ fontSize: 13 }}>© 2026 HMSRealty.CRM. All rights reserved.</p>
         </div>
       </footer>
     </div>

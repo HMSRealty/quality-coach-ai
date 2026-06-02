@@ -128,7 +128,7 @@ function PayInner() {
           <div className="flex items-center gap-2">
             <span className="w-7 h-7 rounded flex items-center justify-center text-xs font-black"
               style={{ background: "var(--accent)", color: "#000" }}>H</span>
-            <span className="text-sm font-bold">HMS <span style={{ color: "var(--accent)" }}>Realty</span></span>
+            <span className="text-sm font-bold">HMSRealty<span style={{ color: "var(--accent)" }}>.CRM</span></span>
           </div>
           <Link href="/landing"
             className="flex items-center gap-1.5 text-xs font-medium"
