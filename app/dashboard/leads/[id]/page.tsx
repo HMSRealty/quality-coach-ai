@@ -36,7 +36,14 @@ interface Lead {
   call_recording_url: string | null;
   rejection_reason: string | null;
   audio_duration_seconds: number | null;
+  metadata: Record<string, unknown> | null;
   campaigns?: { name: string } | null;
+}
+
+interface ExtractedItem {
+  id?: string; label?: string; status?: string;
+  question_asked?: string; seller_answer?: string;
+  start_time?: string; end_time?: string; is_deal_breaker?: boolean;
 }
 
 const STATUS_CONFIG: Record<string, { bg: string; color: string; icon: typeof CheckCircle2 }> = {
@@ -250,6 +257,102 @@ export default function LeadDetailPage() {
           </div>
         </Section>
       )}
+
+      {/* ── FULL CALL DETAILS (from metadata) ── */}
+      {(() => {
+        const m = (lead.metadata || {}) as Record<string, unknown>;
+        const template = (m.lead_template as string) || "";
+        const items = (m.extracted_items as ExtractedItem[]) || [];
+        const compliance = (m.compliance_check as string) || "";
+        const compliancePassed = m.compliance_passed === true;
+        const tone = (m.tone as string) || "";
+        const category = (m.lead_category as string) || "";
+        const marketValue = (m.spoken_market_value as string) || "";
+        const regen = (m.regeneration_steps as string) || "";
+        const anyDetails = template || items.length || compliance || tone || category || regen;
+        if (!anyDetails) return null;
+
+        return (
+          <>
+            {/* Lead template */}
+            {template && (
+              <Section icon={FileText} title="Lead Template (extracted from call)" accent={NAVY}>
+                <pre style={{
+                  margin: 0, padding: 16, borderRadius: 10, background: "#F4F7FB",
+                  border: "1px solid rgba(10,30,63,0.06)", whiteSpace: "pre-wrap",
+                  fontFamily: "var(--font-mono)", fontSize: 12.5, color: NAVY, lineHeight: 1.7,
+                }}>{template}</pre>
+              </Section>
+            )}
+
+            {/* Quick facts row */}
+            {(tone || category || marketValue) && (
+              <Section icon={MessageSquare} title="Call Signals" accent={TEAL}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+                  <BantBlock label="Tone of Voice" value={tone || null} />
+                  <BantBlock label="Seller Type" value={category ? category.replace(/_/g, " ").toUpperCase() : null} />
+                  <BantBlock label="Market Value (spoken)" value={marketValue && marketValue !== "None" ? marketValue : null} />
+                </div>
+              </Section>
+            )}
+
+            {/* Q&A indicators with timestamps */}
+            {items.length > 0 && (
+              <Section icon={Target} title={`Extracted Q&A Indicators (${items.length})`} accent={GOLD}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {items.map((it, i) => (
+                    <div key={i} style={{
+                      padding: 14, borderRadius: 10,
+                      background: it.is_deal_breaker ? "#FEF2F2" : "#F4F7FB",
+                      border: `1px solid ${it.is_deal_breaker ? "#FCA5A5" : "rgba(10,30,63,0.06)"}`,
+                    }}>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 6 }}>
+                        <span style={{ fontSize: 13, fontWeight: 800, color: it.is_deal_breaker ? "#DC2626" : NAVY }}>
+                          {it.is_deal_breaker ? "⛔ " : "■ "}{it.label || it.id || "Indicator"}
+                          {it.status ? ` · ${it.status}` : ""}
+                        </span>
+                        {(it.start_time || it.end_time) && (
+                          <span style={{ fontSize: 11, color: SLATE, fontFamily: "var(--font-mono)", whiteSpace: "nowrap" }}>
+                            [{it.start_time || "N/A"} – {it.end_time || "N/A"}]
+                          </span>
+                        )}
+                      </div>
+                      <p style={{ fontSize: 12.5, color: SLATE, lineHeight: 1.6, margin: "0 0 4px 0" }}>
+                        <strong style={{ color: NAVY }}>Q:</strong> {it.question_asked || "N/A"}
+                      </p>
+                      <p style={{ fontSize: 12.5, color: SLATE, lineHeight: 1.6, margin: 0 }}>
+                        <strong style={{ color: NAVY }}>A:</strong> {it.seller_answer || "N/A"}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </Section>
+            )}
+
+            {/* Compliance */}
+            {compliance && (
+              <Section icon={compliancePassed ? CheckCircle2 : XCircle} title="Compliance Check" accent={compliancePassed ? "#059669" : "#DC2626"}>
+                <div style={{
+                  display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 10,
+                  padding: "4px 12px", borderRadius: 999,
+                  background: compliancePassed ? "#ECFDF5" : "#FEF2F2",
+                  color: compliancePassed ? "#059669" : "#DC2626", fontSize: 12, fontWeight: 800,
+                }}>
+                  {compliancePassed ? "PASSED" : "FAILED"}
+                </div>
+                <p style={{ fontSize: 13, color: NAVY, lineHeight: 1.7 }}>{compliance}</p>
+              </Section>
+            )}
+
+            {/* Next steps */}
+            {regen && regen !== "No steps generated." && (
+              <Section icon={TrendingUp} title="Recommended Next Steps" accent="#7C3AED">
+                <p style={{ fontSize: 13, color: NAVY, lineHeight: 1.7 }}>{regen}</p>
+              </Section>
+            )}
+          </>
+        );
+      })()}
 
       <Section icon={Phone} title="Call Recording" accent={NAVY}>
         {lead.call_recording_url ? (
