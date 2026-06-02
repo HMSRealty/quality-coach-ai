@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 
-const NAVY = "#0B0F19";
-const NAVY_2 = "#141A26";
+const NAVY = "#232B3A";
+const NAVY_2 = "#2A3347";
 const TEAL = "#2F6BFF";
 const SLATE = "#4B5563";
 const ARROW = "#2F6BFF";
@@ -19,14 +19,14 @@ interface Step {
 // ── small UI primitives for the mock screens ──
 function Chrome({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div style={{ borderRadius: 14, overflow: "hidden", border: "1px solid rgba(11,15,25,0.12)", background: "#fff", boxShadow: "0 12px 40px rgba(11,15,25,0.12)" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 14px", background: "#F1F4F9", borderBottom: "1px solid rgba(11,15,25,0.08)" }}>
+    <div style={{ borderRadius: 14, overflow: "hidden", border: "1px solid rgba(35,43,58,0.12)", background: "#fff", boxShadow: "0 12px 40px rgba(35,43,58,0.12)" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 14px", background: "#F1F4F9", borderBottom: "1px solid rgba(35,43,58,0.08)" }}>
         <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#FF5F57" }} />
         <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#FEBC2E" }} />
         <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#28C840" }} />
         <span style={{ marginLeft: 10, fontSize: 11, color: SLATE, fontWeight: 600 }}>{title}</span>
       </div>
-      <div style={{ padding: 18, position: "relative", minHeight: 230, background: "#F7F8FA" }}>{children}</div>
+      <div style={{ padding: 18, position: "relative", minHeight: 230, background: "#F2F5F9" }}>{children}</div>
     </div>
   );
 }
@@ -37,7 +37,7 @@ function Arrow({ label, top, left }: { label: string; top: number; left: number 
       <div style={{
         background: NAVY, color: "#fff", fontSize: 11, fontWeight: 800,
         padding: "5px 10px", borderRadius: 8, whiteSpace: "nowrap",
-        boxShadow: "0 4px 14px rgba(11,15,25,0.30)",
+        boxShadow: "0 4px 14px rgba(35,43,58,0.30)",
       }}>{label}</div>
       <svg width="40" height="24" viewBox="0 0 40 24" style={{ overflow: "visible" }}>
         <line x1="0" y1="12" x2="32" y2="12" stroke={ARROW} strokeWidth="2.5" />
@@ -54,7 +54,7 @@ function Field({ label, value, highlight }: { label: string; value: string; high
       <div style={{
         padding: "8px 10px", borderRadius: 7, fontSize: 11, color: NAVY,
         background: highlight ? "#E8EFFF" : "#fff",
-        border: `1px solid ${highlight ? TEAL : "rgba(11,15,25,0.10)"}`,
+        border: `1px solid ${highlight ? TEAL : "rgba(35,43,58,0.10)"}`,
       }}>{value}</div>
     </div>
   );
@@ -128,7 +128,7 @@ const STEPS: Step[] = [
           <span style={{ padding: "5px 12px", borderRadius: 999, background: "#ECFDF5", color: "#059669", fontSize: 11, fontWeight: 800 }}>✓ Qualified</span>
           <span style={{ fontSize: 12, color: SLATE }}>123 Oak St, Miami FL</span>
         </div>
-        <div style={{ padding: 12, borderRadius: 9, background: "#fff", border: "1px solid rgba(11,15,25,0.08)", maxWidth: 420 }}>
+        <div style={{ padding: 12, borderRadius: 9, background: "#fff", border: "1px solid rgba(35,43,58,0.08)", maxWidth: 420 }}>
           <p style={{ fontSize: 10, fontWeight: 700, color: "#7C3AED", marginBottom: 4 }}>WHAT HAPPENED ON THE CALL</p>
           <p style={{ fontSize: 11, color: NAVY, lineHeight: 1.6 }}>Owner is relocating, motivated to close within 60 days. Asking $210k vs $275k Zestimate — a deep discount with clear motivation.</p>
         </div>
@@ -147,7 +147,7 @@ const STEPS: Step[] = [
           {["[02:14] Acknowledge seller's divorce before pivoting to repairs.",
             "[04:30] Strong price anchor — repeat this on every call.",
             "[06:02] Ask for the decision-maker earlier next time."].map((t, i) => (
-            <div key={i} style={{ display: "flex", gap: 8, padding: "8px 10px", borderRadius: 8, background: "#F7F8FA", fontSize: 11, color: NAVY }}>
+            <div key={i} style={{ display: "flex", gap: 8, padding: "8px 10px", borderRadius: 8, background: "#F2F5F9", fontSize: 11, color: NAVY }}>
               <span style={{ minWidth: 18, height: 18, borderRadius: "50%", background: NAVY, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 800 }}>{i + 1}</span>
               {t}
             </div>
@@ -165,7 +165,7 @@ const STEPS: Step[] = [
       <Chrome title="RealTrack — Team Leader">
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, maxWidth: 420, marginBottom: 14 }}>
           {[["Callers", "8"], ["Qualified", "41"], ["Pass Rate", "57%"]].map(([l, v]) => (
-            <div key={l} style={{ padding: 12, borderRadius: 9, background: "#fff", border: "1px solid rgba(11,15,25,0.08)" }}>
+            <div key={l} style={{ padding: 12, borderRadius: 9, background: "#fff", border: "1px solid rgba(35,43,58,0.08)" }}>
               <p style={{ fontSize: 9, color: SLATE, fontWeight: 700 }}>{l}</p>
               <p style={{ fontSize: 20, fontWeight: 900, color: NAVY }}>{v}</p>
             </div>
@@ -193,7 +193,7 @@ export function TutorialBoard() {
         {STEPS.map((s, i) => (
           <button key={s.key} onClick={() => setActive(i)} style={{
             padding: "8px 16px", borderRadius: 999, cursor: "pointer",
-            border: `1px solid ${i === active ? NAVY : "rgba(11,15,25,0.12)"}`,
+            border: `1px solid ${i === active ? NAVY : "rgba(35,43,58,0.12)"}`,
             background: i === active ? NAVY : "#fff",
             color: i === active ? "#fff" : SLATE,
             fontSize: 12.5, fontWeight: 700, transition: "all 160ms ease",

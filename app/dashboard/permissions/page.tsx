@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { Loader2, Search, Link2, Copy, Check, ExternalLink, Power } from "lucide-react";
 
-const NAVY = "#0B0F19";
+const NAVY = "#232B3A";
 const TEAL = "#2F6BFF";
 const SLATE = "#4B5563";
 
@@ -136,17 +136,17 @@ export default function PermissionsPage() {
           placeholder="Search users by email..."
           style={{
             width: "100%", padding: "10px 12px 10px 36px", borderRadius: 10,
-            background: "#FFF", border: "1px solid rgba(11,15,25,0.10)",
+            background: "#FFF", border: "1px solid rgba(35,43,58,0.10)",
             fontSize: 13, color: NAVY, outline: "none",
           }}
         />
       </div>
 
       {/* Table */}
-      <div style={{ background: "#FFF", border: "1px solid rgba(11,15,25,0.08)", borderRadius: 14, overflow: "hidden" }}>
+      <div style={{ background: "#FFF", border: "1px solid rgba(35,43,58,0.08)", borderRadius: 14, overflow: "hidden" }}>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
-            <tr style={{ background: "#F7F8FA", borderBottom: "1px solid rgba(11,15,25,0.08)" }}>
+            <tr style={{ background: "#F2F5F9", borderBottom: "1px solid rgba(35,43,58,0.08)" }}>
               {["User", "Role", "Form Link", "Form Active", "Can Receive Leads", "Allow Call Uploads"].map(h => (
                 <th key={h} style={{
                   padding: "12px 16px", textAlign: "left", fontSize: 11,
@@ -157,7 +157,7 @@ export default function PermissionsPage() {
           </thead>
           <tbody>
             {filtered.map(u => (
-              <tr key={u.id} style={{ borderBottom: "1px solid rgba(11,15,25,0.05)" }}>
+              <tr key={u.id} style={{ borderBottom: "1px solid rgba(35,43,58,0.05)" }}>
                 <td style={{ padding: "12px 16px", fontSize: 13, color: NAVY, fontWeight: 600 }}>{u.email}</td>
                 <td style={{ padding: "12px 16px" }}>
                   <span style={{

@@ -8,7 +8,7 @@ import {
   BookOpen, X, Trash2, ExternalLink, CheckCircle2, AlertCircle,
 } from "lucide-react";
 
-const NAVY = "#0B0F19";
+const NAVY = "#232B3A";
 const TEAL = "#2F6BFF";
 const GOLD = "#2F6BFF";
 const SLATE = "#4B5563";
@@ -44,7 +44,7 @@ interface Session {
 
 const inputStyle: React.CSSProperties = {
   width: "100%", padding: "10px 12px", borderRadius: 9,
-  background: "#F7F8FA", border: "1px solid rgba(11,15,25,0.10)",
+  background: "#F2F5F9", border: "1px solid rgba(35,43,58,0.10)",
   fontSize: 13, color: NAVY, outline: "none",
 };
 const labelStyle: React.CSSProperties = {
@@ -54,13 +54,13 @@ const labelStyle: React.CSSProperties = {
 function Modal({ children, onClose, title }: { children: React.ReactNode; onClose: () => void; title: string }) {
   return (
     <div onClick={onClose} style={{
-      position: "fixed", inset: 0, background: "rgba(11,15,25,0.50)",
+      position: "fixed", inset: 0, background: "rgba(35,43,58,0.50)",
       display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100,
       backdropFilter: "blur(4px)", padding: 20,
     }}>
       <div onClick={e => e.stopPropagation()} style={{
         background: "#FFF", borderRadius: 16, padding: 28, maxWidth: 520, width: "100%",
-        boxShadow: "0 24px 80px rgba(11,15,25,0.30)",
+        boxShadow: "0 24px 80px rgba(35,43,58,0.30)",
         maxHeight: "90vh", overflowY: "auto",
       }} className="animate-scale">
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
@@ -237,7 +237,7 @@ export default function TrainersPage() {
 
       {/* Batches */}
       <Card padding={0}>
-        <div style={{ padding: "18px 22px", borderBottom: "1px solid rgba(11,15,25,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ padding: "18px 22px", borderBottom: "1px solid rgba(35,43,58,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <h3 style={{ fontSize: 14, fontWeight: 800, color: NAVY, display: "flex", alignItems: "center", gap: 8 }}>
             <Users size={16} color={GOLD} /> Training Batches
           </h3>
@@ -259,7 +259,7 @@ export default function TrainersPage() {
             {batches.map(b => {
               const t = trainers.find(t => t.id === b.trainer_id);
               return (
-                <div key={b.id} style={{ padding: "14px 22px", borderTop: "1px solid rgba(11,15,25,0.05)", display: "flex", alignItems: "center", gap: 14 }}>
+                <div key={b.id} style={{ padding: "14px 22px", borderTop: "1px solid rgba(35,43,58,0.05)", display: "flex", alignItems: "center", gap: 14 }}>
                   <div style={{ width: 36, height: 36, borderRadius: 8, background: `${GOLD}15`, display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <Users size={16} color={GOLD} />
                   </div>
@@ -283,7 +283,7 @@ export default function TrainersPage() {
 
       {/* Materials */}
       <Card padding={0}>
-        <div style={{ padding: "18px 22px", borderBottom: "1px solid rgba(11,15,25,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ padding: "18px 22px", borderBottom: "1px solid rgba(35,43,58,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <h3 style={{ fontSize: 14, fontWeight: 800, color: NAVY, display: "flex", alignItems: "center", gap: 8 }}>
             <FileText size={16} color={TEAL} /> Training Materials
           </h3>
@@ -303,7 +303,7 @@ export default function TrainersPage() {
         ) : (
           <div style={{ display: "flex", flexDirection: "column" }}>
             {materials.map(m => (
-              <div key={m.id} style={{ padding: "14px 22px", borderTop: "1px solid rgba(11,15,25,0.05)", display: "flex", alignItems: "center", gap: 14 }}>
+              <div key={m.id} style={{ padding: "14px 22px", borderTop: "1px solid rgba(35,43,58,0.05)", display: "flex", alignItems: "center", gap: 14 }}>
                 <div style={{ width: 36, height: 36, borderRadius: 8, background: `${TEAL}15`, display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <FileText size={16} color={TEAL} />
                 </div>
@@ -330,7 +330,7 @@ export default function TrainersPage() {
 
       {/* Coaching Documentation */}
       <Card padding={0}>
-        <div style={{ padding: "18px 22px", borderBottom: "1px solid rgba(11,15,25,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ padding: "18px 22px", borderBottom: "1px solid rgba(35,43,58,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <h3 style={{ fontSize: 14, fontWeight: 800, color: NAVY, display: "flex", alignItems: "center", gap: 8 }}>
             <BookOpen size={16} color={NAVY} /> Documented Training Sessions
           </h3>
@@ -353,7 +353,7 @@ export default function TrainersPage() {
               const t = trainers.find(t => t.id === s.trainer_id);
               const b = batches.find(b => b.id === s.batch_id);
               return (
-                <div key={s.id} style={{ padding: "14px 22px", borderTop: "1px solid rgba(11,15,25,0.05)" }}>
+                <div key={s.id} style={{ padding: "14px 22px", borderTop: "1px solid rgba(35,43,58,0.05)" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 6 }}>
                     <div style={{ width: 36, height: 36, borderRadius: 8, background: `${NAVY}10`, display: "flex", alignItems: "center", justifyContent: "center" }}>
                       <BookOpen size={16} color={NAVY} />
@@ -372,7 +372,7 @@ export default function TrainersPage() {
                     }}><Trash2 size={13} /></button>
                   </div>
                   {s.notes && (
-                    <p style={{ fontSize: 12, color: SLATE, lineHeight: 1.6, padding: "10px 12px", background: "#F7F8FA", borderRadius: 8, marginLeft: 50 }}>
+                    <p style={{ fontSize: 12, color: SLATE, lineHeight: 1.6, padding: "10px 12px", background: "#F2F5F9", borderRadius: 8, marginLeft: 50 }}>
                       {s.notes}
                     </p>
                   )}

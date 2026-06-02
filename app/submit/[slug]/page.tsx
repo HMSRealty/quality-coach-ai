@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { Send, Loader2, CheckCircle2, AlertCircle, Upload, Lock } from "lucide-react";
 
-const NAVY = "#0B0F19";
+const NAVY = "#232B3A";
 const TEAL = "#2F6BFF";
 const SLATE = "#4B5563";
 
@@ -210,7 +210,7 @@ export default function DynamicSubmitPage() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#F7F8FA" }}>
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#F2F5F9" }}>
         <Loader2 size={28} className="animate-spin" style={{ color: NAVY }} />
       </div>
     );
@@ -218,11 +218,11 @@ export default function DynamicSubmitPage() {
 
   if (blocked) {
     return (
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#F7F8FA", padding: 24 }}>
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#F2F5F9", padding: 24 }}>
         <div style={{
           maxWidth: 440, padding: 40, background: "#fff", borderRadius: 16,
-          border: "1px solid rgba(11,15,25,0.08)", textAlign: "center",
-          boxShadow: "0 12px 40px rgba(11,15,25,0.08)",
+          border: "1px solid rgba(35,43,58,0.08)", textAlign: "center",
+          boxShadow: "0 12px 40px rgba(35,43,58,0.08)",
         }}>
           <div style={{ width: 64, height: 64, borderRadius: "50%", background: "#F1F4F9", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 18px" }}>
             <Lock size={28} color={SLATE} />
@@ -236,12 +236,12 @@ export default function DynamicSubmitPage() {
 
   const inputStyle: React.CSSProperties = {
     width: "100%", padding: "10px 12px", borderRadius: 9,
-    background: "#F7F8FA", border: "1px solid rgba(11,15,25,0.08)",
+    background: "#F2F5F9", border: "1px solid rgba(35,43,58,0.08)",
     fontSize: 13, color: NAVY, outline: "none",
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "linear-gradient(180deg, #F7F8FA 0%, #FFF 100%)", padding: "40px 24px" }} className="animate-in">
+    <div style={{ minHeight: "100vh", background: "linear-gradient(180deg, #F2F5F9 0%, #FFF 100%)", padding: "40px 24px" }} className="animate-in">
       <div style={{ maxWidth: 640, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 32 }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
@@ -265,7 +265,7 @@ export default function DynamicSubmitPage() {
         {doneStatus ? (
           <div style={{
             background: "#FFF", borderRadius: 16, padding: "40px 28px",
-            border: "1px solid rgba(11,15,25,0.08)", boxShadow: "0 2px 12px rgba(11,15,25,0.06)",
+            border: "1px solid rgba(35,43,58,0.08)", boxShadow: "0 2px 12px rgba(35,43,58,0.06)",
             textAlign: "center",
           }}>
             <div style={{
@@ -293,13 +293,13 @@ export default function DynamicSubmitPage() {
               display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
               width: "100%", padding: "14px 24px", borderRadius: 11,
               background: NAVY, color: "#fff", fontSize: 14, fontWeight: 800,
-              border: "none", cursor: "pointer", boxShadow: `0 6px 20px rgba(11,15,25,0.25)`,
+              border: "none", cursor: "pointer", boxShadow: `0 6px 20px rgba(35,43,58,0.25)`,
             }}>
               <Send size={15} /> Submit New Lead
             </button>
           </div>
         ) : (
-        <form onSubmit={handleSubmit} style={{ background: "#FFF", borderRadius: 14, padding: 24, border: "1px solid rgba(11,15,25,0.08)", boxShadow: "0 2px 12px rgba(11,15,25,0.06)", position: "relative" }}>
+        <form onSubmit={handleSubmit} style={{ background: "#FFF", borderRadius: 14, padding: 24, border: "1px solid rgba(35,43,58,0.08)", boxShadow: "0 2px 12px rgba(35,43,58,0.06)", position: "relative" }}>
           {submitting && (
             <div style={{
               position: "absolute", inset: 0, borderRadius: 14, zIndex: 5,
@@ -337,7 +337,7 @@ export default function DynamicSubmitPage() {
 
           {/* Extra properties */}
           {extraProps.map((p, i) => (
-            <div key={i} style={{ padding: 12, borderRadius: 10, background: "#F7F8FA", border: "1px solid rgba(11,15,25,0.08)", marginBottom: 12 }}>
+            <div key={i} style={{ padding: 12, borderRadius: 10, background: "#F2F5F9", border: "1px solid rgba(35,43,58,0.08)", marginBottom: 12 }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
                 <span style={{ fontSize: 11, fontWeight: 700, color: SLATE }}>Property #{i + 2}</span>
                 <button type="button" onClick={() => removeProperty(i)} style={{ background: "none", border: "none", color: "#DC2626", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Remove</button>
@@ -370,7 +370,7 @@ export default function DynamicSubmitPage() {
             width: "100%", padding: "14px 24px", borderRadius: 11,
             background: submitting ? "#E5E9F0" : NAVY, color: submitting ? SLATE : "#fff",
             fontSize: 14, fontWeight: 800, border: "none", cursor: submitting ? "wait" : "pointer",
-            boxShadow: submitting ? "none" : `0 6px 20px rgba(11,15,25,0.25)`,
+            boxShadow: submitting ? "none" : `0 6px 20px rgba(35,43,58,0.25)`,
           }}>
             {submitting ? <><Loader2 size={15} className="animate-spin" /> Processing...</> : <><Send size={15} /> Submit & Analyze</>}
           </button>

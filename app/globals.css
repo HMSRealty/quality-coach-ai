@@ -7,14 +7,14 @@
 
 :root {
   /* ── RealTrack Brand: Navy primary, Electric-blue accent ── */
-  --navy:        #0B0F19;   /* Deep brand navy */
-  --navy-2:      #141A26;   /* Lifted navy */
-  --navy-3:      #1E2738;   /* Hover navy */
+  --navy:        #232B3A;   /* Charcoal-slate (softened for eye comfort) */
+  --navy-2:      #2A3347;   /* Lifted navy */
+  --navy-3:      #3A4456;   /* Hover navy */
   --navy-light:  #EEF1F6;   /* Navy tint background */
   --navy-border: #D8DEE9;
-  --navy-glow:   rgba(11,15,25,0.16);
-  --navy-ring:   rgba(11,15,25,0.30);
-  --navy-dim:    rgba(11,15,25,0.06);
+  --navy-glow:   rgba(35,43,58,0.16);
+  --navy-ring:   rgba(35,43,58,0.30);
+  --navy-dim:    rgba(35,43,58,0.06);
 
   --teal:        #2F6BFF;   /* Crisp teal accent */
   --teal-2:      #1E50D8;
@@ -39,25 +39,25 @@
   --red-ring:    var(--navy-ring);
   --red-dim:     var(--navy-dim);
 
-  /* ── Canvas Layers ── */
-  --canvas:    #F7F8FA;
-  --surface-1: #FFFFFF;
-  --surface-2: #FFFFFF;
-  --surface-3: #F1F4F9;
+  /* ── Canvas Layers (calm, low-glare) ── */
+  --canvas:    #EEF1F6;
+  --surface-1: #FCFDFF;
+  --surface-2: #FCFDFF;
+  --surface-3: #F2F5F9;
   --surface-4: #E5E9F0;
   --surface-5: #D8DEE9;
 
   /* ── Borders ── */
-  --border-1: rgba(11,15,25,0.05);
-  --border-2: rgba(11,15,25,0.10);
-  --border-3: rgba(11,15,25,0.16);
-  --border-4: rgba(11,15,25,0.24);
-  --border-brand: rgba(11,15,25,0.30);
+  --border-1: rgba(35,43,58,0.05);
+  --border-2: rgba(35,43,58,0.09);
+  --border-3: rgba(35,43,58,0.14);
+  --border-4: rgba(35,43,58,0.22);
+  --border-brand: rgba(35,43,58,0.28);
 
-  /* ── Text ── */
-  --text-1: #0B0F19;
-  --text-2: #4B5563;
-  --text-3: #94A3B8;
+  /* ── Text (softened from pure black) ── */
+  --text-1: #232B3A;
+  --text-2: #5A6473;
+  --text-3: #99A2B0;
   --text-4: #CBD5E1;
 
   /* ── Semantic aliases ── */
@@ -157,6 +157,7 @@ html, body {
   background: var(--canvas);
   color: var(--text-1);
   font-family: var(--font-sans);
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings: "cv11","ss01","ss03";

@@ -14,10 +14,10 @@ function HSMLogo() {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
       <svg width="52" height="32" viewBox="0 0 40 24" fill="none">
-        <path d="M2 22 L20 4 L38 22" stroke="#0B0F19" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+        <path d="M2 22 L20 4 L38 22" stroke="#232B3A" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
         <path d="M8 22 L20 11 L32 22" stroke="#2F6BFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.9"/>
       </svg>
-      <span style={{ fontSize: 13, fontWeight: 800, letterSpacing: "0.12em", color: "#0B0F19", lineHeight: 1 }}>
+      <span style={{ fontSize: 13, fontWeight: 800, letterSpacing: "0.12em", color: "#232B3A", lineHeight: 1 }}>
         REALTRACK
       </span>
     </div>
@@ -51,13 +51,13 @@ export default function AuthPage() {
   const inputBase: React.CSSProperties = {
     width: "100%", padding: "11px 14px",
     background: "#F4EFE7", border: "1.5px solid #E5E7EB",
-    borderRadius: 10, fontSize: 14, color: "#0B0F19",
+    borderRadius: 10, fontSize: 14, color: "#232B3A",
     outline: "none",
   };
 
   return (
     <div style={{
-      minHeight: "100vh", background: "#F7F8FA",
+      minHeight: "100vh", background: "#F2F5F9",
       display: "flex", alignItems: "center", justifyContent: "center",
       padding: 24,
     }}>
@@ -88,7 +88,7 @@ export default function AuthPage() {
               borderRadius: 9, border: "none", cursor: "pointer",
               fontSize: 13, fontWeight: 600,
               background: tab === t ? "#FFFFFF" : "transparent",
-              color: tab === t ? "#0B0F19" : "#64748B",
+              color: tab === t ? "#232B3A" : "#64748B",
               boxShadow: tab === t ? "0 1px 4px rgba(0,0,0,0.08)" : "none",
               transition: "all 140ms ease",
             }}>

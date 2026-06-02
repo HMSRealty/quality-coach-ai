@@ -8,7 +8,7 @@ import {
   Volume2, VolumeX, Search, Loader2, PhoneIncoming,
 } from "lucide-react";
 
-const NAVY = "#0B0F19";
+const NAVY = "#232B3A";
 const TEAL = "#2F6BFF";
 const GOLD = "#2F6BFF";
 const SLATE = "#4B5563";
@@ -478,7 +478,7 @@ export default function DialerPage() {
           display: "flex", alignItems: "center", gap: 8,
           padding: "8px 14px", borderRadius: 999,
           background: callState === "connected" ? "#ECFDF5" : "#F1F4F9",
-          border: `1px solid ${callState === "connected" ? "#A7F3D0" : "rgba(11,15,25,0.08)"}`,
+          border: `1px solid ${callState === "connected" ? "#A7F3D0" : "rgba(35,43,58,0.08)"}`,
         }}>
           <div style={{
             width: 8, height: 8, borderRadius: "50%",
@@ -494,7 +494,7 @@ export default function DialerPage() {
       <div style={{ display: "grid", gridTemplateColumns: "340px 1fr", gap: 22 }}>
         {/* Roster */}
         <Card padding={0}>
-          <div style={{ padding: "16px 18px", borderBottom: "1px solid rgba(11,15,25,0.06)" }}>
+          <div style={{ padding: "16px 18px", borderBottom: "1px solid rgba(35,43,58,0.06)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
               <Users size={16} color={NAVY} />
               <h3 style={{ fontSize: 13, fontWeight: 700, color: NAVY }}>Users on Platform</h3>
@@ -507,7 +507,7 @@ export default function DialerPage() {
                 placeholder="Search..."
                 style={{
                   width: "100%", padding: "8px 10px 8px 32px", borderRadius: 8,
-                  background: "#F1F4F9", border: "1px solid rgba(11,15,25,0.06)",
+                  background: "#F1F4F9", border: "1px solid rgba(35,43,58,0.06)",
                   fontSize: 12, color: NAVY, outline: "none",
                 }}
               />
@@ -638,7 +638,7 @@ export default function DialerPage() {
                   <button onClick={toggleMute} disabled={callState !== "connected"} style={{
                     width: 56, height: 56, borderRadius: "50%",
                     background: muted ? "#FBEEE8" : "#F1F4F9",
-                    border: `1px solid ${muted ? "#E7B8A6" : "rgba(11,15,25,0.08)"}`,
+                    border: `1px solid ${muted ? "#E7B8A6" : "rgba(35,43,58,0.08)"}`,
                     display: "flex", alignItems: "center", justifyContent: "center",
                     cursor: callState === "connected" ? "pointer" : "not-allowed",
                     opacity: callState === "connected" ? 1 : 0.5,

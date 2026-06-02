@@ -13,7 +13,7 @@ import {
   Headphones, Flag, Power, UserCog, Eye,
 } from "lucide-react";
 
-const NAVY = "#0B0F19";
+const NAVY = "#232B3A";
 const TEAL = "#2F6BFF";
 const RED = NAVY;
 
@@ -66,7 +66,7 @@ function NavLink({ item, active }: { item: typeof NAV_PRIMARY[0]; active: boolea
       padding: "9px 12px", borderRadius: 10,
       textDecoration: "none",
       background: active ? "#EEF1F6" : hovered ? "#F4EFE7" : "transparent",
-      color: active ? RED : hovered ? "#0B0F19" : "#4B5563",
+      color: active ? RED : hovered ? "#232B3A" : "#4B5563",
       fontSize: 13, fontWeight: active ? 700 : 400,
       transition: "all 120ms ease",
       position: "relative",
@@ -80,7 +80,7 @@ function NavLink({ item, active }: { item: typeof NAV_PRIMARY[0]; active: boolea
           width: 3, height: 18, background: RED, borderRadius: "0 2px 2px 0",
         }} />
       )}
-      <Icon size={15} color={active ? RED : hovered ? "#0B0F19" : "#64748B"} strokeWidth={active ? 2.2 : 1.8} />
+      <Icon size={15} color={active ? RED : hovered ? "#232B3A" : "#64748B"} strokeWidth={active ? 2.2 : 1.8} />
       {item.label}
     </Link>
   );
@@ -215,7 +215,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               fontSize: 11, fontWeight: 800, color: RED,
             }}>{initials}</div>
             <div style={{ minWidth: 0 }}>
-              <p style={{ fontSize: 11, fontWeight: 700, color: "#0B0F19", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: "#232B3A", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {email || "Loading..."}
               </p>
               <p style={{ fontSize: 10, color: planColor, fontWeight: 600, textTransform: "capitalize", marginTop: 1 }}>
@@ -244,13 +244,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {actingAs && (
           <div style={{
             display: "flex", alignItems: "center", justifyContent: "center", gap: 14,
-            padding: "8px 16px", background: "#F59E0B", color: "#0B0F19",
+            padding: "8px 16px", background: "#F59E0B", color: "#232B3A",
             fontSize: 13, fontWeight: 700, position: "sticky", top: 0, zIndex: 50,
           }}>
             <Eye size={14} /> You are acting as <strong>{actingAs}</strong>
             <button onClick={() => stopImpersonation()} style={{
               padding: "4px 12px", borderRadius: 7, border: "none", cursor: "pointer",
-              background: "#0B0F19", color: "#fff", fontSize: 12, fontWeight: 700,
+              background: "#232B3A", color: "#fff", fontSize: 12, fontWeight: 700,
             }}>
               Exit impersonation
             </button>
@@ -279,7 +279,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             cursor: "pointer", color: "#64748B",
             transition: "all 120ms ease",
           }}
-          onMouseEnter={e => { e.currentTarget.style.background = "#F3F4F6"; e.currentTarget.style.color = "#0B0F19"; }}
+          onMouseEnter={e => { e.currentTarget.style.background = "#F3F4F6"; e.currentTarget.style.color = "#232B3A"; }}
           onMouseLeave={e => { e.currentTarget.style.background = "#F4EFE7"; e.currentTarget.style.color = "#64748B"; }}
           >
             <Bell size={15} />

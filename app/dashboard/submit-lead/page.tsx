@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { Card } from "@/app/_components/Card";
 import { Send, Loader2, CheckCircle2, Link2, Copy, Check, Users, ExternalLink } from "lucide-react";
 
-const NAVY = "#0B0F19";
+const NAVY = "#232B3A";
 const TEAL = "#2F6BFF";
 const SLATE = "#4B5563";
 
@@ -15,7 +15,7 @@ interface UserRow { id: string; email: string; }
 
 const inputStyle: React.CSSProperties = {
   width: "100%", padding: "10px 12px", borderRadius: 9,
-  background: "#F7F8FA", border: "1px solid rgba(11,15,25,0.10)",
+  background: "#F2F5F9", border: "1px solid rgba(35,43,58,0.10)",
   fontSize: 13, color: NAVY, outline: "none",
 };
 const labelStyle: React.CSSProperties = {
@@ -227,7 +227,7 @@ export default function SubmitLeadPage() {
           background: NAVY, color: "#fff",
           fontSize: 13, fontWeight: 700, border: "none",
           cursor: generating ? "wait" : "pointer",
-          boxShadow: "0 4px 14px rgba(11,15,25,0.25)",
+          boxShadow: "0 4px 14px rgba(35,43,58,0.25)",
         }}>
           {generating ? <Loader2 size={14} className="animate-spin" /> : <Link2 size={14} />}
           {generatedLink ? "Regenerate" : "Generate Link"}
@@ -242,10 +242,10 @@ export default function SubmitLeadPage() {
             <code style={{ flex: 1, fontSize: 12, color: NAVY, fontFamily: "var(--font-mono)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               {generatedLink}
             </code>
-            <button onClick={copyLink} style={{ padding: 6, background: "#fff", border: "1px solid rgba(11,15,25,0.08)", borderRadius: 7, cursor: "pointer", color: NAVY }}>
+            <button onClick={copyLink} style={{ padding: 6, background: "#fff", border: "1px solid rgba(35,43,58,0.08)", borderRadius: 7, cursor: "pointer", color: NAVY }}>
               {copied ? <Check size={14} color="#059669" /> : <Copy size={14} />}
             </button>
-            <a href={generatedLink} target="_blank" rel="noreferrer" style={{ padding: 6, background: "#fff", border: "1px solid rgba(11,15,25,0.08)", borderRadius: 7, color: NAVY }}>
+            <a href={generatedLink} target="_blank" rel="noreferrer" style={{ padding: 6, background: "#fff", border: "1px solid rgba(35,43,58,0.08)", borderRadius: 7, color: NAVY }}>
               <ExternalLink size={14} />
             </a>
           </div>
@@ -328,7 +328,7 @@ export default function SubmitLeadPage() {
           color: submitting ? SLATE : "#fff",
           fontSize: 14, fontWeight: 800, border: "none",
           cursor: submitting ? "wait" : "pointer",
-          boxShadow: submitting ? "none" : "0 6px 20px rgba(11,15,25,0.25)",
+          boxShadow: submitting ? "none" : "0 6px 20px rgba(35,43,58,0.25)",
         }}>
           {submitting ? <><Loader2 size={15} className="animate-spin" /> Analyzing...</> : <><Send size={15} /> Submit & Analyze</>}
         </button>

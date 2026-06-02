@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { Upload, Download, Loader2, CheckCircle2, AlertCircle, FileUp } from "lucide-react";
 import { Card } from "@/app/_components/Card";
 
-const RED = "#0B0F19";
+const RED = "#232B3A";
 
 export default function SettingsPage() {
   const [uploading, setUploading] = useState(false);
@@ -83,7 +83,7 @@ jane@example.com,Alice Johnson,Sales Team B,Mike Brown,2024-03-10`;
     <div style={{ maxWidth: 700, margin: "0 auto", display: "flex", flexDirection: "column", gap: 22 }} className="animate-in">
       {/* Header */}
       <div>
-        <h1 style={{ fontSize: 22, fontWeight: 800, color: "#0B0F19", marginBottom: 4 }}>Settings</h1>
+        <h1 style={{ fontSize: 22, fontWeight: 800, color: "#232B3A", marginBottom: 4 }}>Settings</h1>
         <p style={{ fontSize: 13, color: "#64748B" }}>Manage your team structure and organization.</p>
       </div>
 
@@ -153,7 +153,7 @@ jane@example.com,Alice Johnson,Sales Team B,Mike Brown,2024-03-10`;
           onClick={() => fileInputRef.current?.click()}
         >
           <FileUp size={28} style={{ margin: "0 auto 10px", color: "#94A3B8" }} />
-          <p style={{ fontSize: 13, fontWeight: 600, color: "#0B0F19", marginBottom: 4 }}>
+          <p style={{ fontSize: 13, fontWeight: 600, color: "#232B3A", marginBottom: 4 }}>
             {uploading ? "Uploading..." : "Drop CSV file or click to browse"}
           </p>
           <p style={{ fontSize: 11, color: "#64748B" }}>CSV with Manager, Agent Name, Team Name, Trainer Name, Hiring Date</p>

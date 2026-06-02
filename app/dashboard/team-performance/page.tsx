@@ -73,7 +73,7 @@ export default function TeamPerformancePage() {
     <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", flexDirection: "column", gap: 22 }} className="animate-in">
       {/* Header */}
       <div>
-        <h1 style={{ fontSize: 22, fontWeight: 800, color: "#0B0F19", marginBottom: 4 }}>Team Performance Tracker</h1>
+        <h1 style={{ fontSize: 22, fontWeight: 800, color: "#232B3A", marginBottom: 4 }}>Team Performance Tracker</h1>
         <p style={{ fontSize: 13, color: "#64748B" }}>Real-time KPI tracking and performance analytics for all teams.</p>
       </div>
 
@@ -109,7 +109,7 @@ export default function TeamPerformancePage() {
         overflow: "hidden",
       }}>
         <div style={{ padding: "18px 20px", borderBottom: "1px solid #E5E7EB", background: "#FAFAFA" }}>
-          <h3 style={{ fontSize: 14, fontWeight: 700, color: "#0B0F19" }}>Team Rankings</h3>
+          <h3 style={{ fontSize: 14, fontWeight: 700, color: "#232B3A" }}>Team Rankings</h3>
         </div>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
@@ -131,7 +131,7 @@ export default function TeamPerformancePage() {
                 onMouseLeave={e => e.currentTarget.style.background = "transparent"}
               >
                 <td style={{ padding: "12px 16px", fontSize: 13, fontWeight: 700, color: RED }}>{idx + 1}</td>
-                <td style={{ padding: "12px 16px", fontSize: 13, fontWeight: 600, color: "#0B0F19" }}>{team.name}</td>
+                <td style={{ padding: "12px 16px", fontSize: 13, fontWeight: 600, color: "#232B3A" }}>{team.name}</td>
                 <td style={{ padding: "12px 16px", fontSize: 13, color: "#4B5563" }}>{team.calls}</td>
                 <td style={{ padding: "12px 16px", fontSize: 13, color: "#059669", fontWeight: 600 }}>{team.qualified}</td>
                 <td style={{

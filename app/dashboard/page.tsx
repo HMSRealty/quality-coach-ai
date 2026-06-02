@@ -229,7 +229,7 @@ export default function DashboardPage() {
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div>
-          <h1 style={{ fontSize: 22, fontWeight: 800, color: "#0B0F19", marginBottom: 3 }}>
+          <h1 style={{ fontSize: 22, fontWeight: 800, color: "#232B3A", marginBottom: 3 }}>
             Good {new Date().getHours() < 12 ? "morning" : new Date().getHours() < 17 ? "afternoon" : "evening"},{" "}
             <span style={{ color: RED }}>{displayName || "there"}</span>
           </h1>
@@ -257,9 +257,9 @@ export default function DashboardPage() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
             <div>
               <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", color: "#94A3B8", textTransform: "uppercase", marginBottom: 10 }}>Total Calls</p>
-              <p style={{ fontSize: 34, fontWeight: 900, color: "#0B0F19", lineHeight: 1 }}>{total}</p>
+              <p style={{ fontSize: 34, fontWeight: 900, color: "#232B3A", lineHeight: 1 }}>{total}</p>
             </div>
-            <div style={{ width: 36, height: 36, borderRadius: 10, background: "#F7F8FA", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: "#F2F5F9", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <PhoneCall size={16} color="#4B5563" />
             </div>
           </div>
@@ -325,7 +325,7 @@ export default function DashboardPage() {
       <Card>
         <div style={{ padding: "18px 22px", borderBottom: "1px solid #F3F4F6", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
-            <p style={{ fontSize: 14, fontWeight: 700, color: "#0B0F19" }}>Call Volume</p>
+            <p style={{ fontSize: 14, fontWeight: 700, color: "#232B3A" }}>Call Volume</p>
             <p style={{ fontSize: 12, color: "#94A3B8", marginTop: 2 }}>Analyses over the last 7 days</p>
           </div>
           <span style={{ padding: "3px 10px", borderRadius: 999, background: "#F3F4F6", color: "#64748B", fontSize: 11, fontWeight: 600 }}>
@@ -366,7 +366,7 @@ export default function DashboardPage() {
       <Card>
         <div style={{ padding: "16px 22px", borderBottom: "1px solid #F3F4F6", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
-            <p style={{ fontSize: 14, fontWeight: 700, color: "#0B0F19" }}>Recent Calls</p>
+            <p style={{ fontSize: 14, fontWeight: 700, color: "#232B3A" }}>Recent Calls</p>
             <p style={{ fontSize: 12, color: "#94A3B8", marginTop: 2 }}>Latest results with inline status control</p>
           </div>
           <div style={{ display: "flex", gap: 8 }}>
@@ -397,7 +397,7 @@ export default function DashboardPage() {
             <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#F3F4F6", margin: "0 auto 16px", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <PhoneCall size={22} color="#94A3B8" />
             </div>
-            <p style={{ fontSize: 15, fontWeight: 700, color: "#0B0F19", marginBottom: 6 }}>No calls analyzed yet</p>
+            <p style={{ fontSize: 15, fontWeight: 700, color: "#232B3A", marginBottom: 6 }}>No calls analyzed yet</p>
             <p style={{ fontSize: 13, color: "#64748B", marginBottom: 18 }}>Upload your first call recording to get instant quality scores.</p>
             <Link href="/dashboard/analyze" style={{
               display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 18px",
@@ -446,7 +446,7 @@ export default function DashboardPage() {
                               border: "none", cursor: "pointer",
                               background: sc.bg, color: sc.color,
                             }}>
-                            {STATUS_OPTS.map(s => <option key={s} value={s} style={{ background: "#fff", color: "#0B0F19" }}>{s}</option>)}
+                            {STATUS_OPTS.map(s => <option key={s} value={s} style={{ background: "#fff", color: "#232B3A" }}>{s}</option>)}
                           </select>
                           {updatingId === lead.id
                             ? <Loader2 size={9} className="animate-spin" style={{ position: "absolute", right: 5, top: "50%", transform: "translateY(-50%)", color: sc.color, pointerEvents: "none" }} />

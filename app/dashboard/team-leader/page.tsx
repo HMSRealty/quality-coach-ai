@@ -8,7 +8,7 @@ import {
 } from "recharts";
 import { Users, Loader2, TrendingUp, Target, Phone, AlertCircle } from "lucide-react";
 
-const BG = "#0B0F19";
+const BG = "#232B3A";
 const PANEL = "#121826";
 const PANEL_2 = "#0E1320";
 const TEAL = "#4D82FF";
