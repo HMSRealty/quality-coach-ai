@@ -412,7 +412,7 @@ export async function POST(req: Request): Promise<Response> {
     if (!bytes) {
       await sa.from("leads").update({
         status: "Call Back",
-        qualification_reason: "No call recording attached — cannot verify. Upload the recording to run AI analysis.",
+        qualification_reason: "No call recording attached — cannot verify. Upload the recording to run the review.",
         ai_status_reason: "Awaiting call recording",
         ai_model: MODEL, ai_processed_at: new Date().toISOString(),
       }).eq("id", lead.id);

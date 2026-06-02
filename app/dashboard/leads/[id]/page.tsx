@@ -298,7 +298,7 @@ export default function LeadDetailPage() {
       </Section>
 
       {(lead.bant_budget || lead.bant_authority || lead.bant_need || lead.bant_timeline) && (
-        <Section icon={TrendingUp} title="BANT Extraction" accent={TEAL}>
+        <Section icon={TrendingUp} title="Qualifiers" accent={TEAL}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
             <BantBlock label="Budget" value={lead.bant_budget} />
             <BantBlock label="Authority" value={lead.bant_authority} />
@@ -464,7 +464,7 @@ export default function LeadDetailPage() {
           boxShadow: "0 4px 14px rgba(10,30,63,0.25)",
         }}>
           {reanalyzing ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
-          Re-analyze
+          Re-run Review
         </button>
       </div>
     </div>

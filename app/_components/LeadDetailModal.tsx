@@ -127,7 +127,7 @@ export function LeadDetailModal({ leadId, onClose }: { leadId: string; onClose: 
             {/* BANT */}
             {(lead.bant_budget || lead.bant_authority || lead.bant_need || lead.bant_timeline) && (
               <div style={{ marginBottom: 20 }}>
-                <h3 style={{ fontSize: 13, fontWeight: 700, color: NAVY, marginBottom: 10 }}>BANT Extraction</h3>
+                <h3 style={{ fontSize: 13, fontWeight: 700, color: NAVY, marginBottom: 10 }}>Qualifiers</h3>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                   {lead.bant_budget && <BANTChip label="Budget" value={lead.bant_budget} />}
                   {lead.bant_authority && <BANTChip label="Authority" value={lead.bant_authority} />}

@@ -229,7 +229,7 @@ export default function TeamLeaderPage() {
           </ResponsiveContainer>
         </DarkPanel>
 
-        <DarkPanel title="Most Frequent AI Coaching Points">
+        <DarkPanel title="Most Frequent Coaching Points">
           {topPoints.length === 0 ? <Empty /> : (
             <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 8 }}>
               {topPoints.map((p, i) => (

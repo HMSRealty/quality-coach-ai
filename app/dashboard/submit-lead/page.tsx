@@ -46,6 +46,8 @@ export default function SubmitLeadPage() {
     owner_name: "",
     phone_number: "",
     property_address: "",
+    zestimate: "",
+    zillow_link: "",
     asking_price: "",
     reason: "",
     campaign_id: "",
@@ -141,6 +143,15 @@ export default function SubmitLeadPage() {
       extracted_address: formData.property_address,
       asking_price: formData.asking_price ? parseFloat(formData.asking_price) : null,
       status: "Processing",
+      metadata: {
+        date: formData.date,
+        owner_name: formData.owner_name,
+        phone_number: formData.phone_number,
+        zestimate: formData.zestimate,
+        zillow_link: formData.zillow_link,
+        reason: formData.reason,
+        submitted_via: "internal_form",
+      },
     };
 
     const { data: inserted, error } = await supabase.from("leads").insert(leadData).select("id").single();
@@ -160,15 +171,15 @@ export default function SubmitLeadPage() {
       });
       const json = await res.json().catch(() => ({}));
       if (res.ok) setSuccess(`Done. Lead marked: ${json.status}`);
-      else setSuccess(`Submitted. AI analysis failed: ${json.error || "unknown"} — lead remains in Processing.`);
+      else setSuccess(`Submitted. Review failed: ${json.error || "unknown"} — lead remains in Processing.`);
     } catch {
-      setSuccess("Submitted. AI analysis request failed — will retry.");
+      setSuccess("Submitted. Review request failed — will retry.");
     }
 
     setForm({
       date: new Date().toISOString().split("T")[0],
       owner_name: "", phone_number: "",
-      property_address: "", asking_price: "", reason: "",
+      property_address: "", zestimate: "", zillow_link: "", asking_price: "", reason: "",
       campaign_id: campaigns[0]?.id || "", caller_id: "",
     });
     setSubmitting(false);
@@ -280,6 +291,16 @@ export default function SubmitLeadPage() {
           <div style={{ marginBottom: 14 }}>
             <label style={labelStyle}>Property Address *</label>
             <input type="text" value={formData.property_address} onChange={e => setForm({ ...formData, property_address: e.target.value })} placeholder="123 Main St, City, ST" required style={inputStyle} />
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
+            <div>
+              <label style={labelStyle}>Zestimate</label>
+              <input type="text" value={formData.zestimate} onChange={e => setForm({ ...formData, zestimate: e.target.value })} placeholder="$275,000" style={inputStyle} />
+            </div>
+            <div>
+              <label style={labelStyle}>Zillow Link</label>
+              <input type="url" value={formData.zillow_link} onChange={e => setForm({ ...formData, zillow_link: e.target.value })} placeholder="https://zillow.com/..." style={inputStyle} />
+            </div>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
             <div>

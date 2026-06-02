@@ -278,7 +278,7 @@ export default function CallersPage() {
             {/* Latest AI feedback */}
             <div style={{ background: "#FFF", border: "1px solid rgba(10,30,63,0.08)", borderRadius: 12, padding: 18 }}>
               <h3 style={{ fontSize: 13, fontWeight: 700, color: NAVY, marginBottom: 12, display: "flex", alignItems: "center", gap: 8 }}>
-                <MessageSquare size={15} color={TEAL} /> Latest AI Feedback
+                <MessageSquare size={15} color={TEAL} /> Latest Feedback
               </h3>
               {lastFeedback ? (
                 <p style={{ fontSize: 13, color: NAVY, lineHeight: 1.7, padding: "12px 14px", background: "#F4F7FB", borderRadius: 8 }}>
@@ -298,7 +298,7 @@ export default function CallersPage() {
               </h3>
               {topCoaching.length === 0 ? (
                 <p style={{ fontSize: 12, color: SLATE, fontStyle: "italic" }}>
-                  Coaching points accumulate here as the AI reviews more calls.
+                  Coaching points accumulate here as more calls are reviewed.
                 </p>
               ) : (
                 <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 8 }}>

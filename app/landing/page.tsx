@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { TutorialBoard } from "@/app/_components/TutorialBoard";
 import {
   ArrowRight, Check, Users, Phone, BarChart3, Target,
   Shield, Sparkles, Globe, FileSpreadsheet, Headphones, Award,
@@ -193,7 +194,7 @@ export default function LandingPage() {
             {[
               { i: Globe, t: "Global Lead Intake", d: "Shareable URL accepts submissions from anywhere. Background processing kicks off instantly." },
               { i: Phone, t: "Caller Dashboards", d: "Connect rate, conversion rate, talk ratios — every KPI per agent, mathematically tight." },
-              { i: Target, t: "BANT Extraction", d: "Budget, Authority, Need, Timeline auto-populated from conversation. Zero note-taking." },
+              { i: Target, t: "Auto Qualifiers", d: "Budget, authority, need and timeline captured straight from the conversation. Zero note-taking." },
               { i: Users, t: "Team Rollups", d: "Manager portals aggregate every caller. Compare performance side-by-side with visual analytics." },
               { i: FileSpreadsheet, t: "CSV Onboarding", d: "Upload Manager/Agent/Team/Trainer/Hiring — dashboards auto-provision in seconds." },
               { i: TrendingUp, t: "Smart Follow-Ups", d: "\"Call me back in 2 months\" auto-flagged. Nothing warm slips through." },
@@ -249,7 +250,7 @@ export default function LandingPage() {
             {[
               { n: "01", t: "Upload your team", d: "Drop a CSV with Manager, Agent, Team, Trainer, Hiring Date. Accounts provision instantly. Dashboards populate. Submission form syncs." },
               { n: "02", t: "Share the link", d: "Send the public submission URL to your callers. Anyone, anywhere submits leads with caller selection, campaign tagging, and optional call upload." },
-              { n: "03", t: "Run the floor", d: "Manager dashboards roll up KPIs in real time. Trainers coach. The platform extracts BANT, flags follow-ups, scores every call." },
+              { n: "03", t: "Run the floor", d: "Manager dashboards roll up KPIs in real time. Trainers coach. The platform captures qualifiers, flags follow-ups, and scores every call." },
             ].map(s => (
               <div key={s.n}>
                 <div style={{
@@ -279,45 +280,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* Featured video */}
-          <div style={{
-            position: "relative", maxWidth: 880, margin: "0 auto 40px", borderRadius: 18, overflow: "hidden",
-            border: "1px solid rgba(10,30,63,0.10)", boxShadow: "0 16px 50px rgba(10,30,63,0.12)",
-            background: "#000", aspectRatio: "16 / 9",
-          }}>
-            <iframe
-              src="https://www.youtube.com/embed/?listType=search&list=real%20estate%20cold%20call%20coaching"
-              title="RealTrack overview"
-              style={{ width: "100%", height: "100%", border: 0 }}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          </div>
-
-          {/* Step cards */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
-            {[
-              { n: "1", t: "Onboard your team", d: "Upload a CSV of managers, callers, teams and trainers — accounts and dashboards provision instantly." },
-              { n: "2", t: "Share your form", d: "Send your unique submission link. Callers log leads with the owner, contact, Zillow & Zestimate details." },
-              { n: "3", t: "Attach the call", d: "Upload the recording with the lead. RealTrack reviews it the moment it's submitted." },
-              { n: "4", t: "Read the verdict", d: "Open any lead to see the status, the reason, the call summary and the full lead form." },
-              { n: "5", t: "Coach your callers", d: "Every call returns timestamped performance feedback that rolls up per caller and per team." },
-              { n: "6", t: "Track performance", d: "Team Leader and Performance dashboards show pass rates, trends and recurring coaching themes." },
-            ].map(s => (
-              <div key={s.n} style={{
-                background: "#fff", borderRadius: 14, padding: 24,
-                border: "1px solid rgba(10,30,63,0.08)", boxShadow: "0 2px 8px rgba(10,30,63,0.04)",
-              }}>
-                <div style={{
-                  width: 36, height: 36, borderRadius: 10, marginBottom: 14,
-                  background: `linear-gradient(135deg, ${NAVY} 0%, ${NAVY_2} 100%)`, color: "#fff",
-                  display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 15,
-                }}>{s.n}</div>
-                <h3 style={{ fontSize: 16, fontWeight: 800, color: NAVY, marginBottom: 8 }}>{s.t}</h3>
-                <p style={{ fontSize: 14, color: SLATE, lineHeight: 1.6 }}>{s.d}</p>
-              </div>
-            ))}
-          </div>
+          <TutorialBoard />
         </div>
       </section>
 
@@ -363,7 +326,7 @@ export default function LandingPage() {
                   "CSV onboarding",
                   "Public lead submission form",
                   "Conversation analytics",
-                  "BANT extraction",
+                  "Auto qualifiers",
                 ].map(f => (
                   <li key={f} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: NAVY }}>
                     <Check size={15} color={TEAL} strokeWidth={3} /> {f}
