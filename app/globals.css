@@ -89,12 +89,12 @@
   --shadow-xl:  0 24px 60px rgba(26,26,26,0.16);
   --shadow-brand: 0 6px 24px rgba(26,26,26,0.20);
 
-  /* ── Radius ── */
-  --r-sm: 6px;
-  --r-md: 10px;
-  --r-lg: 14px;
-  --r-xl: 18px;
-  --r-2xl: 24px;
+  /* ── Radius (softer, editorial) ── */
+  --r-sm: 9px;
+  --r-md: 13px;
+  --r-lg: 18px;
+  --r-xl: 24px;
+  --r-2xl: 30px;
 
   /* ── Springs (weight-based physics) ── */
   --spring-soft:   cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -102,8 +102,52 @@
   --spring-heavy:  cubic-bezier(0.16, 1, 0.30, 1);
   --ease-out:      cubic-bezier(0.16, 1, 0.30, 1);
 
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Inter, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: var(--font-display, "Space Grotesk"), var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* ── DARK THEME (token-level) ── */
+[data-theme="dark"] {
+  --canvas:    #15120E;   /* warm near-black */
+  --surface-1: #1E1A15;
+  --surface-2: #1E1A15;
+  --surface-3: #262119;
+  --surface-4: #322B21;
+  --surface-5: #3E3527;
+
+  --navy:        #F0E9DE;  /* "ink" inverts to warm paper-white for text/primary */
+  --navy-2:      #E5DCCD;
+  --navy-3:      #FFFFFF;
+  --navy-light:  #2A241C;
+  --navy-border: #3A3226;
+  --navy-glow:   rgba(0,0,0,0.40);
+  --navy-dim:    rgba(240,233,222,0.06);
+
+  --teal:        #E2734B;  /* terracotta stays the accent, slightly brighter on dark */
+  --teal-2:      #C75B39;
+  --teal-light:  #2E2018;
+
+  --gold:        #D8A45E;
+  --gold-2:      #B0703A;
+
+  --slate:       #B8AC9A;
+  --slate-2:     #9C9286;
+  --slate-3:     #7C7264;
+
+  --canvas-rgb: 21,18,14;
+  --border-1: rgba(240,233,222,0.06);
+  --border-2: rgba(240,233,222,0.12);
+  --border-3: rgba(240,233,222,0.18);
+  --border-4: rgba(240,233,222,0.26);
+
+  --text-1: #F3ECE2;
+  --text-2: #B8AC9A;
+  --text-3: #8C8273;
+  --text-4: #5C5346;
+
+  --brand-400: var(--teal);
+  --brand-500: var(--teal);
 }
 
 * { box-sizing: border-box; }
@@ -116,6 +160,12 @@ html, body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings: "cv11","ss01","ss03";
+}
+
+/* Editorial heading treatment */
+h1, h2, h3 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
 }
 
 /* Global smooth transitions for premium feel */

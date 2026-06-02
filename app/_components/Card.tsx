@@ -22,17 +22,17 @@ export function Card({
     <div
       className={className}
       style={{
-        background: "#FFFFFF",
-        border: "1px solid rgba(26,26,26,0.08)",
-        borderRadius: 14,
+        background: "var(--surface-2)",
+        border: "1px solid var(--border-2)",
+        borderRadius: 18,
         padding,
         marginBottom: 16,
-        boxShadow: "0 2px 8px rgba(26,26,26,0.04)",
+        boxShadow: "var(--shadow-sm)",
         ...style,
       }}
     >
       {title && (
-        <h3 style={{ fontSize: 14, fontWeight: 700, color: "#1A1A1A", marginBottom: 14 }}>
+        <h3 style={{ fontSize: 14, fontWeight: 700, color: "var(--text-1)", marginBottom: 14 }}>
           {title}
         </h3>
       )}

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { impersonationTarget, stopImpersonation } from "@/lib/impersonation";
+import { ThemeToggle } from "@/app/_components/ThemeToggle";
 import {
   LayoutDashboard, PhoneCall, FolderCog, Zap,
   UserCircle, LogOut, Bell, ChevronRight, Shield,
@@ -110,13 +111,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const planColor = PLAN_COLORS[plan] ?? "#6E635A";
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", background: "#FAF8F4" }}>
+    <div style={{ display: "flex", minHeight: "100vh", background: "var(--canvas)" }}>
 
       {/* ── Sidebar ── */}
       <aside style={{
         width: 240, flexShrink: 0,
-        background: "#FFFFFF",
-        borderRight: "1px solid #E5E7EB",
+        background: "var(--surface-1)",
+        borderRight: "1px solid var(--border-2)",
         display: "flex", flexDirection: "column",
         position: "fixed", top: 0, left: 0, bottom: 0,
         zIndex: 40, overflowY: "auto",
@@ -257,8 +258,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         )}
         {/* Topbar */}
         <header style={{
-          height: 56, background: "#FFFFFF",
-          borderBottom: "1px solid #E5E7EB",
+          height: 56, background: "var(--surface-1)",
+          borderBottom: "1px solid var(--border-2)",
           display: "flex", alignItems: "center", padding: "0 28px", gap: 12,
           position: "sticky", top: 0, zIndex: 30,
           boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
@@ -270,6 +271,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               {pathname.split("/").pop()?.replace(/-/g, " ") || "overview"}
             </span>
           </div>
+          <ThemeToggle />
           <button style={{
             width: 32, height: 32, borderRadius: 9,
             background: "#F4EFE7", border: "1px solid #E5E7EB",
