@@ -240,6 +240,23 @@ export default function LeadDetailPage() {
                 </div>
               )}
             </div>
+            {(() => {
+              const extra = (m.additional_properties as Array<{ address?: string; zestimate?: string; asking_price?: string }> | undefined) || [];
+              if (!extra.length) return null;
+              return (
+                <div style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid rgba(10,30,63,0.06)" }}>
+                  <p style={{ fontSize: 11, fontWeight: 700, color: SLATE, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>Additional Properties</p>
+                  {extra.map((p, i) => (
+                    <div key={i} style={{ fontSize: 12.5, color: NAVY, padding: "6px 0", borderBottom: i < extra.length - 1 ? "1px solid rgba(10,30,63,0.05)" : "none" }}>
+                      <strong>{p.address || "—"}</strong>
+                      {(p.zestimate || p.asking_price) && (
+                        <span style={{ color: SLATE }}> · Zestimate {p.zestimate || "—"} · Asking {p.asking_price ? `$${Number(p.asking_price).toLocaleString()}` : "—"}</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
             <p style={{ fontSize: 11, color: SLATE, marginTop: 14, fontStyle: "italic" }}>
               Property condition, repairs, beds/baths, SQFT, occupancy, mortgage, listing status & closing timeline are captured from the call below.
             </p>

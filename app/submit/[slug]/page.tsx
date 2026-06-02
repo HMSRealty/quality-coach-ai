@@ -49,6 +49,13 @@ export default function DynamicSubmitPage() {
     reason: "",
   });
 
+  // Optional extra properties the caller can append with the (+) button
+  const [extraProps, setExtraProps] = useState<Array<{ address: string; zestimate: string; asking_price: string }>>([]);
+  const addProperty = () => setExtraProps(p => [...p, { address: "", zestimate: "", asking_price: "" }]);
+  const removeProperty = (i: number) => setExtraProps(p => p.filter((_, idx) => idx !== i));
+  const updateProperty = (i: number, key: "address" | "zestimate" | "asking_price", val: string) =>
+    setExtraProps(p => p.map((row, idx) => idx === i ? { ...row, [key]: val } : row));
+
   useEffect(() => {
     if (!slug) return;
     (async () => {
@@ -123,6 +130,7 @@ export default function DynamicSubmitPage() {
             zestimate: formData.zestimate,
             zillow_link: formData.zillow_link,
             reason: formData.reason,
+            additional_properties: extraProps.filter(p => p.address || p.zestimate || p.asking_price),
             submitted_via: "public_form",
           },
         })
@@ -193,6 +201,7 @@ export default function DynamicSubmitPage() {
       owner_name: "", phone_number: "",
       property_address: "", zestimate: "", zillow_link: "", asking_price: "", reason: "",
     });
+    setExtraProps([]);
     setCallFile(null);
     setError("");
     setStatusMsg(null);
@@ -319,12 +328,33 @@ export default function DynamicSubmitPage() {
             <input type="tel" placeholder="Phone Number *" value={formData.phone_number} onChange={e => setForm({ ...formData, phone_number: e.target.value })} required style={inputStyle} />
           </div>
           <input type="text" placeholder="Owner Name *" value={formData.owner_name} onChange={e => setForm({ ...formData, owner_name: e.target.value })} required style={{ ...inputStyle, marginBottom: 14 }} />
-          <input type="text" placeholder="Property Address *" value={formData.property_address} onChange={e => setForm({ ...formData, property_address: e.target.value })} required style={{ ...inputStyle, marginBottom: 14 }} />
+          <input type="text" placeholder="Property Address (optional)" value={formData.property_address} onChange={e => setForm({ ...formData, property_address: e.target.value })} style={{ ...inputStyle, marginBottom: 14 }} />
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
-            <input type="text" placeholder="Zestimate" value={formData.zestimate} onChange={e => setForm({ ...formData, zestimate: e.target.value })} style={inputStyle} />
-            <input type="number" placeholder="Asking Price" value={formData.asking_price} onChange={e => setForm({ ...formData, asking_price: e.target.value })} style={inputStyle} />
+            <input type="text" placeholder="Zestimate (optional)" value={formData.zestimate} onChange={e => setForm({ ...formData, zestimate: e.target.value })} style={inputStyle} />
+            <input type="number" placeholder="Asking Price (optional)" value={formData.asking_price} onChange={e => setForm({ ...formData, asking_price: e.target.value })} style={inputStyle} />
           </div>
-          <input type="url" placeholder="Zillow Link" value={formData.zillow_link} onChange={e => setForm({ ...formData, zillow_link: e.target.value })} style={{ ...inputStyle, marginBottom: 14 }} />
+          <input type="url" placeholder="Zillow Link (optional)" value={formData.zillow_link} onChange={e => setForm({ ...formData, zillow_link: e.target.value })} style={{ ...inputStyle, marginBottom: 14 }} />
+
+          {/* Extra properties */}
+          {extraProps.map((p, i) => (
+            <div key={i} style={{ padding: 12, borderRadius: 10, background: "#F4F7FB", border: "1px solid rgba(10,30,63,0.08)", marginBottom: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: SLATE }}>Property #{i + 2}</span>
+                <button type="button" onClick={() => removeProperty(i)} style={{ background: "none", border: "none", color: "#DC2626", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Remove</button>
+              </div>
+              <input type="text" placeholder="Address" value={p.address} onChange={e => updateProperty(i, "address", e.target.value)} style={{ ...inputStyle, marginBottom: 10 }} />
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <input type="text" placeholder="Zestimate" value={p.zestimate} onChange={e => updateProperty(i, "zestimate", e.target.value)} style={inputStyle} />
+                <input type="number" placeholder="Asking Price" value={p.asking_price} onChange={e => updateProperty(i, "asking_price", e.target.value)} style={inputStyle} />
+              </div>
+            </div>
+          ))}
+          <button type="button" onClick={addProperty} style={{
+            display: "inline-flex", alignItems: "center", gap: 6, marginBottom: 14,
+            padding: "8px 14px", borderRadius: 9, cursor: "pointer",
+            background: "#E0F7F7", color: NAVY, border: `1px solid ${TEAL}55`,
+            fontSize: 12, fontWeight: 700,
+          }}>+ Add another property</button>
           <textarea placeholder="Notes / Reason for selling" rows={3} value={formData.reason} onChange={e => setForm({ ...formData, reason: e.target.value })} style={{ ...inputStyle, resize: "vertical", marginBottom: 14, fontFamily: "var(--font-sans)" }} />
 
           {owner?.allow_call_uploads && (
