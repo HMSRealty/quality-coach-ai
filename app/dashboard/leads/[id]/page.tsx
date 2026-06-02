@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase";
 import {
   ArrowLeft, MapPin, DollarSign, User, Calendar, Phone, FileText,
   CheckCircle2, XCircle, Clock, Loader2, Sparkles, Target,
-  MessageSquare, TrendingUp, AlertTriangle, RefreshCw, Upload,
+  MessageSquare, TrendingUp, AlertTriangle, RefreshCw, Upload, Download,
 } from "lucide-react";
 
 const NAVY = "#0A1E3F";
@@ -182,7 +182,7 @@ export default function LeadDetailPage() {
           <HeaderStat icon={DollarSign} label="Asking Price" value={lead.asking_price ? `$${lead.asking_price.toLocaleString()}` : "—"} />
           <HeaderStat icon={User} label="Agent" value={lead.agent_name || "—"} />
           <HeaderStat icon={Calendar} label="Submitted" value={new Date(lead.created_at).toLocaleDateString()} />
-          <HeaderStat icon={Sparkles} label="AI Model" value={lead.ai_model || "Pending"} />
+          <HeaderStat icon={Sparkles} label="Reviewed" value={lead.ai_processed_at ? new Date(lead.ai_processed_at).toLocaleDateString() : "Pending"} />
         </div>
       </div>
 
@@ -205,8 +205,58 @@ export default function LeadDetailPage() {
         </div>
       )}
 
+      {/* ── LEAD FORM ── */}
+      {(() => {
+        const m = (lead.metadata || {}) as Record<string, unknown>;
+        const ms = (k: string) => { const v = m[k]; return v ? String(v) : ""; };
+        const rows: Array<[string, string]> = [
+          ["Campaign", lead.campaigns?.name || "—"],
+          ["Date", ms("date") || new Date(lead.created_at).toLocaleDateString()],
+          ["Cold Caller", lead.agent_name || "—"],
+          ["Owner Name", ms("owner_name") || "—"],
+          ["Phone Number", ms("phone_number") || "—"],
+          ["Address", lead.extracted_address || "—"],
+          ["Zestimate", ms("zestimate") || "—"],
+          ["Asking Price", lead.asking_price ? `$${lead.asking_price.toLocaleString()}` : "—"],
+          ["Reason for Selling", ms("reason") || "—"],
+        ];
+        const zillow = ms("zillow_link");
+        return (
+          <Section icon={FileText} title="Lead Form" accent={NAVY}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
+              {rows.map(([label, value]) => (
+                <div key={label}>
+                  <p style={{ fontSize: 10, fontWeight: 700, color: SLATE, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 3 }}>{label}</p>
+                  <p style={{ fontSize: 13, color: NAVY, fontWeight: 600 }}>{value}</p>
+                </div>
+              ))}
+              {zillow && (
+                <div>
+                  <p style={{ fontSize: 10, fontWeight: 700, color: SLATE, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 3 }}>Zillow Link</p>
+                  <a href={zillow} target="_blank" rel="noreferrer" style={{ fontSize: 13, color: TEAL, fontWeight: 600, wordBreak: "break-all" }}>Open ↗</a>
+                </div>
+              )}
+            </div>
+            <p style={{ fontSize: 11, color: SLATE, marginTop: 14, fontStyle: "italic" }}>
+              Property condition, repairs, beds/baths, SQFT, occupancy, mortgage, listing status & closing timeline are captured from the call below.
+            </p>
+          </Section>
+        );
+      })()}
+
+      {/* ── CALL SUMMARY ── */}
+      {(() => {
+        const summary = ((lead.metadata || {}) as Record<string, unknown>).call_summary as string | undefined;
+        if (!summary) return null;
+        return (
+          <Section icon={MessageSquare} title="What Happened on the Call" accent="#7C3AED">
+            <p style={{ fontSize: 13.5, color: NAVY, lineHeight: 1.8 }}>{summary}</p>
+          </Section>
+        );
+      })()}
+
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
-        <Section icon={MessageSquare} title="Agent Feedback" accent={TEAL}>
+        <Section icon={MessageSquare} title="Agent Performance Feedback" accent={TEAL}>
           {lead.ai_feedback ? (
             <p style={{ fontSize: 13, color: NAVY, lineHeight: 1.7 }}>{lead.ai_feedback}</p>
           ) : (
@@ -358,11 +408,21 @@ export default function LeadDetailPage() {
         {lead.call_recording_url ? (
           <>
             <audio controls src={lead.call_recording_url} style={{ width: "100%" }} />
-            {lead.audio_duration_seconds && (
-              <p style={{ fontSize: 11, color: SLATE, marginTop: 6 }}>
-                Duration: {Math.floor(lead.audio_duration_seconds / 60)}m {lead.audio_duration_seconds % 60}s
-              </p>
-            )}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 10 }}>
+              {lead.audio_duration_seconds ? (
+                <p style={{ fontSize: 11, color: SLATE }}>
+                  Duration: {Math.floor(lead.audio_duration_seconds / 60)}m {lead.audio_duration_seconds % 60}s
+                </p>
+              ) : <span />}
+              <a href={lead.call_recording_url} download target="_blank" rel="noreferrer" style={{
+                display: "inline-flex", alignItems: "center", gap: 6,
+                padding: "8px 14px", borderRadius: 8,
+                background: "#F4F7FB", color: NAVY, border: "1px solid rgba(10,30,63,0.10)",
+                fontSize: 12, fontWeight: 700, textDecoration: "none",
+              }}>
+                <Download size={13} /> Download Call
+              </a>
+            </div>
           </>
         ) : (
           <div style={{
@@ -372,7 +432,7 @@ export default function LeadDetailPage() {
           }}>
             <Upload size={24} color={SLATE} style={{ margin: "0 auto 8px" }} />
             <p style={{ fontSize: 12, color: SLATE, marginBottom: 10 }}>
-              No recording on file. Upload one to trigger AI analysis.
+              No recording on file. Upload one to run the review.
             </p>
             <input
               ref={fileInputRef}

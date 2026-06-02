@@ -18,7 +18,7 @@ function HSMLogo() {
         <path d="M8 22 L20 11 L32 22" stroke="#0DAFAF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.9"/>
       </svg>
       <span style={{ fontSize: 13, fontWeight: 800, letterSpacing: "0.12em", color: "#0A1E3F", lineHeight: 1 }}>
-        HMSREALTY.CRM
+        REALTRACK
       </span>
     </div>
   );
@@ -72,7 +72,7 @@ export default function AuthPage() {
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 28 }}>
           <HSMLogo />
           <p style={{ fontSize: 13, color: "#6B7280", marginTop: 10, fontWeight: 500 }}>
-            Outbound Intelligence Platform
+            Performance &amp; Coaching Suite
           </p>
         </div>
 

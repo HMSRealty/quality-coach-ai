@@ -49,7 +49,7 @@ function HMSIcon({ size = 26 }: { size?: number }) {
         <path d="M8 22 L20 11 L32 22" stroke={TEAL} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.9"/>
       </svg>
       <span style={{ fontSize: size * 0.28, fontWeight: 800, letterSpacing: "0.14em", color: NAVY, lineHeight: 1, marginTop: 3 }}>
-        HMSREALTY.CRM
+        REALTRACK
       </span>
     </div>
   );
@@ -127,8 +127,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div style={{ padding: "20px 18px 16px", borderBottom: "1px solid #F3F4F6", display: "flex", alignItems: "center", gap: 12 }}>
           <HSMIcon size={28} />
           <div>
-            <p style={{ fontSize: 14, fontWeight: 800, color: NAVY, lineHeight: 1 }}>HMSRealty.CRM</p>
-            <p style={{ fontSize: 10, color: "#94A3B8", marginTop: 2, fontWeight: 500 }}>Outbound Intelligence</p>
+            <p style={{ fontSize: 14, fontWeight: 800, color: NAVY, lineHeight: 1 }}>RealTrack</p>
+            <p style={{ fontSize: 10, color: "#94A3B8", marginTop: 2, fontWeight: 500 }}>Performance Suite</p>
           </div>
         </div>
 

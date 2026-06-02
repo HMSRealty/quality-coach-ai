@@ -27,7 +27,7 @@ function HMSLogo({ size = 36, light = false }: { size?: number; light?: boolean 
         fontSize: size * 0.5, fontWeight: 800, letterSpacing: "0.06em",
         color: light ? "#fff" : NAVY, lineHeight: 1,
       }}>
-        HMSRealty.CRM
+        RealTrack
       </span>
     </div>
   );
@@ -61,6 +61,7 @@ export default function LandingPage() {
             <a href="#features" style={{ fontSize: 14, fontWeight: 500, color: SLATE, textDecoration: "none" }}>Features</a>
             <a href="#pricing" style={{ fontSize: 14, fontWeight: 500, color: SLATE, textDecoration: "none" }}>Pricing</a>
             <a href="#how" style={{ fontSize: 14, fontWeight: 500, color: SLATE, textDecoration: "none" }}>How it works</a>
+            <a href="#tutorial" style={{ fontSize: 14, fontWeight: 500, color: SLATE, textDecoration: "none" }}>Tutorial</a>
             <Link href="/" style={{ fontSize: 14, fontWeight: 500, color: SLATE, textDecoration: "none" }}>Sign in</Link>
             <Link href="/" style={{
               padding: "10px 20px", borderRadius: 10, background: NAVY,
@@ -265,6 +266,61 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* TUTORIAL */}
+      <section id="tutorial" style={{ padding: "100px 32px", background: "#FAFBFC" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: 48 }}>
+            <p style={{ fontSize: 13, fontWeight: 700, color: TEAL, letterSpacing: "0.12em", marginBottom: 12 }}>TUTORIAL</p>
+            <h2 style={{ fontSize: 40, fontWeight: 900, color: NAVY, letterSpacing: "-0.02em", marginBottom: 14 }}>
+              Learn RealTrack in minutes
+            </h2>
+            <p style={{ fontSize: 17, color: SLATE, maxWidth: 600, margin: "0 auto", lineHeight: 1.6 }}>
+              Short walkthroughs for every part of the platform — from onboarding your team to reading the verdict on a lead.
+            </p>
+          </div>
+
+          {/* Featured video */}
+          <div style={{
+            position: "relative", maxWidth: 880, margin: "0 auto 40px", borderRadius: 18, overflow: "hidden",
+            border: "1px solid rgba(10,30,63,0.10)", boxShadow: "0 16px 50px rgba(10,30,63,0.12)",
+            background: "#000", aspectRatio: "16 / 9",
+          }}>
+            <iframe
+              src="https://www.youtube.com/embed/?listType=search&list=real%20estate%20cold%20call%20coaching"
+              title="RealTrack overview"
+              style={{ width: "100%", height: "100%", border: 0 }}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
+
+          {/* Step cards */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
+            {[
+              { n: "1", t: "Onboard your team", d: "Upload a CSV of managers, callers, teams and trainers — accounts and dashboards provision instantly." },
+              { n: "2", t: "Share your form", d: "Send your unique submission link. Callers log leads with the owner, contact, Zillow & Zestimate details." },
+              { n: "3", t: "Attach the call", d: "Upload the recording with the lead. RealTrack reviews it the moment it's submitted." },
+              { n: "4", t: "Read the verdict", d: "Open any lead to see the status, the reason, the call summary and the full lead form." },
+              { n: "5", t: "Coach your callers", d: "Every call returns timestamped performance feedback that rolls up per caller and per team." },
+              { n: "6", t: "Track performance", d: "Team Leader and Performance dashboards show pass rates, trends and recurring coaching themes." },
+            ].map(s => (
+              <div key={s.n} style={{
+                background: "#fff", borderRadius: 14, padding: 24,
+                border: "1px solid rgba(10,30,63,0.08)", boxShadow: "0 2px 8px rgba(10,30,63,0.04)",
+              }}>
+                <div style={{
+                  width: 36, height: 36, borderRadius: 10, marginBottom: 14,
+                  background: `linear-gradient(135deg, ${NAVY} 0%, ${NAVY_2} 100%)`, color: "#fff",
+                  display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 15,
+                }}>{s.n}</div>
+                <h3 style={{ fontSize: 16, fontWeight: 800, color: NAVY, marginBottom: 8 }}>{s.t}</h3>
+                <p style={{ fontSize: 14, color: SLATE, lineHeight: 1.6 }}>{s.d}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* PRICING */}
       <section id="pricing" style={{
         padding: "100px 32px",
@@ -428,7 +484,7 @@ export default function LandingPage() {
           display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16,
         }}>
           <HMSLogo size={26} light />
-          <p style={{ fontSize: 13 }}>© 2026 HMSRealty.CRM. All rights reserved.</p>
+          <p style={{ fontSize: 13 }}>© 2026 RealTrack. All rights reserved.</p>
         </div>
       </footer>
     </div>

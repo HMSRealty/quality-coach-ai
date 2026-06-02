@@ -76,6 +76,7 @@ interface QualJSON {
   has_reason_for_selling?: boolean;
   closing_within_3_months?: boolean;
   regeneration_steps?: string;
+  call_summary?: string;
   is_qualified?: boolean;
   is_listed_on_mls?: boolean;
   is_under_contract?: boolean;
@@ -197,6 +198,10 @@ Reason for selling: [..]
 How soon they can sell (closing): [..]
 Asking Price: [..]
 Market Value mentioned: [..]
+
+CALL SUMMARY: Write a clear 3-5 sentence plain-English narrative of what happened on the call —
+who spoke, what the seller said about the property and their situation, key objections or signals,
+and how it ended. Assign to the call_summary field. No jargon.
 `.trim();
 
 async function runQualification(fileUri: string, mime: string, customRules: string, key: string): Promise<QualJSON> {
@@ -238,7 +243,7 @@ async function runQualification(fileUri: string, mime: string, customRules: stri
           closing_within_3_months: { type: "BOOLEAN" }, is_qualified: { type: "BOOLEAN" }, qualification_reason: { type: "STRING" },
           compliance_check: { type: "STRING" }, compliance_passed: { type: "BOOLEAN" }, lead_category: { type: "STRING" },
           category_reasoning: { type: "STRING" }, has_reason_for_selling: { type: "BOOLEAN" }, requested_dnc: { type: "BOOLEAN" },
-          regeneration_steps: { type: "STRING" },
+          regeneration_steps: { type: "STRING" }, call_summary: { type: "STRING" },
         },
         required: ["raw_extracted_address", "is_decision_maker", "is_commercial", "is_spanish_speaker",
           "spoken_asking_price", "spoken_market_value", "is_qualified", "qualification_reason",
@@ -466,6 +471,7 @@ export async function POST(req: Request): Promise<Response> {
         regeneration_steps: regeneration,
         extracted_items: q.extracted_items || [],
         spoken_market_value: safeStr(q.spoken_market_value),
+        call_summary: safeStr(q.call_summary),
       },
     }).eq("id", lead.id);
 

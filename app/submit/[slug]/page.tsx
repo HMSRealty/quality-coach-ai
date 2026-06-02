@@ -43,6 +43,8 @@ export default function DynamicSubmitPage() {
     owner_name: "",
     phone_number: "",
     property_address: "",
+    zestimate: "",
+    zillow_link: "",
     asking_price: "",
     reason: "",
   });
@@ -114,6 +116,15 @@ export default function DynamicSubmitPage() {
           extracted_address: formData.property_address,
           asking_price: formData.asking_price ? parseFloat(formData.asking_price) : null,
           status: "Processing",
+          metadata: {
+            date: formData.date,
+            owner_name: formData.owner_name,
+            phone_number: formData.phone_number,
+            zestimate: formData.zestimate,
+            zillow_link: formData.zillow_link,
+            reason: formData.reason,
+            submitted_via: "public_form",
+          },
         })
         .select("id").single();
 
@@ -141,7 +152,7 @@ export default function DynamicSubmitPage() {
         }
       }
 
-      setStatusMsg(callFile ? "AI is listening to the call & verifying the lead..." : "AI is verifying the lead...");
+      setStatusMsg(callFile ? "Reviewing the call & verifying the lead..." : "Verifying the lead...");
 
       // Send the audio DIRECTLY to the analyzer (multipart) so it works even
       // if storage is unavailable. Falls back to JSON when there's no file.
@@ -162,7 +173,7 @@ export default function DynamicSubmitPage() {
 
       if (!res.ok) {
         // Analysis failed — surface the error, keep the form so they can retry
-        throw new Error(json.error || "AI analysis failed. Please try again.");
+        throw new Error(json.error || "Verification failed. Please try again.");
       }
 
       // Success — show the dedicated confirmation screen
@@ -180,7 +191,7 @@ export default function DynamicSubmitPage() {
       date: new Date().toISOString().split("T")[0],
       caller_id: "", campaign_id: "",
       owner_name: "", phone_number: "",
-      property_address: "", asking_price: "", reason: "",
+      property_address: "", zestimate: "", zillow_link: "", asking_price: "", reason: "",
     });
     setCallFile(null);
     setError("");
@@ -229,7 +240,7 @@ export default function DynamicSubmitPage() {
               <path d="M2 22 L20 4 L38 22" stroke={NAVY} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"/>
               <path d="M8 22 L20 11 L32 22" stroke={TEAL} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            <span style={{ fontSize: 20, fontWeight: 800, color: NAVY, letterSpacing: "0.04em" }}>HMSRealty.CRM</span>
+            <span style={{ fontSize: 20, fontWeight: 800, color: NAVY, letterSpacing: "0.04em" }}>RealTrack</span>
           </div>
           <h1 style={{ fontSize: 26, fontWeight: 900, color: NAVY, marginBottom: 8 }}>{owner?.form_name}</h1>
           <p style={{ fontSize: 13, color: SLATE }}>Submit a lead — AI evaluation runs automatically.</p>
@@ -305,11 +316,15 @@ export default function DynamicSubmitPage() {
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
             <input type="date" value={formData.date} onChange={e => setForm({ ...formData, date: e.target.value })} required style={inputStyle} />
-            <input type="tel" placeholder="Phone" value={formData.phone_number} onChange={e => setForm({ ...formData, phone_number: e.target.value })} style={inputStyle} />
+            <input type="tel" placeholder="Phone Number *" value={formData.phone_number} onChange={e => setForm({ ...formData, phone_number: e.target.value })} required style={inputStyle} />
           </div>
-          <input type="text" placeholder="Owner Name" value={formData.owner_name} onChange={e => setForm({ ...formData, owner_name: e.target.value })} style={{ ...inputStyle, marginBottom: 14 }} />
+          <input type="text" placeholder="Owner Name *" value={formData.owner_name} onChange={e => setForm({ ...formData, owner_name: e.target.value })} required style={{ ...inputStyle, marginBottom: 14 }} />
           <input type="text" placeholder="Property Address *" value={formData.property_address} onChange={e => setForm({ ...formData, property_address: e.target.value })} required style={{ ...inputStyle, marginBottom: 14 }} />
-          <input type="number" placeholder="Asking Price" value={formData.asking_price} onChange={e => setForm({ ...formData, asking_price: e.target.value })} style={{ ...inputStyle, marginBottom: 14 }} />
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
+            <input type="text" placeholder="Zestimate" value={formData.zestimate} onChange={e => setForm({ ...formData, zestimate: e.target.value })} style={inputStyle} />
+            <input type="number" placeholder="Asking Price" value={formData.asking_price} onChange={e => setForm({ ...formData, asking_price: e.target.value })} style={inputStyle} />
+          </div>
+          <input type="url" placeholder="Zillow Link" value={formData.zillow_link} onChange={e => setForm({ ...formData, zillow_link: e.target.value })} style={{ ...inputStyle, marginBottom: 14 }} />
           <textarea placeholder="Notes / Reason for selling" rows={3} value={formData.reason} onChange={e => setForm({ ...formData, reason: e.target.value })} style={{ ...inputStyle, resize: "vertical", marginBottom: 14, fontFamily: "var(--font-sans)" }} />
 
           {owner?.allow_call_uploads && (
