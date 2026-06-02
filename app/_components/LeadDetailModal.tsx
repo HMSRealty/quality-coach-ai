@@ -100,21 +100,22 @@ export function LeadDetailModal({ leadId, onClose }: { leadId: string; onClose: 
         ) : (
           <div style={{ padding: 24 }}>
             {/* Status banner */}
-            <div style={{
-              padding: "10px 14px", borderRadius: 10, marginBottom: 20,
-              background: lead.status === "Qualified" ? "#ECFDF5"
-                : lead.status === "Disqualified" ? "#FEF2F2"
-                : "#F1F4F9",
-              border: `1px solid ${lead.status === "Qualified" ? "#A7F3D0"
-                : lead.status === "Disqualified" ? "#FCA5A5"
-                : "rgba(10,30,63,0.08)"}`,
-              fontSize: 12, fontWeight: 700,
-              color: lead.status === "Qualified" ? "#059669"
-                : lead.status === "Disqualified" ? "#DC2626"
-                : NAVY,
-            }}>
-              Status: {lead.status || "Unknown"}
-            </div>
+            {(() => {
+              const QSET = ["Hot", "Warm", "Cold"];
+              const ok = QSET.includes(lead.status || "");
+              const bad = lead.status === "Disqualified";
+              return (
+                <div style={{
+                  padding: "10px 14px", borderRadius: 10, marginBottom: 20,
+                  background: ok ? "#ECFDF5" : bad ? "#F1F4F9" : "#FFFBEB",
+                  border: `1px solid ${ok ? "#A7F3D0" : bad ? "rgba(10,30,63,0.10)" : "#FCD34D"}`,
+                  fontSize: 12, fontWeight: 700,
+                  color: ok ? "#059669" : bad ? NAVY : "#92400E",
+                }}>
+                  Status: {lead.status || "Unknown"}
+                </div>
+              );
+            })()}
 
             {/* Facts grid */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 20 }}>

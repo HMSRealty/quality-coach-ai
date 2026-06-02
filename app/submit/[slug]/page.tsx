@@ -274,8 +274,8 @@ export default function DynamicSubmitPage() {
             <div style={{
               display: "inline-flex", alignItems: "center", gap: 8,
               padding: "8px 16px", borderRadius: 999, marginBottom: 28,
-              background: doneStatus === "Qualified" ? "#ECFDF5" : doneStatus === "Disqualified" ? "#FEF2F2" : "#FFFBEB",
-              color: doneStatus === "Qualified" ? "#059669" : doneStatus === "Disqualified" ? "#DC2626" : "#92400E",
+              background: ["Hot","Warm","Cold"].includes(doneStatus || "") ? "#ECFDF5" : doneStatus === "Disqualified" ? "#F1F4F9" : "#FFFBEB",
+              color: ["Hot","Warm","Cold"].includes(doneStatus || "") ? "#059669" : doneStatus === "Disqualified" ? "#475569" : "#92400E",
               fontSize: 13, fontWeight: 800,
             }}>
               Verdict: {doneStatus}

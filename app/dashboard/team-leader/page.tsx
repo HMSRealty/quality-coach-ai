@@ -72,7 +72,8 @@ export default function TeamLeaderPage() {
   );
 
   const totalLeads = visibleLeads.length;
-  const qualifiedCount = visibleLeads.filter(l => l.status === "Qualified").length;
+  const QSET = ["Hot", "Warm", "Cold"];
+  const qualifiedCount = visibleLeads.filter(l => QSET.includes(l.status)).length;
   const callBackCount = visibleLeads.filter(l => l.status === "Call Back").length;
   const disqualifiedCount = visibleLeads.filter(l => l.status === "Disqualified").length;
   const passRate = totalLeads > 0 ? Math.round((qualifiedCount / totalLeads) * 100) : 0;
@@ -81,7 +82,7 @@ export default function TeamLeaderPage() {
     const cLeads = visibleLeads.filter(l => l.caller_id === c.id);
     return {
       name: c.name.split(" ")[0],
-      Qualified: cLeads.filter(l => l.status === "Qualified").length,
+      Qualified: cLeads.filter(l => QSET.includes(l.status)).length,
       "Call Back": cLeads.filter(l => l.status === "Call Back").length,
       Disqualified: cLeads.filter(l => l.status === "Disqualified").length,
     };
@@ -101,7 +102,7 @@ export default function TeamLeaderPage() {
     const dayLeads = visibleLeads.filter(l => l.created_at.startsWith(key));
     return {
       day: label,
-      Qualified: dayLeads.filter(l => l.status === "Qualified").length,
+      Qualified: dayLeads.filter(l => QSET.includes(l.status)).length,
       Total: dayLeads.length,
     };
   });

@@ -32,11 +32,14 @@ interface Lead {
 }
 
 const STATUS_COLOR: Record<string, string> = {
-  Qualified: TEAL,
+  Hot: "#FF5C7C",
+  Warm: "#FFAA00",
+  Cold: "#5BA8FF",
   "Call Back": "#FFC857",
-  Disqualified: "#FF5C7C",
+  Disqualified: "#8B9AB5",
   Processing: MUTED,
   Duplicate: "#FFC857",
+  Commercial: "#B58CFF",
   Error: "#FF5C7C",
 };
 
@@ -113,7 +116,7 @@ export default function AdminLeadsPage() {
     URL.revokeObjectURL(url);
   };
 
-  const statuses = ["All", "Qualified", "Call Back", "Disqualified", "Processing", "Duplicate", "Error"];
+  const statuses = ["All", "Hot", "Warm", "Cold", "Call Back", "Disqualified", "Processing", "Duplicate", "Error"];
 
   return (
     <div style={{

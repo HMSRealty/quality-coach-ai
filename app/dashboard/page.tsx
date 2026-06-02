@@ -77,14 +77,16 @@ function DonutRing({ value, max = 100, color, size = 60, sw = 6 }: { value: numb
 
 // ── Status ────────────────────────────────────────────────────
 const S_CFG: Record<string, { bg: string; color: string; dot: string }> = {
-  Qualified:    { bg: "#ECFDF5",  color: "#059669", dot: "#10B981" },
-  Warm:         { bg: "#EFF6FF",  color: "#2563EB", dot: "#3B82F6" },
-  Disqualified: { bg: "#FEF2F2",  color: "#DC2626", dot: "#EF4444" },
+  Hot:          { bg: "#FEF2F2",  color: "#DC2626", dot: "#EF4444" },
+  Warm:         { bg: "#FFF7ED",  color: "#EA580C", dot: "#F97316" },
+  Cold:         { bg: "#EFF6FF",  color: "#2563EB", dot: "#3B82F6" },
+  Disqualified: { bg: "#F1F4F9",  color: "#475569", dot: "#94A3B8" },
   Duplicate:    { bg: "#FFFBEB",  color: "#D97706", dot: "#F59E0B" },
   Processing:   { bg: "#F5F3FF",  color: "#7C3AED", dot: "#8B5CF6" },
+  Commercial:   { bg: "#F5F3FF",  color: "#7C3AED", dot: "#8B5CF6" },
   Error:        { bg: "#FEF2F2",  color: "#DC2626", dot: "#EF4444" },
 };
-const STATUS_OPTS = ["Qualified", "Warm", "Disqualified", "Duplicate", "Processing", "Error"];
+const STATUS_OPTS = ["Hot", "Warm", "Cold", "Call Back", "Disqualified", "Duplicate", "Processing", "Error"];
 
 // ── Component ────────────────────────────────────────────────
 export default function DashboardPage() {
@@ -193,7 +195,8 @@ export default function DashboardPage() {
   };
 
   const total = leads.length;
-  const qualified = leads.filter(l => l.status === "Qualified" || l.status === "Warm").length;
+  const QUALIFIED_SET = ["Hot", "Warm", "Cold"];
+  const qualified = leads.filter(l => QUALIFIED_SET.includes(l.status)).length;
   const disq = leads.filter(l => l.status === "Disqualified" || l.status === "Duplicate").length;
   const qualRate = total > 0 ? Math.round((qualified / total) * 100) : 0;
   const last7 = Array.from({ length: 7 }, (_, i) => {
@@ -203,7 +206,7 @@ export default function DashboardPage() {
   const qualRateSpark = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(); d.setDate(d.getDate() - (6 - i));
     const day = leads.filter(l => l.created_at.startsWith(d.toLocaleDateString("en-CA")));
-    return day.length > 0 ? Math.round((day.filter(l => l.status === "Qualified" || l.status === "Warm").length / day.length) * 100) : 0;
+    return day.length > 0 ? Math.round((day.filter(l => QUALIFIED_SET.includes(l.status)).length / day.length) * 100) : 0;
   });
   const recent = leads.slice(0, 10);
   const [openLeadId, setOpenLeadId] = useState<string | null>(null);

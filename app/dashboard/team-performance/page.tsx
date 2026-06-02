@@ -38,25 +38,24 @@ export default function TeamPerformancePage() {
         const { data: leads } = await supabase.from("leads").select("status, created_at").in("user_id", userIds);
         const all = leads || [];
 
+        const QSET = ["Hot", "Warm", "Cold"];
         const total = all.length;
-        // "Qualified" tier only — excludes Warm, which is its own bucket
-        const qualified = all.filter(l => l.status === "Qualified").length;
-        const warm = all.filter(l => l.status === "Warm").length;
-        // Conversion = (Qualified + Warm) / decided leads. Exclude Processing/Error from denominator for honest math.
+        const qualified = all.filter(l => QSET.includes(l.status)).length;
+        // Conversion = qualified (Hot+Warm+Cold) / decided leads. Exclude Processing/Error.
         const decided = all.filter(l => l.status !== "Processing" && l.status !== "Error").length;
-        const conversion = decided > 0 ? Math.round(((qualified + warm) / decided) * 100) : 0;
+        const conversion = decided > 0 ? Math.round((qualified / decided) * 100) : 0;
 
         // Real week-over-week trend
         const last7 = all.filter(l => l.created_at >= cutoff7);
         const prev7 = all.filter(l => l.created_at >= cutoff14 && l.created_at < cutoff7);
         const conv = (rows: typeof all) => {
           const d = rows.filter(l => l.status !== "Processing" && l.status !== "Error").length;
-          const q = rows.filter(l => l.status === "Qualified" || l.status === "Warm").length;
+          const q = rows.filter(l => QSET.includes(l.status)).length;
           return d > 0 ? (q / d) * 100 : 0;
         };
         const trend = +(conv(last7) - conv(prev7)).toFixed(1);
 
-        teamPerf.push({ id: team.id, name: team.name, calls: total, qualified: qualified + warm, conversion, trend });
+        teamPerf.push({ id: team.id, name: team.name, calls: total, qualified, conversion, trend });
       }
       setTeams(teamPerf.sort((a, b) => b.conversion - a.conversion));
       setLoading(false);
@@ -87,7 +86,7 @@ export default function TeamPerformancePage() {
           const weightedConv = totalCalls > 0 ? Math.round((totalQual / totalCalls) * 100) : 0;
           return [
             { label: "Total Calls", value: totalCalls, icon: BarChart3, color: RED },
-            { label: "Qualified + Warm", value: totalQual, icon: Target, color: "#059669" },
+            { label: "Qualified Leads", value: totalQual, icon: Target, color: "#059669" },
             { label: "Conversion Rate", value: `${weightedConv}%`, icon: TrendingUp, color: "#0284C7" },
             { label: "Active Teams", value: teams.length, icon: Zap, color: "#7C3AED" },
           ];

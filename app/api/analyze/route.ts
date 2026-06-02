@@ -338,17 +338,17 @@ function decide(q: QualJSON): { status: string; reason: string; regeneration: st
   else {
     if (hasAsking && hasMv) {
       if (ratio <= 0.70) {
-        if (hasReason && closing3) { status = "Qualified"; reason = `🔥 HOT LEAD - Motivated, closes <= 3 mos, AP $${asking.toLocaleString()} <= 70% MV.`; }
+        if (hasReason && closing3) { status = "Hot"; reason = `🔥 HOT LEAD - Motivated, closes <= 3 mos, AP $${asking.toLocaleString()} <= 70% MV.`; }
         else { status = "Warm"; reason = `Warm Lead - Deep discount (AP $${asking.toLocaleString()} <= 70% MV) but missing strong motivation or fast timeline.`; }
       } else if (ratio < 1.0 && hasReason) { status = "Warm"; reason = `Warm Lead - Motivated seller, AP $${asking.toLocaleString()} below MV.`; }
-    } else if (hasReason) { status = "Warm"; reason = "Warm Lead - Valid motivation, but no spoken price/MV. Needs price discovery."; }
+    } else if (hasReason) { status = "Cold"; reason = "Cold Lead - Valid motivation, but no spoken price/MV. Needs price discovery."; }
   }
 
   if (!status) { status = "Disqualified"; reason = "dq - No qualifying signal detected on call."; }
 
   // Alternative property override
   if (status === "Disqualified" && otherProps) {
-    status = "Qualified"; reason = `Qualified (Alternative Property) - Primary dead, seller volunteered off-market property: ${otherProps}.`;
+    status = "Cold"; reason = `Cold Lead (Alternative Property) - Primary dead, seller volunteered off-market property: ${otherProps}.`;
     regeneration = "Call back to negotiate the volunteered property.";
   }
 
@@ -487,7 +487,7 @@ export async function POST(req: Request): Promise<Response> {
           ...stats,
           coaching_points: [...all, ...coachingArr].slice(-50),
           total_analyzed: totalAnalyzed + 1,
-          qualified_count: qualifiedCount + (status === "Qualified" ? 1 : 0),
+          qualified_count: qualifiedCount + (["Hot", "Warm", "Cold"].includes(status) ? 1 : 0),
           last_feedback: coaching,
           last_status: status,
         },

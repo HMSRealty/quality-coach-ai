@@ -70,8 +70,8 @@ export default function CallersPage() {
         if (!l.caller_id || !byId[l.caller_id]) return;
         const s = byId[l.caller_id];
         s.total++;
-        if (l.status === "Qualified") s.qualified++;
-        else if (l.status === "Call Back" || l.status === "Warm") s.callback++;
+        if (l.status === "Hot" || l.status === "Warm" || l.status === "Cold") s.qualified++;
+        else if (l.status === "Call Back") s.callback++;
         else if (l.status === "Disqualified") s.disqualified++;
         if (l.asking_price) {
           priceSum[l.caller_id] = (priceSum[l.caller_id] || 0) + l.asking_price;
@@ -262,7 +262,7 @@ export default function CallersPage() {
                   <div style={{ display: "flex", gap: 18, flexWrap: "wrap" }}>
                     {[
                       { label: "Qualified", value: s.qualified, color: "#059669", icon: CheckCircle2 },
-                      { label: "Call Back / Warm", value: s.callback, color: "#F59E0B", icon: Phone },
+                      { label: "Call Back", value: s.callback, color: "#F59E0B", icon: Phone },
                       { label: "Disqualified", value: s.disqualified, color: "#DC2626", icon: XCircle },
                     ].map(o => (
                       <div key={o.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>

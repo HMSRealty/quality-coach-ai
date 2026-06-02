@@ -47,11 +47,14 @@ interface ExtractedItem {
 }
 
 const STATUS_CONFIG: Record<string, { bg: string; color: string; icon: typeof CheckCircle2 }> = {
-  Qualified:    { bg: "#ECFDF5", color: "#059669", icon: CheckCircle2 },
-  Disqualified: { bg: "#FEF2F2", color: "#DC2626", icon: XCircle },
+  Hot:          { bg: "#FEF2F2", color: "#DC2626", icon: CheckCircle2 },
+  Warm:         { bg: "#FFF7ED", color: "#EA580C", icon: CheckCircle2 },
+  Cold:         { bg: "#F0F9FF", color: "#0284C7", icon: CheckCircle2 },
+  Disqualified: { bg: "#F1F4F9", color: "#475569", icon: XCircle },
   "Call Back":  { bg: "#FFFBEB", color: "#92400E", icon: Phone },
   Processing:   { bg: "#F1F4F9", color: "#475569", icon: Clock },
   Duplicate:    { bg: "#FAF4E4", color: "#92400E", icon: AlertTriangle },
+  Commercial:   { bg: "#F5F3FF", color: "#7C3AED", icon: AlertTriangle },
   Error:        { bg: "#FEF2F2", color: "#DC2626", icon: AlertTriangle },
 };
 

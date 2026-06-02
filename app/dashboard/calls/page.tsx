@@ -23,15 +23,17 @@ interface Lead {
 const NAVY = "#0A1E3F";
 const SLATE = "#475569";
 
-const STATUS_OPTS = ["All", "Qualified", "Warm", "Call Back", "Disqualified", "Duplicate", "Processing", "Error"];
+const STATUS_OPTS = ["All", "Hot", "Warm", "Cold", "Call Back", "Disqualified", "Duplicate", "Processing", "Error"];
 const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
-  Qualified:    { bg: "#ECFDF5", color: "#059669" },
-  Warm:         { bg: "#F0F9FF", color: "#0284C7" },
+  Hot:          { bg: "#FEF2F2", color: "#DC2626" },
+  Warm:         { bg: "#FFF7ED", color: "#EA580C" },
+  Cold:         { bg: "#F0F9FF", color: "#0284C7" },
   "Call Back":  { bg: "#FFFBEB", color: "#92400E" },
-  Disqualified: { bg: "#FEF2F2", color: "#DC2626" },
+  Disqualified: { bg: "#F1F4F9", color: SLATE },
   Duplicate:    { bg: "#FAF4E4", color: "#92400E" },
   Processing:   { bg: "#F1F4F9", color: SLATE },
   Error:        { bg: "#FEF2F2", color: "#DC2626" },
+  Commercial:   { bg: "#F5F3FF", color: "#7C3AED" },
 };
 
 function AgentAvatar({ name }: { name: string | null }) {
