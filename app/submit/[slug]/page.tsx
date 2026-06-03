@@ -34,7 +34,46 @@ export default function DynamicSubmitPage() {
   const [error, setError] = useState("");
   const [callFile, setCallFile] = useState<File | null>(null);
   const [doneStatus, setDoneStatus] = useState<string | null>(null);
+  const [zLookup, setZLookup] = useState<{ busy: boolean; msg: string }>({ busy: false, msg: "" });
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Pull property data from Zillow scraper (uses address; or Zillow URL if provided)
+  const lookupZillow = async () => {
+    const useUrl = !!formData.zillow_link.trim();
+    const q = useUrl ? formData.zillow_link.trim() : formData.property_address.trim();
+    if (!q) {
+      setZLookup({ busy: false, msg: "Enter an address (or paste a Zillow link) first." });
+      return;
+    }
+    setZLookup({ busy: true, msg: "Looking up on Zillow…" });
+    try {
+      const params = new URLSearchParams({ type: useUrl ? "url" : "address", q });
+      const res = await fetch(`/api/zillow?${params.toString()}`);
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json.ok) {
+        setZLookup({ busy: false, msg: json.error || "Lookup failed." });
+        return;
+      }
+      // Try common fields the scraper returns. Shape varies by endpoint.
+      const d = json.data || {};
+      const first = Array.isArray(d?.results) ? d.results[0] : (Array.isArray(d) ? d[0] : d);
+      const zestimate = first?.zestimate || first?.priceEstimate || first?.estimate || first?.price || "";
+      const address = first?.address?.streetAddress
+        ? `${first.address.streetAddress}, ${first.address.city || ""} ${first.address.state || ""} ${first.address.zipcode || ""}`.replace(/\s+/g, " ").trim()
+        : first?.fullAddress || first?.address || "";
+      const link = first?.url || first?.detailUrl || first?.hdpUrl ? `https://zillow.com${first.hdpUrl || first.detailUrl}` : "";
+
+      setForm(f => ({
+        ...f,
+        property_address: address || f.property_address,
+        zestimate: zestimate ? String(zestimate) : f.zestimate,
+        zillow_link: useUrl ? f.zillow_link : (link || f.zillow_link),
+      }));
+      setZLookup({ busy: false, msg: zestimate ? `Zestimate $${Number(String(zestimate).replace(/\D/g, "")).toLocaleString()}` : "Found — filled what we could." });
+    } catch (e) {
+      setZLookup({ busy: false, msg: e instanceof Error ? e.message : "Lookup failed." });
+    }
+  };
 
   const [formData, setForm] = useState({
     date: new Date().toISOString().split("T")[0],
@@ -328,7 +367,15 @@ export default function DynamicSubmitPage() {
             <input type="tel" placeholder="Phone Number *" value={formData.phone_number} onChange={e => setForm({ ...formData, phone_number: e.target.value })} required style={inputStyle} />
           </div>
           <input type="text" placeholder="Owner Name *" value={formData.owner_name} onChange={e => setForm({ ...formData, owner_name: e.target.value })} required style={{ ...inputStyle, marginBottom: 14 }} />
-          <input type="text" placeholder="Property Address (optional)" value={formData.property_address} onChange={e => setForm({ ...formData, property_address: e.target.value })} style={{ ...inputStyle, marginBottom: 14 }} />
+          <input type="text" placeholder="Property Address (optional)" value={formData.property_address} onChange={e => setForm({ ...formData, property_address: e.target.value })} style={{ ...inputStyle, marginBottom: 8 }} />
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+            <button type="button" onClick={lookupZillow} disabled={zLookup.busy} style={{
+              padding: "8px 14px", borderRadius: 8, cursor: zLookup.busy ? "wait" : "pointer",
+              background: NAVY, color: "#fff", border: "none",
+              fontSize: 12, fontWeight: 700,
+            }}>{zLookup.busy ? "Looking up…" : "Lookup from Zillow"}</button>
+            {zLookup.msg && <span style={{ fontSize: 11, color: SLATE }}>{zLookup.msg}</span>}
+          </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
             <input type="text" placeholder="Zestimate (optional)" value={formData.zestimate} onChange={e => setForm({ ...formData, zestimate: e.target.value })} style={inputStyle} />
             <input type="number" placeholder="Asking Price (optional)" value={formData.asking_price} onChange={e => setForm({ ...formData, asking_price: e.target.value })} style={inputStyle} />
