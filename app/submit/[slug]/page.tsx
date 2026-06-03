@@ -35,41 +35,46 @@ export default function DynamicSubmitPage() {
   const [callFile, setCallFile] = useState<File | null>(null);
   const [doneStatus, setDoneStatus] = useState<string | null>(null);
   const [zLookup, setZLookup] = useState<{ busy: boolean; msg: string }>({ busy: false, msg: "" });
+  // Resolved Zillow property data for the main address (carried into metadata)
+  const [zData, setZData] = useState<Record<string, unknown> | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Pull property data from Zillow scraper (uses address; or Zillow URL if provided)
+  // Shared helper — fetch property data for one address (or Zillow URL).
+  const fetchZillow = async (address: string, zillowUrl?: string) => {
+    const params = new URLSearchParams();
+    if (zillowUrl && zillowUrl.trim()) params.set("url", zillowUrl.trim());
+    else params.set("address", address.trim());
+    const res = await fetch(`/api/zillow?${params.toString()}`);
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok || !json.ok) throw new Error(json.error || "Lookup failed");
+    return json.normalized as Record<string, unknown>;
+  };
+
+  // Get data for the MAIN address typed in the form.
   const lookupZillow = async () => {
-    const useUrl = !!formData.zillow_link.trim();
-    const q = useUrl ? formData.zillow_link.trim() : formData.property_address.trim();
-    if (!q) {
+    const addr = formData.property_address.trim();
+    const link = formData.zillow_link.trim();
+    if (!addr && !link) {
       setZLookup({ busy: false, msg: "Enter an address (or paste a Zillow link) first." });
       return;
     }
-    setZLookup({ busy: true, msg: "Looking up on Zillow…" });
+    setZLookup({ busy: true, msg: "Fetching property data…" });
     try {
-      const params = new URLSearchParams({ type: useUrl ? "url" : "location", q });
-      const res = await fetch(`/api/zillow?${params.toString()}`);
-      const json = await res.json().catch(() => ({}));
-      if (!res.ok || !json.ok) {
-        setZLookup({ busy: false, msg: json.error || "Lookup failed." });
-        return;
-      }
-      // Try common fields the scraper returns. Shape varies by endpoint.
-      const d = json.data || {};
-      const first = Array.isArray(d?.results) ? d.results[0] : (Array.isArray(d) ? d[0] : d);
-      const zestimate = first?.zestimate || first?.priceEstimate || first?.estimate || first?.price || "";
-      const address = first?.address?.streetAddress
-        ? `${first.address.streetAddress}, ${first.address.city || ""} ${first.address.state || ""} ${first.address.zipcode || ""}`.replace(/\s+/g, " ").trim()
-        : first?.fullAddress || first?.address || "";
-      const link = first?.url || first?.detailUrl || first?.hdpUrl ? `https://zillow.com${first.hdpUrl || first.detailUrl}` : "";
-
+      const n = await fetchZillow(addr, link);
+      setZData(n);
+      const zest = n.zestimate as number | undefined;
       setForm(f => ({
         ...f,
-        property_address: address || f.property_address,
-        zestimate: zestimate ? String(zestimate) : f.zestimate,
-        zillow_link: useUrl ? f.zillow_link : (link || f.zillow_link),
+        property_address: (n.address as string) || f.property_address,
+        zestimate: zest ? String(zest) : f.zestimate,
+        zillow_link: (n.zillow_url as string) || f.zillow_link,
       }));
-      setZLookup({ busy: false, msg: zestimate ? `Zestimate $${Number(String(zestimate).replace(/\D/g, "")).toLocaleString()}` : "Found — filled what we could." });
+      const bits: string[] = [];
+      if (zest) bits.push(`Zestimate $${zest.toLocaleString()}`);
+      if (n.beds) bits.push(`${n.beds} bd`);
+      if (n.baths) bits.push(`${n.baths} ba`);
+      if (n.sqft) bits.push(`${(n.sqft as number).toLocaleString()} sqft`);
+      setZLookup({ busy: false, msg: bits.length ? bits.join(" · ") : "Found — filled what we could." });
     } catch (e) {
       setZLookup({ busy: false, msg: e instanceof Error ? e.message : "Lookup failed." });
     }
@@ -89,11 +94,44 @@ export default function DynamicSubmitPage() {
   });
 
   // Optional extra properties the caller can append with the (+) button
-  const [extraProps, setExtraProps] = useState<Array<{ address: string; zestimate: string; asking_price: string }>>([]);
+  type Extra = {
+    address: string; zestimate: string; asking_price: string;
+    busy?: boolean; msg?: string;
+    data?: Record<string, unknown> | null;
+  };
+  const [extraProps, setExtraProps] = useState<Array<Extra>>([]);
   const addProperty = () => setExtraProps(p => [...p, { address: "", zestimate: "", asking_price: "" }]);
   const removeProperty = (i: number) => setExtraProps(p => p.filter((_, idx) => idx !== i));
   const updateProperty = (i: number, key: "address" | "zestimate" | "asking_price", val: string) =>
     setExtraProps(p => p.map((row, idx) => idx === i ? { ...row, [key]: val } : row));
+
+  // Run the Zillow lookup for one extra property row.
+  const lookupExtra = async (i: number) => {
+    const row = extraProps[i];
+    if (!row?.address?.trim()) {
+      setExtraProps(p => p.map((r, idx) => idx === i ? { ...r, msg: "Type an address first." } : r));
+      return;
+    }
+    setExtraProps(p => p.map((r, idx) => idx === i ? { ...r, busy: true, msg: "Fetching…" } : r));
+    try {
+      const n = await fetchZillow(row.address);
+      const zest = n.zestimate as number | undefined;
+      const bits: string[] = [];
+      if (zest) bits.push(`Zestimate $${zest.toLocaleString()}`);
+      if (n.beds) bits.push(`${n.beds} bd`);
+      if (n.baths) bits.push(`${n.baths} ba`);
+      if (n.sqft) bits.push(`${(n.sqft as number).toLocaleString()} sqft`);
+      setExtraProps(p => p.map((r, idx) => idx === i ? {
+        ...r,
+        address: (n.address as string) || r.address,
+        zestimate: zest ? String(zest) : r.zestimate,
+        data: n, busy: false,
+        msg: bits.length ? bits.join(" · ") : "Found.",
+      } : r));
+    } catch (e) {
+      setExtraProps(p => p.map((r, idx) => idx === i ? { ...r, busy: false, msg: e instanceof Error ? e.message : "Lookup failed." } : r));
+    }
+  };
 
   useEffect(() => {
     if (!slug) return;
@@ -169,7 +207,16 @@ export default function DynamicSubmitPage() {
             zestimate: formData.zestimate,
             zillow_link: formData.zillow_link,
             reason: formData.reason,
-            additional_properties: extraProps.filter(p => p.address || p.zestimate || p.asking_price),
+            // Full property data resolved from Zillow for the main address (if user clicked Lookup)
+            zillow_data: zData || null,
+            additional_properties: extraProps
+              .filter(p => p.address || p.zestimate || p.asking_price)
+              .map(p => ({
+                address: p.address,
+                zestimate: p.zestimate,
+                asking_price: p.asking_price,
+                zillow_data: p.data || null,
+              })),
             submitted_via: "public_form",
           },
         })
@@ -389,7 +436,14 @@ export default function DynamicSubmitPage() {
                 <span style={{ fontSize: 11, fontWeight: 700, color: SLATE }}>Property #{i + 2}</span>
                 <button type="button" onClick={() => removeProperty(i)} style={{ background: "none", border: "none", color: "#DC2626", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Remove</button>
               </div>
-              <input type="text" placeholder="Address" value={p.address} onChange={e => updateProperty(i, "address", e.target.value)} style={{ ...inputStyle, marginBottom: 10 }} />
+              <input type="text" placeholder="Address" value={p.address} onChange={e => updateProperty(i, "address", e.target.value)} style={{ ...inputStyle, marginBottom: 8 }} />
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                <button type="button" onClick={() => lookupExtra(i)} disabled={!!p.busy} style={{
+                  padding: "6px 12px", borderRadius: 7, cursor: p.busy ? "wait" : "pointer",
+                  background: NAVY, color: "#fff", border: "none", fontSize: 11, fontWeight: 700,
+                }}>{p.busy ? "Fetching…" : "Lookup from Zillow"}</button>
+                {p.msg && <span style={{ fontSize: 11, color: SLATE }}>{p.msg}</span>}
+              </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                 <input type="text" placeholder="Zestimate" value={p.zestimate} onChange={e => updateProperty(i, "zestimate", e.target.value)} style={inputStyle} />
                 <input type="number" placeholder="Asking Price" value={p.asking_price} onChange={e => updateProperty(i, "asking_price", e.target.value)} style={inputStyle} />
