@@ -47,7 +47,7 @@ export default function DynamicSubmitPage() {
     }
     setZLookup({ busy: true, msg: "Looking up on Zillow…" });
     try {
-      const params = new URLSearchParams({ type: useUrl ? "url" : "address", q });
+      const params = new URLSearchParams({ type: useUrl ? "url" : "location", q });
       const res = await fetch(`/api/zillow?${params.toString()}`);
       const json = await res.json().catch(() => ({}));
       if (!res.ok || !json.ok) {
