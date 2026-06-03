@@ -40,6 +40,7 @@ export default function DynamicSubmitPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Shared helper — fetch property data for one address (or Zillow URL).
+  // Returns the full API response so callers can read normalized + warning.
   const fetchZillow = async (address: string, zillowUrl?: string) => {
     const params = new URLSearchParams();
     if (zillowUrl && zillowUrl.trim()) params.set("url", zillowUrl.trim());
@@ -47,7 +48,7 @@ export default function DynamicSubmitPage() {
     const res = await fetch(`/api/zillow?${params.toString()}`);
     const json = await res.json().catch(() => ({}));
     if (!res.ok || !json.ok) throw new Error(json.error || "Lookup failed");
-    return json.normalized as Record<string, unknown>;
+    return json as { normalized: Record<string, unknown>; warning?: string };
   };
 
   // Get data for the MAIN address typed in the form.
@@ -60,7 +61,8 @@ export default function DynamicSubmitPage() {
     }
     setZLookup({ busy: true, msg: "Fetching property data…" });
     try {
-      const n = await fetchZillow(addr, link);
+      const resp = await fetchZillow(addr, link);
+      const n = resp.normalized;
       setZData(n);
       const zest = n.zestimate as number | undefined;
       setForm(f => ({
@@ -69,6 +71,7 @@ export default function DynamicSubmitPage() {
         zestimate: zest ? String(zest) : f.zestimate,
         zillow_link: (n.zillow_url as string) || f.zillow_link,
       }));
+      if (resp.warning) { setZLookup({ busy: false, msg: "⚠ " + resp.warning }); return; }
       const bits: string[] = [];
       if (zest) bits.push(`Zestimate $${zest.toLocaleString()}`);
       if (n.beds) bits.push(`${n.beds} bd`);
@@ -114,7 +117,8 @@ export default function DynamicSubmitPage() {
     }
     setExtraProps(p => p.map((r, idx) => idx === i ? { ...r, busy: true, msg: "Fetching…" } : r));
     try {
-      const n = await fetchZillow(row.address);
+      const resp = await fetchZillow(row.address);
+      const n = resp.normalized;
       const zest = n.zestimate as number | undefined;
       const bits: string[] = [];
       if (zest) bits.push(`Zestimate $${zest.toLocaleString()}`);
@@ -126,7 +130,7 @@ export default function DynamicSubmitPage() {
         address: (n.address as string) || r.address,
         zestimate: zest ? String(zest) : r.zestimate,
         data: n, busy: false,
-        msg: bits.length ? bits.join(" · ") : "Found.",
+        msg: resp.warning ? "⚠ " + resp.warning : (bits.length ? bits.join(" · ") : "Found."),
       } : r));
     } catch (e) {
       setExtraProps(p => p.map((r, idx) => idx === i ? { ...r, busy: false, msg: e instanceof Error ? e.message : "Lookup failed." } : r));
