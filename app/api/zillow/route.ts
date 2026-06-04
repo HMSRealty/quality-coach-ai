@@ -1,26 +1,29 @@
 // app/api/zillow/route.ts
-// Edge runtime. Fetches the EXACT property the user typed by resolving the
-// address → its Zillow zpid (via autocomplete) → full record (via byurl).
-// Never falls back to area search, which would return a different house.
+// Edge runtime. Fetches the EXACT property the user typed.
+//   1) resolve the address → its Zillow zpid (autocomplete / search-URL)
+//   2) pull the full record from private-zillow /byurl  (the data API you chose)
 //
-//   GET /api/zillow?address=1476 Cambridge Ave, College Park, GA 30337
-//   GET /api/zillow?url=https://www.zillow.com/homedetails/.../452099216_zpid/
-//   GET /api/zillow?address=...&debug=1   → includes autocomplete + chosen zpid
-//   GET /api/zillow?path=/anyEndpoint&q=...  → raw passthrough (escape hatch)
+//   GET /api/zillow?address=2762 Downing St, Jacksonville, FL 32205
+//   GET /api/zillow?url=https://www.zillow.com/homedetails/.../44471319_zpid/
+//   GET /api/zillow?address=...&debug=1   → includes raw + how it resolved
+//   GET /api/zillow?path=/byurl?url=...   → raw passthrough on the data host
 
 export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
-const HOST = "zillow-com-live-data-scraper-api.p.rapidapi.com";
+// Data API (returns the full property record from a Zillow detail URL)
+const HOST_DATA = "private-zillow.p.rapidapi.com";
+// Resolver API (turns a typed address into a zpid) — same RapidAPI key
+const HOST_RESOLVE = "zillow-com-live-data-scraper-api.p.rapidapi.com";
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
 }
 
-async function callZillow(path: string, key: string) {
-  const r = await fetch(`https://${HOST}${path}`, {
+async function call(host: string, path: string, key: string) {
+  const r = await fetch(`https://${host}${path}`, {
     method: "GET",
-    headers: { "x-rapidapi-key": key, "x-rapidapi-host": HOST },
+    headers: { "x-rapidapi-key": key, "x-rapidapi-host": host },
   });
   const text = await r.text();
   let data: unknown = null;
@@ -30,8 +33,15 @@ async function callZillow(path: string, key: string) {
 
 type AnyObj = Record<string, unknown>;
 
-// Recursively find the FIRST zpid in a payload (top autocomplete suggestion
-// for an exact address = the property the user typed).
+// "2762 Downing St, Jacksonville, FL 32205" → "2762-Downing-St-Jacksonville-FL-32205"
+function addressSlug(addr: string): string {
+  return addr.trim()
+    .replace(/[.,#]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+}
+
+// Recursively find the first zpid in any payload.
 function firstZpid(data: unknown): string | null {
   let found: string | null = null;
   const visit = (n: unknown) => {
@@ -65,7 +75,7 @@ function looksLikeProperty(node: AnyObj): boolean {
 function findProperty(data: unknown): AnyObj | null {
   let best: AnyObj | null = null;
   const visit = (node: unknown, depth: number) => {
-    if (best || !node || typeof node !== "object" || depth > 7) return;
+    if (best || !node || typeof node !== "object" || depth > 8) return;
     if (Array.isArray(node)) { for (const it of node) visit(it, depth + 1); return; }
     const obj = node as AnyObj;
     if (looksLikeProperty(obj)) { best = obj; return; }
@@ -87,7 +97,7 @@ function normalize(data: unknown) {
 
   let zUrl = String(field(p, ["url", "detailurl", "hdpurl"]) || "");
   if (zUrl && zUrl.startsWith("/")) zUrl = "https://www.zillow.com" + zUrl;
-  const photos = field(p, ["photos", "images"]);
+  const photos = field(p, ["photos", "images", "responsivephotos"]);
   const image = field(p, ["imgsrc", "image"]) ||
     (Array.isArray(photos) && photos[0] && typeof photos[0] === "object" ? (photos[0] as AnyObj).url : undefined);
 
@@ -99,13 +109,16 @@ function normalize(data: unknown) {
     baths: num(field(p, ["bathrooms", "baths"])),
     sqft: num(field(p, ["livingarea", "livingareavalue", "area", "sqft"])),
     homeType: (field(p, ["hometype", "propertytype", "statustype"]) as string) || undefined,
+    yearBuilt: num(field(p, ["yearbuilt"])),
     zillow_url: zUrl || undefined,
     image: (image as string) || undefined,
     zpid: (field(p, ["zpid"]) as string | number) || undefined,
   };
 }
 
-// Leading street number, for sanity-checking the resolved property matches.
+function hasData(n: ReturnType<typeof normalize>): boolean {
+  return !!(n.zestimate || n.price || n.beds || n.baths || n.sqft);
+}
 function streetNum(s: string): string {
   const m = (s || "").trim().match(/^\d+/);
   return m ? m[0] : "";
@@ -122,60 +135,89 @@ export async function GET(req: Request): Promise<Response> {
     const exact   = url.searchParams.get("path");
     const debug   = url.searchParams.get("debug") === "1";
 
-    // Escape hatch — raw passthrough to any endpoint
+    // Escape hatch — raw passthrough to the data host
     if (exact) {
       const path = exact.startsWith("/") ? exact : `/${exact}`;
-      const r = await callZillow(path, key);
+      const r = await call(HOST_DATA, path, key);
       if (!r.ok) return json({ ok: false, error: `Upstream ${r.status}`, body: r.text.slice(0, 800) }, r.status);
       return json({ ok: true, path, normalized: normalize(r.data), raw: r.data });
     }
 
-    // Direct Zillow URL → exact property
+    // Direct Zillow URL → fetch the exact property via the data API
     if (zUrl) {
-      const r = await callZillow(`/byurl?url=${encodeURIComponent(zUrl)}`, key);
+      const r = await call(HOST_DATA, `/byurl?url=${encodeURIComponent(zUrl)}`, key);
       if (!r.ok) return json({ ok: false, error: `Zillow ${r.status}`, body: r.text.slice(0, 400) }, r.status);
       return json({ ok: true, source: "url", normalized: normalize(r.data), ...(debug ? { raw: r.data } : {}) });
     }
 
     if (!address) return json({ ok: false, error: "address (or url) required" }, 400);
 
-    // STEP 1 — resolve the typed address to its exact zpid
-    const ac = await callZillow(`/autocomplete?query=${encodeURIComponent(address)}`, key);
-    if (!ac.ok) {
-      return json({ ok: false, error: `Address lookup failed (autocomplete ${ac.status}).`, ...(debug ? { acRaw: ac.data } : {}) }, ac.status);
-    }
-    const zpid = firstZpid(ac.data);
-    if (!zpid) {
-      return json({
-        ok: false,
-        error: "Couldn't match that exact address on Zillow. Double-check spelling and include the ZIP code.",
-        ...(debug ? { acRaw: ac.data } : {}),
-      }, 404);
+    const attempts: Array<{ via: string; url: string; status: number }> = [];
+
+    // STRATEGY A — build Zillow's address search URL and let /byurl resolve it.
+    const slug = addressSlug(address);
+    const searchUrls = [
+      `https://www.zillow.com/homes/${slug}_rb/`,
+      `https://www.zillow.com/homedetails/${slug}/`,
+    ];
+    for (const su of searchUrls) {
+      const r = await call(HOST_DATA, `/byurl?url=${encodeURIComponent(su)}`, key);
+      attempts.push({ via: "byurl(search)", url: su, status: r.status });
+      if (r.ok) {
+        const n = normalize(r.data);
+        if (hasData(n)) {
+          return finish(n, address, "address->searchurl", debug ? r.data : undefined, attempts);
+        }
+      }
     }
 
-    // STEP 2 — fetch the exact property by its zpid URL
-    const detailUrl = `https://www.zillow.com/homedetails/${zpid}_zpid/`;
-    const r = await callZillow(`/byurl?url=${encodeURIComponent(detailUrl)}`, key);
-    if (!r.ok) {
-      return json({ ok: false, error: `Found the property but failed to load it (byurl ${r.status}).`, zpid, ...(debug ? { raw: r.data } : {}) }, r.status);
-    }
-    const normalized = normalize(r.data);
+    // STRATEGY B — resolve the address → zpid (resolver host), then /byurl the
+    // canonical _zpid detail URL on the data host.
+    let zpid: string | null = null;
+    let acRaw: unknown = undefined;
+    try {
+      const ac = await call(HOST_RESOLVE, `/autocomplete?query=${encodeURIComponent(address)}`, key);
+      attempts.push({ via: "autocomplete", url: "/autocomplete", status: ac.status });
+      acRaw = ac.data;
+      if (ac.ok) zpid = firstZpid(ac.data);
+    } catch { /* resolver is best-effort */ }
 
-    // Sanity check: the resolved street number should match what was typed.
-    const typedNum = streetNum(address);
-    const gotNum   = streetNum(normalized.address || "");
-    const mismatch = typedNum && gotNum && typedNum !== gotNum;
+    if (zpid) {
+      const detailUrl = `https://www.zillow.com/homedetails/${zpid}_zpid/`;
+      const r = await call(HOST_DATA, `/byurl?url=${encodeURIComponent(detailUrl)}`, key);
+      attempts.push({ via: "byurl(zpid)", url: detailUrl, status: r.status });
+      if (r.ok) {
+        const n = normalize(r.data);
+        return finish(n, address, "address->zpid->byurl", debug ? r.data : undefined, attempts);
+      }
+    }
 
     return json({
-      ok: true,
-      source: "address->zpid->url",
-      zpid,
-      match: !mismatch,
-      ...(mismatch ? { warning: `Resolved to ${normalized.address} — verify this matches the address you entered.` } : {}),
-      normalized: { ...normalized, address: normalized.address || address },
-      ...(debug ? { raw: r.data, acRaw: ac.data } : {}),
-    });
+      ok: false,
+      error: "Couldn't fetch that exact address. Double-check spelling and include the ZIP code.",
+      ...(debug ? { attempts, acRaw } : {}),
+    }, 404);
   } catch (e) {
     return json({ ok: false, error: e instanceof Error ? e.message : "Server error" }, 500);
   }
+}
+
+function finish(
+  n: ReturnType<typeof normalize>,
+  typedAddress: string,
+  source: string,
+  raw: unknown | undefined,
+  attempts: Array<{ via: string; url: string; status: number }>,
+): Response {
+  const typed = streetNum(typedAddress);
+  const got = streetNum(n.address || "");
+  const mismatch = typed && got && typed !== got;
+  return json({
+    ok: true,
+    source,
+    match: !mismatch,
+    ...(mismatch ? { warning: `Resolved to ${n.address} — verify this matches what you entered.` } : {}),
+    normalized: { ...n, address: n.address || typedAddress },
+    ...(raw !== undefined ? { raw, attempts } : {}),
+  });
 }
