@@ -1,7 +1,8 @@
 // app/api/zillow/route.ts
 // Edge runtime. Fetches the EXACT property the user typed.
-//   1) resolve the address → its Zillow zpid (autocomplete / search-URL)
-//   2) pull the full record from private-zillow /byurl  (the data API you chose)
+//   1) resolve the address → its Zillow zpid via private-zillow /autocomplete
+//   2) pull the full record from private-zillow /byurl  (the data API)
+// Both calls hit the SAME private-zillow host with the SAME RapidAPI key.
 //
 //   GET /api/zillow?address=2762 Downing St, Jacksonville, FL 32205
 //   GET /api/zillow?url=https://www.zillow.com/homedetails/.../44471319_zpid/
@@ -11,10 +12,8 @@
 export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
-// Data API (returns the full property record from a Zillow detail URL)
+// One host does it all: /autocomplete (address → zpid) and /byurl (zpid → record)
 const HOST_DATA = "private-zillow.p.rapidapi.com";
-// Resolver API (turns a typed address into a zpid) — same RapidAPI key
-const HOST_RESOLVE = "zillow-com-live-data-scraper-api.p.rapidapi.com";
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
@@ -32,14 +31,6 @@ async function call(host: string, path: string, key: string) {
 }
 
 type AnyObj = Record<string, unknown>;
-
-// "2762 Downing St, Jacksonville, FL 32205" → "2762-Downing-St-Jacksonville-FL-32205"
-function addressSlug(addr: string): string {
-  return addr.trim()
-    .replace(/[.,#]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
-}
 
 // Recursively find the first zpid in any payload.
 function firstZpid(data: unknown): string | null {
@@ -87,7 +78,8 @@ function findProperty(data: unknown): AnyObj | null {
 
 function normalize(data: unknown) {
   const p = findProperty(data) || (typeof data === "object" && data ? data as AnyObj : {});
-  const addrRaw = field(p, ["address"]);
+  // private-zillow nests the address under "PropertyAddress" {streetAddress, city, state, zipcode}
+  const addrRaw = field(p, ["propertyaddress", "address"]);
   let address = "";
   if (addrRaw && typeof addrRaw === "object") {
     const a = addrRaw as AnyObj;
@@ -95,7 +87,7 @@ function normalize(data: unknown) {
   } else if (typeof addrRaw === "string") address = addrRaw;
   else address = String(field(p, ["fulladdress", "streetaddress"]) || "");
 
-  let zUrl = String(field(p, ["url", "detailurl", "hdpurl"]) || "");
+  let zUrl = String(field(p, ["propertyzillowurl", "url", "detailurl", "hdpurl"]) || "");
   if (zUrl && zUrl.startsWith("/")) zUrl = "https://www.zillow.com" + zUrl;
   const photos = field(p, ["photos", "images", "responsivephotos"]);
   const image = field(p, ["imgsrc", "image"]) ||
@@ -107,12 +99,12 @@ function normalize(data: unknown) {
     price: num(field(p, ["price", "listprice", "unformattedprice"])),
     beds: num(field(p, ["bedrooms", "beds"])),
     baths: num(field(p, ["bathrooms", "baths"])),
-    sqft: num(field(p, ["livingarea", "livingareavalue", "area", "sqft"])),
+    sqft: num(field(p, ["area(sqft)", "livingarea", "livingareavalue", "area", "sqft"])),
     homeType: (field(p, ["hometype", "propertytype", "statustype"]) as string) || undefined,
     yearBuilt: num(field(p, ["yearbuilt"])),
     zillow_url: zUrl || undefined,
     image: (image as string) || undefined,
-    zpid: (field(p, ["zpid"]) as string | number) || undefined,
+    zpid: (field(p, ["propertyzpid", "zpid"]) as string | number) || undefined,
   };
 }
 
@@ -154,49 +146,35 @@ export async function GET(req: Request): Promise<Response> {
 
     const attempts: Array<{ via: string; url: string; status: number }> = [];
 
-    // STRATEGY A — build Zillow's address search URL and let /byurl resolve it.
-    const slug = addressSlug(address);
-    const searchUrls = [
-      `https://www.zillow.com/homes/${slug}_rb/`,
-      `https://www.zillow.com/homedetails/${slug}/`,
-    ];
-    for (const su of searchUrls) {
-      const r = await call(HOST_DATA, `/byurl?url=${encodeURIComponent(su)}`, key);
-      attempts.push({ via: "byurl(search)", url: su, status: r.status });
-      if (r.ok) {
-        const n = normalize(r.data);
-        if (hasData(n)) {
-          return finish(n, address, "address->searchurl", debug ? r.data : undefined, attempts);
-        }
-      }
+    // STEP 1 — resolve the typed address → its Zillow zpid via /autocomplete.
+    // private-zillow's autocomplete returns results[].metaData.zpid directly.
+    const ac = await call(HOST_DATA, `/autocomplete?query=${encodeURIComponent(address)}`, key);
+    attempts.push({ via: "autocomplete", url: `/autocomplete?query=${address}`, status: ac.status });
+    const zpid = firstZpid(ac.data);
+
+    if (!zpid) {
+      return json({
+        ok: false,
+        error: "Couldn't find that exact address on Zillow. Double-check spelling and include the ZIP code.",
+        ...(debug ? { attempts, acRaw: ac.data } : {}),
+      }, 404);
     }
 
-    // STRATEGY B — resolve the address → zpid (resolver host), then /byurl the
-    // canonical _zpid detail URL on the data host.
-    let zpid: string | null = null;
-    let acRaw: unknown = undefined;
-    try {
-      const ac = await call(HOST_RESOLVE, `/autocomplete?query=${encodeURIComponent(address)}`, key);
-      attempts.push({ via: "autocomplete", url: "/autocomplete", status: ac.status });
-      acRaw = ac.data;
-      if (ac.ok) zpid = firstZpid(ac.data);
-    } catch { /* resolver is best-effort */ }
+    // STEP 2 — pull the full record for that exact zpid via /byurl.
+    const detailUrl = `https://www.zillow.com/homedetails/${zpid}_zpid/`;
+    const r = await call(HOST_DATA, `/byurl?url=${encodeURIComponent(detailUrl)}`, key);
+    attempts.push({ via: "byurl(zpid)", url: detailUrl, status: r.status });
 
-    if (zpid) {
-      const detailUrl = `https://www.zillow.com/homedetails/${zpid}_zpid/`;
-      const r = await call(HOST_DATA, `/byurl?url=${encodeURIComponent(detailUrl)}`, key);
-      attempts.push({ via: "byurl(zpid)", url: detailUrl, status: r.status });
-      if (r.ok) {
-        const n = normalize(r.data);
-        return finish(n, address, "address->zpid->byurl", debug ? r.data : undefined, attempts);
-      }
+    if (!r.ok || !hasData(normalize(r.data))) {
+      return json({
+        ok: false,
+        error: "Found the address but couldn't load its property details. Try again in a moment.",
+        ...(debug ? { attempts, acRaw: ac.data, raw: r.data } : {}),
+      }, r.ok ? 404 : r.status);
     }
 
-    return json({
-      ok: false,
-      error: "Couldn't fetch that exact address. Double-check spelling and include the ZIP code.",
-      ...(debug ? { attempts, acRaw } : {}),
-    }, 404);
+    const n = normalize(r.data);
+    return finish(n, address, "address->zpid->byurl", debug ? r.data : undefined, attempts);
   } catch (e) {
     return json({ ok: false, error: e instanceof Error ? e.message : "Server error" }, 500);
   }
