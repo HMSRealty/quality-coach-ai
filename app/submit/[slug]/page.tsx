@@ -140,36 +140,25 @@ export default function DynamicSubmitPage() {
   useEffect(() => {
     if (!slug) return;
     (async () => {
-      const { data: formData } = await supabase
-        .from("submission_forms").select("id, user_id, name, is_active, slug")
-        .eq("slug", slug).maybeSingle();
+      // Load via a server route that uses the service-role key, so the form
+      // works for ANY visitor with the link (no login / client-side RLS needed).
+      try {
+        const res = await fetch(`/api/public-form?slug=${encodeURIComponent(slug)}`);
+        const j = await res.json().catch(() => ({}));
+        if (!j.ok) { setBlocked(j.blocked || j.error || "This form is unavailable."); setLoading(false); return; }
 
-      if (!formData) { setBlocked("This form does not exist."); setLoading(false); return; }
-      if (!formData.is_active) { setBlocked("This form is currently not accepting submissions."); setLoading(false); return; }
-
-      const { data: profile } = await supabase
-        .from("profiles").select("can_receive_leads, allow_call_uploads")
-        .eq("id", formData.user_id).maybeSingle();
-
-      if (!profile?.can_receive_leads) {
-        setBlocked("This form is currently not accepting submissions.");
-        setLoading(false); return;
+        setOwner({
+          user_id: j.form.user_id, form_id: j.form.form_id,
+          form_name: j.form.form_name || "Submit a Lead",
+          is_active: true,
+          can_receive_leads: true,
+          allow_call_uploads: !!j.form.allow_call_uploads,
+        });
+        setCallers(j.callers || []);
+        setCampaigns(j.campaigns || []);
+      } catch {
+        setBlocked("Couldn't load this form. Please try again.");
       }
-
-      setOwner({
-        user_id: formData.user_id, form_id: formData.id,
-        form_name: formData.name || "Submit a Lead",
-        is_active: formData.is_active,
-        can_receive_leads: profile.can_receive_leads,
-        allow_call_uploads: profile.allow_call_uploads || false,
-      });
-
-      const { data: callerData } = await supabase
-        .from("cold_callers").select("id, name").eq("user_id", formData.user_id).order("name");
-      const { data: campaignData } = await supabase
-        .from("campaigns").select("id, name").eq("user_id", formData.user_id).order("name");
-      setCallers(callerData || []);
-      setCampaigns(campaignData || []);
       setLoading(false);
     })();
   }, [slug]);
@@ -192,24 +181,23 @@ export default function DynamicSubmitPage() {
     setStatusMsg("Submitting...");
 
     try {
-      const selectedCaller = callers.find(c => c.id === formData.caller_id);
-
-      const { data: lead, error: insertError } = await supabase
-        .from("leads")
-        .insert({
-          user_id: owner.user_id,
-          campaign_id: formData.campaign_id || null,
-          caller_id: formData.caller_id || null,
-          agent_name: selectedCaller?.name || null,
-          extracted_address: formData.property_address,
-          asking_price: formData.asking_price ? parseFloat(formData.asking_price) : null,
-          status: "Processing",
-          metadata: {
+      // Insert through the server route (service-role) so it works for anyone
+      // with the link, regardless of login state or region.
+      const insertRes = await fetch("/api/public-form", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          slug,
+          lead: {
+            caller_id: formData.caller_id || null,
+            campaign_id: formData.campaign_id || null,
             date: formData.date,
             owner_name: formData.owner_name,
             phone_number: formData.phone_number,
+            property_address: formData.property_address,
             zestimate: formData.zestimate,
             zillow_link: formData.zillow_link,
+            asking_price: formData.asking_price,
             reason: formData.reason,
             // Full property data resolved from Zillow for the main address (if user clicked Lookup)
             zillow_data: zData || null,
@@ -221,13 +209,12 @@ export default function DynamicSubmitPage() {
                 asking_price: p.asking_price,
                 zillow_data: p.data || null,
               })),
-            submitted_via: "public_form",
           },
-        })
-        .select("id").single();
-
-      if (insertError) throw insertError;
-      if (!lead) throw new Error("Insert failed");
+        }),
+      });
+      const insertJson = await insertRes.json().catch(() => ({}));
+      if (!insertRes.ok || !insertJson.ok) throw new Error(insertJson.error || "Submission failed");
+      const lead = { id: insertJson.leadId as string };
 
       // Best-effort: store the recording for playback/library (needs the
       // 'call-uploads' bucket). If the bucket is missing this silently skips —
