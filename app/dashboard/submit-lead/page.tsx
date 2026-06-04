@@ -40,6 +40,41 @@ export default function SubmitLeadPage() {
   const [generating, setGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
   const [origin, setOrigin] = useState("");
+  const [zLookup, setZLookup] = useState<{ busy: boolean; msg: string }>({ busy: false, msg: "" });
+  const [zData, setZData] = useState<Record<string, unknown> | null>(null);
+
+  // Fetch property data for the typed address (or Zillow link) via /api/zillow.
+  const lookupZillow = async () => {
+    const addr = formData.property_address.trim();
+    const link = formData.zillow_link.trim();
+    if (!addr && !link) { setZLookup({ busy: false, msg: "Enter an address (or Zillow link) first." }); return; }
+    setZLookup({ busy: true, msg: "Fetching property data…" });
+    try {
+      const params = new URLSearchParams();
+      if (link) params.set("url", link); else params.set("address", addr);
+      const res = await fetch(`/api/zillow?${params.toString()}`);
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok || !j.ok) { setZLookup({ busy: false, msg: j.error || "Lookup failed." }); return; }
+      const n = j.normalized as Record<string, unknown>;
+      setZData(n);
+      const zest = n.zestimate as number | undefined;
+      setForm(f => ({
+        ...f,
+        property_address: (n.address as string) || f.property_address,
+        zestimate: zest ? String(zest) : f.zestimate,
+        zillow_link: (n.zillow_url as string) || f.zillow_link,
+      }));
+      if (j.warning) { setZLookup({ busy: false, msg: "⚠ " + j.warning }); return; }
+      const bits: string[] = [];
+      if (zest) bits.push(`Zestimate $${zest.toLocaleString()}`);
+      if (n.beds) bits.push(`${n.beds} bd`);
+      if (n.baths) bits.push(`${n.baths} ba`);
+      if (n.sqft) bits.push(`${(n.sqft as number).toLocaleString()} sqft`);
+      setZLookup({ busy: false, msg: bits.length ? bits.join(" · ") : "Found." });
+    } catch (e) {
+      setZLookup({ busy: false, msg: e instanceof Error ? e.message : "Lookup failed." });
+    }
+  };
 
   const [formData, setForm] = useState({
     date: new Date().toISOString().split("T")[0],
@@ -150,6 +185,7 @@ export default function SubmitLeadPage() {
         zestimate: formData.zestimate,
         zillow_link: formData.zillow_link,
         reason: formData.reason,
+        zillow_data: zData || null,
         submitted_via: "internal_form",
       },
     };
@@ -290,7 +326,14 @@ export default function SubmitLeadPage() {
           </div>
           <div style={{ marginBottom: 14 }}>
             <label style={labelStyle}>Property Address *</label>
-            <input type="text" value={formData.property_address} onChange={e => setForm({ ...formData, property_address: e.target.value })} placeholder="123 Main St, City, ST" required style={inputStyle} />
+            <input type="text" value={formData.property_address} onChange={e => setForm({ ...formData, property_address: e.target.value })} placeholder="123 Main St, City, ST" required style={{ ...inputStyle, marginBottom: 8 }} />
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <button type="button" onClick={lookupZillow} disabled={zLookup.busy} style={{
+                padding: "8px 14px", borderRadius: 8, cursor: zLookup.busy ? "wait" : "pointer",
+                background: NAVY, color: "#fff", border: "none", fontSize: 12, fontWeight: 700,
+              }}>{zLookup.busy ? "Fetching…" : "Lookup from Zillow"}</button>
+              {zLookup.msg && <span style={{ fontSize: 11, color: SLATE }}>{zLookup.msg}</span>}
+            </div>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
             <div>
