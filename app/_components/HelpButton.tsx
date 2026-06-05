@@ -18,6 +18,11 @@ const HELP: { match: string; help: Help }[] = [
     body: "A Kanban view of every lead by sales stage. Drag a card to move it between New → Contacted → Negotiating → Won/Lost.",
     tips: ["Drag = update stage instantly", "Click a card to open the full lead", "Read-only roles can view but not drag"],
   }},
+  { match: "/dashboard/analytics", help: {
+    title: "Analytics",
+    body: "Lead KPIs and pipeline funnel for a date range. Defaults to today (EST) — the same timezone leads are dated in.",
+    tips: ["Switch presets or pick a custom range", "Qual. Rate = (Hot+Warm+Cold) ÷ total"],
+  }},
   { match: "/dashboard/calls", help: {
     title: "Call Library",
     body: "Every analyzed lead with its QA verdict. Search, filter by status/campaign, re-run analysis, or export to CSV.",

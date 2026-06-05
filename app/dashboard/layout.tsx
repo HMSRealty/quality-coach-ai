@@ -21,6 +21,7 @@ const RED = NAVY;
 const NAV_PRIMARY = [
   { label: "Overview",     href: "/dashboard",           icon: LayoutDashboard },
   { label: "Pipeline",     href: "/dashboard/pipeline",  icon: Columns3 },
+  { label: "Analytics",    href: "/dashboard/analytics", icon: BarChart3 },
   { label: "Call Library", href: "/dashboard/calls",     icon: PhoneCall },
   { label: "Campaigns",    href: "/dashboard/campaigns", icon: FolderCog },
 ];
