@@ -268,9 +268,14 @@ All four follow the **same abstraction rule**: no vendor imported outside a
 
 ## 7. Staged rollout (so the live app never breaks)
 
-1. **Apply migrations** `0001 → 0002 → 0003` in the Supabase SQL editor (off-peak).
-   Backfill: create one `organizations` row per existing owner; set
-   `profiles.organization_id`; map legacy `role` text → `app_role`.
+1. **Apply migrations in this exact order** in the Supabase SQL editor (off-peak):
+   `0001_schema` → `0004_bridge_backfill` → `0002_rls` → `0003_triggers_and_deletion`.
+   `0004` is the bridge: it adapts the existing per-user `profiles`/`leads` tables
+   (additive columns), creates one `organizations` row per owner, links sub-users,
+   and backfills `organization_id` everywhere. The live app keeps working because
+   `leads.status` and `profiles.role` stay text; `current_app_role()` tolerates the
+   legacy values. Run the POST-CHECK queries at the bottom of `0004` (expect 0 nulls)
+   before applying `0002`.
 2. **Create the private `call-recordings` bucket** + the storage upload policy
    (commented in `0002_rls.sql`).
 3. **Drop in route handlers** (`/api/leads/submit`, `/api/calls/[id]/url`,

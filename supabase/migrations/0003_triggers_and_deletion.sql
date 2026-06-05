@@ -1,7 +1,13 @@
 -- =====================================================================
 -- RealTrack CRM — Phase 1: timezone rule, timeline triggers, safe deletion
--- Depends on 0001 + 0002.
+-- Depends on 0001 + 0004 + 0002 (run AFTER the bridge so leads has the new cols).
 -- =====================================================================
+
+-- updated_at: attach the trigger now that leads.updated_at is guaranteed to
+-- exist (0004 adds it to a pre-existing leads table).
+drop trigger if exists trg_leads_touch on public.leads;
+create trigger trg_leads_touch before update on public.leads
+  for each row execute function public.touch_updated_at();
 
 -- ---------------------------------------------------------------------
 -- EST submission date.

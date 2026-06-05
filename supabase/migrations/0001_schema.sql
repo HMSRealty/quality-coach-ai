@@ -190,11 +190,10 @@ create table if not exists public.lead_events (
 );
 create index if not exists idx_lead_events_lead on public.lead_events(lead_id, created_at desc);
 
--- ------------------------------------------------- updated_at trigger
+-- ------------------------------------------------- updated_at function
+-- NB: the trigger itself is attached in 0003 (AFTER 0004 guarantees the
+-- leads.updated_at column exists on a pre-existing leads table). Defining the
+-- function here is harmless.
 create or replace function public.touch_updated_at()
 returns trigger language plpgsql as $$
 begin new.updated_at = now(); return new; end $$;
-
-drop trigger if exists trg_leads_touch on public.leads;
-create trigger trg_leads_touch before update on public.leads
-  for each row execute function public.touch_updated_at();

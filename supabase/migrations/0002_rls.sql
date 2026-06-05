@@ -18,9 +18,21 @@ returns uuid language sql stable security definer set search_path = public as $$
   select organization_id from public.profiles where id = auth.uid()
 $$;
 
+-- Tolerant of BOTH the new app_role values AND the legacy text roles the live
+-- app still writes ('user','admin'), so we never have to convert profiles.role.
 create or replace function public.current_app_role()
 returns app_role language sql stable security definer set search_path = public as $$
-  select role from public.profiles where id = auth.uid()
+  select case lower(coalesce((select role::text from public.profiles where id = auth.uid()), 'caller'))
+    when 'owner'       then 'owner'::app_role
+    when 'admin'       then 'admin'::app_role
+    when 'qa'          then 'qa'::app_role
+    when 'trainer'     then 'trainer'::app_role
+    when 'team_leader' then 'team_leader'::app_role
+    when 'team leader' then 'team_leader'::app_role
+    when 'caller'      then 'caller'::app_role
+    when 'user'        then 'caller'::app_role   -- legacy: regular user => caller
+    else 'caller'::app_role
+  end
 $$;
 
 create or replace function public.has_perm(p text)
