@@ -130,13 +130,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       }}>
 
         {/* Logo */}
-        <div style={{ padding: "20px 18px 16px", borderBottom: "1px solid #F3F4F6", display: "flex", alignItems: "center", gap: 12 }}>
+        <Link href="/dashboard" style={{ padding: "20px 18px 16px", borderBottom: "1px solid #F3F4F6", display: "flex", alignItems: "center", gap: 12, textDecoration: "none" }}>
           <HSMIcon size={28} />
           <div>
             <p style={{ fontSize: 14, fontWeight: 800, color: NAVY, lineHeight: 1 }}>RealTrack</p>
             <p style={{ fontSize: 10, color: "#94A3B8", marginTop: 2, fontWeight: 500 }}>Performance Suite</p>
           </div>
-        </div>
+        </Link>
 
         {/* Nav */}
         <div style={{ padding: "14px 10px 8px" }}>
