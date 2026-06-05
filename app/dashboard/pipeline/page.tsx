@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { can, normalizeRole, type Role } from "@/lib/rbac";
-import { Loader2, GripVertical, MapPin, User, DollarSign, AlertCircle } from "lucide-react";
+import { Loader2, GripVertical, MapPin, User, DollarSign, AlertCircle, Send } from "lucide-react";
 
 const NAVY = "#232B3A";
 const SLATE = "#4B5563";
@@ -34,7 +34,14 @@ interface Lead {
   stage: Stage;
   asking_price: number | null;
   arv: number | null;
+  metadata: Record<string, unknown> | null;
 }
+
+// Leads the AI has finished as dead-ends (or hasn't evaluated) don't belong on
+// the working board. Only actionable, not-yet-exported leads show here.
+const EXCLUDED_STATUS = new Set(["processing", "disqualified", "duplicate", "error"]);
+const isPushedToCrm = (l: { metadata: Record<string, unknown> | null }) =>
+  l.metadata?.pushed_to_crm === true || l.metadata?.pushed_to_crm === "true";
 
 export default function PipelinePage() {
   const [leads, setLeads] = useState<Lead[]>([]);
@@ -58,8 +65,7 @@ export default function PipelinePage() {
     // query errors — surface a friendly hint instead of a crash.
     const { data, error } = await supabase
       .from("leads")
-      .select("id, property_address, owner_name, agent_name, status, stage, asking_price, arv")
-      .neq("status", "Processing")
+      .select("id, property_address, owner_name, agent_name, status, stage, asking_price, arv, metadata")
       .order("created_at", { ascending: false })
       .limit(500);
 
@@ -68,7 +74,11 @@ export default function PipelinePage() {
       setLoading(false);
       return;
     }
-    setLeads((data || []).map((l) => ({ ...l, stage: (l.stage || "new") as Stage })) as Lead[]);
+    const rows = (data || [])
+      .map((l) => ({ ...l, stage: (l.stage || "new") as Stage })) as Lead[];
+    // Only actionable leads: AI-finished dead-ends excluded, and anything already
+    // pushed to the client CRM is removed from the working board.
+    setLeads(rows.filter((l) => !EXCLUDED_STATUS.has((l.status || "").toLowerCase()) && !isPushedToCrm(l)));
     setLoading(false);
   }, []);
 
@@ -81,6 +91,18 @@ export default function PipelinePage() {
     setLeads((ls) => ls.map((l) => (l.id === id ? { ...l, stage } : l))); // optimistic
     const { error } = await supabase.from("leads").update({ stage }).eq("id", id);
     if (error) { setLeads(prev); /* rollback */ }
+  };
+
+  // Hand a lead off to the client CRM — flags it and drops it from the board.
+  const pushToCrm = async (id: string) => {
+    const target = leads.find((l) => l.id === id);
+    if (!target) return;
+    setLeads((ls) => ls.filter((l) => l.id !== id)); // optimistic remove
+    const { error } = await supabase
+      .from("leads")
+      .update({ metadata: { ...(target.metadata || {}), pushed_to_crm: true } })
+      .eq("id", id);
+    if (error) load(); // restore on failure
   };
 
   const fmt = (n: number | null) => (n ? `$${n.toLocaleString()}` : "—");
@@ -107,7 +129,9 @@ export default function PipelinePage() {
       <div>
         <h1 style={{ fontSize: 22, fontWeight: 800, color: NAVY, marginBottom: 4 }}>Pipeline</h1>
         <p style={{ fontSize: 13, color: SLATE }}>
-          {editable ? "Drag leads between stages to update them." : "Read-only — your role can view but not move leads."}
+          Active leads only — AI dead-ends (disqualified / duplicate / error / processing) and
+          leads already pushed to the client CRM are hidden.
+          {editable ? " Drag cards to change stage." : " Read-only for your role."}
         </p>
       </div>
 
@@ -168,6 +192,20 @@ export default function PipelinePage() {
                         <span style={{ display: "flex", alignItems: "center", gap: 3 }}><User size={11} />{l.owner_name || l.agent_name || "—"}</span>
                         <span style={{ display: "flex", alignItems: "center", gap: 3 }}><DollarSign size={11} />{fmt(l.asking_price)}</span>
                       </div>
+                      {editable && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); pushToCrm(l.id); }}
+                          title="Mark as pushed to the client CRM (removes it from the board)"
+                          style={{
+                            marginTop: 10, width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 5,
+                            padding: "6px 8px", borderRadius: 7, cursor: "pointer",
+                            background: "#EEF3FF", color: "#2F6BFF", border: "1px solid rgba(47,107,255,0.25)",
+                            fontSize: 11, fontWeight: 700,
+                          }}
+                        >
+                          <Send size={11} /> Push to CRM
+                        </button>
+                      )}
                     </div>
                   );
                 })}

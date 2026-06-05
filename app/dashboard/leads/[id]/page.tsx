@@ -101,7 +101,11 @@ export default function LeadDetailPage() {
 
     setUploading(true);
     const ext = file.name.split(".").pop();
-    const path = `${lead.user_id}/${lead.id}/${Date.now()}.${ext}`;
+    // Storage RLS requires the object path to start with the UPLOADER's auth id.
+    // (Leads are now org-wide visible, so the viewer may not be the lead owner.)
+    const { data: { user } } = await supabase.auth.getUser();
+    const uploaderId = user?.id || lead.user_id;
+    const path = `${uploaderId}/${lead.id}/${Date.now()}.${ext}`;
     const { error: upErr } = await supabase.storage.from("call-uploads").upload(path, file);
     if (upErr) { alert("Upload failed: " + upErr.message); setUploading(false); return; }
 
