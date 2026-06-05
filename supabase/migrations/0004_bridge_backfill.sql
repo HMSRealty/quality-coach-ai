@@ -33,6 +33,8 @@ alter table public.profiles add column if not exists username  text;
 alter table public.profiles add column if not exists phone     text;
 alter table public.profiles add column if not exists website   text;
 
+create index if not exists idx_profiles_org on public.profiles(organization_id);
+
 -- ---------------------------------------------------------------------
 -- 2) New columns on the EXISTING leads table.
 --    NOTE: we do NOT touch leads.status (keeps text + capitalized values the
@@ -51,6 +53,8 @@ alter table public.leads add column if not exists updated_at     timestamptz not
 
 create index if not exists idx_leads_org             on public.leads(organization_id);
 create index if not exists idx_leads_org_stage       on public.leads(organization_id, stage);
+create index if not exists idx_leads_org_status      on public.leads(organization_id, status);
+create index if not exists idx_leads_assigned        on public.leads(assigned_to);
 create index if not exists idx_leads_submission_date on public.leads(organization_id, submission_date);
 
 -- ---------------------------------------------------------------------
@@ -126,13 +130,21 @@ update public.profiles c
 -- ---------------------------------------------------------------------
 -- 6) Backfill organization_id + the new lead fields from the legacy user_id.
 -- ---------------------------------------------------------------------
-update public.leads l
-   set organization_id = p.organization_id
-  from public.profiles p
- where l.user_id = p.id and l.organization_id is null;
+-- org_id + created_by + assigned_to come from the legacy leads.user_id.
+-- Guarded so this also no-ops cleanly on a fresh (greenfield) DB with no user_id.
+do $$
+begin
+  if exists (
+    select 1 from information_schema.columns
+    where table_schema='public' and table_name='leads' and column_name='user_id'
+  ) then
+    update public.leads l set organization_id = p.organization_id
+      from public.profiles p where l.user_id = p.id and l.organization_id is null;
+    update public.leads set created_by  = user_id where created_by  is null;
+    update public.leads set assigned_to = user_id where assigned_to is null;
+  end if;
+end $$;
 
-update public.leads set created_by  = user_id where created_by  is null;
-update public.leads set assigned_to = user_id where assigned_to is null;
 update public.leads
    set submission_date = (created_at at time zone 'America/New_York')::date
  where submission_date is null and created_at is not null;
@@ -141,8 +153,8 @@ update public.leads set updated_at = created_at where created_at is not null;
 -- Seed the pipeline stage from the existing QA verdict (one-time triage).
 update public.leads set stage =
   case
-    when lower(coalesce(status,'')) in ('disqualified','duplicate','error') then 'lost'::lead_stage
-    when lower(coalesce(status,'')) in ('hot','warm','cold','call back','callback','commercial') then 'contacted'::lead_stage
+    when lower(coalesce(status::text,'')) in ('disqualified','duplicate','error') then 'lost'::lead_stage
+    when lower(coalesce(status::text,'')) in ('hot','warm','cold','call back','callback','commercial') then 'contacted'::lead_stage
     else 'new'::lead_stage
   end
  where stage = 'new';

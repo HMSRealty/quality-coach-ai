@@ -49,7 +49,8 @@ create table if not exists public.profiles (
   created_at      timestamptz not null default now(),
   unique (organization_id, username)
 );
-create index if not exists idx_profiles_org on public.profiles(organization_id);
+-- NOTE: idx_profiles_org is created in 0004 — on a pre-existing profiles table the
+-- organization_id column does not exist until the bridge adds it.
 
 -- -------------------------------------------- roles + permission matrix
 create table if not exists public.roles (
@@ -143,11 +144,10 @@ create table if not exists public.leads (
   created_at          timestamptz not null default now(),
   updated_at          timestamptz not null default now()
 );
-create index if not exists idx_leads_org             on public.leads(organization_id);
-create index if not exists idx_leads_org_stage       on public.leads(organization_id, stage);
-create index if not exists idx_leads_org_status      on public.leads(organization_id, status);
-create index if not exists idx_leads_assigned        on public.leads(assigned_to);
-create index if not exists idx_leads_submission_date on public.leads(organization_id, submission_date);
+-- NOTE: all leads indexes that reference the new columns (organization_id, stage,
+-- status, assigned_to, submission_date) are created in 0004 — AFTER those columns
+-- are added to a pre-existing leads table. Defining them here would fail with
+-- "column organization_id does not exist" on a live database.
 
 -- ----------------------------------------------- lead_status_history
 create table if not exists public.lead_status_history (

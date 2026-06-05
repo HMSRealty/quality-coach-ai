@@ -10,6 +10,34 @@ create trigger trg_leads_touch before update on public.leads
   for each row execute function public.touch_updated_at();
 
 -- ---------------------------------------------------------------------
+-- Auto-fill organization_id on INSERT.
+-- The live app inserts leads WITHOUT organization_id (it sets the legacy
+-- user_id / created_by). Derive the org from the owning profile so:
+--   (a) new leads show up in org-scoped views (pipeline/RLS), and
+--   (b) the audit trigger below never tries to write a NULL org into the
+--       NOT NULL timeline tables (which would abort the insert).
+-- to_jsonb(new)->>'user_id' reads user_id WITHOUT failing on a greenfield
+-- leads table that has no such column.
+-- ---------------------------------------------------------------------
+create or replace function public.leads_fill_org()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if new.organization_id is null then
+    new.organization_id := coalesce(
+      (select organization_id from public.profiles where id = new.created_by),
+      (select organization_id from public.profiles where id = new.assigned_to),
+      (select organization_id from public.profiles where id = ((to_jsonb(new) ->> 'user_id')::uuid)),
+      (select organization_id from public.profiles where id = auth.uid())
+    );
+  end if;
+  return new;
+end $$;
+
+drop trigger if exists trg_leads_fill_org on public.leads;
+create trigger trg_leads_fill_org before insert on public.leads
+  for each row execute function public.leads_fill_org();
+
+-- ---------------------------------------------------------------------
 -- EST submission date.
 --   * INSERT: default submission_date to "today" in America/New_York.
 --   * UPDATE: silently reject changes unless the user has lead.date.override
@@ -43,6 +71,12 @@ create trigger trg_leads_submission_date before insert or update on public.leads
 create or replace function public.leads_audit()
 returns trigger language plpgsql security definer set search_path = public as $$
 begin
+  -- Belt-and-suspenders: never attempt to log a lead with no org (the timeline
+  -- tables require organization_id). leads_fill_org normally prevents this.
+  if new.organization_id is null then
+    return new;
+  end if;
+
   if tg_op = 'INSERT' then
     insert into public.lead_events(organization_id, lead_id, type, actor_id, payload)
     values (new.organization_id, new.id, 'created', auth.uid(),
