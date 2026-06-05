@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { impersonationTarget, stopImpersonation } from "@/lib/impersonation";
 import { ThemeToggle } from "@/app/_components/ThemeToggle";
+import { HelpButton } from "@/app/_components/HelpButton";
 import {
   LayoutDashboard, PhoneCall, FolderCog, Zap,
   UserCircle, LogOut, Bell, ChevronRight, Shield,
@@ -273,6 +274,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </span>
           </div>
           <ThemeToggle />
+          <HelpButton />
           <button style={{
             width: 32, height: 32, borderRadius: 9,
             background: "#F4EFE7", border: "1px solid #E5E7EB",
