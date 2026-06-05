@@ -5,9 +5,10 @@ import { supabase } from "@/lib/supabase";
 import { Card } from "@/app/_components/Card";
 import { Send, Loader2, CheckCircle2, Link2, Copy, Check, Users, ExternalLink } from "lucide-react";
 
-const NAVY = "#232B3A";
-const TEAL = "#2F6BFF";
-const SLATE = "#4B5563";
+import { T } from "@/app/_components/tokens";
+const NAVY = T.navy;
+const TEAL = T.teal;
+const SLATE = T.slate;
 
 interface Campaign { id: string; name: string; }
 interface ColdCaller { id: string; name: string; }
