@@ -90,8 +90,16 @@ begin
 end $$;
 
 -- ---------------------------------------------------------------------
--- 5) Create ONE organization per top-level owner, then link sub-users.
+-- 4b) teams / team_members ALREADY EXIST in the live app
+--     (teams: id, name, manager_id;  team_members: team_id, user_id).
+--     Add organization_id + the indexes 0001 used to (incorrectly) create.
 -- ---------------------------------------------------------------------
+alter table public.teams        add column if not exists organization_id uuid references public.organizations(id) on delete cascade;
+alter table public.teams        add column if not exists leader_id       uuid references public.profiles(id)      on delete set null;
+alter table public.team_members add column if not exists organization_id uuid references public.organizations(id) on delete cascade;
+
+create index if not exists idx_teams_org         on public.teams(organization_id);
+create index if not exists idx_team_members_user on public.team_members(user_id);
 do $$
 declare r record; new_org uuid;
 begin
@@ -172,6 +180,22 @@ begin
     execute 'update public.submission_forms c set organization_id=p.organization_id from public.profiles p where c.user_id=p.id and c.organization_id is null';
   end if;
 end $$;
+
+-- teams.org from the legacy manager_id (guarded — greenfield teams has no manager_id).
+do $$
+begin
+  if exists (
+    select 1 from information_schema.columns
+    where table_schema='public' and table_name='teams' and column_name='manager_id'
+  ) then
+    update public.teams t set organization_id = p.organization_id
+      from public.profiles p where t.manager_id = p.id and t.organization_id is null;
+  end if;
+end $$;
+
+-- team_members.org inherited from its team.
+update public.team_members tm set organization_id = t.organization_id
+  from public.teams t where tm.team_id = t.id and tm.organization_id is null;
 
 commit;
 

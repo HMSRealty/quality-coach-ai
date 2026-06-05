@@ -80,7 +80,8 @@ insert into public.role_permissions(role,permission) values
   ('qa','calls.play'),('qa','calls.download'),('qa','calls.upload'),('qa','lead.date.override'),
   ('trainer','leads.view'),('trainer','calls.play'),
   ('team_leader','leads.view'),('team_leader','leads.edit'),('team_leader','calls.play'),
-  ('caller','leads.view'),('caller','calls.play'),('caller','calls.upload')
+  -- callers SUBMIT leads in this product, so they need leads.edit (create/update).
+  ('caller','leads.view'),('caller','leads.edit'),('caller','calls.play'),('caller','calls.upload')
 on conflict do nothing;
 
 -- --------------------------------------------------------------- teams
@@ -91,7 +92,8 @@ create table if not exists public.teams (
   leader_id       uuid references public.profiles(id) on delete set null,
   created_at      timestamptz not null default now()
 );
-create index if not exists idx_teams_org on public.teams(organization_id);
+-- teams already EXISTS in the live app (id, name, manager_id). Its org column +
+-- indexes are added in 0004, so this CREATE is a harmless no-op on a live DB.
 
 create table if not exists public.team_members (
   team_id         uuid not null references public.teams(id) on delete cascade,
@@ -99,7 +101,7 @@ create table if not exists public.team_members (
   organization_id uuid not null references public.organizations(id) on delete cascade,
   primary key (team_id, user_id)
 );
-create index if not exists idx_team_members_user on public.team_members(user_id);
+-- team_members also already EXISTS (team_id, user_id). org column + indexes in 0004.
 
 -- ------------------------- property data cache (SERVER-ONLY: no RLS policies)
 create table if not exists public.property_data_cache (

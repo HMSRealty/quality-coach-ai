@@ -20,19 +20,26 @@ $$;
 
 -- Tolerant of BOTH the new app_role values AND the legacy text roles the live
 -- app still writes ('user','admin'), so we never have to convert profiles.role.
+-- Legacy mapping that matches how this product actually works:
+--   role='admin'                    -> admin
+--   role in (new app_role values)   -> that role
+--   legacy 'user' with NO parent    -> OWNER  (workspace owner: full access)
+--   legacy 'user' that is a sub-user-> CALLER (submits leads under the owner)
 create or replace function public.current_app_role()
 returns app_role language sql stable security definer set search_path = public as $$
-  select case lower(coalesce((select role::text from public.profiles where id = auth.uid()), 'caller'))
-    when 'owner'       then 'owner'::app_role
-    when 'admin'       then 'admin'::app_role
-    when 'qa'          then 'qa'::app_role
-    when 'trainer'     then 'trainer'::app_role
-    when 'team_leader' then 'team_leader'::app_role
-    when 'team leader' then 'team_leader'::app_role
-    when 'caller'      then 'caller'::app_role
-    when 'user'        then 'caller'::app_role   -- legacy: regular user => caller
-    else 'caller'::app_role
-  end
+  select coalesce((
+    select case
+      when lower(p.role::text) = 'admin'       then 'admin'::app_role
+      when lower(p.role::text) = 'owner'       then 'owner'::app_role
+      when lower(p.role::text) = 'qa'          then 'qa'::app_role
+      when lower(p.role::text) = 'trainer'     then 'trainer'::app_role
+      when lower(replace(p.role::text,' ','_')) = 'team_leader' then 'team_leader'::app_role
+      when lower(p.role::text) = 'caller'      then 'caller'::app_role
+      when p.parent_user_id is null            then 'owner'::app_role   -- legacy top-level user
+      else 'caller'::app_role                                          -- legacy sub-user
+    end
+    from public.profiles p where p.id = auth.uid()
+  ), 'caller'::app_role)
 $$;
 
 create or replace function public.has_perm(p text)
@@ -82,25 +89,15 @@ alter table public.role_permissions enable row level security;
 drop policy if exists role_perms_read on public.role_permissions;
 create policy role_perms_read on public.role_permissions for select using (auth.role() = 'authenticated');
 
--- ----------------------------------------------------------------- teams
-alter table public.teams enable row level security;
-drop policy if exists teams_select on public.teams;
-create policy teams_select on public.teams for select
-  using (organization_id = public.current_org_id());
-drop policy if exists teams_write on public.teams;
-create policy teams_write on public.teams for all
-  using (organization_id = public.current_org_id() and public.has_perm('users.manage'))
-  with check (organization_id = public.current_org_id() and public.has_perm('users.manage'));
-
--- ---------------------------------------------------------- team_members
-alter table public.team_members enable row level security;
-drop policy if exists tm_select on public.team_members;
-create policy tm_select on public.team_members for select
-  using (organization_id = public.current_org_id());
-drop policy if exists tm_write on public.team_members;
-create policy tm_write on public.team_members for all
-  using (organization_id = public.current_org_id() and public.has_perm('users.manage'))
-  with check (organization_id = public.current_org_id() and public.has_perm('users.manage'));
+-- ------------------------------------------------- teams / team_members
+-- DEFERRED: these tables pre-date the multi-tenant model and are written by the
+-- live CSV-import flow WITHOUT organization_id. Turning on org-scoped RLS now
+-- would block those inserts. They already carry organization_id (backfilled by
+-- 0004) for org-scoped reads in new code; enable strict RLS only after the
+-- import path sets organization_id (or gets a fill-org trigger like leads).
+--
+-- alter table public.teams enable row level security;        -- (enable later)
+-- alter table public.team_members enable row level security; -- (enable later)
 
 -- ----------------------------------------------------------------- leads
 alter table public.leads enable row level security;

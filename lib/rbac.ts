@@ -41,7 +41,8 @@ const MATRIX: Record<Role, Permission[]> = {
   qa:          ["leads.view", "leads.edit", "calls.play", "calls.download", "calls.upload", "lead.date.override"],
   trainer:     ["leads.view", "calls.play"],
   team_leader: ["leads.view", "leads.edit", "calls.play"],
-  caller:      ["leads.view", "calls.play", "calls.upload"],
+  // callers SUBMIT leads in this product, so they need leads.edit.
+  caller:      ["leads.view", "leads.edit", "calls.play", "calls.upload"],
 };
 
 const SETS: Record<Role, Set<Permission>> = Object.fromEntries(
