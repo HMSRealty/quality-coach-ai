@@ -31,6 +31,7 @@ const NAV_TEAM = [
   { label: "Trainers",     href: "/dashboard/trainers",       icon: Briefcase },
   { label: "Roleplay Dialer", href: "/dashboard/dialer",      icon: Headphones },
   { label: "Team Leader",  href: "/dashboard/team-leader",    icon: BarChart3 },
+  { label: "Leaderboard",  href: "/dashboard/leaderboard",    icon: Flag },
   { label: "Performance",  href: "/dashboard/team-performance", icon: TrendingUp },
   { label: "Permissions",  href: "/dashboard/permissions",    icon: Power },
   { label: "Roles & Access", href: "/dashboard/roles",        icon: Shield },
