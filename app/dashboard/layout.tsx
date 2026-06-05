@@ -28,6 +28,7 @@ const NAV_PRIMARY = [
 ];
 const NAV_TEAM = [
   { label: "Submit Lead",  href: "/dashboard/submit-lead",    icon: Send },
+  { label: "Teams",        href: "/dashboard/teams",          icon: Users2 },
   { label: "Callers",      href: "/dashboard/callers",        icon: Users2 },
   { label: "Trainers",     href: "/dashboard/trainers",       icon: Briefcase },
   { label: "Roleplay Dialer", href: "/dashboard/dialer",      icon: Headphones },

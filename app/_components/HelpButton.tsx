@@ -34,10 +34,28 @@ const HELP: { match: string; help: Help }[] = [
     body: "Group leads and attach custom qualification rules the AI applies during analysis.",
     tips: ["Toggle a campaign off to pause it", "Custom rules steer the AI verdict"],
   }},
+  { match: "/dashboard/teams", help: {
+    title: "Teams",
+    body: "Group your sub-users into teams, pick a Team Leader, and set each member's role. What each role can see is governed by Roles & Access.",
+    tips: ["Add members from the sub-users you created", "Change role inline per member"],
+  }},
+  { match: "/dashboard/sub-users", help: {
+    title: "Sub-Users",
+    body: "Create accounts under your workspace. Toggle Download on/off per sub-user to restrict who can pull call recordings.",
+    tips: ["Act as = log in as them for support", "Delete is permanent — leads stay but get unassigned"],
+  }},
+  { match: "/dashboard/roles", help: {
+    title: "Roles & Access",
+    body: "The full permission matrix per role. Enforced in the database, not just the UI.",
+  }},
+  { match: "/dashboard/leaderboard", help: {
+    title: "Leaderboard",
+    body: "Callers ranked by points: Hot 3, Warm 2, Cold 1. Pick the window with the range buttons.",
+  }},
   { match: "/dashboard/submit-lead", help: {
     title: "Submit Lead",
-    body: "Log a lead and (optionally) attach a call recording. Use “Lookup from Zillow” to auto-fill property data.",
-    tips: ["Address, Zestimate and asking are optional", "Generate a public link to share with callers"],
+    body: "Log a lead, optionally attach a call recording. Property details and ARV are fetched automatically on submit.",
+    tips: ["Address is the only required property field", "Generate a shareable link for outside callers"],
   }},
   { match: "/dashboard/followups", help: {
     title: "Smart Follow-Ups",
