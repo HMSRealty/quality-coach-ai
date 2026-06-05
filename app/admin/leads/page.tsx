@@ -29,8 +29,11 @@ interface Lead {
   bant_need: string | null;
   bant_timeline: string | null;
   created_at: string;
+  call_recording_url?: string | null;
   campaigns?: { name: string } | null;
 }
+
+interface CallRow { id: string; lead_id: string; storage_path: string }
 
 const STATUS_COLOR: Record<string, string> = {
   Hot: "#FF5C7C",
@@ -47,7 +50,9 @@ const STATUS_COLOR: Record<string, string> = {
 export default function AdminLeadsPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [users, setUsers] = useState<Record<string, string>>({});
+  const [secureCalls, setSecureCalls] = useState<Record<string, string>>({}); // lead_id -> calls.id (newest)
   const [loading, setLoading] = useState(true);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
 
@@ -64,9 +69,43 @@ export default function AdminLeadsPage() {
         .order("created_at", { ascending: false })
         .limit(2000);
       setLeads((data || []) as Lead[]);
+
+      // Pull newest secure call per lead so we can offer Download from the new
+      // /api/calls/[id]/url route (private bucket + signed URL + RBAC).
+      try {
+        const { data: calls } = await supabase
+          .from("calls")
+          .select("id, lead_id, created_at")
+          .order("created_at", { ascending: false });
+        const byLead: Record<string, string> = {};
+        (calls as CallRow[] | null)?.forEach((c) => { if (!byLead[c.lead_id]) byLead[c.lead_id] = c.id; });
+        setSecureCalls(byLead);
+      } catch { /* calls table absent pre-migration */ }
       setLoading(false);
     })();
   }, []);
+
+  // Download a call. Prefers the secure signed-URL route (server enforces
+  // calls.download permission); falls back to the legacy public URL on the lead.
+  const downloadCall = async (l: Lead) => {
+    setDownloadingId(l.id);
+    try {
+      const callId = secureCalls[l.id];
+      if (callId) {
+        const { data: { session } } = await supabase.auth.getSession();
+        const r = await fetch(`/api/calls/${callId}/url?mode=download`, {
+          headers: { Authorization: `Bearer ${session?.access_token}` },
+        });
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok || !j.url) throw new Error(j.error || "Couldn't sign URL");
+        window.location.href = j.url;
+        return;
+      }
+      if (l.call_recording_url) { window.location.href = l.call_recording_url; return; }
+      alert("No recording on file for this lead.");
+    } catch (e) { alert(e instanceof Error ? e.message : "Download failed"); }
+    setDownloadingId(null);
+  };
 
   const filtered = leads.filter(l => {
     if (statusFilter !== "All" && l.status !== statusFilter) return false;
@@ -222,15 +261,29 @@ export default function AdminLeadsPage() {
                         {l.campaigns?.name || "—"}
                       </td>
                       <td style={{ padding: "11px 14px" }}>
-                        <Link href={`/dashboard/leads/${l.id}`} style={{
-                          padding: "5px 10px", borderRadius: 7,
-                          background: T.navyLight, color: T.navy,
-                          border: "1px solid rgba(35,43,58,0.12)",
-                          fontSize: 11, fontWeight: 700, textDecoration: "none",
-                          display: "inline-flex", alignItems: "center", gap: 4,
-                        }}>
-                          <ExternalLink size={11} /> Open
-                        </Link>
+                        <div style={{ display: "inline-flex", gap: 6 }}>
+                          <Link href={`/dashboard/leads/${l.id}`} style={{
+                            padding: "5px 10px", borderRadius: 7,
+                            background: T.navyLight, color: T.navy,
+                            border: "1px solid rgba(35,43,58,0.12)",
+                            fontSize: 11, fontWeight: 700, textDecoration: "none",
+                            display: "inline-flex", alignItems: "center", gap: 4,
+                          }}>
+                            <ExternalLink size={11} /> Open
+                          </Link>
+                          {(secureCalls[l.id] || l.call_recording_url) && (
+                            <button onClick={() => downloadCall(l)} disabled={downloadingId === l.id} title="Download call recording" style={{
+                              padding: "5px 10px", borderRadius: 7,
+                              background: "#ECFDF5", color: "#059669",
+                              border: "1px solid #A7F3D0",
+                              fontSize: 11, fontWeight: 700, cursor: downloadingId === l.id ? "wait" : "pointer",
+                              display: "inline-flex", alignItems: "center", gap: 4,
+                            }}>
+                              {downloadingId === l.id ? <Loader2 size={11} className="animate-spin" /> : <Download size={11} />}
+                              Call
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}

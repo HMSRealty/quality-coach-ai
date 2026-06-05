@@ -135,27 +135,55 @@ export async function DELETE(req: NextRequest) {
     await detachUserId("leads", "assigned_to");
     await detachUserId("calls", "uploaded_by");
     await detachUserId("teams", "leader_id");
-    await detachUserId("team_members", "user_id");
+    await deleteRows("team_members", "user_id");                  // delete (junk after user gone)
 
-    // Legacy per-user columns — these don't all have ON DELETE behavior, so clear them.
+    // Audit / timeline columns
+    await detachUserId("lead_status_history", "changed_by");
+    await detachUserId("lead_events", "actor_id");
+
+    // Legacy per-user columns
     await detachUserId("leads", "user_id");
     await detachUserId("leads", "caller_id");
     await detachUserId("call_uploads", "user_id");
+    await detachUserId("call_uploads", "uploaded_by");
     await detachUserId("cold_callers", "user_id");
     await detachUserId("campaigns", "user_id");
     await detachUserId("submission_forms", "user_id");
     await detachUserId("trainers", "user_id");
+    await detachUserId("teams", "manager_id");
+
+    // Training tables
+    await detachUserId("training_batches", "user_id");
+    await detachUserId("training_batches", "trainer_id");
+    await detachUserId("training_materials", "user_id");
+    await detachUserId("training_sessions", "user_id");
+    await detachUserId("training_sessions", "trainer_id");
+    await detachUserId("training_sessions", "caller_id");
 
     // Sub-users: orphaned profile rows would block the cascade. Detach.
     await sa.from("profiles").update({ parent_user_id: null }).eq("parent_user_id", userId);
 
-    // Optionally cull tiny per-user metadata rows.
+    // Small per-user rows we can safely drop.
     await deleteRows("invoices", "user_id");
     await deleteRows("receipts", "user_id");
 
-    // Finally remove the auth user — this cascades to public.profiles (FK = ON DELETE CASCADE).
+    // Explicitly delete the public.profiles row first — if a FK is still
+    // blocking, this returns a precise constraint name we can act on.
+    const { error: profErr } = await sa.from("profiles").delete().eq("id", userId);
+    if (profErr) {
+      return NextResponse.json({
+        error: `Couldn't remove profile row: ${profErr.message}`,
+        hint: "A foreign key is still pointing at this user. Tell me the constraint name and I'll clear it.",
+      }, { status: 400 });
+    }
+
     const { error } = await sa.auth.admin.deleteUser(userId);
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    if (error) {
+      return NextResponse.json({
+        error: `Auth deletion failed: ${error.message}`,
+        hint: "The public.profiles row is already gone — the auth row was orphaned. Tell me the constraint name.",
+      }, { status: 400 });
+    }
     return NextResponse.json({ ok: true });
   } catch (e) {
     return NextResponse.json({ error: e instanceof Error ? e.message : "Server error" }, { status: 500 });
