@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { LeadTimeline } from "@/app/_components/LeadTimeline";
+import { CallRecordings } from "@/app/_components/CallRecordings";
 import {
   ArrowLeft, MapPin, DollarSign, User, Calendar, Phone, FileText,
   CheckCircle2, XCircle, Clock, Loader2, Sparkles, Target,
@@ -493,6 +494,7 @@ export default function LeadDetailPage() {
         </button>
       </div>
 
+      <CallRecordings leadId={lead.id} />
       <LeadTimeline leadId={lead.id} />
     </div>
   );
