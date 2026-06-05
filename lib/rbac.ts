@@ -48,6 +48,23 @@ const SETS: Record<Role, Set<Permission>> = Object.fromEntries(
   (Object.entries(MATRIX) as [Role, Permission[]][]).map(([r, perms]) => [r, new Set(perms)]),
 ) as Record<Role, Set<Permission>>;
 
+/**
+ * Map a raw profiles.role string (incl. the legacy "user"/"admin" the live app
+ * still writes) to a typed Role. Mirror of current_app_role() in 0002_rls.sql.
+ */
+export function normalizeRole(raw: string | null | undefined): Role {
+  switch ((raw ?? "").toLowerCase().replace(/\s+/g, "_")) {
+    case "owner": return "owner";
+    case "admin": return "admin";
+    case "qa": return "qa";
+    case "trainer": return "trainer";
+    case "team_leader": return "team_leader";
+    case "caller": return "caller";
+    case "user": return "caller"; // legacy: regular user => caller
+    default: return "caller";
+  }
+}
+
 /** Does this role hold the permission? */
 export function can(role: Role | null | undefined, perm: Permission): boolean {
   return !!role && SETS[role]?.has(perm) === true;

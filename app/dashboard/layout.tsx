@@ -10,7 +10,7 @@ import {
   LayoutDashboard, PhoneCall, FolderCog, Zap,
   UserCircle, LogOut, Bell, ChevronRight, Shield,
   BarChart3, Send, Users2, Briefcase, TrendingUp,
-  Headphones, Flag, Power, UserCog, Eye,
+  Headphones, Flag, Power, UserCog, Eye, Columns3,
 } from "lucide-react";
 
 const NAVY = "#232B3A";
@@ -19,6 +19,7 @@ const RED = NAVY;
 
 const NAV_PRIMARY = [
   { label: "Overview",     href: "/dashboard",           icon: LayoutDashboard },
+  { label: "Pipeline",     href: "/dashboard/pipeline",  icon: Columns3 },
   { label: "Call Library", href: "/dashboard/calls",     icon: PhoneCall },
   { label: "Campaigns",    href: "/dashboard/campaigns", icon: FolderCog },
 ];
