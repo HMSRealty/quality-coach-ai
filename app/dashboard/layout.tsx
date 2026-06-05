@@ -35,6 +35,7 @@ const NAV_TEAM = [
   { label: "Team Leader",  href: "/dashboard/team-leader",    icon: BarChart3 },
   { label: "Leaderboard",  href: "/dashboard/leaderboard",    icon: Flag },
   { label: "Performance",  href: "/dashboard/team-performance", icon: TrendingUp },
+  { label: "AI Persona",   href: "/dashboard/persona",        icon: Zap },
   { label: "Permissions",  href: "/dashboard/permissions",    icon: Power },
   { label: "Roles & Access", href: "/dashboard/roles",        icon: Shield },
   { label: "Sub-Users",    href: "/dashboard/sub-users",      icon: UserCog },

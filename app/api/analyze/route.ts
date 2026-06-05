@@ -204,9 +204,50 @@ who spoke, what the seller said about the property and their situation, key obje
 and how it ended. Assign to the call_summary field. No jargon.
 `.trim();
 
-async function runQualification(fileUri: string, mime: string, customRules: string, key: string): Promise<QualJSON> {
+// Build the runtime system prompt: base persona (or org override) + org killers
+// (or defaults) + LIVE market context (Zillow Zestimate) + campaign rules.
+function buildSystemPrompt(opts: {
+  orgPersona?: string | null;
+  orgKillers?: Array<{ id: string; label: string; rule: string; enabled?: boolean }> | null;
+  marketValue?: number | null;
+  propertyAddress?: string | null;
+  customRules?: string;
+}): string {
+  const persona = (opts.orgPersona && opts.orgPersona.trim().length > 30) ? opts.orgPersona.trim() : QUAL_SYSTEM;
+  const killers = (opts.orgKillers && opts.orgKillers.length)
+    ? opts.orgKillers.filter((k) => k.enabled !== false).map((k) => `${k.id}: ${k.label} — ${k.rule}`).join("\n")
+    : "(using defaults baked into persona)";
+  const marketCtx = opts.marketValue
+    ? `\n\nLIVE API CONTEXT (single source of truth for Market Value):
+ZILLOW MARKET VALUE (Zestimate) = $${Math.round(opts.marketValue).toLocaleString()}
+Property address (resolved from public records): ${opts.propertyAddress || "unknown"}
+
+PRICING MATRIX (apply mathematically against the LIVE Zestimate above, not any spoken value):
+• HOT  → spoken asking price ≤ 70% of Zestimate (Deep Discount; overrides timeline/minor behavior rules)
+• WARM → spoken asking price ≤ 90% of Zestimate with weak/passive motivation
+• DEAD → spoken asking price near or above 100% of Zestimate with no real motivation, OR no price + no motivation`
+    : `\n\nLIVE API CONTEXT: Zestimate unavailable for this lead. Use the SPOKEN market value if present; otherwise rely on motivation + Kill List only.`;
+  const killBlock = `\n\nACTIVE KILL LIST (auto-DISQUALIFY if ANY are true):\n${killers}\n\nSAVIOR EXCEPTION: If the PRIMARY address hits a Kill rule but the seller volunteers a DIFFERENT off-market property, extract that new address into other_properties_volunteered and qualify the lead based on the volunteered property.`;
+  const overrides = opts.customRules ? `\n\nCAMPAIGN CUSTOM OVERRIDE RULES:\n${opts.customRules}` : "";
+  return `${persona}${marketCtx}${killBlock}${overrides}`;
+}
+
+async function runQualification(
+  fileUri: string,
+  mime: string,
+  customRules: string,
+  key: string,
+  ctx?: { orgPersona?: string | null; orgKillers?: Array<{ id: string; label: string; rule: string; enabled?: boolean }> | null; marketValue?: number | null; propertyAddress?: string | null },
+): Promise<QualJSON> {
+  const systemText = buildSystemPrompt({
+    orgPersona: ctx?.orgPersona,
+    orgKillers: ctx?.orgKillers,
+    marketValue: ctx?.marketValue,
+    propertyAddress: ctx?.propertyAddress,
+    customRules,
+  });
   const payload = {
-    systemInstruction: { parts: [{ text: `${QUAL_SYSTEM}\n\nCRITICAL CUSTOM OVERRIDE RULES:\n${customRules || "(none)"}` }] },
+    systemInstruction: { parts: [{ text: systemText }] },
     contents: [{
       role: "user",
       parts: [
@@ -435,11 +476,35 @@ export async function POST(req: Request): Promise<Response> {
       rules = c?.rules || "";
     }
 
+    // Org persona + Kill List overrides (Phase: admin-editable persona).
+    let orgPersona: string | null = null;
+    let orgKillers: Array<{ id: string; label: string; rule: string; enabled?: boolean }> | null = null;
+    if (lead.organization_id) {
+      try {
+        const { data: org } = await sa
+          .from("organizations")
+          .select("qa_persona, qa_killers")
+          .eq("id", lead.organization_id)
+          .maybeSingle();
+        orgPersona = (org?.qa_persona as string | null) ?? null;
+        orgKillers = (org?.qa_killers as typeof orgKillers) ?? null;
+      } catch { /* columns absent pre-migration */ }
+    }
+
+    // Live Zillow market context — extracted at submit time and stored in metadata.
+    const zillowData = (lead.metadata as { zillow_data?: { zestimate?: number; address?: string } } | null)?.zillow_data;
+    const marketValue: number | null =
+      (zillowData?.zestimate as number | undefined) ?? null;
+    const resolvedAddress: string | null =
+      (zillowData?.address as string | undefined) ?? lead.extracted_address ?? null;
+
     const key = geminiKey();
     const up = await uploadToGemini(bytes, mime || "audio/mpeg", key);
 
     // Two-pass: qualification + coaching
-    const q = await runQualification(up.uri, up.mime, rules, key);
+    const q = await runQualification(up.uri, up.mime, rules, key, {
+      orgPersona, orgKillers, marketValue, propertyAddress: resolvedAddress,
+    });
     let coaching = "No feedback.";
     try { coaching = await runCoaching(up.uri, up.mime, key); } catch { /* coaching is best-effort */ }
 
