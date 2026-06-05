@@ -4,12 +4,15 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { Card } from "@/app/_components/Card";
 import { startImpersonation } from "@/lib/impersonation";
-import { UserPlus, Loader2, Eye, CheckCircle2, AlertCircle, UserCog } from "lucide-react";
+import { UserPlus, Loader2, Eye, CheckCircle2, AlertCircle, UserCog, Trash2, Download } from "lucide-react";
 
 const NAVY = "#232B3A";
 const SLATE = "#4B5563";
 
-interface SubUser { id: string; email: string; plan_tier: string; created_at: string; }
+interface SubUser {
+  id: string; email: string; plan_tier: string; created_at: string;
+  can_download_calls?: boolean;
+}
 
 const inputStyle: React.CSSProperties = {
   width: "100%", padding: "10px 12px", borderRadius: 9,
@@ -23,6 +26,8 @@ export default function SubUsersPage() {
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [actingId, setActingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [togglingId, setTogglingId] = useState<string | null>(null);
   const [form, setForm] = useState({ email: "", password: "", plan_tier: "starter" });
   const [toast, setToast] = useState<{ type: "ok" | "err"; msg: string } | null>(null);
 
@@ -33,7 +38,7 @@ export default function SubUsersPage() {
     setMe(user.id);
     const { data } = await supabase
       .from("profiles")
-      .select("id, email, plan_tier, created_at")
+      .select("id, email, plan_tier, created_at, can_download_calls")
       .eq("parent_user_id", user.id)
       .order("created_at", { ascending: false });
     setSubUsers((data || []) as SubUser[]);
@@ -62,6 +67,33 @@ export default function SubUsersPage() {
     showToast("ok", `Created ${form.email}`);
     setForm({ email: "", password: "", plan_tier: "starter" });
     load();
+  };
+
+  const deleteSubUser = async (u: SubUser) => {
+    if (!confirm(`Delete ${u.email}? This permanently removes their account.\nTheir submitted leads stay, but get unassigned.`)) return;
+    setDeletingId(u.id);
+    const { data: { session } } = await supabase.auth.getSession();
+    const res = await fetch("/api/admin/users", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${session?.access_token}` },
+      body: JSON.stringify({ userId: u.id }),
+    });
+    const j = await res.json().catch(() => ({}));
+    setDeletingId(null);
+    if (!res.ok) return showToast("err", j.error || "Delete failed");
+    showToast("ok", `Deleted ${u.email}`);
+    setSubUsers(p => p.filter(x => x.id !== u.id));
+  };
+
+  // Owners/admins can disable call DOWNLOAD per sub-user. They keep play access.
+  const toggleDownload = async (u: SubUser) => {
+    setTogglingId(u.id);
+    const next = !(u.can_download_calls ?? false);
+    const { error } = await supabase.from("profiles").update({ can_download_calls: next }).eq("id", u.id);
+    setTogglingId(null);
+    if (error) return showToast("err", error.message);
+    setSubUsers(p => p.map(x => x.id === u.id ? { ...x, can_download_calls: next } : x));
+    showToast("ok", next ? "Download enabled" : "Download disabled");
   };
 
   const actAs = async (id: string) => {
@@ -144,6 +176,19 @@ export default function SubUsersPage() {
                   <p style={{ fontSize: 13, fontWeight: 700, color: NAVY }}>{u.email}</p>
                   <p style={{ fontSize: 11, color: SLATE, textTransform: "capitalize" }}>{u.plan_tier} plan</p>
                 </div>
+                <button onClick={() => toggleDownload(u)} disabled={togglingId === u.id}
+                  title={u.can_download_calls ? "Click to disable call downloads" : "Click to enable call downloads"}
+                  style={{
+                    display: "inline-flex", alignItems: "center", gap: 6,
+                    padding: "7px 12px", borderRadius: 8,
+                    background: u.can_download_calls ? "#ECFDF5" : "#FBEEE8",
+                    color: u.can_download_calls ? "#059669" : "#DC2626",
+                    border: `1px solid ${u.can_download_calls ? "#A7F3D0" : "#FBCFBE"}`,
+                    fontSize: 11, fontWeight: 700, cursor: togglingId === u.id ? "wait" : "pointer",
+                  }}>
+                  {togglingId === u.id ? <Loader2 size={12} className="animate-spin" /> : <Download size={12} />}
+                  {u.can_download_calls ? "Download on" : "Download off"}
+                </button>
                 <button onClick={() => actAs(u.id)} disabled={actingId === u.id} style={{
                   display: "inline-flex", alignItems: "center", gap: 6,
                   padding: "7px 14px", borderRadius: 8,
@@ -151,6 +196,16 @@ export default function SubUsersPage() {
                   fontSize: 12, fontWeight: 700, cursor: actingId === u.id ? "wait" : "pointer",
                 }}>
                   {actingId === u.id ? <Loader2 size={12} className="animate-spin" /> : <Eye size={12} />} Act as
+                </button>
+                <button onClick={() => deleteSubUser(u)} disabled={deletingId === u.id}
+                  title="Delete this sub-user permanently"
+                  style={{
+                    display: "inline-flex", alignItems: "center", gap: 6,
+                    padding: "7px 10px", borderRadius: 8,
+                    background: "#FFF", color: "#DC2626", border: "1px solid #FBCFBE",
+                    fontSize: 12, fontWeight: 700, cursor: deletingId === u.id ? "wait" : "pointer",
+                  }}>
+                  {deletingId === u.id ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />}
                 </button>
               </div>
             ))}

@@ -35,8 +35,14 @@ export async function GET(
     if (authErr || !user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
     const { data: me } = await sb
-      .from("profiles").select("role, organization_id").eq("id", user.id).maybeSingle();
+      .from("profiles")
+      .select("role, organization_id, can_download_calls, parent_user_id")
+      .eq("id", user.id).maybeSingle();
     const role = normalizeRole(me?.role);
+    // Per-user override: an owner can disable download for a specific sub-user.
+    // For top-level owners/admins (parent_user_id is null), the flag is ignored.
+    const downloadOverrideOff =
+      me?.parent_user_id != null && me?.can_download_calls === false;
 
     // Fetch the call + enforce tenant isolation.
     const { data: call } = await sb
@@ -47,8 +53,8 @@ export async function GET(
 
     // Permission gate.
     if (!can(role, "calls.play")) return Response.json({ error: "Forbidden" }, { status: 403 });
-    if (mode === "download" && !can(role, "calls.download")) {
-      return Response.json({ error: "Download not permitted for your role" }, { status: 403 });
+    if (mode === "download" && (!can(role, "calls.download") || downloadOverrideOff)) {
+      return Response.json({ error: "Download disabled for your account" }, { status: 403 });
     }
 
     const { data: signed, error: signErr } = await sb.storage

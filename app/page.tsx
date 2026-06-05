@@ -24,6 +24,17 @@ function HSMLogo() {
   );
 }
 
+// Reject obvious free-mail providers when "Business email" is required.
+const FREE_MAIL = new Set([
+  "gmail.com","googlemail.com","outlook.com","hotmail.com","live.com","msn.com",
+  "yahoo.com","yahoo.co.uk","yahoo.co.in","ymail.com","icloud.com","me.com",
+  "aol.com","proton.me","protonmail.com","mail.com","gmx.com","yandex.com","zoho.com",
+]);
+const isBusinessEmail = (e: string) => {
+  const d = (e.split("@")[1] || "").toLowerCase();
+  return !!d && !FREE_MAIL.has(d);
+};
+
 export default function AuthPage() {
   const [tab, setTab]           = useState<Tab>("signin");
   const [email, setEmail]       = useState("");
@@ -31,6 +42,11 @@ export default function AuthPage() {
   const [showPw, setShowPw]     = useState(false);
   const [loading, setLoading]   = useState(false);
   const [msg, setMsg]           = useState<{ text: string; ok: boolean } | null>(null);
+  // Signup-only fields (Phase 4 §1 onboarding):
+  const [fullName, setFullName] = useState("");
+  const [username, setUsername] = useState("");
+  const [phone, setPhone]       = useState("");
+  const [website, setWebsite]   = useState("");
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,9 +57,33 @@ export default function AuthPage() {
       if (error) setMsg({ text: error.message, ok: false });
       else window.location.href = "/dashboard";
     } else {
-      const { error } = await supabase.auth.signUp({ email, password });
-      if (error) setMsg({ text: error.message, ok: false });
-      else setMsg({ text: "Check your inbox to confirm your account.", ok: true });
+      // Required onboarding fields.
+      if (!fullName.trim() || !username.trim() || !phone.trim()) {
+        setMsg({ text: "Full name, username and phone are required.", ok: false });
+        setLoading(false); return;
+      }
+      // Business email required for new TOP-LEVEL signups (sub-users created by an
+      // owner use a separate flow, so they're not blocked here).
+      if (!isBusinessEmail(email)) {
+        setMsg({ text: "Please use a business email (no Gmail / Yahoo / Outlook).", ok: false });
+        setLoading(false); return;
+      }
+      const { data, error } = await supabase.auth.signUp({
+        email, password,
+        options: { data: { full_name: fullName.trim(), username: username.trim().toLowerCase(), phone: phone.trim(), website: website.trim() } },
+      });
+      if (error) { setMsg({ text: error.message, ok: false }); setLoading(false); return; }
+      // Persist the onboarding fields onto profiles (the auth metadata above is a
+      // backup; profiles is what the app reads).
+      if (data.user) {
+        await supabase.from("profiles").update({
+          full_name: fullName.trim(),
+          username: username.trim().toLowerCase(),
+          phone: phone.trim(),
+          website: website.trim() || null,
+        }).eq("id", data.user.id);
+      }
+      setMsg({ text: "Account created! Check your inbox to confirm.", ok: true });
     }
     setLoading(false);
   };
@@ -97,15 +137,44 @@ export default function AuthPage() {
           ))}
         </div>
 
-        <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          {tab === "signup" && (
+            <>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <div>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 6 }}>Full name</label>
+                  <input type="text" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Jane Doe" required style={inputBase} />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 6 }}>Username</label>
+                  <input type="text" value={username} onChange={e => setUsername(e.target.value)} placeholder="jane" required style={inputBase} />
+                </div>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <div>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 6 }}>Phone</label>
+                  <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+1 (305) 555-0199" required style={inputBase} />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 6 }}>Website</label>
+                  <input type="url" value={website} onChange={e => setWebsite(e.target.value)} placeholder="https://…" style={inputBase} />
+                </div>
+              </div>
+            </>
+          )}
           <div>
             <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 7, letterSpacing: "0.02em" }}>
-              Email address
+              {tab === "signup" ? "Business email" : "Email address"}
             </label>
             <input
               type="email" value={email} onChange={e => setEmail(e.target.value)}
-              placeholder="you@company.com" required style={inputBase}
+              placeholder={tab === "signup" ? "you@yourcompany.com" : "you@company.com"} required style={inputBase}
             />
+            {tab === "signup" && (
+              <p style={{ fontSize: 10, color: "#94A3B8", marginTop: 4 }}>
+                Use your company email. Sub-users you create later can use any address.
+              </p>
+            )}
           </div>
           <div>
             <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 7, letterSpacing: "0.02em" }}>

@@ -34,6 +34,7 @@ export function CallRecordings({ leadId }: { leadId: string }) {
   const [uploading, setUploading] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [playingId, setPlayingId] = useState<string | null>(null);
+  const [downloadOverrideOff, setDownloadOverrideOff] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
 
@@ -41,9 +42,13 @@ export function CallRecordings({ leadId }: { leadId: string }) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setLoading(false); return; }
     const { data: prof } = await supabase
-      .from("profiles").select("role, organization_id").eq("id", user.id).maybeSingle();
+      .from("profiles")
+      .select("role, organization_id, can_download_calls, parent_user_id")
+      .eq("id", user.id).maybeSingle();
     setRole(normalizeRole(prof?.role));
     setOrgId((prof?.organization_id as string) ?? null);
+    // Owner can flip download OFF for a specific sub-user via /dashboard/sub-users.
+    setDownloadOverrideOff(prof?.parent_user_id != null && prof?.can_download_calls === false);
 
     const { data, error } = await supabase
       .from("calls")
@@ -106,7 +111,7 @@ export function CallRecordings({ leadId }: { leadId: string }) {
 
   if (unavailable) return null; // calls table not present (pre-migration)
 
-  const canDownload = can(role, "calls.download");
+  const canDownload = can(role, "calls.download") && !downloadOverrideOff;
   const canUpload = can(role, "calls.upload");
 
   return (

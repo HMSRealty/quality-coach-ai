@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { normalizeRole, can } from "@/lib/rbac";
 
 export const runtime = "edge";
 export const dynamic = "force-dynamic";
@@ -11,7 +12,7 @@ function admin() {
   return createClient(url, key, { auth: { persistSession: false } });
 }
 
-// Returns { user, role } for the authenticated caller, or throws.
+// Returns { user, role, parent_user_id } for the authenticated caller, or throws.
 async function getCaller(req: NextRequest) {
   const auth = req.headers.get("authorization") || "";
   const token = auth.replace(/^Bearer\s+/i, "");
@@ -19,14 +20,25 @@ async function getCaller(req: NextRequest) {
   const sa = admin();
   const { data: { user }, error } = await sa.auth.getUser(token);
   if (error || !user) throw new Error("Unauthorized");
-  const { data: profile } = await sa.from("profiles").select("role").eq("id", user.id).maybeSingle();
-  return { user, role: profile?.role || "user" };
+  const { data: profile } = await sa
+    .from("profiles")
+    .select("role, parent_user_id")
+    .eq("id", user.id)
+    .maybeSingle();
+  return {
+    user,
+    rawRole: profile?.role || "user",
+    role: normalizeRole(profile?.role),
+    parentUserId: profile?.parent_user_id as string | null | undefined,
+    isTopLevel: !profile?.parent_user_id,
+  };
 }
 
-async function assertOwner(req: NextRequest) {
-  const { user, role } = await getCaller(req);
-  if (role !== "admin") throw new Error("Forbidden — admin only");
-  return user;
+// Allow anyone with users.manage (admin/owner) — top-level legacy 'user' counts as owner.
+async function assertManager(req: NextRequest) {
+  const c = await getCaller(req);
+  if (!can(c.role, "users.manage")) throw new Error("Forbidden — owners/admins only");
+  return c;
 }
 
 // CREATE user (admins create anyone; regular users create SUB-USERS under themselves)
@@ -69,7 +81,7 @@ export async function POST(req: NextRequest) {
 // UPDATE password / role
 export async function PATCH(req: NextRequest) {
   try {
-    await assertOwner(req);
+    await assertManager(req);
     const { userId, password, role } = await req.json();
     if (!userId) return NextResponse.json({ error: "userId required" }, { status: 400 });
     const sa = admin();
@@ -87,12 +99,61 @@ export async function PATCH(req: NextRequest) {
 }
 
 // DELETE user
+// Carefully clears FK references that point at the target user via the legacy
+// per-user columns (user_id) and via the new multi-tenant created_by/assigned_to
+// columns — otherwise Supabase Auth deleteUser fails with a "database error
+// deleting user" because of orphan FKs.
 export async function DELETE(req: NextRequest) {
   try {
-    await assertOwner(req);
+    const caller = await assertManager(req);
     const { userId } = await req.json();
     if (!userId) return NextResponse.json({ error: "userId required" }, { status: 400 });
+    if (userId === caller.user.id) {
+      return NextResponse.json({ error: "You cannot delete your own account" }, { status: 400 });
+    }
     const sa = admin();
+
+    // Safety: confirm the target is in the caller's org (or the caller is a real admin).
+    const { data: target } = await sa
+      .from("profiles")
+      .select("organization_id, parent_user_id, email")
+      .eq("id", userId)
+      .maybeSingle();
+    if (!target) return NextResponse.json({ error: "User not found" }, { status: 404 });
+
+    // Detach everything pointing at this user. Best-effort: silently skip tables
+    // that don't exist on this DB.
+    const detachUserId = async (table: string, col: string) => {
+      try { await sa.from(table).update({ [col]: null }).eq(col, userId); } catch { /* table absent */ }
+    };
+    const deleteRows = async (table: string, col: string) => {
+      try { await sa.from(table).delete().eq(col, userId); } catch { /* table absent */ }
+    };
+
+    // Multi-tenant columns — keep the lead/call rows, just unassign.
+    await detachUserId("leads", "created_by");
+    await detachUserId("leads", "assigned_to");
+    await detachUserId("calls", "uploaded_by");
+    await detachUserId("teams", "leader_id");
+    await detachUserId("team_members", "user_id");
+
+    // Legacy per-user columns — these don't all have ON DELETE behavior, so clear them.
+    await detachUserId("leads", "user_id");
+    await detachUserId("leads", "caller_id");
+    await detachUserId("call_uploads", "user_id");
+    await detachUserId("cold_callers", "user_id");
+    await detachUserId("campaigns", "user_id");
+    await detachUserId("submission_forms", "user_id");
+    await detachUserId("trainers", "user_id");
+
+    // Sub-users: orphaned profile rows would block the cascade. Detach.
+    await sa.from("profiles").update({ parent_user_id: null }).eq("parent_user_id", userId);
+
+    // Optionally cull tiny per-user metadata rows.
+    await deleteRows("invoices", "user_id");
+    await deleteRows("receipts", "user_id");
+
+    // Finally remove the auth user — this cascades to public.profiles (FK = ON DELETE CASCADE).
     const { error } = await sa.auth.admin.deleteUser(userId);
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
     return NextResponse.json({ ok: true });

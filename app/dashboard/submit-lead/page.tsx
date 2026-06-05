@@ -170,6 +170,35 @@ export default function SubmitLeadPage() {
 
     const selectedCaller = callers.find(c => c.id === formData.caller_id);
 
+    // AUTO property fetch — no Lookup button anymore. We resolve the address to
+    // full Zillow data + run ARV here, then persist everything into metadata
+    // and let the AI analyzer use it during qualification.
+    let auto: Record<string, unknown> | null = zData;
+    let autoArv: { estimatedArv: number | null; confidence: number } | null = null;
+    if (!auto && (formData.property_address.trim() || formData.zillow_link.trim())) {
+      setSuccess("Fetching property data…");
+      try {
+        const params = new URLSearchParams();
+        if (formData.zillow_link.trim()) params.set("url", formData.zillow_link.trim());
+        else params.set("address", formData.property_address.trim());
+        const r = await fetch(`/api/zillow?${params.toString()}`);
+        const j = await r.json().catch(() => ({}));
+        if (r.ok && j.ok) {
+          auto = j.normalized as Record<string, unknown>;
+          // Run an ARV estimate from the comps the provider returned (or fallback).
+          try {
+            const arvRes = await fetch("/api/leads/arv", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ normalized: auto, comparables: j.comparables ?? [] }),
+            });
+            const arvJ = await arvRes.json().catch(() => ({}));
+            if (arvRes.ok) autoArv = arvJ;
+          } catch { /* arv is best-effort */ }
+        }
+      } catch { /* lookup is best-effort */ }
+    }
+
     const leadData = {
       user_id: user.id,
       campaign_id: formData.campaign_id,
@@ -182,10 +211,13 @@ export default function SubmitLeadPage() {
         date: formData.date,
         owner_name: formData.owner_name,
         phone_number: formData.phone_number,
-        zestimate: formData.zestimate,
-        zillow_link: formData.zillow_link,
+        // Auto-populated from the provider (overrides empty form values)
+        zestimate: formData.zestimate || (auto?.zestimate as number | undefined)?.toString() || "",
+        zillow_link: formData.zillow_link || (auto?.zillow_url as string | undefined) || "",
         reason: formData.reason,
-        zillow_data: zData || null,
+        zillow_data: auto,
+        arv: autoArv?.estimatedArv ?? null,
+        arv_confidence: autoArv?.confidence ?? null,
         submitted_via: "internal_form",
       },
     };
@@ -326,14 +358,10 @@ export default function SubmitLeadPage() {
           </div>
           <div style={{ marginBottom: 14 }}>
             <label style={labelStyle}>Property Address *</label>
-            <input type="text" value={formData.property_address} onChange={e => setForm({ ...formData, property_address: e.target.value })} placeholder="123 Main St, City, ST" required style={{ ...inputStyle, marginBottom: 8 }} />
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <button type="button" onClick={lookupZillow} disabled={zLookup.busy} style={{
-                padding: "8px 14px", borderRadius: 8, cursor: zLookup.busy ? "wait" : "pointer",
-                background: NAVY, color: "#fff", border: "none", fontSize: 12, fontWeight: 700,
-              }}>{zLookup.busy ? "Fetching…" : "Lookup from Zillow"}</button>
-              {zLookup.msg && <span style={{ fontSize: 11, color: SLATE }}>{zLookup.msg}</span>}
-            </div>
+            <input type="text" value={formData.property_address} onChange={e => setForm({ ...formData, property_address: e.target.value })} placeholder="123 Main St, City, ST 00000" required style={inputStyle} />
+            <p style={{ fontSize: 11, color: SLATE, marginTop: 6 }}>
+              Property details (Zestimate, beds, baths, sqft) and a local-comp ARV are fetched automatically when you submit.
+            </p>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
             <div>

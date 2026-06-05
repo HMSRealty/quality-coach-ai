@@ -178,7 +178,31 @@ export default function DynamicSubmitPage() {
     if (!owner) return;
     setSubmitting(true);
     setError("");
-    setStatusMsg("Submitting...");
+    setStatusMsg("Fetching property data…");
+
+    // AUTO-FETCH property data + ARV (no Lookup button anymore).
+    let auto: Record<string, unknown> | null = zData;
+    let autoArv: { estimatedArv: number | null; confidence: number } | null = null;
+    if (!auto && (formData.property_address.trim() || formData.zillow_link.trim())) {
+      try {
+        const params = new URLSearchParams();
+        if (formData.zillow_link.trim()) params.set("url", formData.zillow_link.trim());
+        else params.set("address", formData.property_address.trim());
+        const r = await fetch(`/api/zillow?${params}`);
+        const j = await r.json().catch(() => ({}));
+        if (r.ok && j.ok) {
+          auto = j.normalized as Record<string, unknown>;
+          try {
+            const arvR = await fetch("/api/leads/arv", {
+              method: "POST", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ normalized: auto, comparables: j.comparables ?? [] }),
+            });
+            if (arvR.ok) autoArv = await arvR.json();
+          } catch {}
+        }
+      } catch {}
+    }
+    setStatusMsg("Submitting…");
 
     try {
       // Insert through the server route (service-role) so it works for anyone
@@ -195,12 +219,14 @@ export default function DynamicSubmitPage() {
             owner_name: formData.owner_name,
             phone_number: formData.phone_number,
             property_address: formData.property_address,
-            zestimate: formData.zestimate,
-            zillow_link: formData.zillow_link,
+            zestimate: formData.zestimate || (auto?.zestimate as number | undefined)?.toString() || "",
+            zillow_link: formData.zillow_link || (auto?.zillow_url as string | undefined) || "",
             asking_price: formData.asking_price,
             reason: formData.reason,
-            // Full property data resolved from Zillow for the main address (if user clicked Lookup)
-            zillow_data: zData || null,
+            // Full property data + ARV auto-resolved on submit.
+            zillow_data: auto,
+            arv: autoArv?.estimatedArv ?? null,
+            arv_confidence: autoArv?.confidence ?? null,
             additional_properties: extraProps
               .filter(p => p.address || p.zestimate || p.asking_price)
               .map(p => ({
@@ -405,15 +431,10 @@ export default function DynamicSubmitPage() {
             <input type="tel" placeholder="Phone Number *" value={formData.phone_number} onChange={e => setForm({ ...formData, phone_number: e.target.value })} required style={inputStyle} />
           </div>
           <input type="text" placeholder="Owner Name *" value={formData.owner_name} onChange={e => setForm({ ...formData, owner_name: e.target.value })} required style={{ ...inputStyle, marginBottom: 14 }} />
-          <input type="text" placeholder="Property Address (optional)" value={formData.property_address} onChange={e => setForm({ ...formData, property_address: e.target.value })} style={{ ...inputStyle, marginBottom: 8 }} />
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
-            <button type="button" onClick={lookupZillow} disabled={zLookup.busy} style={{
-              padding: "8px 14px", borderRadius: 8, cursor: zLookup.busy ? "wait" : "pointer",
-              background: NAVY, color: "#fff", border: "none",
-              fontSize: 12, fontWeight: 700,
-            }}>{zLookup.busy ? "Looking up…" : "Lookup from Zillow"}</button>
-            {zLookup.msg && <span style={{ fontSize: 11, color: SLATE }}>{zLookup.msg}</span>}
-          </div>
+          <input type="text" placeholder="Property Address (optional)" value={formData.property_address} onChange={e => setForm({ ...formData, property_address: e.target.value })} style={{ ...inputStyle, marginBottom: 6 }} />
+          <p style={{ fontSize: 11, color: SLATE, marginBottom: 14 }}>
+            Property details + ARV are fetched automatically when you submit.
+          </p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
             <input type="text" placeholder="Zestimate (optional)" value={formData.zestimate} onChange={e => setForm({ ...formData, zestimate: e.target.value })} style={inputStyle} />
             <input type="number" placeholder="Asking Price (optional)" value={formData.asking_price} onChange={e => setForm({ ...formData, asking_price: e.target.value })} style={inputStyle} />
@@ -428,13 +449,9 @@ export default function DynamicSubmitPage() {
                 <button type="button" onClick={() => removeProperty(i)} style={{ background: "none", border: "none", color: "#DC2626", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Remove</button>
               </div>
               <input type="text" placeholder="Address" value={p.address} onChange={e => updateProperty(i, "address", e.target.value)} style={{ ...inputStyle, marginBottom: 8 }} />
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-                <button type="button" onClick={() => lookupExtra(i)} disabled={!!p.busy} style={{
-                  padding: "6px 12px", borderRadius: 7, cursor: p.busy ? "wait" : "pointer",
-                  background: NAVY, color: "#fff", border: "none", fontSize: 11, fontWeight: 700,
-                }}>{p.busy ? "Fetching…" : "Lookup from Zillow"}</button>
-                {p.msg && <span style={{ fontSize: 11, color: SLATE }}>{p.msg}</span>}
-              </div>
+              <p style={{ fontSize: 10, color: SLATE, marginBottom: 10 }}>
+                Auto-fetched on submit.
+              </p>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                 <input type="text" placeholder="Zestimate" value={p.zestimate} onChange={e => updateProperty(i, "zestimate", e.target.value)} style={inputStyle} />
                 <input type="number" placeholder="Asking Price" value={p.asking_price} onChange={e => updateProperty(i, "asking_price", e.target.value)} style={inputStyle} />
