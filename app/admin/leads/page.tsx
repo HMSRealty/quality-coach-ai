@@ -4,13 +4,14 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Loader2, Download, Search, ExternalLink, Database } from "lucide-react";
 import Link from "next/link";
+import { T } from "@/app/_components/tokens";
 
-const BG = "#F2F5F9";
+const BG = T.surface3;
 const PANEL = "#FFFFFF";
-const PANEL_2 = "#F2F5F9";
+const PANEL_2 = T.surface3;
 const TEAL = "#059669";
-const TXT = "#232B3A";
-const MUTED = "#4B5563";
+const TXT = T.navy;
+const MUTED = T.slate;
 
 interface Lead {
   id: string;
@@ -135,7 +136,7 @@ export default function AdminLeadsPage() {
           <button onClick={exportAll} style={{
             display: "inline-flex", alignItems: "center", gap: 8,
             padding: "12px 20px", borderRadius: 10,
-            background: "#232B3A", color: "#fff",
+            background: T.navy, color: "#fff",
             fontSize: 13, fontWeight: 800, border: "none", cursor: "pointer",
             boxShadow: `0 6px 22px rgba(35,43,58,0.25)`,
           }}>
@@ -223,7 +224,7 @@ export default function AdminLeadsPage() {
                       <td style={{ padding: "11px 14px" }}>
                         <Link href={`/dashboard/leads/${l.id}`} style={{
                           padding: "5px 10px", borderRadius: 7,
-                          background: "#EEF1F6", color: "#232B3A",
+                          background: T.navyLight, color: T.navy,
                           border: "1px solid rgba(35,43,58,0.12)",
                           fontSize: 11, fontWeight: 700, textDecoration: "none",
                           display: "inline-flex", alignItems: "center", gap: 4,

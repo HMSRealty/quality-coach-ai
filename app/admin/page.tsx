@@ -8,11 +8,12 @@ import {
   Users, ShieldCheck, RefreshCw, Loader2, UserPlus, Key, Trash2,
   Search, X, Phone, Power, CheckCircle2, AlertCircle, Database, TrendingUp, Eye,
 } from "lucide-react";
+import { T } from "@/app/_components/tokens";
 
-const NAVY = "#232B3A";
+const NAVY = T.navy;
 const TEAL = "#2F6BFF";
 const GOLD = "#2F6BFF";
-const SLATE = "#4B5563";
+const SLATE = T.slate;
 
 interface UserRow {
   id: string;
@@ -37,7 +38,7 @@ function Toggle({ on, onChange, busy }: { on: boolean; onChange: () => void; bus
     }}>
       <span style={{
         position: "absolute", top: 2, left: on ? 18 : 2,
-        width: 18, height: 18, borderRadius: "50%", background: "#FFF",
+        width: 18, height: 18, borderRadius: "50%", background: T.surface1,
         boxShadow: "0 2px 4px rgba(0,0,0,0.18)",
         transition: "left 280ms cubic-bezier(0.34, 1.56, 0.64, 1)",
       }} />
@@ -186,7 +187,7 @@ export default function AdminPage() {
           <button onClick={loadData} style={{
             display: "inline-flex", alignItems: "center", gap: 6,
             padding: "9px 14px", borderRadius: 9,
-            background: "#FFF", color: NAVY, border: "1px solid rgba(35,43,58,0.10)",
+            background: T.surface1, color: NAVY, border: "1px solid rgba(35,43,58,0.10)",
             fontSize: 12, fontWeight: 700, cursor: "pointer",
           }}>
             <RefreshCw size={13} /> Refresh
@@ -247,7 +248,7 @@ export default function AdminPage() {
           placeholder="Search users by email..."
           style={{
             width: "100%", padding: "10px 12px 10px 36px", borderRadius: 10,
-            background: "#FFF", border: "1px solid rgba(35,43,58,0.10)",
+            background: T.surface1, border: "1px solid rgba(35,43,58,0.10)",
             fontSize: 13, color: NAVY, outline: "none",
           }}
         />
@@ -261,7 +262,7 @@ export default function AdminPage() {
         <div style={{ overflowX: "auto" }}>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
-              <tr style={{ background: "#F2F5F9" }}>
+              <tr style={{ background: T.surface3 }}>
                 {["User", "Role", "Plan", "Receive Leads", "Call Uploads", "Actions"].map(h => (
                   <th key={h} style={{ padding: "12px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: SLATE, textTransform: "uppercase", letterSpacing: "0.05em" }}>
                     {h}
@@ -276,7 +277,7 @@ export default function AdminPage() {
                   <td style={{ padding: "12px 16px" }}>
                     <span style={{
                       padding: "3px 10px", borderRadius: 999, fontSize: 11, fontWeight: 700,
-                      background: u.role === "admin" ? "#EAF0FF" : "#F1F4F9",
+                      background: u.role === "admin" ? "#EAF0FF" : T.surface3,
                       color: u.role === "admin" ? "#92400E" : SLATE,
                     }}>
                       {u.role}
@@ -293,7 +294,7 @@ export default function AdminPage() {
                     <div style={{ display: "flex", gap: 6 }}>
                       <button onClick={() => actAs(u)} title="Act as this user" style={{
                         padding: "5px 10px", borderRadius: 7,
-                        background: "#EEF1F6", color: NAVY, border: "1px solid rgba(35,43,58,0.12)",
+                        background: T.navyLight, color: NAVY, border: "1px solid rgba(35,43,58,0.12)",
                         fontSize: 11, fontWeight: 700, cursor: "pointer",
                         display: "flex", alignItems: "center", gap: 4,
                       }}>
@@ -301,7 +302,7 @@ export default function AdminPage() {
                       </button>
                       <button onClick={() => setPwUser(u)} title="Change password" style={{
                         padding: "5px 10px", borderRadius: 7,
-                        background: "#F1F4F9", color: NAVY, border: "1px solid rgba(35,43,58,0.08)",
+                        background: T.surface3, color: NAVY, border: "1px solid rgba(35,43,58,0.08)",
                         fontSize: 11, fontWeight: 600, cursor: "pointer",
                         display: "flex", alignItems: "center", gap: 4,
                       }}>
@@ -372,7 +373,7 @@ export default function AdminPage() {
 // Module-scope to keep input identity stable
 const modalInputStyle: React.CSSProperties = {
   width: "100%", padding: "10px 12px", borderRadius: 9,
-  background: "#F2F5F9", border: "1px solid rgba(35,43,58,0.10)",
+  background: T.surface3, border: "1px solid rgba(35,43,58,0.10)",
   fontSize: 13, color: NAVY, outline: "none",
 };
 
@@ -403,7 +404,7 @@ function Modal({ children, onClose, title }: { children: React.ReactNode; onClos
       backdropFilter: "blur(4px)", padding: 20,
     }}>
       <div onClick={e => e.stopPropagation()} style={{
-        background: "#FFF", borderRadius: 16, padding: 28, maxWidth: 440, width: "100%",
+        background: T.surface1, borderRadius: 16, padding: 28, maxWidth: 440, width: "100%",
         boxShadow: "0 24px 80px rgba(35,43,58,0.30)",
       }} className="animate-scale">
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>

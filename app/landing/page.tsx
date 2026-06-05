@@ -8,12 +8,13 @@ import {
   Shield, Sparkles, Globe, FileSpreadsheet, Headphones, Award,
   TrendingUp,
 } from "lucide-react";
+import { T } from "@/app/_components/tokens";
 
-const NAVY = "#232B3A";
+const NAVY = T.navy;
 const NAVY_2 = "#2A3347";
 const TEAL = "#2F6BFF";
 const GOLD = "#2F6BFF";
-const SLATE = "#4B5563";
+const SLATE = T.slate;
 
 function HMSLogo({ size = 36, light = false }: { size?: number; light?: boolean }) {
   const navy = light ? "#fff" : NAVY;
@@ -44,7 +45,7 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div style={{ background: "#FFFFFF", minHeight: "100vh", color: NAVY }}>
+    <div style={{ background: T.surface1, minHeight: "100vh", color: NAVY }}>
       {/* NAV */}
       <nav style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 50,
@@ -98,7 +99,7 @@ export default function LandingPage() {
           <div style={{
             display: "inline-flex", alignItems: "center", gap: 8,
             padding: "8px 16px", borderRadius: 999,
-            background: "#fff", border: `1px solid rgba(35,43,58,0.10)`,
+            background: T.surface1, border: `1px solid rgba(35,43,58,0.10)`,
             boxShadow: "0 4px 16px rgba(35,43,58,0.06)", marginBottom: 28,
           }}>
             <Sparkles size={13} color={TEAL} />
@@ -144,7 +145,7 @@ export default function LandingPage() {
             <a href="#how" style={{
               display: "inline-flex", alignItems: "center", gap: 8,
               padding: "16px 28px", borderRadius: 12,
-              background: "#fff", color: NAVY,
+              background: T.surface1, color: NAVY,
               border: "1px solid rgba(35,43,58,0.12)",
               fontSize: 15, fontWeight: 600, textDecoration: "none",
               boxShadow: "0 4px 12px rgba(35,43,58,0.06)",
@@ -155,7 +156,7 @@ export default function LandingPage() {
 
           <div style={{
             display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 24,
-            marginTop: 80, padding: "32px 40px", background: "#fff",
+            marginTop: 80, padding: "32px 40px", background: T.surface1,
             borderRadius: 18, border: "1px solid rgba(35,43,58,0.08)",
             boxShadow: "0 12px 40px rgba(35,43,58,0.06)",
           }}>
@@ -175,7 +176,7 @@ export default function LandingPage() {
       </section>
 
       {/* FEATURES */}
-      <section id="features" style={{ padding: "100px 32px", background: "#F2F5F9" }}>
+      <section id="features" style={{ padding: "100px 32px", background: T.surface3 }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 64 }}>
             <p style={{ fontSize: 13, fontWeight: 700, color: TEAL, letterSpacing: "0.12em", marginBottom: 12 }}>
@@ -203,7 +204,7 @@ export default function LandingPage() {
               { i: Shield, t: "Compliance Coverage", d: "Every call processed, graded, and archived for review. Audit-ready by default." },
             ].map(({ i: Icon, t, d }) => (
               <div key={t} style={{
-                padding: 28, background: "#fff", borderRadius: 16,
+                padding: 28, background: T.surface1, borderRadius: 16,
                 border: "1px solid rgba(35,43,58,0.08)",
                 transition: "all 300ms cubic-bezier(0.16,1,0.30,1)",
               }}
@@ -235,7 +236,7 @@ export default function LandingPage() {
       </section>
 
       {/* HOW IT WORKS */}
-      <section id="how" style={{ padding: "100px 32px", background: "#fff" }}>
+      <section id="how" style={{ padding: "100px 32px", background: T.surface1 }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 64 }}>
             <p style={{ fontSize: 13, fontWeight: 700, color: TEAL, letterSpacing: "0.12em", marginBottom: 12 }}>
@@ -268,7 +269,7 @@ export default function LandingPage() {
       </section>
 
       {/* TUTORIAL */}
-      <section id="tutorial" style={{ padding: "100px 32px", background: "#F2F5F9" }}>
+      <section id="tutorial" style={{ padding: "100px 32px", background: T.surface3 }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 48 }}>
             <p style={{ fontSize: 13, fontWeight: 700, color: TEAL, letterSpacing: "0.12em", marginBottom: 12 }}>TUTORIAL</p>
@@ -305,7 +306,7 @@ export default function LandingPage() {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
             {/* Professional */}
             <div style={{
-              padding: 36, background: "#fff", borderRadius: 20,
+              padding: 36, background: T.surface1, borderRadius: 20,
               border: "1px solid rgba(35,43,58,0.10)",
               boxShadow: "0 8px 24px rgba(35,43,58,0.06)",
             }}>
@@ -335,7 +336,7 @@ export default function LandingPage() {
               </ul>
               <Link href="/" style={{
                 display: "block", textAlign: "center", padding: "13px 20px",
-                borderRadius: 11, background: "#fff", color: NAVY,
+                borderRadius: 11, background: T.surface1, color: NAVY,
                 border: `1.5px solid ${NAVY}`, fontSize: 14, fontWeight: 700,
                 textDecoration: "none",
               }}>
@@ -398,7 +399,7 @@ export default function LandingPage() {
       </section>
 
       {/* CTA */}
-      <section style={{ padding: "100px 32px", background: "#fff" }}>
+      <section style={{ padding: "100px 32px", background: T.surface1 }}>
         <div style={{
           maxWidth: 1000, margin: "0 auto",
           padding: "64px 48px", borderRadius: 24,
