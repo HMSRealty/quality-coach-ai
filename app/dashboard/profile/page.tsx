@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { Card } from "@/app/_components/Card";
+import { ProfileDetailsCard } from "@/app/_components/ProfileDetailsCard";
 import {
   User, Key, BarChart3, CreditCard, Shield,
   Save, Loader2, CheckCircle2, AlertCircle,
@@ -219,6 +220,7 @@ export default function ProfilePage() {
           {/* Overview tab */}
           {tab === "overview" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+              <ProfileDetailsCard />
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
                 {[
                   { label: "Email",          value: profile.email },

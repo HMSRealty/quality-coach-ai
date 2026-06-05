@@ -91,6 +91,7 @@ const STATUS_OPTS = ["Hot", "Warm", "Cold", "Call Back", "Disqualified", "Duplic
 // ── Component ────────────────────────────────────────────────
 export default function DashboardPage() {
   const [email, setEmail]           = useState("");
+  const [fullName, setFullName]     = useState("");
   const [leads, setLeads]           = useState<Lead[]>([]);
   const [loading, setLoading]       = useState(true);
   const [updatingId, setUpdating]   = useState<string | null>(null);
@@ -100,6 +101,10 @@ export default function DashboardPage() {
     setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
     setEmail(user?.email ?? "");
+    if (user) {
+      const { data: prof } = await supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle();
+      if (prof?.full_name) setFullName(prof.full_name as string);
+    }
     if (user) {
       // Only show leads that have finished AI analysis (exclude "Processing")
       const { data } = await supabase
@@ -210,8 +215,8 @@ export default function DashboardPage() {
   });
   const recent = leads.slice(0, 10);
   const [openLeadId, setOpenLeadId] = useState<string | null>(null);
-  const firstName = email.split("@")[0].split(".")[0];
-  const displayName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
+  const firstName = (fullName.trim().split(/\s+/)[0]) || email.split("@")[0].split(".")[0] || "";
+  const displayName = firstName ? firstName.charAt(0).toUpperCase() + firstName.slice(1) : "there";
 
   if (loading) return (
     <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", flexDirection: "column", gap: 20 }}>
