@@ -7,8 +7,9 @@ import {
   XCircle, Copy, AlertCircle,
 } from "lucide-react";
 
-const NAVY = "#232B3A";
-const SLATE = "#4B5563";
+import { T } from "@/app/_components/tokens";
+const NAVY = T.navy;
+const SLATE = T.slate;
 
 // EST "today" as YYYY-MM-DD (matches the submission_date the DB stamps).
 function estDate(d = new Date()): string {
@@ -110,7 +111,7 @@ export default function AnalyticsPage() {
 
   if (needsMigration) {
     return (
-      <div style={{ maxWidth: 560, margin: "60px auto", textAlign: "center", padding: 32, background: "#FFF", border: "1px solid rgba(35,43,58,0.1)", borderRadius: 14 }}>
+      <div style={{ maxWidth: 560, margin: "60px auto", textAlign: "center", padding: 32, background: T.surface1, border: "1px solid rgba(35,43,58,0.1)", borderRadius: 14 }}>
         <AlertCircle size={28} color="#EA580C" style={{ margin: "0 auto 12px" }} />
         <h2 style={{ fontSize: 18, fontWeight: 800, color: NAVY, marginBottom: 8 }}>Analytics not enabled yet</h2>
         <p style={{ fontSize: 13, color: SLATE, lineHeight: 1.6 }}>Run the CRM migrations to add <code>submission_date</code>.</p>
@@ -157,9 +158,9 @@ export default function AnalyticsPage() {
             {kpis.map((k) => {
               const Icon = k.icon;
               return (
-                <div key={k.label} style={{ background: "#FFF", border: "1px solid rgba(35,43,58,0.08)", borderRadius: 12, padding: 16, boxShadow: "0 1px 3px rgba(35,43,58,0.04)" }}>
+                <div key={k.label} style={{ background: T.surface1, border: "1px solid rgba(35,43,58,0.08)", borderRadius: 12, padding: 16, boxShadow: "0 1px 3px rgba(35,43,58,0.04)" }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-                    <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.06em", color: "#94A3B8", textTransform: "uppercase" }}>{k.label}</span>
+                    <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.06em", color: T.text3, textTransform: "uppercase" }}>{k.label}</span>
                     <span style={{ width: 28, height: 28, borderRadius: 8, background: k.bg, display: "flex", alignItems: "center", justifyContent: "center" }}>
                       <Icon size={14} color={k.color} />
                     </span>
@@ -177,13 +178,13 @@ export default function AnalyticsPage() {
           </div>
 
           {/* Pipeline funnel */}
-          <div style={{ background: "#FFF", border: "1px solid rgba(35,43,58,0.08)", borderRadius: 12, padding: 20 }}>
+          <div style={{ background: T.surface1, border: "1px solid rgba(35,43,58,0.08)", borderRadius: 12, padding: 20 }}>
             <p style={{ fontSize: 14, fontWeight: 700, color: NAVY, marginBottom: 16 }}>Pipeline by Stage</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {stageCounts.map((s) => (
                 <div key={s.key} style={{ display: "flex", alignItems: "center", gap: 12 }}>
                   <span style={{ width: 92, fontSize: 12, fontWeight: 700, color: NAVY }}>{s.label}</span>
-                  <div style={{ flex: 1, height: 22, background: "#F2F5F9", borderRadius: 6, overflow: "hidden" }}>
+                  <div style={{ flex: 1, height: 22, background: T.surface3, borderRadius: 6, overflow: "hidden" }}>
                     <div style={{ width: `${(s.n / stageMax) * 100}%`, height: "100%", background: s.color, borderRadius: 6, transition: "width 0.5s ease", minWidth: s.n > 0 ? 4 : 0 }} />
                   </div>
                   <span style={{ width: 36, textAlign: "right", fontSize: 13, fontWeight: 800, color: s.color }}>{s.n}</span>
@@ -191,7 +192,7 @@ export default function AnalyticsPage() {
               ))}
             </div>
             {total === 0 && (
-              <p style={{ textAlign: "center", fontSize: 12, color: "#94A3B8", marginTop: 14 }}>No leads in this date range.</p>
+              <p style={{ textAlign: "center", fontSize: 12, color: T.text3, marginTop: 14 }}>No leads in this date range.</p>
             )}
           </div>
         </>

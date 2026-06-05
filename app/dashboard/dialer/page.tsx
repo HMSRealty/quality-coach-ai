@@ -8,10 +8,11 @@ import {
   Volume2, VolumeX, Search, Loader2, PhoneIncoming,
 } from "lucide-react";
 
-const NAVY = "#232B3A";
-const TEAL = "#2F6BFF";
-const GOLD = "#2F6BFF";
-const SLATE = "#4B5563";
+import { T } from "@/app/_components/tokens";
+const NAVY = T.navy;
+const TEAL = T.teal;
+const GOLD = T.teal;
+const SLATE = T.slate;
 
 type CallState = "idle" | "calling" | "ringing-incoming" | "connected";
 
@@ -507,7 +508,7 @@ export default function DialerPage() {
                 placeholder="Search..."
                 style={{
                   width: "100%", padding: "8px 10px 8px 32px", borderRadius: 8,
-                  background: "#F1F4F9", border: "1px solid rgba(35,43,58,0.06)",
+                  background: T.surface3, border: "1px solid rgba(35,43,58,0.06)",
                   fontSize: 12, color: NAVY, outline: "none",
                 }}
               />

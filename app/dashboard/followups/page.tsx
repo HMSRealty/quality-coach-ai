@@ -4,10 +4,11 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { Flag, Calendar, Phone, Clock, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
 
-const NAVY = "#232B3A";
-const TEAL = "#2F6BFF";
-const GOLD = "#2F6BFF";
-const SLATE = "#4B5563";
+import { T } from "@/app/_components/tokens";
+const NAVY = T.navy;
+const TEAL = T.teal;
+const GOLD = T.teal;
+const SLATE = T.slate;
 
 interface Followup {
   id: string;
@@ -119,7 +120,7 @@ export default function FollowupsPage() {
       {filtered.length === 0 ? (
         <div style={{
           padding: 60, textAlign: "center", borderRadius: 14,
-          background: "#FFFFFF", border: "1px solid rgba(35,43,58,0.08)",
+          background: T.surface1, border: "1px solid rgba(35,43,58,0.08)",
         }}>
           <Flag size={36} color={SLATE} style={{ margin: "0 auto 12px", opacity: 0.4 }} />
           <p style={{ fontSize: 14, fontWeight: 700, color: NAVY }}>No flagged follow-ups</p>
@@ -131,7 +132,7 @@ export default function FollowupsPage() {
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {filtered.map(f => (
             <div key={f.id} style={{
-              padding: 18, background: "#FFFFFF", borderRadius: 14,
+              padding: 18, background: T.surface1, borderRadius: 14,
               border: "1px solid rgba(35,43,58,0.08)",
               borderLeft: `4px solid ${priorityColor(f.followup_priority)}`,
               display: "grid", gridTemplateColumns: "1fr auto", gap: 16,
@@ -167,7 +168,7 @@ export default function FollowupsPage() {
                   Agent: <strong style={{ color: NAVY }}>{f.agent_name || "Unassigned"}</strong>
                 </p>
                 {f.followup_notes && (
-                  <p style={{ fontSize: 12, color: SLATE, fontStyle: "italic", padding: "8px 10px", background: "#F2F5F9", borderRadius: 6 }}>
+                  <p style={{ fontSize: 12, color: SLATE, fontStyle: "italic", padding: "8px 10px", background: T.surface3, borderRadius: 6 }}>
                     "{f.followup_notes}"
                   </p>
                 )}

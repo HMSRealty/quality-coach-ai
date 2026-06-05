@@ -6,8 +6,9 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { HelpCircle, X } from "lucide-react";
 
-const NAVY = "#232B3A";
-const SLATE = "#4B5563";
+import { T } from "@/app/_components/tokens";
+const NAVY = T.navy;
+const SLATE = T.slate;
 
 type Help = { title: string; body: string; tips?: string[] };
 
@@ -100,7 +101,7 @@ export function HelpButton() {
           role="dialog"
           style={{
             position: "absolute", top: 40, right: 0, width: 300, zIndex: 60,
-            background: "#FFF", border: "1px solid rgba(35,43,58,0.12)", borderRadius: 12,
+            background: T.surface1, border: "1px solid rgba(35,43,58,0.12)", borderRadius: 12,
             boxShadow: "0 16px 48px rgba(35,43,58,0.18)", padding: 16,
           }}
           className="animate-scale"

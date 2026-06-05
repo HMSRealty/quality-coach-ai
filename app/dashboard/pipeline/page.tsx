@@ -5,8 +5,9 @@ import { supabase } from "@/lib/supabase";
 import { can, normalizeRole, type Role } from "@/lib/rbac";
 import { Loader2, GripVertical, MapPin, User, DollarSign, AlertCircle, Send } from "lucide-react";
 
-const NAVY = "#232B3A";
-const SLATE = "#4B5563";
+import { T } from "@/app/_components/tokens";
+const NAVY = T.navy;
+const SLATE = T.slate;
 
 // Pipeline stages (mirror of the lead_stage enum).
 type Stage = "new" | "contacted" | "negotiating" | "won" | "lost";

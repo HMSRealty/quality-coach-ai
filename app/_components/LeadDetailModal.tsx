@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { X, Flag, Calendar, MapPin, DollarSign, Phone, User, FileText, Loader2, CheckCircle2 } from "lucide-react";
 
-const NAVY = "#232B3A";
-const TEAL = "#2F6BFF";
-const GOLD = "#2F6BFF";
-const SLATE = "#4B5563";
+import { T } from "@/app/_components/tokens";
+const NAVY = T.navy;
+const TEAL = T.teal;
+const GOLD = T.teal;
+const SLATE = T.slate;
 
 interface Lead {
   id: string;
@@ -72,7 +73,7 @@ export function LeadDetailModal({ leadId, onClose }: { leadId: string; onClose: 
       backdropFilter: "blur(4px)", padding: 20, overflowY: "auto",
     }}>
       <div onClick={e => e.stopPropagation()} style={{
-        background: "#FFF", borderRadius: 18, maxWidth: 720, width: "100%",
+        background: T.surface1, borderRadius: 18, maxWidth: 720, width: "100%",
         maxHeight: "90vh", overflowY: "auto",
         boxShadow: "0 24px 80px rgba(35,43,58,0.30)",
       }} className="animate-scale">
@@ -140,7 +141,7 @@ export function LeadDetailModal({ leadId, onClose }: { leadId: string; onClose: 
 
             {/* Reasoning */}
             {lead.qualification_reason && (
-              <div style={{ marginBottom: 20, padding: 14, borderRadius: 10, background: "#F2F5F9", border: "1px solid rgba(35,43,58,0.06)" }}>
+              <div style={{ marginBottom: 20, padding: 14, borderRadius: 10, background: T.surface3, border: "1px solid rgba(35,43,58,0.06)" }}>
                 <h3 style={{ fontSize: 13, fontWeight: 700, color: NAVY, marginBottom: 8 }}>
                   <FileText size={13} style={{ display: "inline", marginRight: 5, marginBottom: -2 }} />
                   Reasoning
@@ -177,7 +178,7 @@ export function LeadDetailModal({ leadId, onClose }: { leadId: string; onClose: 
                       <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: SLATE, marginBottom: 4 }}>Date</label>
                       <input type="date" value={date} onChange={e => setDate(e.target.value)} style={{
                         width: "100%", padding: "8px 10px", borderRadius: 8,
-                        background: "#FFF", border: "1px solid rgba(35,43,58,0.10)",
+                        background: T.surface1, border: "1px solid rgba(35,43,58,0.10)",
                         fontSize: 12, color: NAVY, outline: "none",
                       }} />
                     </div>
@@ -185,7 +186,7 @@ export function LeadDetailModal({ leadId, onClose }: { leadId: string; onClose: 
                       <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: SLATE, marginBottom: 4 }}>Priority</label>
                       <select value={priority} onChange={e => setPriority(e.target.value)} style={{
                         width: "100%", padding: "8px 10px", borderRadius: 8,
-                        background: "#FFF", border: "1px solid rgba(35,43,58,0.10)",
+                        background: T.surface1, border: "1px solid rgba(35,43,58,0.10)",
                         fontSize: 12, color: NAVY, outline: "none",
                       }}>
                         <option value="low">Low</option>
@@ -199,7 +200,7 @@ export function LeadDetailModal({ leadId, onClose }: { leadId: string; onClose: 
                     <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: SLATE, marginBottom: 4 }}>Notes</label>
                     <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} placeholder="e.g. Wants to be called back in 2 months" style={{
                       width: "100%", padding: "8px 10px", borderRadius: 8,
-                      background: "#FFF", border: "1px solid rgba(35,43,58,0.10)",
+                      background: T.surface1, border: "1px solid rgba(35,43,58,0.10)",
                       fontSize: 12, color: NAVY, outline: "none", resize: "vertical",
                       fontFamily: "var(--font-sans)",
                     }} />
@@ -222,7 +223,7 @@ export function LeadDetailModal({ leadId, onClose }: { leadId: string; onClose: 
               </button>
               <button onClick={onClose} style={{
                 padding: "11px 18px", borderRadius: 10,
-                background: "#F2F5F9", color: NAVY, border: "1px solid rgba(35,43,58,0.10)",
+                background: T.surface3, color: NAVY, border: "1px solid rgba(35,43,58,0.10)",
                 fontSize: 13, fontWeight: 600, cursor: "pointer",
               }}>
                 Close

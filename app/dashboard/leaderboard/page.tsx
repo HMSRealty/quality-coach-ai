@@ -6,8 +6,9 @@ import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { Loader2, Trophy, Medal, Flame, Sun, Snowflake } from "lucide-react";
 
-const NAVY = "#232B3A";
-const SLATE = "#4B5563";
+import { T } from "@/app/_components/tokens";
+const NAVY = T.navy;
+const SLATE = T.slate;
 
 function estDate(d = new Date()): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(d);
@@ -90,7 +91,7 @@ export default function LeaderboardPage() {
       {loading ? (
         <div style={{ padding: 60, textAlign: "center" }}><Loader2 size={24} className="animate-spin" style={{ color: NAVY }} /></div>
       ) : rows.length === 0 ? (
-        <div style={{ padding: 50, textAlign: "center", background: "#FFF", borderRadius: 14, border: "1px solid rgba(35,43,58,0.08)" }}>
+        <div style={{ padding: 50, textAlign: "center", background: T.surface1, borderRadius: 14, border: "1px solid rgba(35,43,58,0.08)" }}>
           <Trophy size={32} color="#CBD5E1" style={{ margin: "0 auto 10px" }} />
           <p style={{ fontSize: 13, color: SLATE }}>No qualified leads in this range yet.</p>
         </div>
@@ -100,7 +101,7 @@ export default function LeaderboardPage() {
           <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(top.length, 3)}, 1fr)`, gap: 14 }}>
             {top.map((r, i) => (
               <div key={r.name} style={{
-                background: "#FFF", borderRadius: 14, padding: 18, textAlign: "center",
+                background: T.surface1, borderRadius: 14, padding: 18, textAlign: "center",
                 border: `1px solid ${medal(i)}55`, boxShadow: "0 2px 10px rgba(35,43,58,0.05)",
                 order: i === 0 ? 2 : i === 1 ? 1 : 3,
               }}>
@@ -113,10 +114,10 @@ export default function LeaderboardPage() {
           </div>
 
           {/* Full table */}
-          <div style={{ background: "#FFF", border: "1px solid rgba(35,43,58,0.08)", borderRadius: 14, overflow: "hidden" }}>
+          <div style={{ background: T.surface1, border: "1px solid rgba(35,43,58,0.08)", borderRadius: 14, overflow: "hidden" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
-                <tr style={{ background: "#F2F5F9" }}>
+                <tr style={{ background: T.surface3 }}>
                   {["#", "Caller", "Hot", "Warm", "Cold", "Total", "Conv.", "Points"].map((h) => (
                     <th key={h} style={{ padding: "11px 14px", textAlign: h === "Caller" ? "left" : "center", fontSize: 11, fontWeight: 700, color: SLATE, textTransform: "uppercase", letterSpacing: "0.04em" }}>{h}</th>
                   ))}

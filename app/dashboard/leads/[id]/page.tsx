@@ -11,10 +11,11 @@ import {
   MessageSquare, TrendingUp, AlertTriangle, RefreshCw, Upload, Download,
 } from "lucide-react";
 
-const NAVY = "#232B3A";
-const TEAL = "#2F6BFF";
-const GOLD = "#2F6BFF";
-const SLATE = "#4B5563";
+import { T } from "@/app/_components/tokens";
+const NAVY = T.navy;
+const TEAL = T.teal;
+const GOLD = T.teal;
+const SLATE = T.slate;
 
 interface Lead {
   id: string;

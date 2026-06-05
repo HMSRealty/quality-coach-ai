@@ -20,8 +20,9 @@ interface Lead {
   campaigns?: { name: string } | null;
 }
 
-const NAVY = "#232B3A";
-const SLATE = "#4B5563";
+import { T } from "@/app/_components/tokens";
+const NAVY = T.navy;
+const SLATE = T.slate;
 
 const STATUS_OPTS = ["All", "Hot", "Warm", "Cold", "Call Back", "Disqualified", "Duplicate", "Processing", "Error"];
 const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
@@ -187,7 +188,7 @@ export default function CallsPage() {
           <button onClick={exportCSV} style={{
             display: "inline-flex", alignItems: "center", gap: 6,
             padding: "9px 14px", borderRadius: 9,
-            background: "#FFF", color: NAVY, border: "1px solid rgba(35,43,58,0.10)",
+            background: T.surface1, color: NAVY, border: "1px solid rgba(35,43,58,0.10)",
             fontSize: 12, fontWeight: 700, cursor: "pointer",
           }}>
             <Download size={13} /> Export CSV
@@ -206,7 +207,7 @@ export default function CallsPage() {
 
       <div style={{
         display: "flex", gap: 10, padding: 14, borderRadius: 12,
-        background: "#FFFFFF", border: "1px solid rgba(35,43,58,0.08)",
+        background: T.surface1, border: "1px solid rgba(35,43,58,0.08)",
         boxShadow: "0 2px 8px rgba(35,43,58,0.04)",
       }}>
         <div style={{ position: "relative", flex: 1 }}>
@@ -216,21 +217,21 @@ export default function CallsPage() {
             placeholder="Search address or agent..."
             style={{
               width: "100%", padding: "9px 12px 9px 36px", borderRadius: 9,
-              background: "#F2F5F9", border: "1px solid rgba(35,43,58,0.08)",
+              background: T.surface3, border: "1px solid rgba(35,43,58,0.08)",
               fontSize: 13, color: NAVY, outline: "none",
             }}
           />
         </div>
         <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} style={{
           padding: "9px 12px", borderRadius: 9,
-          background: "#F2F5F9", border: "1px solid rgba(35,43,58,0.08)",
+          background: T.surface3, border: "1px solid rgba(35,43,58,0.08)",
           fontSize: 13, color: NAVY, outline: "none",
         }}>
           {STATUS_OPTS.map(s => <option key={s} value={s}>{s}</option>)}
         </select>
         <select value={campaignFilter} onChange={e => setCampaignFilter(e.target.value)} style={{
           padding: "9px 12px", borderRadius: 9,
-          background: "#F2F5F9", border: "1px solid rgba(35,43,58,0.08)",
+          background: T.surface3, border: "1px solid rgba(35,43,58,0.08)",
           fontSize: 13, color: NAVY, outline: "none",
         }}>
           <option value="All">All Campaigns</option>
@@ -239,7 +240,7 @@ export default function CallsPage() {
       </div>
 
       <div style={{
-        background: "#FFFFFF", border: "1px solid rgba(35,43,58,0.08)",
+        background: T.surface1, border: "1px solid rgba(35,43,58,0.08)",
         borderRadius: 12, overflow: "hidden", boxShadow: "0 2px 8px rgba(35,43,58,0.04)",
       }}>
         {loading ? (
@@ -254,7 +255,7 @@ export default function CallsPage() {
         ) : (
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
-              <tr style={{ background: "#F2F5F9" }}>
+              <tr style={{ background: T.surface3 }}>
                 {["Date", "Agent", "Address", "Status", "Campaign", "Reason", "Actions"].map(h => (
                   <th key={h} style={{ padding: "12px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: SLATE, textTransform: "uppercase", letterSpacing: "0.05em" }}>
                     {h}
@@ -304,7 +305,7 @@ export default function CallsPage() {
                       <div style={{ display: "flex", gap: 6 }}>
                         <Link href={`/dashboard/leads/${lead.id}`} onClick={e => e.stopPropagation()} style={{
                           padding: "5px 10px", borderRadius: 7,
-                          background: "#F1F4F9", color: NAVY, border: "1px solid rgba(35,43,58,0.08)",
+                          background: T.surface3, color: NAVY, border: "1px solid rgba(35,43,58,0.08)",
                           fontSize: 11, fontWeight: 600, textDecoration: "none",
                           display: "flex", alignItems: "center", gap: 4,
                         }}>
@@ -312,7 +313,7 @@ export default function CallsPage() {
                         </Link>
                         <button onClick={(e) => { e.stopPropagation(); rerun(lead); }} disabled={rerunId === lead.id} style={{
                           padding: "5px 10px", borderRadius: 7,
-                          background: "#FFF", color: NAVY, border: "1px solid rgba(35,43,58,0.08)",
+                          background: T.surface1, color: NAVY, border: "1px solid rgba(35,43,58,0.08)",
                           fontSize: 11, fontWeight: 600, cursor: "pointer",
                           display: "flex", alignItems: "center", gap: 4,
                           opacity: rerunId === lead.id ? 0.5 : 1,

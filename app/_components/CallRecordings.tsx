@@ -10,8 +10,9 @@ import { supabase } from "@/lib/supabase";
 import { can, normalizeRole, type Role } from "@/lib/rbac";
 import { Upload, Play, Download, Loader2, Mic, Lock } from "lucide-react";
 
-const NAVY = "#232B3A";
-const SLATE = "#4B5563";
+import { T } from "@/app/_components/tokens";
+const NAVY = T.navy;
+const SLATE = T.slate;
 
 type Call = {
   id: string;
@@ -109,7 +110,7 @@ export function CallRecordings({ leadId }: { leadId: string }) {
   const canUpload = can(role, "calls.upload");
 
   return (
-    <div style={{ background: "#FFF", border: "1px solid rgba(35,43,58,0.08)", borderRadius: 14, padding: 20 }}>
+    <div style={{ background: T.surface1, border: "1px solid rgba(35,43,58,0.08)", borderRadius: 14, padding: 20 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, gap: 12 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <Mic size={16} color={NAVY} />
@@ -132,11 +133,11 @@ export function CallRecordings({ leadId }: { leadId: string }) {
       {loading ? (
         <p style={{ fontSize: 12, color: SLATE }}>Loading…</p>
       ) : calls.length === 0 ? (
-        <p style={{ fontSize: 12, color: "#94A3B8" }}>No secure recordings yet.</p>
+        <p style={{ fontSize: 12, color: T.text3 }}>No secure recordings yet.</p>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {calls.map((c) => (
-            <div key={c.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", borderRadius: 9, background: "#F2F5F9" }}>
+            <div key={c.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", borderRadius: 9, background: T.surface3 }}>
               <button onClick={() => play(c)} disabled={busyId === c.id} title="Play" style={{
                 width: 32, height: 32, borderRadius: "50%", flexShrink: 0, cursor: "pointer",
                 background: playingId === c.id ? "#2F6BFF" : NAVY, color: "#fff", border: "none",
@@ -153,12 +154,12 @@ export function CallRecordings({ leadId }: { leadId: string }) {
               {canDownload ? (
                 <button onClick={() => download(c)} disabled={busyId === c.id} title="Download" style={{
                   display: "inline-flex", alignItems: "center", gap: 5, padding: "6px 10px", borderRadius: 7, cursor: "pointer",
-                  background: "#FFF", color: NAVY, border: "1px solid rgba(35,43,58,0.12)", fontSize: 11, fontWeight: 700,
+                  background: T.surface1, color: NAVY, border: "1px solid rgba(35,43,58,0.12)", fontSize: 11, fontWeight: 700,
                 }}>
                   <Download size={12} /> Download
                 </button>
               ) : (
-                <span title="Your role can play but not download" style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, color: "#94A3B8" }}>
+                <span title="Your role can play but not download" style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, color: T.text3 }}>
                   <Lock size={11} /> Play-only
                 </span>
               )}

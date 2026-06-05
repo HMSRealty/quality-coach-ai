@@ -10,7 +10,8 @@ import {
   Zap, ArrowRight, RotateCcw, Loader2, ChevronDown,
 } from "lucide-react";
 
-const RED = "#2F6BFF";
+import { T } from "@/app/_components/tokens";
+const RED = T.teal;
 
 interface Lead {
   id: string;
@@ -80,7 +81,7 @@ const S_CFG: Record<string, { bg: string; color: string; dot: string }> = {
   Hot:          { bg: "#FBEEE8",  color: "#DC2626", dot: "#EF4444" },
   Warm:         { bg: "#FFF7ED",  color: "#EA580C", dot: "#F97316" },
   Cold:         { bg: "#EFF6FF",  color: "#2563EB", dot: "#3B82F6" },
-  Disqualified: { bg: "#F1F4F9",  color: "#4B5563", dot: "#94A3B8" },
+  Disqualified: { bg: "#F1F4F9",  color: T.slate, dot: "#94A3B8" },
   Duplicate:    { bg: "#FFFBEB",  color: "#D97706", dot: "#F59E0B" },
   Processing:   { bg: "#F5F3FF",  color: "#7C3AED", dot: "#8B5CF6" },
   Commercial:   { bg: "#F5F3FF",  color: "#7C3AED", dot: "#8B5CF6" },
@@ -234,11 +235,11 @@ export default function DashboardPage() {
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div>
-          <h1 style={{ fontSize: 22, fontWeight: 800, color: "#232B3A", marginBottom: 3 }}>
+          <h1 style={{ fontSize: 22, fontWeight: 800, color: T.text1, marginBottom: 3 }}>
             Good {new Date().getHours() < 12 ? "morning" : new Date().getHours() < 17 ? "afternoon" : "evening"},{" "}
             <span style={{ color: RED }}>{displayName || "there"}</span>
           </h1>
-          <p style={{ fontSize: 13, color: "#64748B" }}>Here's your call performance snapshot for today.</p>
+          <p style={{ fontSize: 13, color: T.slate2 }}>Here's your call performance snapshot for today.</p>
         </div>
         <Link href="/dashboard/analyze" style={{
           display: "inline-flex", alignItems: "center", gap: 7,
@@ -261,37 +262,37 @@ export default function DashboardPage() {
         <Card style={{ padding: "20px 20px" }} className="animate-up">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
             <div>
-              <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", color: "#94A3B8", textTransform: "uppercase", marginBottom: 10 }}>Total Calls</p>
-              <p style={{ fontSize: 34, fontWeight: 900, color: "#232B3A", lineHeight: 1 }}>{total}</p>
+              <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", color: T.text3, textTransform: "uppercase", marginBottom: 10 }}>Total Calls</p>
+              <p style={{ fontSize: 34, fontWeight: 900, color: T.text1, lineHeight: 1 }}>{total}</p>
             </div>
-            <div style={{ width: 36, height: 36, borderRadius: 10, background: "#F2F5F9", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: T.surface3, display: "flex", alignItems: "center", justifyContent: "center" }}>
               <PhoneCall size={16} color="#4B5563" />
             </div>
           </div>
           <MiniBars data={last7} color={RED} />
-          <p style={{ fontSize: 11, color: "#94A3B8", marginTop: 6 }}>Last 7 days</p>
+          <p style={{ fontSize: 11, color: T.text3, marginTop: 6 }}>Last 7 days</p>
         </Card>
 
         {/* Qual Rate */}
         <Card style={{ padding: "20px 20px" }} className="animate-up">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
             <div>
-              <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", color: "#94A3B8", textTransform: "uppercase", marginBottom: 10 }}>Qual. Rate</p>
+              <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", color: T.text3, textTransform: "uppercase", marginBottom: 10 }}>Qual. Rate</p>
               <p style={{ fontSize: 34, fontWeight: 900, color: "#059669", lineHeight: 1 }}>{qualRate}%</p>
             </div>
             <DonutRing value={qualRate} color="#059669" />
           </div>
           <Sparkline data={qualRateSpark} color="#059669" width={176} height={26} />
-          <p style={{ fontSize: 11, color: "#94A3B8", marginTop: 4 }}>{qualified} qualified of {total}</p>
+          <p style={{ fontSize: 11, color: T.text3, marginTop: 4 }}>{qualified} qualified of {total}</p>
         </Card>
 
         {/* Qualified */}
         <Card style={{ padding: "20px 20px" }} className="animate-up">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
             <div>
-              <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", color: "#94A3B8", textTransform: "uppercase", marginBottom: 10 }}>Qualified</p>
+              <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", color: T.text3, textTransform: "uppercase", marginBottom: 10 }}>Qualified</p>
               <p style={{ fontSize: 34, fontWeight: 900, color: "#059669", lineHeight: 1 }}>{qualified}</p>
-              <p style={{ fontSize: 11, color: "#94A3B8", marginTop: 8 }}>Hot leads identified</p>
+              <p style={{ fontSize: 11, color: T.text3, marginTop: 8 }}>Hot leads identified</p>
             </div>
             <div style={{ width: 36, height: 36, borderRadius: 10, background: "#ECFDF5", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <CheckCircle2 size={16} color="#059669" />
@@ -309,9 +310,9 @@ export default function DashboardPage() {
         <Card style={{ padding: "20px 20px" }} className="animate-up">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
             <div>
-              <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", color: "#94A3B8", textTransform: "uppercase", marginBottom: 10 }}>Disqualified</p>
+              <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", color: T.text3, textTransform: "uppercase", marginBottom: 10 }}>Disqualified</p>
               <p style={{ fontSize: 34, fontWeight: 900, color: RED, lineHeight: 1 }}>{disq}</p>
-              <p style={{ fontSize: 11, color: "#94A3B8", marginTop: 8 }}>Filtered automatically</p>
+              <p style={{ fontSize: 11, color: T.text3, marginTop: 8 }}>Filtered automatically</p>
             </div>
             <div style={{ width: 36, height: 36, borderRadius: 10, background: "#FBEEE8", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <XCircle size={16} color={RED} />
@@ -330,10 +331,10 @@ export default function DashboardPage() {
       <Card>
         <div style={{ padding: "18px 22px", borderBottom: "1px solid #F3F4F6", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
-            <p style={{ fontSize: 14, fontWeight: 700, color: "#232B3A" }}>Call Volume</p>
-            <p style={{ fontSize: 12, color: "#94A3B8", marginTop: 2 }}>Analyses over the last 7 days</p>
+            <p style={{ fontSize: 14, fontWeight: 700, color: T.text1 }}>Call Volume</p>
+            <p style={{ fontSize: 12, color: T.text3, marginTop: 2 }}>Analyses over the last 7 days</p>
           </div>
-          <span style={{ padding: "3px 10px", borderRadius: 999, background: "#F3F4F6", color: "#64748B", fontSize: 11, fontWeight: 600 }}>
+          <span style={{ padding: "3px 10px", borderRadius: 999, background: T.surface3, color: T.slate2, fontSize: 11, fontWeight: 600 }}>
             Last 7 days
           </span>
         </div>
@@ -360,7 +361,7 @@ export default function DashboardPage() {
             })}
           </div>
           {total === 0 && (
-            <p style={{ textAlign: "center", fontSize: 12, color: "#94A3B8", marginTop: 12 }}>
+            <p style={{ textAlign: "center", fontSize: 12, color: T.text3, marginTop: 12 }}>
               No calls yet. <Link href="/dashboard/analyze" style={{ color: RED, fontWeight: 600 }}>Analyze your first call →</Link>
             </p>
           )}
@@ -371,14 +372,14 @@ export default function DashboardPage() {
       <Card>
         <div style={{ padding: "16px 22px", borderBottom: "1px solid #F3F4F6", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
-            <p style={{ fontSize: 14, fontWeight: 700, color: "#232B3A" }}>Recent Calls</p>
-            <p style={{ fontSize: 12, color: "#94A3B8", marginTop: 2 }}>Latest results with inline status control</p>
+            <p style={{ fontSize: 14, fontWeight: 700, color: T.text1 }}>Recent Calls</p>
+            <p style={{ fontSize: 12, color: T.text3, marginTop: 2 }}>Latest results with inline status control</p>
           </div>
           <div style={{ display: "flex", gap: 8 }}>
             <button onClick={fetchData} style={{
               display: "flex", alignItems: "center", gap: 6, padding: "6px 12px",
               borderRadius: 9, background: "#F4EFE7", border: "1px solid #E5E7EB",
-              color: "#64748B", fontSize: 12, cursor: "pointer",
+              color: T.slate2, fontSize: 12, cursor: "pointer",
               transition: "all 120ms ease",
             }}
             onMouseEnter={e => e.currentTarget.style.background = "#F3F4F6"}
@@ -399,11 +400,11 @@ export default function DashboardPage() {
 
         {recent.length === 0 ? (
           <div style={{ padding: "56px 24px", textAlign: "center" }}>
-            <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#F3F4F6", margin: "0 auto 16px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ width: 48, height: 48, borderRadius: "50%", background: T.surface3, margin: "0 auto 16px", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <PhoneCall size={22} color="#94A3B8" />
             </div>
-            <p style={{ fontSize: 15, fontWeight: 700, color: "#232B3A", marginBottom: 6 }}>No calls analyzed yet</p>
-            <p style={{ fontSize: 13, color: "#64748B", marginBottom: 18 }}>Upload your first call recording to get instant quality scores.</p>
+            <p style={{ fontSize: 15, fontWeight: 700, color: T.text1, marginBottom: 6 }}>No calls analyzed yet</p>
+            <p style={{ fontSize: 13, color: T.slate2, marginBottom: 18 }}>Upload your first call recording to get instant quality scores.</p>
             <Link href="/dashboard/analyze" style={{
               display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 18px",
               borderRadius: 9, background: RED, color: "#fff", fontSize: 13, fontWeight: 700, textDecoration: "none",
@@ -415,9 +416,9 @@ export default function DashboardPage() {
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
-                <tr style={{ background: "#FAFAFA", borderBottom: "1px solid #F3F4F6" }}>
+                <tr style={{ background: T.surface3, borderBottom: "1px solid #F3F4F6" }}>
                   {["Date", "Campaign", "Status", "Address", "Price", "Reason", ""].map(h => (
-                    <th key={h} style={{ padding: "10px 16px", textAlign: "left", fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", color: "#94A3B8", textTransform: "uppercase", whiteSpace: "nowrap" }}>
+                    <th key={h} style={{ padding: "10px 16px", textAlign: "left", fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", color: T.text3, textTransform: "uppercase", whiteSpace: "nowrap" }}>
                       {h}
                     </th>
                   ))}
@@ -425,7 +426,7 @@ export default function DashboardPage() {
               </thead>
               <tbody>
                 {recent.map((lead, idx) => {
-                  const sc = S_CFG[lead.status] ?? { bg: "#F3F4F6", color: "#4B5563", dot: "#94A3B8" };
+                  const sc = S_CFG[lead.status] ?? { bg: "#F3F4F6", color: T.slate, dot: "#94A3B8" };
                   return (
                     <tr key={lead.id}
                       style={{ borderBottom: idx < recent.length - 1 ? "1px solid #F4EFE7" : "none", transition: "background 100ms", cursor: "pointer" }}
@@ -433,11 +434,11 @@ export default function DashboardPage() {
                       onMouseLeave={e => e.currentTarget.style.background = "transparent"}
                       onClick={() => setOpenLeadId(lead.id)}
                     >
-                      <td style={{ padding: "11px 16px", fontSize: 12, color: "#64748B", whiteSpace: "nowrap" }}>
+                      <td style={{ padding: "11px 16px", fontSize: 12, color: T.slate2, whiteSpace: "nowrap" }}>
                         {new Date(lead.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                       </td>
                       <td style={{ padding: "11px 16px" }}>
-                        <span style={{ padding: "2px 8px", borderRadius: 999, background: "#F3F4F6", color: "#4B5563", fontSize: 11, fontWeight: 500 }}>
+                        <span style={{ padding: "2px 8px", borderRadius: 999, background: T.surface3, color: T.slate, fontSize: 11, fontWeight: 500 }}>
                           {lead.campaigns?.name ?? "—"}
                         </span>
                       </td>
@@ -451,7 +452,7 @@ export default function DashboardPage() {
                               border: "none", cursor: "pointer",
                               background: sc.bg, color: sc.color,
                             }}>
-                            {STATUS_OPTS.map(s => <option key={s} value={s} style={{ background: "#fff", color: "#232B3A" }}>{s}</option>)}
+                            {STATUS_OPTS.map(s => <option key={s} value={s} style={{ background: T.surface1, color: T.text1 }}>{s}</option>)}
                           </select>
                           {updatingId === lead.id
                             ? <Loader2 size={9} className="animate-spin" style={{ position: "absolute", right: 5, top: "50%", transform: "translateY(-50%)", color: sc.color, pointerEvents: "none" }} />
@@ -459,11 +460,11 @@ export default function DashboardPage() {
                           }
                         </div>
                       </td>
-                      <td style={{ padding: "11px 16px", fontSize: 12, color: "#4B5563", maxWidth: 160 }} className="truncate">{lead.extracted_address ?? "—"}</td>
-                      <td style={{ padding: "11px 16px", fontSize: 12, color: "#4B5563", whiteSpace: "nowrap" }}>
+                      <td style={{ padding: "11px 16px", fontSize: 12, color: T.slate, maxWidth: 160 }} className="truncate">{lead.extracted_address ?? "—"}</td>
+                      <td style={{ padding: "11px 16px", fontSize: 12, color: T.slate, whiteSpace: "nowrap" }}>
                         {lead.asking_price ? `$${lead.asking_price.toLocaleString()}` : "—"}
                       </td>
-                      <td style={{ padding: "11px 16px", fontSize: 12, color: "#64748B", maxWidth: 220 }} className="truncate" title={lead.qualification_reason ?? ""}>
+                      <td style={{ padding: "11px 16px", fontSize: 12, color: T.slate2, maxWidth: 220 }} className="truncate" title={lead.qualification_reason ?? ""}>
                         {lead.qualification_reason ?? "—"}
                       </td>
                       <td style={{ padding: "11px 16px" }}>
@@ -472,7 +473,7 @@ export default function DashboardPage() {
                             display: "flex", alignItems: "center", gap: 4,
                             padding: "5px 10px", borderRadius: 7,
                             background: "none", border: "1px solid #E5E7EB",
-                            color: "#64748B", fontSize: 11, cursor: "pointer",
+                            color: T.slate2, fontSize: 11, cursor: "pointer",
                             opacity: rerunningId === lead.id ? 0.5 : 1,
                             transition: "all 120ms ease",
                           }}

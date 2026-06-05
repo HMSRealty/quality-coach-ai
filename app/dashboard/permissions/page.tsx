@@ -4,9 +4,10 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { Loader2, Search, Link2, Copy, Check, ExternalLink, Power } from "lucide-react";
 
-const NAVY = "#232B3A";
-const TEAL = "#2F6BFF";
-const SLATE = "#4B5563";
+import { T } from "@/app/_components/tokens";
+const NAVY = T.navy;
+const TEAL = T.teal;
+const SLATE = T.slate;
 
 interface UserRow {
   id: string;
@@ -136,17 +137,17 @@ export default function PermissionsPage() {
           placeholder="Search users by email..."
           style={{
             width: "100%", padding: "10px 12px 10px 36px", borderRadius: 10,
-            background: "#FFF", border: "1px solid rgba(35,43,58,0.10)",
+            background: T.surface1, border: "1px solid rgba(35,43,58,0.10)",
             fontSize: 13, color: NAVY, outline: "none",
           }}
         />
       </div>
 
       {/* Table */}
-      <div style={{ background: "#FFF", border: "1px solid rgba(35,43,58,0.08)", borderRadius: 14, overflow: "hidden" }}>
+      <div style={{ background: T.surface1, border: "1px solid rgba(35,43,58,0.08)", borderRadius: 14, overflow: "hidden" }}>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
-            <tr style={{ background: "#F2F5F9", borderBottom: "1px solid rgba(35,43,58,0.08)" }}>
+            <tr style={{ background: T.surface3, borderBottom: "1px solid rgba(35,43,58,0.08)" }}>
               {["User", "Role", "Form Link", "Form Active", "Can Receive Leads", "Allow Call Uploads"].map(h => (
                 <th key={h} style={{
                   padding: "12px 16px", textAlign: "left", fontSize: 11,
@@ -250,7 +251,7 @@ function Toggle({ on, onChange, busy }: { on: boolean; onChange: () => void; bus
     >
       <span style={{
         position: "absolute", top: 2, left: on ? 18 : 2,
-        width: 18, height: 18, borderRadius: "50%", background: "#FFF",
+        width: 18, height: 18, borderRadius: "50%", background: T.surface1,
         boxShadow: "0 2px 4px rgba(0,0,0,0.18)",
         transition: "left 280ms cubic-bezier(0.34, 1.56, 0.64, 1)",
       }} />

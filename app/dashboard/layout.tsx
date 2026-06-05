@@ -14,9 +14,10 @@ import {
   Headphones, Flag, Power, UserCog, Eye, Columns3,
 } from "lucide-react";
 
-const NAVY = "#232B3A";
-const TEAL = "#2F6BFF";
-const RED = NAVY;
+import { T } from "@/app/_components/tokens";
+const NAVY = T.navy;
+const TEAL = T.teal;
+const RED = T.navy;
 
 const NAV_PRIMARY = [
   { label: "Overview",     href: "/dashboard",           icon: LayoutDashboard },
@@ -126,21 +127,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         display: "flex", flexDirection: "column",
         position: "fixed", top: 0, left: 0, bottom: 0,
         zIndex: 40, overflowY: "auto",
-        boxShadow: "1px 0 0 #F3F4F6",
+        boxShadow: "1px 0 0 var(--border-1)",
       }}>
 
         {/* Logo */}
-        <Link href="/dashboard" style={{ padding: "20px 18px 16px", borderBottom: "1px solid #F3F4F6", display: "flex", alignItems: "center", gap: 12, textDecoration: "none" }}>
+        <Link href="/dashboard" style={{ padding: "20px 18px 16px", borderBottom: "1px solid var(--border-1)", display: "flex", alignItems: "center", gap: 12, textDecoration: "none" }}>
           <HSMIcon size={28} />
           <div>
             <p style={{ fontSize: 14, fontWeight: 800, color: NAVY, lineHeight: 1 }}>RealTrack</p>
-            <p style={{ fontSize: 10, color: "#94A3B8", marginTop: 2, fontWeight: 500 }}>Performance Suite</p>
+            <p style={{ fontSize: 10, color: T.text3, marginTop: 2, fontWeight: 500 }}>Performance Suite</p>
           </div>
         </Link>
 
         {/* Nav */}
         <div style={{ padding: "14px 10px 8px" }}>
-          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.10em", color: "#94A3B8", textTransform: "uppercase", padding: "0 10px", marginBottom: 6 }}>
+          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.10em", color: T.text3, textTransform: "uppercase", padding: "0 10px", marginBottom: 6 }}>
             Workspace
           </p>
           <nav style={{ display: "flex", flexDirection: "column", gap: 1 }}>
@@ -148,10 +149,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </nav>
         </div>
 
-        <div style={{ height: 1, background: "#F3F4F6", margin: "8px 18px" }} />
+        <div style={{ height: 1, background: "var(--border-1)", margin: "8px 18px" }} />
 
         <div style={{ padding: "14px 10px 8px" }}>
-          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.10em", color: "#94A3B8", textTransform: "uppercase", padding: "0 10px", marginBottom: 6 }}>
+          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.10em", color: T.text3, textTransform: "uppercase", padding: "0 10px", marginBottom: 6 }}>
             Team Management
           </p>
           <nav style={{ display: "flex", flexDirection: "column", gap: 1 }}>
@@ -159,7 +160,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </nav>
         </div>
 
-        <div style={{ height: 1, background: "#F3F4F6", margin: "8px 18px" }} />
+        <div style={{ height: 1, background: "var(--border-1)", margin: "8px 18px" }} />
 
         <div style={{ padding: "0 10px 8px" }}>
           <nav style={{ display: "flex", flexDirection: "column", gap: 1 }}>
@@ -188,7 +189,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div style={{ padding: "0 12px 10px" }}>
             <Link href="/landing#pricing" style={{
               display: "block", padding: "10px 12px", borderRadius: 10,
-              background: "#EEF1F6", border: `1px solid #D8DEE9`,
+              background: T.navyLight, border: `1px solid #D8DEE9`,
               textDecoration: "none",
               transition: "background 120ms",
             }}
@@ -196,7 +197,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             onMouseLeave={e => e.currentTarget.style.background = "#EEF1F6"}
             >
               <p style={{ fontSize: 11, fontWeight: 700, color: RED, marginBottom: 2 }}>Upgrade your plan</p>
-              <p style={{ fontSize: 10, color: "#94A3B8", display: "flex", alignItems: "center", gap: 3 }}>
+              <p style={{ fontSize: 10, color: T.text3, display: "flex", alignItems: "center", gap: 3 }}>
                 Unlock more analyses <ChevronRight size={9} />
               </p>
             </Link>
@@ -204,7 +205,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         )}
 
         {/* User */}
-        <div style={{ padding: "10px 10px 16px", borderTop: "1px solid #F3F4F6" }}>
+        <div style={{ padding: "10px 10px 16px", borderTop: "1px solid var(--border-1)" }}>
           <Link href="/dashboard/profile" style={{
             display: "flex", alignItems: "center", gap: 9,
             padding: "8px 10px", borderRadius: 10, textDecoration: "none",
@@ -215,12 +216,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           >
             <div style={{
               width: 30, height: 30, borderRadius: "50%", flexShrink: 0,
-              background: "#EEF1F6", border: `2px solid #D8DEE9`,
+              background: T.navyLight, border: `2px solid #D8DEE9`,
               display: "flex", alignItems: "center", justifyContent: "center",
               fontSize: 11, fontWeight: 800, color: RED,
             }}>{initials}</div>
             <div style={{ minWidth: 0 }}>
-              <p style={{ fontSize: 11, fontWeight: 700, color: "#232B3A", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: T.text1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {email || "Loading..."}
               </p>
               <p style={{ fontSize: 10, color: planColor, fontWeight: 600, textTransform: "capitalize", marginTop: 1 }}>
@@ -232,7 +233,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             display: "flex", alignItems: "center", gap: 8,
             padding: "8px 10px", borderRadius: 10, width: "100%",
             background: "none", border: "none", cursor: "pointer",
-            fontSize: 12, color: "#64748B", marginTop: 2,
+            fontSize: 12, color: T.slate2, marginTop: 2,
             transition: "all 120ms ease",
           }}
           onMouseEnter={e => { e.currentTarget.style.background = "#EEF1F6"; e.currentTarget.style.color = RED; }}
@@ -249,7 +250,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {actingAs && (
           <div style={{
             display: "flex", alignItems: "center", justifyContent: "center", gap: 14,
-            padding: "8px 16px", background: "#F59E0B", color: "#232B3A",
+            padding: "8px 16px", background: "#F59E0B", color: T.text1,
             fontSize: 13, fontWeight: 700, position: "sticky", top: 0, zIndex: 50,
           }}>
             <Eye size={14} /> You are acting as <strong>{actingAs}</strong>
@@ -270,9 +271,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
         }}>
           <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 6 }}>
-            <span style={{ fontSize: 12, color: "#94A3B8" }}>Workspace</span>
+            <span style={{ fontSize: 12, color: T.text3 }}>Workspace</span>
             <ChevronRight size={12} color="#D1D5DB" />
-            <span style={{ fontSize: 12, fontWeight: 600, color: "#4B5563", textTransform: "capitalize" }}>
+            <span style={{ fontSize: 12, fontWeight: 600, color: T.slate, textTransform: "capitalize" }}>
               {pathname.split("/").pop()?.replace(/-/g, " ") || "overview"}
             </span>
           </div>
@@ -280,19 +281,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <HelpButton />
           <button style={{
             width: 32, height: 32, borderRadius: 9,
-            background: "#F4EFE7", border: "1px solid #E5E7EB",
+            background: T.surface3, border: "1px solid #E5E7EB",
             display: "flex", alignItems: "center", justifyContent: "center",
-            cursor: "pointer", color: "#64748B",
+            cursor: "pointer", color: T.slate2,
             transition: "all 120ms ease",
           }}
-          onMouseEnter={e => { e.currentTarget.style.background = "#F3F4F6"; e.currentTarget.style.color = "#232B3A"; }}
+          onMouseEnter={e => { e.currentTarget.style.background = "var(--border-1)"; e.currentTarget.style.color = "#232B3A"; }}
           onMouseLeave={e => { e.currentTarget.style.background = "#F4EFE7"; e.currentTarget.style.color = "#64748B"; }}
           >
             <Bell size={15} />
           </button>
           <Link href="/dashboard/profile" style={{
             width: 30, height: 30, borderRadius: "50%",
-            background: "#EEF1F6", border: `2px solid #D8DEE9`,
+            background: T.navyLight, border: `2px solid #D8DEE9`,
             display: "flex", alignItems: "center", justifyContent: "center",
             fontSize: 11, fontWeight: 800, color: RED,
             transition: "transform 120ms ease",

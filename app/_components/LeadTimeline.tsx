@@ -9,8 +9,9 @@ import {
   Home, StickyNote, UserCog, CalendarClock,
 } from "lucide-react";
 
-const NAVY = "#232B3A";
-const SLATE = "#4B5563";
+import { T } from "@/app/_components/tokens";
+const NAVY = T.navy;
+const SLATE = T.slate;
 
 type Evt = {
   id: string;
@@ -54,7 +55,7 @@ export function LeadTimeline({ leadId }: { leadId: string }) {
   if (unavailable) return null; // table not present yet (pre-migration) — hide quietly
 
   return (
-    <div style={{ background: "#FFF", border: "1px solid rgba(35,43,58,0.08)", borderRadius: 14, padding: 20 }}>
+    <div style={{ background: T.surface1, border: "1px solid rgba(35,43,58,0.08)", borderRadius: 14, padding: 20 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
         <Clock size={16} color={NAVY} />
         <h3 style={{ fontSize: 14, fontWeight: 800, color: NAVY }}>Activity Timeline</h3>
@@ -63,7 +64,7 @@ export function LeadTimeline({ leadId }: { leadId: string }) {
       {loading ? (
         <p style={{ fontSize: 12, color: SLATE }}>Loading…</p>
       ) : events.length === 0 ? (
-        <p style={{ fontSize: 12, color: "#94A3B8" }}>No activity recorded yet.</p>
+        <p style={{ fontSize: 12, color: T.text3 }}>No activity recorded yet.</p>
       ) : (
         <div style={{ display: "flex", flexDirection: "column" }}>
           {events.map((e, i) => {
@@ -80,7 +81,7 @@ export function LeadTimeline({ leadId }: { leadId: string }) {
                 </div>
                 <div style={{ paddingBottom: last ? 0 : 16, flex: 1 }}>
                   <p style={{ fontSize: 13, fontWeight: 600, color: NAVY, lineHeight: 1.4 }}>{m.label(e.payload || {})}</p>
-                  <p style={{ fontSize: 11, color: "#94A3B8", marginTop: 2 }}>
+                  <p style={{ fontSize: 11, color: T.text3, marginTop: 2 }}>
                     {new Date(e.created_at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
                   </p>
                 </div>

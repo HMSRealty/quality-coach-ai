@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Space_Grotesk } from "next/font/google";
+import { SmoothScroll } from "@/app/_components/SmoothScroll";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -43,7 +44,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable}`}
       suppressHydrationWarning
     >
-      <body>{children}</body>
+      <body>
+        <SmoothScroll />
+        {children}
+      </body>
     </html>
   );
 }

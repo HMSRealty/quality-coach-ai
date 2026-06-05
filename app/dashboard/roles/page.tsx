@@ -7,8 +7,9 @@ import { supabase } from "@/lib/supabase";
 import { can, normalizeRole, ROLE_LABELS, type Role, type Permission } from "@/lib/rbac";
 import { Check, Minus, ShieldCheck } from "lucide-react";
 
-const NAVY = "#232B3A";
-const SLATE = "#4B5563";
+import { T } from "@/app/_components/tokens";
+const NAVY = T.navy;
+const SLATE = T.slate;
 
 const ROLES: Role[] = ["owner", "admin", "qa", "team_leader", "trainer", "caller"];
 const PERMS: { key: Permission; label: string; group: string }[] = [
@@ -45,11 +46,11 @@ export default function RolesPage() {
         </p>
       </div>
 
-      <div style={{ background: "#FFF", border: "1px solid rgba(35,43,58,0.08)", borderRadius: 14, overflow: "hidden", boxShadow: "0 1px 3px rgba(35,43,58,0.04)" }}>
+      <div style={{ background: T.surface1, border: "1px solid rgba(35,43,58,0.08)", borderRadius: 14, overflow: "hidden", boxShadow: "0 1px 3px rgba(35,43,58,0.04)" }}>
         <div style={{ overflowX: "auto" }}>
           <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 720 }}>
             <thead>
-              <tr style={{ background: "#F2F5F9" }}>
+              <tr style={{ background: T.surface3 }}>
                 <th style={{ textAlign: "left", padding: "12px 16px", fontSize: 11, fontWeight: 700, color: SLATE, textTransform: "uppercase", letterSpacing: "0.05em" }}>Permission</th>
                 {ROLES.map((r) => (
                   <th key={r} style={{ padding: "12px 10px", fontSize: 11, fontWeight: 800, color: r === myRole ? "#2F6BFF" : NAVY, textAlign: "center" }}>
@@ -64,7 +65,7 @@ export default function RolesPage() {
                 return (
                   <tr key={p.key} style={{ borderTop: groupStart ? "2px solid rgba(35,43,58,0.08)" : "1px solid rgba(35,43,58,0.04)" }}>
                     <td style={{ padding: "11px 16px", fontSize: 13, color: NAVY }}>
-                      {groupStart && <span style={{ display: "block", fontSize: 10, fontWeight: 800, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 3 }}>{p.group}</span>}
+                      {groupStart && <span style={{ display: "block", fontSize: 10, fontWeight: 800, color: T.text3, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 3 }}>{p.group}</span>}
                       {p.label}
                     </td>
                     {ROLES.map((r) => {
