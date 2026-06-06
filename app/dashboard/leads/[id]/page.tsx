@@ -114,30 +114,23 @@ export default function LeadDetailPage() {
     for (const f of files) if (f.size > 500 * 1024 * 1024) return alert("Each file must be under 500MB");
 
     setUploading(true);
-    const { data: { user } } = await supabase.auth.getUser();
-    const uploaderId = user?.id || lead.user_id;
-    const uploadedUrls: string[] = [];
-    for (const file of files) {
-      const ext = file.name.split(".").pop();
-      const path = `${uploaderId}/${lead.id}/${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
-      const { error: upErr } = await supabase.storage.from("call-uploads").upload(path, file);
-      if (upErr) { alert(`Upload failed (${file.name}): ` + upErr.message); continue; }
-      const { data: pub } = supabase.storage.from("call-uploads").getPublicUrl(path);
-      uploadedUrls.push(pub.publicUrl);
-      await supabase.from("call_uploads").insert({
-        lead_id: lead.id, user_id: lead.user_id,
-        file_name: file.name, file_path: path,
-        file_size_bytes: file.size, storage_url: pub.publicUrl, status: "uploaded",
-      });
+    // Upload through the server (service role) so it works even when the
+    // current user isn't the lead owner — storage RLS would otherwise block it.
+    const { data: { session } } = await supabase.auth.getSession();
+    const fd = new FormData();
+    for (const f of files) fd.append("files", f);
+    const upRes = await fetch(`/api/leads/${lead.id}/upload`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${session?.access_token}` },
+      body: fd,
+    });
+    const upJson = await upRes.json().catch(() => ({}));
+    if (!upRes.ok || !upJson.ok) {
+      alert("Upload failed: " + (upJson.error || "unknown"));
+      setUploading(false);
+      return;
     }
-    if (!uploadedUrls.length) { setUploading(false); return; }
-
-    // Latest URL kept on the lead for backward compat; full list passed to analyze.
-    await supabase.from("leads").update({
-      call_recording_url: uploadedUrls[uploadedUrls.length - 1],
-      audio_size_bytes: files.reduce((s, f) => s + f.size, 0),
-      status: "Processing",
-    }).eq("id", lead.id);
+    const uploadedUrls: string[] = upJson.urls || [];
 
     await fetch("/api/leads/analyze", {
       method: "POST",
