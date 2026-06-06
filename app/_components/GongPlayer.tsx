@@ -30,8 +30,12 @@ function fakeBars(url: string, count = 96): number[] {
   return out;
 }
 
-export function GongPlayer({ src, downloadUrl, title, leadId }: { src: string; downloadUrl?: string; title?: string; leadId?: string }) {
+export function GongPlayer({ src: srcProp, recordingId, downloadUrl, title, leadId }: { src?: string; recordingId?: string; downloadUrl?: string; title?: string; leadId?: string }) {
   const audioRef = useRef<HTMLAudioElement>(null);
+  // Resolve a playable URL: signed URL via recordingId (private bucket) or a
+  // legacy direct src.
+  const [src, setSrc] = useState<string>(srcProp || "");
+  const [resolving, setResolving] = useState<boolean>(!!recordingId && !srcProp);
   const [playing, setPlaying] = useState(false);
   const [t, setT] = useState(0);
   const [dur, setDur] = useState(0);
@@ -41,7 +45,36 @@ export function GongPlayer({ src, downloadUrl, title, leadId }: { src: string; d
   const [snipEnd, setSnipEnd] = useState<number | null>(null);
   const [sharing, setSharing] = useState(false);
   const [shared, setShared] = useState(false);
-  const bars = fakeBars(src);
+  const bars = fakeBars(recordingId || src || "wave");
+
+  // Resolve a signed play URL from the private bucket when given a recordingId.
+  useEffect(() => {
+    if (!recordingId || srcProp) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const r = await fetch(`/api/recordings/${recordingId}/url?mode=play`, {
+          headers: { Authorization: `Bearer ${session?.access_token}` },
+        });
+        const j = await r.json().catch(() => ({}));
+        if (!cancelled && j.url) setSrc(j.url);
+      } finally { if (!cancelled) setResolving(false); }
+    })();
+    return () => { cancelled = true; };
+  }, [recordingId, srcProp]);
+
+  const downloadSigned = async () => {
+    if (downloadUrl) { window.location.href = downloadUrl; return; }
+    if (!recordingId) return;
+    const { data: { session } } = await supabase.auth.getSession();
+    const r = await fetch(`/api/recordings/${recordingId}/url?mode=download`, {
+      headers: { Authorization: `Bearer ${session?.access_token}` },
+    });
+    const j = await r.json().catch(() => ({}));
+    if (j.url) window.location.href = j.url;
+    else alert(j.error || "Download not permitted");
+  };
 
   const markIn = () => setSnipStart(t);
   const markOut = () => setSnipEnd(t);
@@ -109,17 +142,18 @@ export function GongPlayer({ src, downloadUrl, title, leadId }: { src: string; d
       borderRadius: 20, padding: 22, boxShadow: "var(--shadow-md)",
       display: "flex", flexDirection: "column", gap: 14,
     }}>
-      <audio ref={audioRef} src={src} preload="metadata" />
+      <audio ref={audioRef} src={src || undefined} preload="metadata" />
       {title && (
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <p style={{ fontSize: 13, fontWeight: 700, color: "var(--text-1)" }}>{title}</p>
-          {downloadUrl && (
-            <a href={downloadUrl} download className="btn-ghost" style={{ textDecoration: "none", fontSize: 12 }}>
+          {(recordingId || downloadUrl) && (
+            <button onClick={downloadSigned} className="btn-ghost" style={{ fontSize: 12 }}>
               <Download size={12} /> Download
-            </a>
+            </button>
           )}
         </div>
       )}
+      {resolving && <p style={{ fontSize: 11, color: "var(--text-3)" }}>Preparing secure stream…</p>}
 
       {/* Waveform / progress */}
       <div onClick={seek}

@@ -251,28 +251,8 @@ export default function DynamicSubmitPage() {
       if (!insertRes.ok || !insertJson.ok) throw new Error(insertJson.error || "Submission failed");
       const lead = { id: insertJson.leadId as string };
 
-      // Best-effort: store EVERY recording in the call_uploads bucket for the library.
-      if (callFiles.length && owner.allow_call_uploads) {
-        setStatusMsg(`Uploading ${callFiles.length} recording${callFiles.length > 1 ? "s" : ""}…`);
-        let lastUrl = ""; let totalSize = 0;
-        for (const f of callFiles) {
-          const ext = f.name.split(".").pop();
-          const path = `${owner.user_id}/${lead.id}/${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
-          const { error: upErr } = await supabase.storage.from("call-uploads").upload(path, f);
-          if (upErr) continue;
-          const { data: pub } = supabase.storage.from("call-uploads").getPublicUrl(path);
-          lastUrl = pub.publicUrl; totalSize += f.size;
-          await supabase.from("call_uploads").insert({
-            lead_id: lead.id, user_id: owner.user_id,
-            file_name: f.name, file_path: path,
-            file_size_bytes: f.size, storage_url: pub.publicUrl, status: "uploaded",
-          });
-        }
-        if (lastUrl) {
-          await supabase.from("leads").update({ call_recording_url: lastUrl, audio_size_bytes: totalSize }).eq("id", lead.id);
-        }
-      }
-
+      // The recordings are sent straight to the analyzer below (multipart), which
+      // persists them to the PRIVATE call-recordings bucket — no public URL.
       setStatusMsg(callFiles.length ? `Reviewing ${callFiles.length} recording${callFiles.length > 1 ? "s" : ""} & verifying the lead…` : "Verifying the lead…");
 
       // Send EVERY audio directly to the analyzer (multipart "files[]") so the

@@ -85,6 +85,7 @@ interface QualJSON {
   // Rehab
   repairs_mentioned?: string[];
   rehab_cost_estimate?: number;
+  transcript?: string;
   regeneration_steps?: string;
   call_summary?: string;
   is_qualified?: boolean;
@@ -209,6 +210,10 @@ How soon they can sell (closing): [..]
 Asking Price: [..]
 Market Value mentioned: [..]
 
+TRANSCRIPT: Produce a clean, diarized transcript of the ENTIRE call (all recordings) in the
+'transcript' field. Format each line as "Agent:" or "Seller:" prefixed, with a [MM:SS] timestamp.
+This transcript is stored and reused for cheaper re-grading, so make it complete and accurate.
+
 CALL SUMMARY: Write a clear 3-5 sentence plain-English narrative of what happened on the call —
 who spoke, what the seller said about the property and their situation, key objections or signals,
 and how it ended. Assign to the call_summary field. No jargon.
@@ -275,7 +280,7 @@ async function runQualification(
   files: Array<{ uri: string; mime: string }>,
   customRules: string,
   key: string,
-  ctx?: { orgPersona?: string | null; orgKillers?: Array<{ id: string; label: string; rule: string; enabled?: boolean }> | null; marketValue?: number | null; propertyAddress?: string | null },
+  ctx?: { orgPersona?: string | null; orgKillers?: Array<{ id: string; label: string; rule: string; enabled?: boolean }> | null; marketValue?: number | null; propertyAddress?: string | null; transcriptText?: string | null },
 ): Promise<QualJSON> {
   const systemText = buildSystemPrompt({
     orgPersona: ctx?.orgPersona,
@@ -284,14 +289,18 @@ async function runQualification(
     propertyAddress: ctx?.propertyAddress,
     customRules,
   });
-  // Build the multimodal parts: one preamble text + every audio file. Gemini
-  // listens to them all in order and treats them as one continuous QA target.
-  const userParts: Array<Record<string, unknown>> = [
-    { text: files.length > 1
-        ? `Analyze ALL ${files.length} call recordings attached below as one combined session. Extract everything from the audio. Do not invent details not spoken.`
-        : "Analyze this call recording only. Extract everything from the audio. Do not invent details not spoken." },
-  ];
-  for (const f of files) userParts.push({ file_data: { mime_type: f.mime, file_uri: f.uri } });
+  // Two input modes:
+  //   • AUDIO  — attach every recording (full analysis, also produces transcript)
+  //   • TEXT   — re-grade a stored transcript with no audio (cheap re-run)
+  const userParts: Array<Record<string, unknown>> = [];
+  if (files.length === 0 && ctx?.transcriptText) {
+    userParts.push({ text: "Re-grade this lead from the diarized call TRANSCRIPT below. Apply the same rules. Echo the transcript back in the `transcript` field unchanged.\n\nTRANSCRIPT:\n" + ctx.transcriptText });
+  } else {
+    userParts.push({ text: files.length > 1
+      ? `Analyze ALL ${files.length} call recordings attached below as one combined session. Extract everything from the audio. Do not invent details not spoken.`
+      : "Analyze this call recording only. Extract everything from the audio. Do not invent details not spoken." });
+    for (const f of files) userParts.push({ file_data: { mime_type: f.mime, file_uri: f.uri } });
+  }
 
   const payload = {
     systemInstruction: { parts: [{ text: systemText }] },
@@ -333,6 +342,7 @@ async function runQualification(
           primary_objection: { type: "STRING" }, objection_quote: { type: "STRING" },
           repairs_mentioned: { type: "ARRAY", items: { type: "STRING" } },
           rehab_cost_estimate: { type: "NUMBER" },
+          transcript: { type: "STRING" },
         },
         required: ["raw_extracted_address", "is_decision_maker", "is_commercial", "is_spanish_speaker",
           "spoken_asking_price", "spoken_market_value", "is_qualified", "qualification_reason",
@@ -524,6 +534,24 @@ export async function POST(req: Request): Promise<Response> {
     // Resolve audio inputs — many files (multipart) or many URLs (JSON) or single legacy URL.
     let inputs: Array<{ bytes: ArrayBuffer; mime: string; size: number }> = [...directFiles];
     const urlList = [...audioUrls, ...(audioUrl ? [audioUrl] : []), ...((!audioUrls.length && !audioUrl && lead.call_recording_url) ? [lead.call_recording_url] : [])];
+
+    // Re-run with no explicit audio + no stored transcript → pull this lead's
+    // own recordings from the private bucket (signed) so we can still analyze.
+    const hasTranscriptAlready = typeof lead.transcript === "string" && lead.transcript.trim().length > 40;
+    if (directFiles.length === 0 && urlList.length === 0 && !hasTranscriptAlready) {
+      const { data: recs } = await sa.from("call_uploads")
+        .select("file_path, bucket, storage_url").eq("lead_id", lead.id)
+        .order("created_at", { ascending: false }).limit(MAX_ANALYZE_FILES);
+      for (const rec of (recs || []) as { file_path: string | null; bucket: string | null; storage_url: string | null }[]) {
+        if (rec.file_path) {
+          const { data: s } = await sa.storage.from(rec.bucket || "call-recordings").createSignedUrl(rec.file_path, 600);
+          if (s?.signedUrl) urlList.push(s.signedUrl);
+        } else if (rec.storage_url) {
+          urlList.push(rec.storage_url);
+        }
+      }
+    }
+
     for (const url of urlList) {
       try {
         const resp = await fetch(url);
@@ -545,8 +573,10 @@ export async function POST(req: Request): Promise<Response> {
     }
     const totalSize = inputs.reduce((s, i) => s + i.size, 0);
 
-    // No call → can't run the engine; flag for callback
-    if (inputs.length === 0) {
+    // No new audio: if we have a stored transcript, re-grade from TEXT (cheap —
+    // Pillar 2). Otherwise flag for callback.
+    const savedTranscript = typeof lead.transcript === "string" && lead.transcript.trim().length > 40 ? lead.transcript : null;
+    if (inputs.length === 0 && !savedTranscript) {
       await sa.from("leads").update({
         status: "Call Back",
         qualification_reason: "No call recording attached — cannot verify. Upload the recording to run the review.",
@@ -555,14 +585,36 @@ export async function POST(req: Request): Promise<Response> {
       }).eq("id", lead.id);
       return jsonRes({ ok: true, status: "Call Back", reason: "no_audio" });
     }
+    const textOnly = inputs.length === 0 && !!savedTranscript;
 
-    // Audio too short (single-file case only — for multi-file, sum is the gate)
-    if (totalSize < MIN_FILE_SIZE_BYTES) {
+    // Audio too short (skip when re-grading from a stored transcript).
+    if (!textOnly && totalSize < MIN_FILE_SIZE_BYTES) {
       await sa.from("leads").update({
         status: "Disqualified", rejection_reason: `Audio too short to evaluate (${totalSize}B).`,
         audio_size_bytes: totalSize, ai_processed_at: new Date().toISOString(),
       }).eq("id", lead.id);
       return jsonRes({ ok: true, status: "Disqualified", reason: "audio_too_short" });
+    }
+
+    // Persist any DIRECTLY-uploaded files (public submission form sends bytes
+    // here) into the PRIVATE call-recordings bucket so they're playable later
+    // via signed URLs. URL-sourced inputs are already stored by the uploader.
+    if (directFiles.length) {
+      const folder = lead.organization_id || lead.user_id || "org";
+      for (const df of directFiles) {
+        try {
+          const ext = (df.mime.split("/")[1] || "mp3").replace("mpeg", "mp3").replace("x-m4a", "m4a");
+          const path = `${folder}/${lead.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+          const { error: upErr } = await sa.storage.from("call-recordings").upload(path, df.bytes, { contentType: df.mime });
+          if (!upErr) {
+            await sa.from("call_uploads").insert({
+              lead_id: lead.id, user_id: lead.user_id,
+              file_name: `recording.${ext}`, file_path: path, bucket: "call-recordings",
+              file_size_bytes: df.size, storage_url: null, status: "uploaded",
+            });
+          }
+        } catch { /* best-effort persistence */ }
+      }
     }
 
     // Campaign rules
@@ -595,29 +647,40 @@ export async function POST(req: Request): Promise<Response> {
       (zillowData?.address as string | undefined) ?? lead.extracted_address ?? null;
 
     const key = geminiKey();
-    // Upload EVERY attached call to Gemini so the AI hears them all.
+    // Upload EVERY attached call to Gemini so the AI hears them all (audio mode).
     const ups: Array<{ uri: string; mime: string }> = [];
-    for (const inp of inputs) {
-      try { ups.push(await uploadToGemini(inp.bytes, inp.mime || "audio/mpeg", key)); }
-      catch { /* skip one bad file */ }
+    if (!textOnly) {
+      for (const inp of inputs) {
+        try { ups.push(await uploadToGemini(inp.bytes, inp.mime || "audio/mpeg", key)); }
+        catch { /* skip one bad file */ }
+      }
+      if (ups.length === 0) throw new Error("All audio uploads to the AI failed");
     }
-    if (ups.length === 0) throw new Error("All audio uploads to the AI failed");
 
-    // Two-pass: qualification + coaching
+    // Qualification — audio mode or cheap text re-grade from the saved transcript.
     const q = await runQualification(ups, rules, key, {
       orgPersona, orgKillers, marketValue, propertyAddress: resolvedAddress,
+      transcriptText: textOnly ? savedTranscript : null,
     });
-    let coaching = "No feedback.";
-    try { coaching = await runCoaching(ups[0].uri, ups[0].mime, key); } catch { /* coaching is best-effort */ }
+    // Coaching only runs in audio mode (needs the recording). On text re-runs we
+    // keep the previously-saved coaching.
+    let coaching = textOnly ? safeStr((lead.metadata as { ai_feedback?: string } | null)?.ai_feedback) || safeStr(lead.ai_feedback) || "No feedback." : "No feedback.";
+    if (!textOnly) {
+      try { coaching = await runCoaching(ups[0].uri, ups[0].mime, key); } catch { /* coaching is best-effort */ }
+    }
 
     const { status, reason, regeneration } = decide(q, marketValue);
     const coachingArr = coaching.split(/\n+/).map(s => s.trim()).filter(Boolean);
+
+    // Keep the transcript: fresh one from audio mode, else preserve the saved one.
+    const transcriptToStore = !textOnly && safeStr(q.transcript) ? safeStr(q.transcript) : (savedTranscript ?? null);
 
     await sa.from("leads").update({
       status,
       qualification_reason: reason,
       ai_feedback: coaching,
       ai_coaching_points: coachingArr,
+      transcript: transcriptToStore,
       ai_status_reason: safeStr(q.exact_reason_quote) || reason,
       ai_model: MODEL,
       ai_processed_at: new Date().toISOString(),

@@ -56,40 +56,43 @@ export async function POST(
     const files = [...form.getAll("files"), ...form.getAll("file")].filter((f): f is File => typeof f !== "string");
     if (files.length === 0) return Response.json({ ok: false, error: "No files provided" }, { status: 400 });
 
-    const urls: string[] = [];
+    // Upload to the PRIVATE call-recordings bucket. Return short-lived signed
+    // URLs (1h) so the analyzer can fetch them — no public URL is ever created.
+    const BUCKET = "call-recordings";
+    const orgFolder = lead.organization_id || lead.user_id || uploaderId || "org";
+    const signedUrls: string[] = [];
     let totalSize = 0;
     for (const f of files) {
       if (f.size > 500 * 1024 * 1024) continue;
       const ext = (f.name.split(".").pop() || "mp3").toLowerCase();
-      const path = `${lead.user_id || uploaderId || "org"}/${id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const path = `${orgFolder}/${id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
       const bytes = await f.arrayBuffer();
-      const { error: upErr } = await sb.storage.from("call-uploads").upload(path, bytes, {
+      const { error: upErr } = await sb.storage.from(BUCKET).upload(path, bytes, {
         contentType: f.type || "audio/mpeg",
         upsert: false,
       });
       if (upErr) continue;
-      const { data: pub } = sb.storage.from("call-uploads").getPublicUrl(path);
-      urls.push(pub.publicUrl);
+      const { data: signed } = await sb.storage.from(BUCKET).createSignedUrl(path, 3600);
+      if (signed?.signedUrl) signedUrls.push(signed.signedUrl);
       totalSize += f.size;
       await sb.from("call_uploads").insert({
         lead_id: id, user_id: lead.user_id,
-        file_name: f.name, file_path: path,
-        file_size_bytes: f.size, storage_url: pub.publicUrl, status: "uploaded",
+        file_name: f.name, file_path: path, bucket: BUCKET,
+        file_size_bytes: f.size, storage_url: null, status: "uploaded",
         uploaded_by: uploaderId,
       });
     }
 
-    if (urls.length === 0) {
-      return Response.json({ ok: false, error: "All uploads failed (check the call-uploads bucket exists)" }, { status: 500 });
+    if (signedUrls.length === 0) {
+      return Response.json({ ok: false, error: "All uploads failed (is the call-recordings bucket created?)" }, { status: 500 });
     }
 
     await sb.from("leads").update({
-      call_recording_url: urls[urls.length - 1],
       audio_size_bytes: totalSize,
       status: "Processing",
     }).eq("id", id);
 
-    return Response.json({ ok: true, urls });
+    return Response.json({ ok: true, urls: signedUrls });
   } catch (e) {
     return Response.json({ ok: false, error: e instanceof Error ? e.message : "Server error" }, { status: 500 });
   }

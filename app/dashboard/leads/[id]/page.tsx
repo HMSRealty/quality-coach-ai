@@ -71,7 +71,7 @@ export default function LeadDetailPage() {
   const id = params?.id as string;
 
   const [lead, setLead] = useState<Lead | null>(null);
-  const [recordings, setRecordings] = useState<Array<{ id: string; file_name: string | null; storage_url: string; file_size_bytes: number | null; created_at: string }>>([]);
+  const [recordings, setRecordings] = useState<Array<{ id: string; file_name: string | null; storage_url: string | null; file_size_bytes: number | null; created_at: string }>>([]);
   const [loading, setLoading] = useState(true);
   const [reanalyzing, setReanalyzing] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -443,8 +443,8 @@ export default function LeadDetailPage() {
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             {recordings.map((rec, i) => (
               <GongPlayer key={rec.id}
-                src={rec.storage_url}
-                downloadUrl={rec.storage_url}
+                recordingId={rec.id}
+                src={rec.storage_url || undefined}
                 leadId={lead.id}
                 title={`Recording ${i + 1}${rec.file_name ? " · " + rec.file_name : ""}`}
               />
