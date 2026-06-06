@@ -62,6 +62,7 @@ export function AddressAutocomplete({ value, onChange, placeholder, required, st
     if (!key || !inputRef.current) return;
     let ac: GMAutocomplete | null = null;
     let cancelled = false;
+    let observer: MutationObserver | null = null;
     (async () => {
       try {
         await loadPlaces(key);
@@ -76,7 +77,21 @@ export function AddressAutocomplete({ value, onChange, placeholder, required, st
           const p = ac?.getPlace();
           if (p?.formatted_address) onChange(p.formatted_address);
         });
-        setStatus("ready");
+        // Google may post-hoc add the .gm-err-autocomplete class + disable
+        // the input if it rejects the key. Watch for that.
+        const el = inputRef.current;
+        const checkErr = () => {
+          if (el.classList.contains("gm-err-autocomplete") || el.disabled) {
+            setStatus("auth-failure");
+            el.disabled = false; // re-enable so user can keep typing
+            el.placeholder = placeholder || "";
+          } else {
+            setStatus((s) => s === "auth-failure" ? s : "ready");
+          }
+        };
+        checkErr();
+        observer = new MutationObserver(checkErr);
+        observer.observe(el, { attributes: true, attributeFilter: ["class", "disabled", "placeholder"] });
       } catch (e) {
         const msg = e instanceof Error ? e.message : "places-script-blocked";
         if (msg === "places-auth-failure") setStatus("auth-failure");
@@ -85,7 +100,7 @@ export function AddressAutocomplete({ value, onChange, placeholder, required, st
         else setStatus("blocked");
       }
     })();
-    return () => { cancelled = true; };
+    return () => { cancelled = true; observer?.disconnect(); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
 

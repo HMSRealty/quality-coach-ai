@@ -315,6 +315,15 @@ input::-webkit-credentials-auto-fill-button {
   pointer-events: none; height: 0; width: 0; margin: 0;
 }
 
+/* Google Maps auth-error state. If the API key is rejected Google tiles a
+   gray exclamation PNG as the input's background AND disables it. Strip it. */
+input.gm-err-autocomplete,
+input.pac-target-input.gm-err-autocomplete {
+  background-image: none !important;
+  background: var(--surface-3) !important;
+  cursor: text !important;
+}
+
 /* ── Google Places Autocomplete dropdown ─────────────────────────────
    By default Google injects raw .pac-container markup with hard-coded
    styles + a gray pin icon that doesn't belong in our UI. Override. */
