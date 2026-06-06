@@ -22,13 +22,27 @@ export const T = {
   surface5: "var(--surface-5)",
 
   // ── Brand ──
-  navy:      "var(--navy)",       // primary action / headings
+  navy:      "var(--navy)",       // legacy alias → midnight
   navy2:     "var(--navy-2)",
   navy3:     "var(--navy-3)",
   navyLight: "var(--navy-light)",
-  teal:      "var(--teal)",       // accent
-  teal2:     "var(--teal-2)",
-  tealLight: "var(--teal-light)",
+  midnight:  "var(--midnight)",   // sidebar / dark chrome base
+  midnight2: "var(--midnight-2)",
+  midnight3: "var(--midnight-3)",
+  midnightLine: "var(--midnight-line)",
+  magenta:   "var(--magenta)",    // primary accent (Gong pink)
+  magenta2:  "var(--magenta-2)",
+  magenta3:  "var(--magenta-3)",
+  magentaGlow: "var(--magenta-glow)",
+  magentaDim:  "var(--magenta-dim)",
+  violet:    "var(--violet)",
+  violet2:   "var(--violet-2)",
+  gradPrimary: "var(--grad-primary)",
+  gradChrome:  "var(--grad-chrome)",
+  // Back-compat for code that says T.teal — points at the new accent.
+  teal:      "var(--magenta)",
+  teal2:     "var(--magenta-3)",
+  tealLight: "var(--magenta-dim)",
   slate:     "var(--slate)",
   slate2:    "var(--slate-2)",
   slate3:    "var(--slate-3)",
@@ -40,7 +54,6 @@ export const T = {
   amberBg:   "var(--amber-bg)",
   rose:      "var(--rose)",
   roseBg:    "var(--rose-bg)",
-  violet:    "var(--violet)",
   violetBg:  "var(--violet-bg)",
 
   // ── Borders ──

@@ -1,235 +1,311 @@
 @import "tailwindcss";
 @import "lenis/dist/lenis.css";
 
-/* ═══════════════════════════════════════════════════════════════
-   REALTRACK — DESIGN SYSTEM (Leadspicker-inspired)
-   Deep Navy · White · Electric Blue · Clean geometric sans
-═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════════════
+   REALTRACK — Gong-inspired revenue-intelligence aesthetic.
+   • Midnight navy chrome  (sidebar / header / dark surfaces)
+   • Crisp white content   (cards / dashboards)
+   • Vibrant magenta accent for primary action + brand glow
+   • Glassmorphism for floating elements (header / overlays)
+   • View-timeline scroll-reveal animations for content blocks
+═══════════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* ── RealTrack Brand: Navy primary, Electric-blue accent ── */
-  --navy:        #232B3A;   /* Charcoal-slate (softened for eye comfort) */
-  --navy-2:      #2A3347;   /* Lifted navy */
-  --navy-3:      #3A4456;   /* Hover navy */
-  --navy-light:  #EEF1F6;   /* Navy tint background */
+  /* ── Brand: midnight + magenta ─────────────────────────────────────── */
+  --midnight:      #0B0F1F;   /* deepest — sidebar base */
+  --midnight-2:    #11162A;   /* card surface on dark chrome */
+  --midnight-3:    #1A2140;   /* hover on dark chrome */
+  --midnight-line: rgba(255,255,255,0.08);
+
+  --magenta:       #F2266F;   /* Gong-pink — primary action */
+  --magenta-2:     #FF4F92;   /* hover */
+  --magenta-3:     #B91454;   /* pressed */
+  --magenta-glow:  rgba(242, 38, 111, 0.32);
+  --magenta-dim:   rgba(242, 38, 111, 0.12);
+
+  --violet:        #7C3AED;   /* secondary accent / gradient stop */
+  --violet-2:      #5B21B6;
+
+  /* Brand gradient used on hero pills, primary buttons, top-of-card glints */
+  --grad-primary:  linear-gradient(135deg, #F2266F 0%, #7C3AED 100%);
+  --grad-chrome:   linear-gradient(180deg, #0B0F1F 0%, #0D1228 100%);
+
+  /* Legacy navy tokens now map to midnight so old code keeps working */
+  --navy:        var(--midnight);
+  --navy-2:      var(--midnight-2);
+  --navy-3:      var(--midnight-3);
+  --navy-light:  #EEF1F6;
   --navy-border: #D8DEE9;
-  --navy-glow:   rgba(35,43,58,0.16);
-  --navy-ring:   rgba(35,43,58,0.30);
-  --navy-dim:    rgba(35,43,58,0.06);
+  --navy-glow:   rgba(11,15,31,0.18);
+  --navy-ring:   rgba(11,15,31,0.30);
+  --navy-dim:    rgba(11,15,31,0.06);
 
-  --teal:        #2F6BFF;   /* Crisp teal accent */
-  --teal-2:      #1E50D8;
-  --teal-light:  #E8EFFF;
-  --teal-border: #BBD0FF;
-  --teal-glow:   rgba(47,107,255,0.18);
+  /* Teal alias → magenta so any "TEAL" left in code becomes the new accent */
+  --teal:        var(--magenta);
+  --teal-2:      var(--magenta-3);
+  --teal-light:  var(--magenta-dim);
+  --teal-border: rgba(242,38,111,0.30);
+  --teal-glow:   var(--magenta-glow);
+  --gold:        var(--magenta);
+  --gold-2:      var(--magenta-3);
+  --gold-light:  var(--magenta-dim);
 
-  --gold:        #2F6BFF;   /* Premium gold for Enterprise */
-  --gold-2:      #1E50D8;
-  --gold-light:  #EAF0FF;
+  --red:         var(--magenta);
+  --red-hover:   var(--magenta-3);
+  --red-light:   var(--magenta-dim);
+  --red-border:  var(--teal-border);
+  --red-glow:    var(--magenta-glow);
+  --red-ring:    var(--navy-ring);
+  --red-dim:     var(--navy-dim);
 
+  /* ── Slate ramp for muted text ─────────────────────────────────────── */
   --slate:       #4B5563;
   --slate-2:     #64748B;
   --slate-3:     #94A3B8;
 
-  /* Back-compat: legacy "red" tokens now route to navy */
-  --red:         var(--navy);
-  --red-hover:   var(--navy-3);
-  --red-light:   var(--navy-light);
-  --red-border:  var(--navy-border);
-  --red-glow:    var(--navy-glow);
-  --red-ring:    var(--navy-ring);
-  --red-dim:     var(--navy-dim);
+  /* ── Content surfaces (light side) ─────────────────────────────────── */
+  --canvas:    #F4F5FA;   /* page background — cool off-white */
+  --surface-1: #FFFFFF;   /* card */
+  --surface-2: #FFFFFF;
+  --surface-3: #F1F3F9;   /* input / subtle row */
+  --surface-4: #E4E7F0;
+  --surface-5: #CDD2DE;
 
-  /* ── Canvas Layers (calm, low-glare) ── */
-  --canvas:    #EEF1F6;
-  --surface-1: #FCFDFF;
-  --surface-2: #FCFDFF;
-  --surface-3: #F2F5F9;
-  --surface-4: #E5E9F0;
-  --surface-5: #D8DEE9;
+  /* ── Borders ───────────────────────────────────────────────────────── */
+  --border-1: rgba(15,23,42,0.05);
+  --border-2: rgba(15,23,42,0.09);
+  --border-3: rgba(15,23,42,0.14);
+  --border-4: rgba(15,23,42,0.22);
+  --border-brand: rgba(242,38,111,0.30);
 
-  /* ── Borders ── */
-  --border-1: rgba(35,43,58,0.05);
-  --border-2: rgba(35,43,58,0.09);
-  --border-3: rgba(35,43,58,0.14);
-  --border-4: rgba(35,43,58,0.22);
-  --border-brand: rgba(35,43,58,0.28);
-
-  /* ── Text (softened from pure black) ── */
-  --text-1: #232B3A;
-  --text-2: #5A6473;
-  --text-3: #99A2B0;
+  /* ── Text ──────────────────────────────────────────────────────────── */
+  --text-1: #0B0F1F;
+  --text-2: #4B5563;
+  --text-3: #94A3B8;
   --text-4: #CBD5E1;
 
-  /* ── Semantic aliases ── */
-  --brand-300: #6B89B5;
-  --brand-400: var(--navy);
-  --brand-500: var(--navy);
-  --brand-600: var(--navy-3);
-  --brand-dim: var(--navy-dim);
-  --brand-glow: var(--navy-glow);
+  --brand-300: #B7A6E8;
+  --brand-400: var(--magenta);
+  --brand-500: var(--magenta);
+  --brand-600: var(--magenta-3);
+  --brand-dim: var(--magenta-dim);
+  --brand-glow: var(--magenta-glow);
   --brand-ring: var(--navy-ring);
 
-  /* ── Semantic Colors ── */
-  --emerald:     #059669;
-  --emerald-lt:  #10B981;
-  --emerald-bg:  #ECFDF5;
-  --amber:       #F59E0B;
-  --amber-bg:    #FFFBEB;
-  --rose:        #E11D48;
-  --rose-bg:     #FFF1F2;
-  --sky:         #0284C7;
-  --sky-bg:      #F0F9FF;
-  --violet:      #7C3AED;
-  --violet-bg:   #F5F3FF;
+  /* ── Semantic ──────────────────────────────────────────────────────── */
+  --emerald: #10B981; --emerald-lt: #34D399; --emerald-bg: #ECFDF5;
+  --amber:   #F59E0B; --amber-bg: #FFFBEB;
+  --rose:    #E11D48; --rose-bg: #FFF1F2;
+  --sky:     #0284C7; --sky-bg: #F0F9FF;
 
-  /* ── Shadows ── */
-  --shadow-sm:  0 1px 2px rgba(11,15,25,0.05);
-  --shadow-md:  0 4px 12px rgba(11,15,25,0.08);
-  --shadow-lg:  0 12px 32px rgba(11,15,25,0.12);
-  --shadow-xl:  0 24px 60px rgba(11,15,25,0.16);
-  --shadow-brand: 0 6px 24px rgba(11,15,25,0.20);
+  /* ── Shadows ───────────────────────────────────────────────────────── */
+  --shadow-sm: 0 1px 2px rgba(11,15,31,0.06);
+  --shadow-md: 0 6px 18px rgba(11,15,31,0.08);
+  --shadow-lg: 0 18px 44px rgba(11,15,31,0.12);
+  --shadow-xl: 0 32px 80px rgba(11,15,31,0.18);
+  --shadow-brand: 0 12px 32px rgba(242,38,111,0.28);
+  --shadow-chrome: 0 24px 60px rgba(11,15,31,0.30);
 
-  /* ── Radius (sharp / minimal, Leadspicker) ── */
-  --r-sm: 5px;
-  --r-md: 8px;
-  --r-lg: 10px;
-  --r-xl: 14px;
-  --r-2xl: 18px;
+  /* ── Radius (pill-leaning, Gong) ───────────────────────────────────── */
+  --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 22px; --r-2xl: 28px;
+  --r-pill: 999px;
 
-  /* ── Springs (weight-based physics) ── */
+  /* ── Motion ───────────────────────────────────────────────────────── */
   --spring-soft:   cubic-bezier(0.34, 1.56, 0.64, 1);
   --spring-snap:   cubic-bezier(0.22, 1.20, 0.36, 1);
   --spring-heavy:  cubic-bezier(0.16, 1, 0.30, 1);
   --ease-out:      cubic-bezier(0.16, 1, 0.30, 1);
 
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-display: var(--font-display, "Space Grotesk"), var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-geist-sans), "Inter", ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+  --font-display: var(--font-display, "Space Grotesk"), var(--font-geist-sans), "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
-/* ── DARK THEME (token-level) ── */
+/* ── DARK THEME — deep midnight everywhere ───────────────────────────── */
 [data-theme="dark"] {
-  --canvas:    #0B0F19;   /* warm near-black */
-  --surface-1: #121826;
-  --surface-2: #121826;
-  --surface-3: #161D2B;
-  --surface-4: #1E2738;
-  --surface-5: #2A3346;
+  --canvas:    #060818;
+  --surface-1: #0F1428;
+  --surface-2: #0F1428;
+  --surface-3: #161C36;
+  --surface-4: #1F2748;
+  --surface-5: #2B345B;
 
-  --navy:        #E8ECF3;  /* "ink" inverts to warm paper-white for text/primary */
-  --navy-2:      #D2D9E6;
-  --navy-3:      #FFFFFF;
-  --navy-light:  #161D2B;
-  --navy-border: #283246;
-  --navy-glow:   rgba(0,0,0,0.40);
-  --navy-dim:    rgba(240,233,222,0.06);
+  --text-1: #F1F4FA;
+  --text-2: #B5BCCB;
+  --text-3: #7C8499;
+  --text-4: #3E4762;
 
-  --teal:        #4D82FF;  /* terracotta stays the accent, slightly brighter on dark */
-  --teal-2:      #2F6BFF;
-  --teal-light:  #2E2018;
+  --border-1: rgba(255,255,255,0.06);
+  --border-2: rgba(255,255,255,0.10);
+  --border-3: rgba(255,255,255,0.18);
+  --border-4: rgba(255,255,255,0.26);
 
-  --gold:        #5B8CFF;
-  --gold-2:      #2F6BFF;
+  --navy-light:  #11162A;
+  --navy-border: rgba(255,255,255,0.10);
 
-  --slate:       #9AA6B8;
-  --slate-2:     #94A3B8;
-  --slate-3:     #7C7264;
-
-  --canvas-rgb: 21,18,14;
-  --border-1: rgba(240,233,222,0.06);
-  --border-2: rgba(240,233,222,0.12);
-  --border-3: rgba(240,233,222,0.18);
-  --border-4: rgba(240,233,222,0.26);
-
-  --text-1: #E8ECF3;
-  --text-2: #9AA6B8;
-  --text-3: #6E7C90;
-  --text-4: #3A4761;
-
-  --brand-400: var(--teal);
-  --brand-500: var(--teal);
+  --slate:       #B5BCCB;
+  --slate-2:     #A2ABBE;
+  --slate-3:     #7C8499;
 }
 
+/* ── Base ────────────────────────────────────────────────────────────── */
 * { box-sizing: border-box; }
-
+* { -webkit-tap-highlight-color: transparent; }
 html, body {
   margin: 0; padding: 0;
   background: var(--canvas);
   color: var(--text-1);
   font-family: var(--font-sans);
   line-height: 1.55;
+  font-feature-settings: "cv11","ss01","ss03";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-feature-settings: "cv11","ss01","ss03";
+  letter-spacing: -0.005em;
 }
-
-/* Editorial heading treatment */
-h1, h2, h3 {
-  font-family: var(--font-display);
-  letter-spacing: -0.02em;
-}
-
-/* Global smooth transitions for premium feel */
-button, a, input, select, textarea {
-  transition: background 200ms var(--spring-heavy),
-              color 200ms var(--spring-heavy),
-              border-color 200ms var(--spring-heavy),
-              box-shadow 240ms var(--spring-heavy),
-              transform 260ms var(--spring-snap);
-}
-
-/* Eliminate jarring layout shifts */
 html { scroll-behavior: smooth; }
 img, video { max-width: 100%; height: auto; }
 
-/* Custom scrollbar */
+/* Heavy, impactful display headings (Gong vibe) */
+h1, h2, h3 {
+  font-family: var(--font-display);
+  letter-spacing: -0.025em;
+  font-weight: 800;
+  color: var(--text-1);
+}
+h1 { line-height: 1.1; }
+h2, h3 { line-height: 1.25; }
+
+button, a, input, select, textarea {
+  transition:
+    background 200ms var(--spring-heavy),
+    color      180ms var(--spring-heavy),
+    border-color 200ms var(--spring-heavy),
+    box-shadow 240ms var(--spring-heavy),
+    transform  260ms var(--spring-snap);
+}
+
+/* Scrollbars */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--surface-4); border-radius: 5px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--slate-3); }
 
-/* ── Animations ── */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
+/* ── Glassmorphism for floating elements ─────────────────────────────── */
+.glass {
+  background: color-mix(in srgb, var(--surface-1) 78%, transparent);
+  backdrop-filter: saturate(180%) blur(18px);
+  -webkit-backdrop-filter: saturate(180%) blur(18px);
+  border: 1px solid var(--border-2);
 }
-@keyframes fadeInScale {
-  from { opacity: 0; transform: scale(0.96); }
-  to   { opacity: 1; transform: scale(1); }
-}
-@keyframes slideInRight {
-  from { opacity: 0; transform: translateX(20px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-@keyframes shimmer {
-  0%   { background-position: -1000px 0; }
-  100% { background-position: 1000px 0; }
-}
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50%      { opacity: 0.5; }
-}
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-6px); }
-}
-@keyframes glow {
-  0%, 100% { box-shadow: 0 0 24px rgba(47,107,255,0.20); }
-  50%      { box-shadow: 0 0 40px rgba(47,107,255,0.40); }
+.glass-dark {
+  background: color-mix(in srgb, var(--midnight) 70%, transparent);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border: 1px solid var(--midnight-line);
 }
 
-.animate-in        { animation: fadeIn 420ms var(--spring-heavy) both; }
-.animate-scale     { animation: fadeInScale 360ms var(--spring-soft) both; }
+/* Brand pill / primary button */
+.btn-brand {
+  background: var(--grad-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-pill);
+  padding: 11px 22px;
+  font-weight: 700;
+  font-size: 13.5px;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  box-shadow: var(--shadow-brand);
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-brand:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 38px rgba(242,38,111,0.40);
+}
+.btn-brand:active { transform: translateY(0); }
+
+/* Ghost pill */
+.btn-ghost {
+  background: var(--surface-1);
+  color: var(--text-1);
+  border: 1px solid var(--border-2);
+  border-radius: var(--r-pill);
+  padding: 9px 16px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.btn-ghost:hover { border-color: var(--border-3); transform: translateY(-1px); }
+
+/* ── Animations ─────────────────────────────────────────────────────── */
+@keyframes fadeIn        { from { opacity:0; transform: translateY(8px); }  to { opacity:1; transform: translateY(0); } }
+@keyframes fadeInUp      { from { opacity:0; transform: translateY(22px); } to { opacity:1; transform: translateY(0); } }
+@keyframes fadeInScale   { from { opacity:0; transform: scale(0.96); }       to { opacity:1; transform: scale(1); } }
+@keyframes slideInRight  { from { opacity:0; transform: translateX(20px); } to { opacity:1; transform: translateX(0); } }
+@keyframes shimmer       { 0% { background-position: -1000px 0; } 100% { background-position: 1000px 0; } }
+@keyframes spin          { to { transform: rotate(360deg); } }
+@keyframes pulse         { 0%,100% { opacity:1; } 50% { opacity:.5; } }
+@keyframes float         { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes glow          {
+  0%,100% { box-shadow: 0 0 24px rgba(242,38,111,0.25); }
+  50%     { box-shadow: 0 0 44px rgba(242,38,111,0.50); }
+}
+@keyframes iconBounce    { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+
+.animate-in          { animation: fadeIn 420ms var(--spring-heavy) both; }
+.animate-up          { animation: fadeInUp 520ms var(--spring-heavy) both; }
+.animate-scale       { animation: fadeInScale 360ms var(--spring-soft) both; }
 .animate-slide-right { animation: slideInRight 320ms var(--spring-heavy) both; }
-.animate-spin      { animation: spin 0.8s linear infinite; }
-.animate-pulse     { animation: pulse 2s ease-in-out infinite; }
-.animate-float     { animation: float 4s ease-in-out infinite; }
-.animate-glow      { animation: glow 3s ease-in-out infinite; }
+.animate-spin        { animation: spin 0.8s linear infinite; }
+.animate-pulse       { animation: pulse 2s ease-in-out infinite; }
+.animate-float       { animation: float 4s ease-in-out infinite; }
+.animate-glow        { animation: glow 3s ease-in-out infinite; }
 
-/* Performance / smoothness */
-* { -webkit-tap-highlight-color: transparent; }
+/* Stagger helper: wrap N children, they animate sequentially */
+.stagger > * { animation: fadeInUp 540ms var(--spring-heavy) both; }
+.stagger > *:nth-child(1) { animation-delay: 40ms; }
+.stagger > *:nth-child(2) { animation-delay: 90ms; }
+.stagger > *:nth-child(3) { animation-delay: 140ms; }
+.stagger > *:nth-child(4) { animation-delay: 190ms; }
+.stagger > *:nth-child(5) { animation-delay: 240ms; }
+.stagger > *:nth-child(6) { animation-delay: 290ms; }
+.stagger > *:nth-child(7) { animation-delay: 340ms; }
+.stagger > *:nth-child(8) { animation-delay: 390ms; }
+
+/* ── Scroll reveal (no JS) ───────────────────────────────────────────
+   Anything with .reveal will fade-in-up as it enters the viewport using
+   the modern scroll-driven-animations API. Browsers without support get
+   the element fully visible — gracefully degrades. */
+@supports (animation-timeline: view()) {
+  @keyframes revealUp { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
+  .reveal {
+    animation: revealUp 520ms var(--spring-heavy) both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 30%;
+  }
+}
+
+/* Performance hint */
 .gpu { transform: translateZ(0); will-change: transform; }
+
+/* Skeleton shimmer */
+.skeleton {
+  background: linear-gradient(110deg, var(--surface-3) 8%, var(--surface-4) 18%, var(--surface-3) 33%);
+  background-size: 1000px 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+
+/* Trend chips: up / down */
+.trend-up   { color: var(--emerald); background: var(--emerald-bg); }
+.trend-down { color: var(--rose);    background: var(--rose-bg); }
+
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+}
