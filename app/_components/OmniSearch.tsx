@@ -55,7 +55,9 @@ export function OmniSearch() {
   const search = useCallback(async (term: string) => {
     if (!term.trim()) { setHits([]); return; }
     setLoading(true);
-    const safe = term.replace(/%/g, "").replace(/,/g, " ").trim();
+    // Strip characters that break PostgREST .or() parsing: comma, parens, %.
+    const safe = term.replace(/[%(),]/g, " ").replace(/\s+/g, " ").trim();
+    if (!safe) { setHits([]); setLoading(false); return; }
     const pat = `%${safe}%`;
     const { data } = await supabase.from("leads")
       .select("id, extracted_address, agent_name, status, metadata, qualification_reason, ai_feedback")

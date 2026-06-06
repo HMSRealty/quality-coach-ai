@@ -90,6 +90,8 @@ type LeadBody = {
   asking_price?: string;
   reason?: string;
   zillow_data?: Record<string, unknown> | null;
+  arv?: number | null;
+  arv_confidence?: number | null;
   additional_properties?: Array<Record<string, unknown>>;
 };
 
@@ -139,6 +141,8 @@ export async function POST(req: Request): Promise<Response> {
           zillow_link: lead.zillow_link,
           reason: lead.reason,
           zillow_data: lead.zillow_data || null,
+          arv: lead.arv ?? null,
+          arv_confidence: lead.arv_confidence ?? null,
           additional_properties: Array.isArray(lead.additional_properties) ? lead.additional_properties : [],
           submitted_via: "public_form",
         },

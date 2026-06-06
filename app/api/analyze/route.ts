@@ -376,7 +376,8 @@ MANDATORY: include the exact [MM:SS] timestamp for every critique or praise.`.tr
 }
 
 // ── Deterministic decision tree (ported from coreProcessRow) ──
-function decide(q: QualJSON): { status: string; reason: string; regeneration: string } {
+// marketValue = LIVE Zillow Zestimate (preferred over any spoken value).
+function decide(q: QualJSON, marketValue?: number | null): { status: string; reason: string; regeneration: string } {
   const aiReason = safeStr(q.qualification_reason) || "No reason.";
   let regeneration = safeStr(q.regeneration_steps) || "No steps generated.";
   const isDecisionMaker = q.is_decision_maker !== false;
@@ -400,9 +401,13 @@ function decide(q: QualJSON): { status: string; reason: string; regeneration: st
   const rejected2x = q.rejected_selling_multiple_times === true;
   const isUnderwater = q.is_underwater === true;
 
-  let asking = NaN, mv = NaN;
+  let asking = NaN, spokenMv = NaN;
   if (q.spoken_asking_price && safeStr(q.spoken_asking_price).toLowerCase() !== "none") asking = extractFirstPrice(q.spoken_asking_price);
-  if (q.spoken_market_value && safeStr(q.spoken_market_value).toLowerCase() !== "none") mv = extractFirstPrice(q.spoken_market_value);
+  if (q.spoken_market_value && safeStr(q.spoken_market_value).toLowerCase() !== "none") spokenMv = extractFirstPrice(q.spoken_market_value);
+  // The LIVE Zillow Zestimate is the single source of truth. Fall back to a
+  // spoken market value only when no Zestimate was resolved.
+  const liveMv = typeof marketValue === "number" && marketValue > 0 ? marketValue : NaN;
+  const mv = !isNaN(liveMv) ? liveMv : spokenMv;
   const hasAsking = !isNaN(asking) && asking > 0;
   const hasMv = !isNaN(mv) && mv > 0;
   const ratio = hasAsking && hasMv ? asking / mv : NaN;
@@ -421,17 +426,30 @@ function decide(q: QualJSON): { status: string; reason: string; regeneration: st
   else if (!isQ && isAggressive) { status = "Disqualified"; reason = "dq - Aggressive/Refused all info"; }
   else if (!isQ && (rejected2x || reasonMatches(aiReason, ["rejected selling 2", "rejected selling twice", "refused to sell 2"], ["offer was rejected", "buyer rejected", "lender rejected"]))) { status = "Disqualified"; reason = "dq - Rejected selling 2+ times"; }
   else if (!compliancePassed) { status = "Disqualified"; reason = "dq - Compliance Failed (Missing items)"; regeneration = "Agent failed compliance. Review call."; }
-  else if (hasAsking && hasMv && asking >= mv) { status = "Disqualified"; reason = `dq mv - Asking ($${asking.toLocaleString()}) >= spoken market value ($${mv.toLocaleString()}). Overpriced.`; regeneration = "Dead lead. Over market value."; }
   else if (!hasAsking && !hasReason) { status = "Disqualified"; reason = "dq - Price fishing. No asking price and no valid reason for selling."; regeneration = "Dead lead. Seller fishing with no price and no real reason."; }
-  else if (hasAsking && hasMv && !hasReason && ratio > 0.70) { status = "Disqualified"; reason = `dq - No motivation and asking ($${asking.toLocaleString()}) not a deep discount (> 70% MV). Testing the market.`; regeneration = "Dead lead. Unmotivated, discount too shallow."; }
-  else {
-    if (hasAsking && hasMv) {
-      if (ratio <= 0.70) {
-        if (hasReason && closing3) { status = "Hot"; reason = `🔥 HOT LEAD - Motivated, closes <= 3 mos, AP $${asking.toLocaleString()} <= 70% MV.`; }
-        else { status = "Warm"; reason = `Warm Lead - Deep discount (AP $${asking.toLocaleString()} <= 70% MV) but missing strong motivation or fast timeline.`; }
-      } else if (ratio < 1.0 && hasReason) { status = "Warm"; reason = `Warm Lead - Motivated seller, AP $${asking.toLocaleString()} below MV.`; }
-    } else if (hasReason) { status = "Cold"; reason = "Cold Lead - Valid motivation, but no spoken price/MV. Needs price discovery."; }
+  // ── Pricing matrix vs the LIVE Zillow Zestimate (Z) ────────────────────
+  //   HOT  : asking ≤ 0.70·Z  AND a valid reason for selling
+  //   WARM : 0.70·Z < asking < Z  AND a valid reason
+  //   COLD : Z ≤ asking ≤ 1.25·Z  (price near/above market; money-only or weak reason)
+  //   DQ   : asking > 1.25·Z  (retail mindset / overpriced)
+  else if (hasAsking && hasMv) {
+    const mvSrc = !isNaN(liveMv) ? "Zillow" : "spoken";
+    if (ratio <= 0.70) {
+      if (hasReason) { status = "Hot"; reason = `🔥 HOT - Deep discount: asking $${asking.toLocaleString()} ≤ 70% of ${mvSrc} value $${Math.round(mv).toLocaleString()}, with valid motivation.`; }
+      else { status = "Warm"; reason = `Warm - Deep discount (≤ 70% of ${mvSrc} value) but no clear motivation. Needs a reason confirmed.`; }
+    } else if (ratio < 1.0) {
+      if (hasReason) { status = "Warm"; reason = `🟡 WARM - Asking $${asking.toLocaleString()} below ${mvSrc} value $${Math.round(mv).toLocaleString()} (>70%), motivated seller.`; }
+      else { status = "Cold"; reason = `🔵 COLD - Below market but money-only / weak motivation. Asking $${asking.toLocaleString()} vs ${mvSrc} $${Math.round(mv).toLocaleString()}.`; }
+    } else if (ratio <= 1.25) {
+      status = "Cold"; reason = `🔵 COLD - Asking $${asking.toLocaleString()} at/above ${mvSrc} value $${Math.round(mv).toLocaleString()} (≤125%). Retail-leaning; nurture for a discount.`;
+      regeneration = "Nurture. Anchor down toward 70% of market value.";
+    } else {
+      status = "Disqualified"; reason = `dq - Overpriced: asking $${asking.toLocaleString()} > 125% of ${mvSrc} value $${Math.round(mv).toLocaleString()}. Retail mindset.`;
+      regeneration = "Dead lead. Far above market.";
+    }
   }
+  // No usable price math — fall back to motivation only.
+  else if (hasReason) { status = "Cold"; reason = "🔵 COLD - Valid motivation but no usable price/market value yet. Needs price discovery."; }
 
   if (!status) { status = "Disqualified"; reason = "dq - No qualifying signal detected on call."; }
 
@@ -573,7 +591,7 @@ export async function POST(req: Request): Promise<Response> {
     let coaching = "No feedback.";
     try { coaching = await runCoaching(ups[0].uri, ups[0].mime, key); } catch { /* coaching is best-effort */ }
 
-    const { status, reason, regeneration } = decide(q);
+    const { status, reason, regeneration } = decide(q, marketValue);
     const coachingArr = coaching.split(/\n+/).map(s => s.trim()).filter(Boolean);
 
     await sa.from("leads").update({

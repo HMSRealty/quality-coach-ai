@@ -14,15 +14,10 @@ type Help = { title: string; body: string; tips?: string[] };
 
 // Most specific match wins (startsWith). Add a row per page.
 const HELP: { match: string; help: Help }[] = [
-  { match: "/dashboard/pipeline", help: {
-    title: "Pipeline",
-    body: "A Kanban view of every lead by sales stage. Drag a card to move it between New → Contacted → Negotiating → Won/Lost.",
-    tips: ["Drag = update stage instantly", "Click a card to open the full lead", "Read-only roles can view but not drag"],
-  }},
-  { match: "/dashboard/analytics", help: {
-    title: "Analytics",
-    body: "Lead KPIs and pipeline funnel for a date range. Defaults to today (EST) — the same timezone leads are dated in.",
-    tips: ["Switch presets or pick a custom range", "Qual. Rate = (Hot+Warm+Cold) ÷ total"],
+  { match: "/dashboard/matrix", help: {
+    title: "Matrix",
+    body: "Your whole company at a glance — managers, team leaders, acquisitions, QA, trainers and callers — plus the Objection Heatmap showing why deals are lost this month.",
+    tips: ["Objection Heatmap aggregates Cold + Disqualified reasons", "Counts include both sub-users and agents"],
   }},
   { match: "/dashboard/calls", help: {
     title: "Call Library",
