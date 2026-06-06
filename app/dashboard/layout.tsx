@@ -23,15 +23,14 @@ import {
 
 const NAV_PRIMARY = [
   { label: "Overview",     href: "/dashboard",           icon: LayoutDashboard },
-  { label: "Pipeline",     href: "/dashboard/pipeline",  icon: Columns3 },
-  { label: "Analytics",    href: "/dashboard/analytics", icon: BarChart3 },
+  { label: "Matrix",       href: "/dashboard/matrix",    icon: BarChart3 },
   { label: "Call Library", href: "/dashboard/calls",     icon: PhoneCall },
   { label: "Campaigns",    href: "/dashboard/campaigns", icon: FolderCog },
 ];
 const NAV_TEAM = [
   { label: "Submit Lead",   href: "/dashboard/submit-lead",     icon: Send },
   { label: "Teams",         href: "/dashboard/teams",           icon: Users2 },
-  { label: "Callers",       href: "/dashboard/callers",         icon: Users2 },
+  { label: "Agents",        href: "/dashboard/callers",         icon: Users2 },
   { label: "Trainers",      href: "/dashboard/trainers",        icon: Briefcase },
   { label: "Roleplay Dialer", href: "/dashboard/dialer",        icon: Headphones },
   { label: "Team Leader",   href: "/dashboard/team-leader",     icon: Flag },
@@ -50,20 +49,18 @@ const PLAN_ACCENT: Record<string, string> = {
   free: "#94A3B8", starter: "#34D399", professional: "#F2266F", enterprise: "#A78BFA",
 };
 
-function RealTrackMark({ size = 26 }: { size?: number }) {
+// Original RealTrack mark — pyramid outline + wordmark (kept by user request).
+function RealTrackMark({ size = 28 }: { size?: number }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-      <span style={{
-        width: size + 2, height: size + 2, borderRadius: 10,
-        background: T.gradPrimary, display: "flex", alignItems: "center", justifyContent: "center",
-        boxShadow: "0 8px 22px rgba(242,38,111,0.35)",
-      }}>
-        <svg width={size * 0.66} height={size * 0.45} viewBox="0 0 40 24" fill="none">
-          <path d="M2 22 L20 4 L38 22" stroke="#fff" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"/>
-          <path d="M8 22 L20 11 L32 22" stroke="rgba(255,255,255,0.65)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
+    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+      <svg width={size * 1.3} height={size * 0.85} viewBox="0 0 40 24" fill="none">
+        <path d="M2 22 L20 4 L38 22" stroke="#fff" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M8 22 L20 11 L32 22" stroke="rgba(255,255,255,0.55)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+      <span style={{ display: "flex", flexDirection: "column" }}>
+        <span style={{ fontSize: 15, fontWeight: 800, color: "#fff", letterSpacing: "0.04em", lineHeight: 1 }}>RealTrack</span>
+        <span style={{ fontSize: 9, color: "rgba(255,255,255,0.45)", letterSpacing: "0.12em", fontWeight: 600, marginTop: 3 }}>PERFORMANCE SUITE</span>
       </span>
-      <span style={{ fontSize: 15, fontWeight: 800, color: "#fff", letterSpacing: "0.04em" }}>RealTrack</span>
     </div>
   );
 }
@@ -326,7 +323,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           >{initials}</Link>
         </header>
 
-        <main style={{ flex: 1, padding: "30px 36px 60px", overflowY: "auto" }}>
+        {/* No internal overflow — let the window scroll so Lenis applies smoothly */}
+        <main style={{ flex: 1, padding: "30px 36px 60px" }}>
           {children}
         </main>
       </div>

@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { LeadTimeline } from "@/app/_components/LeadTimeline";
-import { CallRecordings } from "@/app/_components/CallRecordings";
+import { GongPlayer } from "@/app/_components/GongPlayer";
 import {
   ArrowLeft, MapPin, DollarSign, User, Calendar, Phone, FileText,
   CheckCircle2, XCircle, Clock, Loader2, Sparkles, Target,
@@ -67,6 +67,7 @@ export default function LeadDetailPage() {
   const id = params?.id as string;
 
   const [lead, setLead] = useState<Lead | null>(null);
+  const [recordings, setRecordings] = useState<Array<{ id: string; file_name: string | null; storage_url: string; file_size_bytes: number | null; created_at: string }>>([]);
   const [loading, setLoading] = useState(true);
   const [reanalyzing, setReanalyzing] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -82,6 +83,13 @@ export default function LeadDetailPage() {
       .eq("id", id)
       .maybeSingle();
     setLead(data as Lead | null);
+    // Pull every recording attached to this lead so we can play them all.
+    const { data: ups } = await supabase
+      .from("call_uploads")
+      .select("id, file_name, storage_url, file_size_bytes, created_at")
+      .eq("lead_id", id)
+      .order("created_at", { ascending: true });
+    setRecordings((ups || []) as typeof recordings);
     setLoading(false);
   };
 
@@ -97,38 +105,40 @@ export default function LeadDetailPage() {
   };
 
   const handleAudioUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !lead) return;
-    if (file.size > 500 * 1024 * 1024) return alert("Max 500MB");
+    const files = Array.from(e.target.files || []);
+    if (!files.length || !lead) return;
+    for (const f of files) if (f.size > 500 * 1024 * 1024) return alert("Each file must be under 500MB");
 
     setUploading(true);
-    const ext = file.name.split(".").pop();
-    // Storage RLS requires the object path to start with the UPLOADER's auth id.
-    // (Leads are now org-wide visible, so the viewer may not be the lead owner.)
     const { data: { user } } = await supabase.auth.getUser();
     const uploaderId = user?.id || lead.user_id;
-    const path = `${uploaderId}/${lead.id}/${Date.now()}.${ext}`;
-    const { error: upErr } = await supabase.storage.from("call-uploads").upload(path, file);
-    if (upErr) { alert("Upload failed: " + upErr.message); setUploading(false); return; }
+    const uploadedUrls: string[] = [];
+    for (const file of files) {
+      const ext = file.name.split(".").pop();
+      const path = `${uploaderId}/${lead.id}/${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("call-uploads").upload(path, file);
+      if (upErr) { alert(`Upload failed (${file.name}): ` + upErr.message); continue; }
+      const { data: pub } = supabase.storage.from("call-uploads").getPublicUrl(path);
+      uploadedUrls.push(pub.publicUrl);
+      await supabase.from("call_uploads").insert({
+        lead_id: lead.id, user_id: lead.user_id,
+        file_name: file.name, file_path: path,
+        file_size_bytes: file.size, storage_url: pub.publicUrl, status: "uploaded",
+      });
+    }
+    if (!uploadedUrls.length) { setUploading(false); return; }
 
-    const { data: pub } = supabase.storage.from("call-uploads").getPublicUrl(path);
-    const audioUrl = pub.publicUrl;
-
-    await supabase.from("call_uploads").insert({
-      lead_id: lead.id, user_id: lead.user_id,
-      file_name: file.name, file_path: path,
-      file_size_bytes: file.size, storage_url: audioUrl, status: "uploaded",
-    });
+    // Latest URL kept on the lead for backward compat; full list passed to analyze.
     await supabase.from("leads").update({
-      call_recording_url: audioUrl,
-      audio_size_bytes: file.size,
+      call_recording_url: uploadedUrls[uploadedUrls.length - 1],
+      audio_size_bytes: files.reduce((s, f) => s + f.size, 0),
       status: "Processing",
     }).eq("id", lead.id);
 
     await fetch("/api/leads/analyze", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ leadId: lead.id, audioUrl }),
+      body: JSON.stringify({ leadId: lead.id, audioUrls: uploadedUrls }),
     });
     await load();
     setUploading(false);
@@ -431,26 +441,26 @@ export default function LeadDetailPage() {
         );
       })()}
 
-      <Section icon={Phone} title="Call Recording" accent={NAVY}>
-        {lead.call_recording_url ? (
-          <>
-            <audio controls src={lead.call_recording_url} style={{ width: "100%" }} />
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 10 }}>
-              {lead.audio_duration_seconds ? (
-                <p style={{ fontSize: 11, color: SLATE }}>
-                  Duration: {Math.floor(lead.audio_duration_seconds / 60)}m {lead.audio_duration_seconds % 60}s
-                </p>
-              ) : <span />}
-              <a href={lead.call_recording_url} download target="_blank" rel="noreferrer" style={{
-                display: "inline-flex", alignItems: "center", gap: 6,
-                padding: "8px 14px", borderRadius: 8,
-                background: "#F2F5F9", color: NAVY, border: "1px solid rgba(35,43,58,0.10)",
-                fontSize: 12, fontWeight: 700, textDecoration: "none",
-              }}>
-                <Download size={13} /> Download Call
-              </a>
+      <Section icon={Phone} title={`Call Recordings${recordings.length > 1 ? ` (${recordings.length})` : ""}`} accent={NAVY}>
+        {recordings.length > 0 ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            {recordings.map((rec, i) => (
+              <GongPlayer key={rec.id}
+                src={rec.storage_url}
+                downloadUrl={rec.storage_url}
+                title={`Recording ${i + 1}${rec.file_name ? " · " + rec.file_name : ""}`}
+              />
+            ))}
+            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              <button onClick={() => fileInputRef.current?.click()} disabled={uploading} className="btn-ghost" style={{ fontSize: 12 }}>
+                {uploading ? <Loader2 size={12} className="animate-spin" /> : <Upload size={12} />}
+                {uploading ? "Uploading…" : "Add another recording"}
+              </button>
+              <input ref={fileInputRef} type="file" multiple accept="audio/*,video/mp4" onChange={handleAudioUpload} style={{ display: "none" }} />
             </div>
-          </>
+          </div>
+        ) : lead.call_recording_url ? (
+          <GongPlayer src={lead.call_recording_url} downloadUrl={lead.call_recording_url} title="Call Recording" />
         ) : (
           <div style={{
             padding: 20, borderRadius: 10,
@@ -464,6 +474,7 @@ export default function LeadDetailPage() {
             <input
               ref={fileInputRef}
               type="file"
+              multiple
               accept="audio/*,video/mp4"
               onChange={handleAudioUpload}
               style={{ display: "none" }}
@@ -475,7 +486,7 @@ export default function LeadDetailPage() {
               fontSize: 12, fontWeight: 700, cursor: "pointer",
             }}>
               {uploading ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />}
-              {uploading ? "Uploading & analyzing..." : "Upload Audio"}
+              {uploading ? "Uploading & analyzing..." : "Upload Recordings (multiple OK)"}
             </button>
           </div>
         )}
@@ -495,7 +506,6 @@ export default function LeadDetailPage() {
         </button>
       </div>
 
-      <CallRecordings leadId={lead.id} />
       <LeadTimeline leadId={lead.id} />
     </div>
   );

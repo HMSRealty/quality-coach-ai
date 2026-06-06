@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { Upload, Download, Loader2, CheckCircle2, AlertCircle, FileUp } from "lucide-react";
 import { Card } from "@/app/_components/Card";
@@ -102,6 +102,8 @@ jane@example.com,Alice Johnson,Sales Team B,Mike Brown,2024-03-10`;
         </div>
       )}
 
+      <ShiftTypeCard onToast={(ok, msg) => setMessage({ type: ok ? "success" : "error", text: msg })} />
+
       {/* Team Import */}
       <Card title="Import Team Structure">
         <p style={{ fontSize: 13, color: "#64748B", marginBottom: 14, lineHeight: 1.65 }}>
@@ -184,3 +186,78 @@ jane@example.com,Alice Johnson,Sales Team B,Mike Brown,2024-03-10`;
     </div>
   );
 }
+
+// ── Shift Type editor ──────────────────────────────────────────────────────
+function ShiftTypeCard({ onToast }: { onToast: (ok: boolean, msg: string) => void }) {
+  const [shift, setShift] = useState<"part_time" | "full_time">("full_time");
+  const [target, setTarget] = useState<number>(2);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { setLoading(false); return; }
+      const { data } = await supabase.from("profiles").select("shift_type, daily_target").eq("id", user.id).maybeSingle();
+      if (data) {
+        const s = (data.shift_type as "part_time" | "full_time") || "full_time";
+        setShift(s);
+        setTarget(typeof data.daily_target === "number" ? data.daily_target : s === "part_time" ? 1 : 2);
+      }
+      setLoading(false);
+    })();
+  }, []);
+
+  const save = async (next: "part_time" | "full_time") => {
+    setSaving(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setSaving(false); return; }
+    const defaultTarget = next === "part_time" ? 1 : 2;
+    const { error } = await supabase
+      .from("profiles")
+      .update({ shift_type: next, daily_target: defaultTarget })
+      .eq("id", user.id);
+    setSaving(false);
+    if (error) return onToast(false, error.message);
+    setShift(next); setTarget(defaultTarget);
+    onToast(true, `Shift set to ${next === "part_time" ? "Part-time" : "Full-time"} (target ${defaultTarget})`);
+  };
+
+  return (
+    <Card title="Shift Type">
+      <p style={{ fontSize: 13, color: "#64748B", marginBottom: 14 }}>
+        Choose your shift. Part-time targets <strong>1 qualified lead/day</strong>;
+        Full-time targets <strong>2/day</strong>. Used for leaderboard and pacing.
+      </p>
+      {loading ? <Loader2 size={16} className="animate-spin" /> : (
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          {([
+            { key: "part_time", label: "Part-time", target: 1 },
+            { key: "full_time", label: "Full-time", target: 2 },
+          ] as const).map((opt) => {
+            const active = shift === opt.key;
+            return (
+              <button key={opt.key} onClick={() => save(opt.key)} disabled={saving}
+                style={{
+                  padding: "16px 18px", borderRadius: 14, cursor: saving ? "wait" : "pointer",
+                  background: active ? "#0B0F1F" : "#FFFFFF",
+                  color: active ? "#fff" : "#0B0F1F",
+                  border: active ? "1px solid #0B0F1F" : "1px solid rgba(15,23,42,0.10)",
+                  textAlign: "left", display: "flex", flexDirection: "column", gap: 6,
+                  transition: "all 200ms ease",
+                  boxShadow: active ? "0 8px 24px rgba(11,15,31,0.25)" : "0 1px 3px rgba(11,15,31,0.05)",
+                }}>
+                <span style={{ fontSize: 13, fontWeight: 800 }}>{opt.label}</span>
+                <span style={{ fontSize: 11, opacity: active ? 0.8 : 0.7 }}>
+                  Daily target: <strong>{opt.target} qualified lead{opt.target > 1 ? "s" : ""}</strong>
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+      <p style={{ fontSize: 11, color: "#94A3B8", marginTop: 10 }}>Currently saved: <strong>{shift === "part_time" ? "Part-time" : "Full-time"}</strong> · target {target}/day</p>
+    </Card>
+  );
+}
+

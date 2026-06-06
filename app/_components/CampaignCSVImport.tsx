@@ -8,7 +8,7 @@ const NAVY = "#232B3A";
 const TEAL = "#2F6BFF";
 const SLATE = "#4B5563";
 
-function parseCSV(text: string): Array<{ name: string; rules: string }> {
+function parseCSV(text: string): Array<{ name: string; target: string; rules: string }> {
   const rows: string[][] = [];
   let cur: string[] = []; let field = ""; let inQuotes = false;
   for (let i = 0; i < text.length; i++) {
@@ -35,7 +35,11 @@ function parseCSV(text: string): Array<{ name: string; rules: string }> {
 
   return dataRows
     .filter(r => r.some(v => v.trim() !== ""))
-    .map(r => ({ name: (r[0] || "").trim(), rules: (r[1] || "").trim() }))
+    .map(r => ({
+      name: (r[0] || "").trim(),
+      target: (r[1] || "").trim(),                // NEW: column B = Target
+      rules: (r[2] || r[1] || "").trim(),          // column C (or B if no target col)
+    }))
     .filter(r => r.name);
 }
 
@@ -45,7 +49,7 @@ export function CampaignCSVImport({ onImported }: { onImported?: () => void }) {
   const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
 
   const download = () => {
-    const csv = "Name,Rules\nMotivated Sellers,Qualify if owner mentions price flexibility and timeline under 6 months\nAbsentee Owners,Disqualify if owner lives in property — only target absentee owners\n";
+    const csv = "Name,Target,Rules\nMotivated Sellers,25,Qualify if owner mentions price flexibility and timeline under 6 months\nAbsentee Owners,15,Disqualify if owner lives in property — only target absentee owners\n";
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -67,13 +71,16 @@ export function CampaignCSVImport({ onImported }: { onImported?: () => void }) {
 
       let created = 0; let updated = 0;
       for (const r of rows) {
+        if (!r.target) { setMsg({ type: "err", text: `Row "${r.name}" is missing a Target — required.` }); return; }
+        const targetNum = Number(r.target);
+        if (!isFinite(targetNum)) { setMsg({ type: "err", text: `Row "${r.name}" has an invalid Target.` }); return; }
         const { data: existing } = await supabase
           .from("campaigns").select("id").eq("user_id", user.id).eq("name", r.name).maybeSingle();
         if (existing) {
-          await supabase.from("campaigns").update({ rules: r.rules }).eq("id", existing.id);
+          await supabase.from("campaigns").update({ rules: r.rules, target: targetNum }).eq("id", existing.id);
           updated++;
         } else {
-          await supabase.from("campaigns").insert({ user_id: user.id, name: r.name, rules: r.rules, is_active: true });
+          await supabase.from("campaigns").insert({ user_id: user.id, name: r.name, rules: r.rules, target: targetNum, is_active: true });
           created++;
         }
       }

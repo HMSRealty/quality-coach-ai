@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { Card } from "@/app/_components/Card";
 import { Send, Loader2, CheckCircle2, Link2, Copy, Check, Users, ExternalLink } from "lucide-react";
+import { AddressAutocomplete } from "@/app/_components/AddressAutocomplete";
+import { PipelineProgress } from "@/app/_components/PipelineProgress";
 
 import { T } from "@/app/_components/tokens";
 const NAVY = T.navy;
@@ -321,7 +323,26 @@ export default function SubmitLeadPage() {
         )}
       </Card>
 
-      {success && (
+      {submitting && (() => {
+        const m = (success || "").toLowerCase();
+        const step = m.includes("done") || m.includes("marked") ? 4
+          : m.includes("submitted") || m.includes("analyzing") ? 3
+          : m.includes("fetching") || m.includes("property") ? 1
+          : 0;
+        return (
+          <div style={{
+            padding: 18, borderRadius: 14,
+            background: "var(--surface-1)", border: "1px solid var(--border-2)",
+            boxShadow: "var(--shadow-md)",
+            display: "flex", flexDirection: "column", gap: 10,
+          }}>
+            <p style={{ fontSize: 13, fontWeight: 800, color: "var(--text-1)" }}>{success || "Submitting…"}</p>
+            <PipelineProgress current={step} />
+          </div>
+        );
+      })()}
+
+      {!submitting && success && (
         <div style={{
           padding: "12px 16px", borderRadius: 10,
           background: "#ECFDF5", border: "1px solid #A7F3D0",
@@ -359,7 +380,13 @@ export default function SubmitLeadPage() {
           </div>
           <div style={{ marginBottom: 14 }}>
             <label style={labelStyle}>Property Address *</label>
-            <input type="text" value={formData.property_address} onChange={e => setForm({ ...formData, property_address: e.target.value })} placeholder="123 Main St, City, ST 00000" required style={inputStyle} />
+            <AddressAutocomplete
+              placeholder="Start typing — Google will autocomplete"
+              value={formData.property_address}
+              onChange={(v) => setForm({ ...formData, property_address: v })}
+              required
+              style={inputStyle}
+            />
             <p style={{ fontSize: 11, color: SLATE, marginTop: 6 }}>
               Property details (Zestimate, beds, baths, sqft) and a local-comp ARV are fetched automatically when you submit.
             </p>

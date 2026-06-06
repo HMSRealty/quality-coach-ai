@@ -222,10 +222,19 @@ function buildSystemPrompt(opts: {
 ZILLOW MARKET VALUE (Zestimate) = $${Math.round(opts.marketValue).toLocaleString()}
 Property address (resolved from public records): ${opts.propertyAddress || "unknown"}
 
-PRICING MATRIX (apply mathematically against the LIVE Zestimate above, not any spoken value):
-• HOT  → spoken asking price ≤ 70% of Zestimate (Deep Discount; overrides timeline/minor behavior rules)
-• WARM → spoken asking price ≤ 90% of Zestimate with weak/passive motivation
-• DEAD → spoken asking price near or above 100% of Zestimate with no real motivation, OR no price + no motivation`
+PRICING MATRIX — apply MATHEMATICALLY against the LIVE Zestimate above (not any spoken market value):
+Let A = spoken asking price, Z = Zestimate above.
+
+• 🔥 HOT  → A ≤ 0.70 × Z   AND a valid, concrete reason for selling is given
+                          (motivation: divorce, probate, relocation, foreclosure, health, landlord fatigue, financial distress, inherited, vacant, tired of repairs, etc.)
+• 🟡 WARM → 0.70 × Z < A < Z   (strictly above 70% of Zestimate, below Zestimate) AND a valid reason for selling is given
+• 🔵 COLD → A ≥ Z and A ≤ 1.25 × Z   AND the reason is "away from money" or no motivation
+                          ("you called me", "cash offer", "I need the money", "to get profit", "investments",
+                           "none of your business", "just curious", "testing the market", etc.)
+• 🔴 DISQUALIFIED → A > 1.25 × Z, OR any item on the Kill List, OR no price + no motivation.
+
+Reason-validity check: a HOT or WARM verdict REQUIRES a concrete distress / life-event reason. Money-only or
+evasive answers do NOT count as a valid reason — they push the lead to COLD or DISQUALIFIED.`
     : `\n\nLIVE API CONTEXT: Zestimate unavailable for this lead. Use the SPOKEN market value if present; otherwise rely on motivation + Kill List only.`;
   const killBlock = `\n\nACTIVE KILL LIST (auto-DISQUALIFY if ANY are true):\n${killers}\n\nSAVIOR EXCEPTION: If the PRIMARY address hits a Kill rule but the seller volunteers a DIFFERENT off-market property, extract that new address into other_properties_volunteered and qualify the lead based on the volunteered property.`;
   const overrides = opts.customRules ? `\n\nCAMPAIGN CUSTOM OVERRIDE RULES:\n${opts.customRules}` : "";
@@ -233,8 +242,7 @@ PRICING MATRIX (apply mathematically against the LIVE Zestimate above, not any s
 }
 
 async function runQualification(
-  fileUri: string,
-  mime: string,
+  files: Array<{ uri: string; mime: string }>,
   customRules: string,
   key: string,
   ctx?: { orgPersona?: string | null; orgKillers?: Array<{ id: string; label: string; rule: string; enabled?: boolean }> | null; marketValue?: number | null; propertyAddress?: string | null },
@@ -246,14 +254,20 @@ async function runQualification(
     propertyAddress: ctx?.propertyAddress,
     customRules,
   });
+  // Build the multimodal parts: one preamble text + every audio file. Gemini
+  // listens to them all in order and treats them as one continuous QA target.
+  const userParts: Array<Record<string, unknown>> = [
+    { text: files.length > 1
+        ? `Analyze ALL ${files.length} call recordings attached below as one combined session. Extract everything from the audio. Do not invent details not spoken.`
+        : "Analyze this call recording only. Extract everything from the audio. Do not invent details not spoken." },
+  ];
+  for (const f of files) userParts.push({ file_data: { mime_type: f.mime, file_uri: f.uri } });
+
   const payload = {
     systemInstruction: { parts: [{ text: systemText }] },
     contents: [{
       role: "user",
-      parts: [
-        { text: "Analyze this call recording only. Extract everything from the audio. Do not invent details not spoken." },
-        { file_data: { mime_type: mime, file_uri: fileUri } },
-      ],
+      parts: userParts,
     }],
     generationConfig: {
       temperature: 0.1,
@@ -409,21 +423,27 @@ function jsonRes(body: unknown, status = 200): Response {
 export async function POST(req: Request): Promise<Response> {
   try {
     let leadId = "", audioUrl: string | undefined;
-    let directAudio: ArrayBuffer | undefined, directMime: string | undefined, directSize: number | undefined;
+    let audioUrls: string[] = [];
+    let directFiles: Array<{ bytes: ArrayBuffer; mime: string; size: number }> = [];
     const ct = req.headers.get("content-type") || "";
 
     if (ct.includes("multipart/form-data")) {
       const form = await req.formData();
       leadId = String(form.get("leadId") || "");
-      const file = form.get("file");
-      if (file && typeof file !== "string") {
-        const f = file as File;
-        directAudio = await f.arrayBuffer(); directMime = f.type || "audio/mpeg"; directSize = f.size;
+      // Accept either a single "file" or many "files" entries.
+      const all = [...form.getAll("file"), ...form.getAll("files")];
+      for (const v of all) {
+        if (v && typeof v !== "string") {
+          const f = v as File;
+          directFiles.push({ bytes: await f.arrayBuffer(), mime: f.type || "audio/mpeg", size: f.size });
+        }
       }
       const u = form.get("audioUrl"); if (u) audioUrl = String(u);
     } else {
       const body = await req.json().catch(() => ({}));
-      leadId = body.leadId || ""; audioUrl = body.audioUrl;
+      leadId = body.leadId || "";
+      audioUrl = body.audioUrl;
+      if (Array.isArray(body.audioUrls)) audioUrls = body.audioUrls.filter((u: unknown): u is string => typeof u === "string");
     }
     if (!leadId) return jsonRes({ error: "leadId required" }, 400);
 
@@ -441,16 +461,21 @@ export async function POST(req: Request): Promise<Response> {
       }
     }
 
-    // Resolve audio bytes
-    let bytes = directAudio, mime = directMime, size = directSize ?? null;
-    if (!bytes && (audioUrl || lead.call_recording_url)) {
-      const url = audioUrl || lead.call_recording_url;
-      const resp = await fetch(url);
-      if (resp.ok) { bytes = await resp.arrayBuffer(); mime = resp.headers.get("content-type") || "audio/mpeg"; size = bytes.byteLength; }
+    // Resolve audio inputs — many files (multipart) or many URLs (JSON) or single legacy URL.
+    const inputs: Array<{ bytes: ArrayBuffer; mime: string; size: number }> = [...directFiles];
+    const urlList = [...audioUrls, ...(audioUrl ? [audioUrl] : []), ...((!audioUrls.length && !audioUrl && lead.call_recording_url) ? [lead.call_recording_url] : [])];
+    for (const url of urlList) {
+      try {
+        const resp = await fetch(url);
+        if (!resp.ok) continue;
+        const b = await resp.arrayBuffer();
+        inputs.push({ bytes: b, mime: resp.headers.get("content-type") || "audio/mpeg", size: b.byteLength });
+      } catch { /* skip individual failures */ }
     }
+    const totalSize = inputs.reduce((s, i) => s + i.size, 0);
 
     // No call → can't run the engine; flag for callback
-    if (!bytes) {
+    if (inputs.length === 0) {
       await sa.from("leads").update({
         status: "Call Back",
         qualification_reason: "No call recording attached — cannot verify. Upload the recording to run the review.",
@@ -460,11 +485,11 @@ export async function POST(req: Request): Promise<Response> {
       return jsonRes({ ok: true, status: "Call Back", reason: "no_audio" });
     }
 
-    // Audio too short
-    if (size !== null && size < MIN_FILE_SIZE_BYTES) {
+    // Audio too short (single-file case only — for multi-file, sum is the gate)
+    if (totalSize < MIN_FILE_SIZE_BYTES) {
       await sa.from("leads").update({
-        status: "Disqualified", rejection_reason: `Audio too short to evaluate (${size}B).`,
-        audio_size_bytes: size, ai_processed_at: new Date().toISOString(),
+        status: "Disqualified", rejection_reason: `Audio too short to evaluate (${totalSize}B).`,
+        audio_size_bytes: totalSize, ai_processed_at: new Date().toISOString(),
       }).eq("id", lead.id);
       return jsonRes({ ok: true, status: "Disqualified", reason: "audio_too_short" });
     }
@@ -499,14 +524,20 @@ export async function POST(req: Request): Promise<Response> {
       (zillowData?.address as string | undefined) ?? lead.extracted_address ?? null;
 
     const key = geminiKey();
-    const up = await uploadToGemini(bytes, mime || "audio/mpeg", key);
+    // Upload EVERY attached call to Gemini so the AI hears them all.
+    const ups: Array<{ uri: string; mime: string }> = [];
+    for (const inp of inputs) {
+      try { ups.push(await uploadToGemini(inp.bytes, inp.mime || "audio/mpeg", key)); }
+      catch { /* skip one bad file */ }
+    }
+    if (ups.length === 0) throw new Error("All audio uploads to the AI failed");
 
     // Two-pass: qualification + coaching
-    const q = await runQualification(up.uri, up.mime, rules, key, {
+    const q = await runQualification(ups, rules, key, {
       orgPersona, orgKillers, marketValue, propertyAddress: resolvedAddress,
     });
     let coaching = "No feedback.";
-    try { coaching = await runCoaching(up.uri, up.mime, key); } catch { /* coaching is best-effort */ }
+    try { coaching = await runCoaching(ups[0].uri, ups[0].mime, key); } catch { /* coaching is best-effort */ }
 
     const { status, reason, regeneration } = decide(q);
     const coachingArr = coaching.split(/\n+/).map(s => s.trim()).filter(Boolean);
@@ -519,7 +550,7 @@ export async function POST(req: Request): Promise<Response> {
       ai_status_reason: safeStr(q.exact_reason_quote) || reason,
       ai_model: MODEL,
       ai_processed_at: new Date().toISOString(),
-      audio_size_bytes: size,
+      audio_size_bytes: totalSize,
       extracted_address: lead.extracted_address || (q.raw_extracted_address && q.raw_extracted_address !== "Not stated on call" ? q.raw_extracted_address : lead.extracted_address),
       asking_price: lead.asking_price || (extractFirstPrice(q.spoken_asking_price) || null),
       bant_budget: safeStr(q.spoken_asking_price) !== "None" ? safeStr(q.spoken_asking_price) : null,

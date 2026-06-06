@@ -12,6 +12,7 @@ interface Campaign {
   name: string;
   custom_rules: string;
   is_active: boolean;
+  target: number | null;
   created_at: string;
   user_id: string;
 }
@@ -50,27 +51,38 @@ export default function CampaignsPage() {
     setLoading(false);
   };
 
+  const [target, setTarget] = useState<string>("");
+
   const create = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { alert("Not authenticated."); setSaving(false); return; }
 
+    const targetNum = target.trim() ? Number(target) : null;
+
     const { error } = await supabase.from("campaigns").insert({
       user_id: user.id,
       name,
       custom_rules: rules,
+      target: targetNum,
       is_active: true,
     });
 
     if (error) {
       alert("Failed to create campaign: " + error.message);
     } else {
-      setName("");
-      setRules("");
+      setName(""); setRules(""); setTarget("");
       loadAll();
     }
     setSaving(false);
+  };
+
+  const updateTarget = async (id: string, raw: string) => {
+    const t = raw.trim() ? Number(raw) : null;
+    const { error } = await supabase.from("campaigns").update({ target: t }).eq("id", id);
+    if (error) { alert(error.message); return; }
+    setCampaigns(p => p.map(c => c.id === id ? { ...c, target: t } : c));
   };
 
   const toggle = async (id: string, cur: boolean) => {
@@ -147,6 +159,21 @@ export default function CampaignsPage() {
             {new Date(c.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} ·{" "}
             {c.custom_rules.split("\n").filter(l => l.trim()).length} rules
           </p>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8 }} onClick={(e) => e.stopPropagation()}>
+            <span style={{ fontSize: 10, fontWeight: 800, color: "var(--text-3)", letterSpacing: "0.06em", textTransform: "uppercase" }}>Target</span>
+            <input
+              type="number" step="0.5" min="0"
+              defaultValue={c.target ?? ""}
+              onBlur={(e) => updateTarget(c.id, e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }}
+              placeholder="—"
+              style={{
+                width: 72, padding: "4px 8px", borderRadius: 8,
+                background: "var(--surface-3)", border: "1px solid var(--border-2)",
+                fontSize: 12, fontWeight: 700, color: "var(--text-1)", outline: "none",
+              }}
+            />
+          </div>
         </div>
 
         {/* Actions */}
@@ -294,6 +321,23 @@ export default function CampaignsPage() {
                 required
                 style={inputStyle}
               />
+            </div>
+
+            <div>
+              <label style={{
+                display: "block", fontSize: 11, fontWeight: 700, color: "var(--text-3)",
+                marginBottom: 8, letterSpacing: "0.06em", textTransform: "uppercase",
+              }}>
+                Target (qualified leads)
+              </label>
+              <input
+                type="number" step="0.5" min="0"
+                value={target}
+                onChange={e => setTarget(e.target.value)}
+                placeholder="e.g., 25"
+                style={inputStyle}
+              />
+              <p style={{ fontSize: 11, color: "var(--text-3)", marginTop: 6 }}>How many qualified leads this campaign should produce. Optional.</p>
             </div>
 
             <div>

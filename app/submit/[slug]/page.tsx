@@ -3,7 +3,9 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { Send, Loader2, CheckCircle2, AlertCircle, Upload, Lock } from "lucide-react";
+import { Send, Loader2, CheckCircle2, AlertCircle, Upload, Lock, X, FileAudio } from "lucide-react";
+import { AddressAutocomplete } from "@/app/_components/AddressAutocomplete";
+import { PipelineProgress } from "@/app/_components/PipelineProgress";
 import { T } from "@/app/_components/tokens";
 
 const NAVY = T.navy;
@@ -33,7 +35,8 @@ export default function DynamicSubmitPage() {
   const [submitting, setSubmitting] = useState(false);
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
   const [error, setError] = useState("");
-  const [callFile, setCallFile] = useState<File | null>(null);
+  const [callFiles, setCallFiles] = useState<File[]>([]);
+  const [dragOver, setDragOver] = useState(false);
   const [doneStatus, setDoneStatus] = useState<string | null>(null);
   const [zLookup, setZLookup] = useState<{ busy: boolean; msg: string }>({ busy: false, msg: "" });
   // Resolved Zillow property data for the main address (carried into metadata)
@@ -164,15 +167,20 @@ export default function DynamicSubmitPage() {
     })();
   }, [slug]);
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (file.size > 500 * 1024 * 1024) return setError("Max 500MB");
-    const valid = ["audio/mpeg", "audio/wav", "audio/ogg", "audio/mp4", "video/mp4"];
-    if (!valid.includes(file.type)) return setError("Audio/video files only");
-    setCallFile(file);
-    setError("");
+  const addFiles = (files: FileList | File[]) => {
+    const out: File[] = [];
+    const valid = ["audio/mpeg", "audio/wav", "audio/ogg", "audio/mp4", "video/mp4", "audio/x-m4a", "audio/m4a", "audio/webm"];
+    for (const f of Array.from(files)) {
+      if (f.size > 500 * 1024 * 1024) { setError(`${f.name} is over 500MB`); continue; }
+      if (!valid.includes(f.type) && !/\.(mp3|wav|ogg|m4a|mp4|webm)$/i.test(f.name)) { setError(`${f.name} is not an audio/video file`); continue; }
+      out.push(f);
+    }
+    if (out.length) { setCallFiles((p) => [...p, ...out]); setError(""); }
   };
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) addFiles(e.target.files);
+  };
+  const removeFile = (i: number) => setCallFiles((p) => p.filter((_, idx) => idx !== i));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -243,36 +251,37 @@ export default function DynamicSubmitPage() {
       if (!insertRes.ok || !insertJson.ok) throw new Error(insertJson.error || "Submission failed");
       const lead = { id: insertJson.leadId as string };
 
-      // Best-effort: store the recording for playback/library (needs the
-      // 'call-uploads' bucket). If the bucket is missing this silently skips —
-      // analysis still runs because we send the file bytes directly below.
-      if (callFile && owner.allow_call_uploads) {
-        setStatusMsg("Uploading recording...");
-        const ext = callFile.name.split(".").pop();
-        const path = `${owner.user_id}/${lead.id}/${Date.now()}.${ext}`;
-        const { error: upErr } = await supabase.storage.from("call-uploads").upload(path, callFile);
-        if (!upErr) {
+      // Best-effort: store EVERY recording in the call_uploads bucket for the library.
+      if (callFiles.length && owner.allow_call_uploads) {
+        setStatusMsg(`Uploading ${callFiles.length} recording${callFiles.length > 1 ? "s" : ""}…`);
+        let lastUrl = ""; let totalSize = 0;
+        for (const f of callFiles) {
+          const ext = f.name.split(".").pop();
+          const path = `${owner.user_id}/${lead.id}/${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
+          const { error: upErr } = await supabase.storage.from("call-uploads").upload(path, f);
+          if (upErr) continue;
           const { data: pub } = supabase.storage.from("call-uploads").getPublicUrl(path);
+          lastUrl = pub.publicUrl; totalSize += f.size;
           await supabase.from("call_uploads").insert({
             lead_id: lead.id, user_id: owner.user_id,
-            file_name: callFile.name, file_path: path,
-            file_size_bytes: callFile.size, storage_url: pub.publicUrl, status: "uploaded",
+            file_name: f.name, file_path: path,
+            file_size_bytes: f.size, storage_url: pub.publicUrl, status: "uploaded",
           });
-          await supabase.from("leads").update({
-            call_recording_url: pub.publicUrl, audio_size_bytes: callFile.size,
-          }).eq("id", lead.id);
+        }
+        if (lastUrl) {
+          await supabase.from("leads").update({ call_recording_url: lastUrl, audio_size_bytes: totalSize }).eq("id", lead.id);
         }
       }
 
-      setStatusMsg(callFile ? "Reviewing the call & verifying the lead..." : "Verifying the lead...");
+      setStatusMsg(callFiles.length ? `Reviewing ${callFiles.length} recording${callFiles.length > 1 ? "s" : ""} & verifying the lead…` : "Verifying the lead…");
 
-      // Send the audio DIRECTLY to the analyzer (multipart) so it works even
-      // if storage is unavailable. Falls back to JSON when there's no file.
+      // Send EVERY audio directly to the analyzer (multipart "files[]") so the
+      // AI listens to all of them as one combined session.
       let res: Response;
-      if (callFile) {
+      if (callFiles.length) {
         const fd = new FormData();
         fd.append("leadId", lead.id);
-        fd.append("file", callFile);
+        for (const f of callFiles) fd.append("files", f);
         res = await fetch("/api/leads/analyze", { method: "POST", body: fd });
       } else {
         res = await fetch("/api/leads/analyze", {
@@ -306,7 +315,7 @@ export default function DynamicSubmitPage() {
       property_address: "", zestimate: "", zillow_link: "", asking_price: "", reason: "",
     });
     setExtraProps([]);
-    setCallFile(null);
+    setCallFiles([]);
     setError("");
     setStatusMsg(null);
     setDoneStatus(null);
@@ -404,19 +413,30 @@ export default function DynamicSubmitPage() {
           </div>
         ) : (
         <form onSubmit={handleSubmit} style={{ background: "#FFF", borderRadius: 14, padding: 24, border: "1px solid rgba(35,43,58,0.08)", boxShadow: "0 2px 12px rgba(35,43,58,0.06)", position: "relative" }}>
-          {submitting && (
-            <div style={{
-              position: "absolute", inset: 0, borderRadius: 14, zIndex: 5,
-              background: "rgba(255,255,255,0.92)", backdropFilter: "blur(2px)",
-              display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14,
-            }}>
-              <Loader2 size={34} className="animate-spin" style={{ color: NAVY }} />
-              <p style={{ fontSize: 14, fontWeight: 700, color: NAVY }}>{statusMsg || "Processing..."}</p>
-              <p style={{ fontSize: 12, color: SLATE, maxWidth: 320, textAlign: "center", lineHeight: 1.5 }}>
-                Please keep this page open — the lead is added only after the AI finishes verifying it.
-              </p>
-            </div>
-          )}
+          {submitting && (() => {
+            const m = (statusMsg || "").toLowerCase();
+            const step = m.includes("verdict") ? 4
+              : m.includes("review") || m.includes("verify") ? 3
+              : m.includes("upload") ? 2
+              : m.includes("property") || m.includes("fetch") ? 1
+              : 0;
+            return (
+              <div style={{
+                position: "absolute", inset: 0, borderRadius: 14, zIndex: 5,
+                background: "rgba(255,255,255,0.94)", backdropFilter: "blur(4px)",
+                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+                gap: 16, padding: 24,
+              }}>
+                <p style={{ fontSize: 15, fontWeight: 800, color: NAVY }}>{statusMsg || "Processing…"}</p>
+                <div style={{ width: "100%", maxWidth: 460 }}>
+                  <PipelineProgress current={step} />
+                </div>
+                <p style={{ fontSize: 12, color: SLATE, maxWidth: 360, textAlign: "center", lineHeight: 1.5 }}>
+                  Keep this page open — the lead is saved only after the AI finishes verifying it.
+                </p>
+              </div>
+            );
+          })()}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
             <select value={formData.caller_id} onChange={e => setForm({ ...formData, caller_id: e.target.value })} required style={inputStyle}>
               <option value="">Select Cold Caller *</option>
@@ -432,7 +452,12 @@ export default function DynamicSubmitPage() {
             <input type="tel" placeholder="Phone Number *" value={formData.phone_number} onChange={e => setForm({ ...formData, phone_number: e.target.value })} required style={inputStyle} />
           </div>
           <input type="text" placeholder="Owner Name *" value={formData.owner_name} onChange={e => setForm({ ...formData, owner_name: e.target.value })} required style={{ ...inputStyle, marginBottom: 14 }} />
-          <input type="text" placeholder="Property Address (optional)" value={formData.property_address} onChange={e => setForm({ ...formData, property_address: e.target.value })} style={{ ...inputStyle, marginBottom: 6 }} />
+          <AddressAutocomplete
+            placeholder="Property Address (start typing — Google will suggest)"
+            value={formData.property_address}
+            onChange={(v) => setForm({ ...formData, property_address: v })}
+            style={{ ...inputStyle, marginBottom: 6 }}
+          />
           <p style={{ fontSize: 11, color: SLATE, marginBottom: 14 }}>
             Property details + ARV are fetched automatically when you submit.
           </p>
@@ -468,10 +493,44 @@ export default function DynamicSubmitPage() {
           <textarea placeholder="Notes / Reason for selling" rows={3} value={formData.reason} onChange={e => setForm({ ...formData, reason: e.target.value })} style={{ ...inputStyle, resize: "vertical", marginBottom: 14, fontFamily: "var(--font-sans)" }} />
 
           {owner?.allow_call_uploads && (
-            <div onClick={() => fileInputRef.current?.click()} style={{ padding: 18, borderRadius: 10, border: `2px dashed ${TEAL}40`, background: "#EEF3FF", textAlign: "center", cursor: "pointer", marginBottom: 18 }}>
-              <Upload size={20} color={TEAL} style={{ margin: "0 auto 6px" }} />
-              <p style={{ fontSize: 12, fontWeight: 600, color: NAVY }}>{callFile?.name || "Upload call recording (optional)"}</p>
-              <input ref={fileInputRef} type="file" accept="audio/*,video/mp4" onChange={handleFileSelect} style={{ display: "none" }} />
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={(e) => { e.preventDefault(); setDragOver(false); if (e.dataTransfer.files) addFiles(e.dataTransfer.files); }}
+              style={{
+                padding: 22, borderRadius: 14,
+                border: `2px dashed ${dragOver ? TEAL : `${TEAL}50`}`,
+                background: dragOver ? "#E8EFFF" : "#EEF3FF",
+                textAlign: "center", cursor: "pointer", marginBottom: 14,
+                transition: "all 180ms ease",
+              }}>
+              <Upload size={24} color={TEAL} style={{ margin: "0 auto 8px" }} />
+              <p style={{ fontSize: 13, fontWeight: 700, color: NAVY }}>
+                {dragOver ? "Drop files to upload" : callFiles.length ? "Add more recordings" : "Drag & drop recordings, or click to choose"}
+              </p>
+              <p style={{ fontSize: 11, color: SLATE, marginTop: 3 }}>
+                Audio or video · up to 500MB each · multiple files OK
+              </p>
+              <input ref={fileInputRef} type="file" multiple accept="audio/*,video/mp4" onChange={handleFileSelect} style={{ display: "none" }} />
+            </div>
+          )}
+          {callFiles.length > 0 && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 18 }}>
+              {callFiles.map((f, i) => (
+                <div key={i} style={{
+                  display: "flex", alignItems: "center", gap: 10,
+                  padding: "9px 12px", borderRadius: 9, background: "#F2F5F9", border: "1px solid rgba(35,43,58,0.08)",
+                }}>
+                  <FileAudio size={14} color={TEAL} />
+                  <p style={{ flex: 1, fontSize: 12, color: NAVY, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{f.name}</p>
+                  <span style={{ fontSize: 10, color: SLATE }}>{(f.size / 1_048_576).toFixed(1)} MB</span>
+                  <button type="button" onClick={(e) => { e.stopPropagation(); removeFile(i); }}
+                    style={{ background: "transparent", border: "none", cursor: "pointer", color: "#DC2626", padding: 2 }}>
+                    <X size={14} />
+                  </button>
+                </div>
+              ))}
             </div>
           )}
 

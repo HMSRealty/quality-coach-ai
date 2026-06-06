@@ -78,11 +78,11 @@
   --border-4: rgba(15,23,42,0.22);
   --border-brand: rgba(242,38,111,0.30);
 
-  /* ── Text ──────────────────────────────────────────────────────────── */
-  --text-1: #0B0F1F;
-  --text-2: #4B5563;
-  --text-3: #94A3B8;
-  --text-4: #CBD5E1;
+  /* ── Text (eye-friendly contrast tuned for AA on cream canvas) ─────── */
+  --text-1: #0F1424;   /* primary — slightly less harsh than pure midnight */
+  --text-2: #3F4858;   /* secondary — passes AA on white */
+  --text-3: #6B7587;   /* tertiary — readable, not faded */
+  --text-4: #B6BFCD;   /* disabled */
 
   --brand-300: #B7A6E8;
   --brand-400: var(--magenta);
@@ -130,10 +130,11 @@
   --surface-4: #1F2748;
   --surface-5: #2B345B;
 
-  --text-1: #F1F4FA;
-  --text-2: #B5BCCB;
-  --text-3: #7C8499;
-  --text-4: #3E4762;
+  /* Dark theme — bright whites + clearly legible secondaries */
+  --text-1: #F4F6FB;
+  --text-2: #C7CEDC;
+  --text-3: #98A0B3;
+  --text-4: #4A5471;
 
   --border-1: rgba(255,255,255,0.06);
   --border-2: rgba(255,255,255,0.10);
