@@ -26,6 +26,15 @@ export async function POST(req: Request): Promise<Response> {
     if (!agentName) return Response.json({ ok: false, error: "agentName required" }, { status: 400 });
 
     const sb = service();
+
+    // AUTH + TENANCY — scope the whole computation to the caller's org so an
+    // agent name that also exists in another tenant can't leak aggregated stats.
+    const token = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
+    if (!token) return Response.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+    const { data: { user: authUser }, error: authErr } = await sb.auth.getUser(token);
+    if (authErr || !authUser) return Response.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+    const { data: me } = await sb.from("profiles").select("organization_id").eq("id", authUser.id).maybeSingle();
+    const callerOrg = (me?.organization_id as string | null) ?? null;
     // Cache: return if updated in the last 12 hours unless force=true.
     if (!force) {
       const { data: cache } = await sb.from("agent_scorecards")
@@ -36,15 +45,17 @@ export async function POST(req: Request): Promise<Response> {
       }
     }
 
-    // Pull the last 90 days of decided leads for this agent.
+    // Pull the last 90 days of decided leads for this agent — scoped to org.
     const since = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
-    const { data: leads } = await sb.from("leads")
+    let lq = sb.from("leads")
       .select("id, status, qualification_reason, ai_feedback, ai_coaching_points, metadata, organization_id, created_at")
       .eq("agent_name", agentName)
       .gte("created_at", since)
       .neq("status", "Processing")
       .order("created_at", { ascending: false })
       .limit(60);
+    if (callerOrg) lq = lq.eq("organization_id", callerOrg);
+    const { data: leads } = await lq;
 
     const sample = (leads || []).slice(0, 30); // cap input size
     if (sample.length === 0) {

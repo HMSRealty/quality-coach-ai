@@ -33,18 +33,24 @@ export async function POST(
 
     const sb = service();
 
+    // ── AUTH + TENANCY ── service role bypasses RLS; verify the caller and that
+    // they share the lead's org before letting them attach billable recordings.
+    const token = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
+    if (!token) return Response.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+    const { data: { user }, error: authErr } = await sb.auth.getUser(token);
+    if (authErr || !user) return Response.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+    const { data: me } = await sb.from("profiles").select("organization_id").eq("id", user.id).maybeSingle();
+
     // Confirm the lead exists + get the owner (path namespace + DB ownership).
     const { data: lead, error: leadErr } = await sb
       .from("leads").select("id, user_id, organization_id").eq("id", id).maybeSingle();
     if (leadErr || !lead) return Response.json({ ok: false, error: "Lead not found" }, { status: 404 });
 
-    // Best-effort: who is uploading (for uploaded_by).
-    let uploaderId: string | null = lead.user_id ?? null;
-    const token = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
-    if (token) {
-      const { data: { user } } = await sb.auth.getUser(token);
-      if (user) uploaderId = user.id;
-    }
+    const sameOrg = lead.organization_id && me?.organization_id && lead.organization_id === me.organization_id;
+    const ownsLegacy = lead.user_id && lead.user_id === user.id;
+    if (!sameOrg && !ownsLegacy) return Response.json({ ok: false, error: "Forbidden" }, { status: 403 });
+
+    const uploaderId: string = user.id;
 
     const form = await req.formData();
     const files = [...form.getAll("files"), ...form.getAll("file")].filter((f): f is File => typeof f !== "string");

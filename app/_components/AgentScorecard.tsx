@@ -4,6 +4,7 @@
 // leads (not just this one call). Cached server-side for 12h.
 import { useEffect, useState } from "react";
 import { Award, Loader2, RefreshCw, TrendingUp, TrendingDown } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 import { T } from "@/app/_components/tokens";
 
 interface Result {
@@ -23,8 +24,10 @@ export function AgentScorecard({ agentName }: { agentName: string | null | undef
   const fetchOne = async (force = false) => {
     if (!agentName) { setLoading(false); return; }
     setBusy(true);
+    const { data: { session } } = await supabase.auth.getSession();
     const r = await fetch("/api/agents/scorecard", {
-      method: "POST", headers: { "Content-Type": "application/json" },
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${session?.access_token}` },
       body: JSON.stringify({ agentName, force }),
     });
     const j = await r.json().catch(() => ({}));

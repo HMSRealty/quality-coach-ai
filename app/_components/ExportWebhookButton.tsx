@@ -28,8 +28,10 @@ export function ExportWebhookButton({ leadId }: { leadId: string }) {
   const fire = async (override?: string) => {
     setBusy(true);
     try {
+      const { data: { session } } = await supabase.auth.getSession();
       const r = await fetch(`/api/leads/${leadId}/export`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session?.access_token}` },
         body: JSON.stringify(override ? { url: override } : {}),
       });
       const j = await r.json().catch(() => ({}));

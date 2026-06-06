@@ -28,12 +28,30 @@ export async function POST(
     const body = (await req.json().catch(() => ({}))) as Body;
 
     const sb = service();
+
+    // ── AUTH + TENANCY ── the service role bypasses RLS, so we MUST verify the
+    // caller is authenticated and belongs to the same org as the lead. Without
+    // this, anyone could export any tenant's lead PII to an arbitrary webhook.
+    const token = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
+    if (!token) return Response.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+    const { data: { user }, error: authErr } = await sb.auth.getUser(token);
+    if (authErr || !user) return Response.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+    const { data: me } = await sb.from("profiles").select("organization_id").eq("id", user.id).maybeSingle();
+
     const { data: lead, error } = await sb
       .from("leads")
       .select("*, campaigns(name)")
       .eq("id", id)
       .maybeSingle();
     if (error || !lead) return Response.json({ ok: false, error: "Lead not found" }, { status: 404 });
+
+    // Tenant gate: lead must be in the caller's org (or, for legacy rows with no
+    // org yet, owned by the caller).
+    const sameOrg = lead.organization_id && me?.organization_id && lead.organization_id === me.organization_id;
+    const ownsLegacy = lead.user_id && lead.user_id === user.id;
+    if (!sameOrg && !ownsLegacy) {
+      return Response.json({ ok: false, error: "Forbidden" }, { status: 403 });
+    }
 
     // Pick the destination URL: explicit override > org's saved URL.
     let url = body.url?.trim();

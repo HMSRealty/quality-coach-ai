@@ -473,6 +473,7 @@ function jsonRes(body: unknown, status = 200): Response {
 }
 
 export async function POST(req: Request): Promise<Response> {
+  let leadIdOuter = "";
   try {
     let leadId = "", audioUrl: string | undefined;
     let audioUrls: string[] = [];
@@ -498,6 +499,7 @@ export async function POST(req: Request): Promise<Response> {
       if (Array.isArray(body.audioUrls)) audioUrls = body.audioUrls.filter((u: unknown): u is string => typeof u === "string");
     }
     if (!leadId) return jsonRes({ error: "leadId required" }, 400);
+    leadIdOuter = leadId;
 
     const sa = service();
     const { data: lead, error: leadErr } = await sa.from("leads").select("*").eq("id", leadId).single();
@@ -513,8 +515,14 @@ export async function POST(req: Request): Promise<Response> {
       }
     }
 
+    // ── COST GUARD ── Gemini bills per second of audio. Cap how many
+    // recordings we send per analysis so a lead with many calls can't blow up
+    // the bill. MAX_ANALYZE_FILES newest files + a hard total-bytes ceiling.
+    const MAX_ANALYZE_FILES = 4;
+    const MAX_ANALYZE_BYTES = 120 * 1024 * 1024; // ~120MB combined upload to the model
+
     // Resolve audio inputs — many files (multipart) or many URLs (JSON) or single legacy URL.
-    const inputs: Array<{ bytes: ArrayBuffer; mime: string; size: number }> = [...directFiles];
+    let inputs: Array<{ bytes: ArrayBuffer; mime: string; size: number }> = [...directFiles];
     const urlList = [...audioUrls, ...(audioUrl ? [audioUrl] : []), ...((!audioUrls.length && !audioUrl && lead.call_recording_url) ? [lead.call_recording_url] : [])];
     for (const url of urlList) {
       try {
@@ -523,6 +531,17 @@ export async function POST(req: Request): Promise<Response> {
         const b = await resp.arrayBuffer();
         inputs.push({ bytes: b, mime: resp.headers.get("content-type") || "audio/mpeg", size: b.byteLength });
       } catch { /* skip individual failures */ }
+    }
+    // Keep the newest N files within the byte ceiling (cost guard).
+    if (inputs.length > MAX_ANALYZE_FILES) inputs = inputs.slice(-MAX_ANALYZE_FILES);
+    {
+      const capped: typeof inputs = [];
+      let running = 0;
+      for (const inp of inputs) {
+        if (running + inp.size > MAX_ANALYZE_BYTES && capped.length > 0) break;
+        capped.push(inp); running += inp.size;
+      }
+      inputs = capped;
     }
     const totalSize = inputs.reduce((s, i) => s + i.size, 0);
 
@@ -652,6 +671,18 @@ export async function POST(req: Request): Promise<Response> {
 
     return jsonRes({ ok: true, status, reason });
   } catch (e) {
+    // Never leave a lead stuck in "Processing" — flip it to Error so the UI
+    // shows it and the user can re-run, rather than spinning forever.
+    if (leadIdOuter) {
+      try {
+        await service().from("leads").update({
+          status: "Error",
+          ai_status_reason: "Analysis failed — please re-run.",
+          rejection_reason: e instanceof Error ? e.message.slice(0, 300) : "Analysis error",
+          ai_processed_at: new Date().toISOString(),
+        }).eq("id", leadIdOuter);
+      } catch { /* best-effort */ }
+    }
     return jsonRes({ error: e instanceof Error ? e.message : "Server error" }, 500);
   }
 }

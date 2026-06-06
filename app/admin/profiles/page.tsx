@@ -57,15 +57,21 @@ export default function AdminProfilesPage() {
     setLoading(true);
     const { data: pData } = await supabase.from("profiles").select("*").order("created_at", { ascending: false });
     if (!pData) { setLoading(false); return; }
-    const enriched = await Promise.all(
-      (pData as Profile[]).map(async (p) => {
-        const [lRes, cRes] = await Promise.all([
-          supabase.from("leads").select("id", { count: "exact", head: true }).eq("user_id", p.id),
-          supabase.from("campaigns").select("id", { count: "exact", head: true }).eq("user_id", p.id),
-        ]);
-        return { ...p, lead_count: lRes.count ?? 0, campaign_count: cRes.count ?? 0 };
-      })
-    );
+
+    // Avoid the N+1: pull all owner ids for leads/campaigns in TWO queries total,
+    // then tally counts client-side instead of 2 queries per profile.
+    const [{ data: leadRows }, { data: campRows }] = await Promise.all([
+      supabase.from("leads").select("user_id").limit(50000),
+      supabase.from("campaigns").select("user_id").limit(50000),
+    ]);
+    const leadCounts = new Map<string, number>();
+    (leadRows || []).forEach((r: { user_id: string | null }) => { if (r.user_id) leadCounts.set(r.user_id, (leadCounts.get(r.user_id) || 0) + 1); });
+    const campCounts = new Map<string, number>();
+    (campRows || []).forEach((r: { user_id: string | null }) => { if (r.user_id) campCounts.set(r.user_id, (campCounts.get(r.user_id) || 0) + 1); });
+
+    const enriched = (pData as Profile[]).map((p) => ({
+      ...p, lead_count: leadCounts.get(p.id) ?? 0, campaign_count: campCounts.get(p.id) ?? 0,
+    }));
     setProfiles(enriched);
     setLoading(false);
   };
