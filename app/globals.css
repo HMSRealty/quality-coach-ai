@@ -168,12 +168,20 @@ html, body {
 }
 ::selection { background: var(--magenta-dim); color: var(--text-1); }
 [data-theme="dark"] ::selection { background: rgba(242,38,111,0.32); color: #fff; }
+/* ── Lenis smooth-scroll boilerplate ──────────────────────────────────
+   Mandatory rules from the Lenis docs. The vertical scroll must own the
+   document; never let overflow-x:hidden on html/body fight it (use a wrapper
+   if you need to clip horizontally). overscroll-behavior:none stops the
+   rubber-band/chaining that makes inertial scroll feel broken. */
 html { scroll-behavior: smooth; }
-/* When Lenis is mounted it adds the .lenis class on <html>.
-   Disable native smooth-scroll so Lenis's inertial scroll is the only driver. */
-html.lenis { scroll-behavior: auto !important; }
-html.lenis, html.lenis body { height: auto; overflow: visible; }
-.lenis.lenis-scrolling iframe { pointer-events: none; }
+html, body { overscroll-behavior: none; }                 /* no bounce/chaining */
+html, body { overflow-x: clip; }                          /* clip X without trapping Y scroll */
+
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; } /* Lenis drives, not the browser */
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
+.lenis.lenis-smooth iframe { pointer-events: none; }
 img, video { max-width: 100%; height: auto; }
 
 /* Heavy, impactful display headings (Gong vibe) */

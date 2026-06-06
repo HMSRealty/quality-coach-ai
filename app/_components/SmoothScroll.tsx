@@ -1,62 +1,73 @@
 "use client";
 
-// Global smooth scroll via Lenis. The previous setup let inertial
-// scrolling fall out of sync when the layout had any nested overflow
-// containers. This version:
-//   • binds Lenis to the document/window explicitly
-//   • adds the `lenis` class to <html> so Lenis's own CSS (imported in
-//     globals.css) takes effect
-//   • disables Lenis whenever the user prefers reduced motion
-//   • cancels properly on hot-reload so a second instance never starts
-import { useEffect } from "react";
+// Global Lenis smooth scroll for the Next.js 15 App Router.
+//   1. Single Lenis instance bound to the window.
+//   2. usePathname() → on every route change, reset scroll to top immediately
+//      (Next client navigation otherwise keeps the old scroll offset).
+//   3. RAF loop cancelled in cleanup → no leaks / double-loops on hot reload.
+//   4. Honors prefers-reduced-motion (skips Lenis entirely).
+import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import Lenis from "lenis";
 
 export function SmoothScroll() {
+  const lenisRef = useRef<Lenis | null>(null);
+  const pathname = usePathname();
+
   useEffect(() => {
-    // Respect OS reduced-motion preference — never override native scroll.
     if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       return;
     }
 
-    // Lenis ships a CSS sheet that EXPECTS this class on <html>.
+    // Lenis's own stylesheet keys off this class on <html>.
     document.documentElement.classList.add("lenis");
 
     const lenis = new Lenis({
-      // Bind explicitly to the window — older versions of Lenis default to
-      // document.documentElement which sometimes loses sync.
-      wrapper: window,
-      content: document.documentElement,
-      duration: 1.05,                                 // a touch heavier than default
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      duration: 1.05,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // expo-out
       smoothWheel: true,
       touchMultiplier: 1.6,
-      // wheelMultiplier left at default 1 so trackpads aren't oversensitive.
     });
+    lenisRef.current = lenis;
 
-    let raf = 0;
-    const loop = (time: number) => { lenis.raf(time); raf = requestAnimationFrame(loop); };
-    raf = requestAnimationFrame(loop);
+    let rafId = 0;
+    const raf = (time: number) => {
+      lenis.raf(time);
+      rafId = requestAnimationFrame(raf);
+    };
+    rafId = requestAnimationFrame(raf);
 
-    // Programmatic scroll-to-anchor (e.g., #pricing) — let Lenis handle it.
-    const onAnchor = (e: MouseEvent) => {
+    // In-page anchor links (#pricing etc.) → let Lenis animate to them.
+    const onAnchorClick = (e: MouseEvent) => {
       const a = (e.target as HTMLElement)?.closest("a");
-      if (!a) return;
-      const href = a.getAttribute("href");
+      const href = a?.getAttribute("href");
       if (!href || !href.startsWith("#") || href.length < 2) return;
       const el = document.querySelector(href);
       if (!el) return;
       e.preventDefault();
-      lenis.scrollTo(el as HTMLElement, { offset: -60 });
+      lenis.scrollTo(el as HTMLElement, { offset: -72 });
     };
-    document.addEventListener("click", onAnchor);
+    document.addEventListener("click", onAnchorClick);
 
     return () => {
-      cancelAnimationFrame(raf);
-      document.removeEventListener("click", onAnchor);
+      cancelAnimationFrame(rafId);
+      document.removeEventListener("click", onAnchorClick);
       lenis.destroy();
+      lenisRef.current = null;
       document.documentElement.classList.remove("lenis");
     };
   }, []);
+
+  // Route change → snap to top instantly so new pages start at the top.
+  useEffect(() => {
+    const lenis = lenisRef.current;
+    if (lenis) {
+      lenis.scrollTo(0, { immediate: true });
+    } else {
+      // Reduced-motion / Lenis-off fallback.
+      window.scrollTo(0, 0);
+    }
+  }, [pathname]);
 
   return null;
 }

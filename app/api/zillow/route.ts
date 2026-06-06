@@ -9,6 +9,8 @@
 //   GET /api/zillow?address=...&debug=1   → includes raw + how it resolved
 //   GET /api/zillow?path=/byurl?url=...   → raw passthrough on the data host
 
+import { createClient } from "@supabase/supabase-js";
+
 export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
@@ -17,6 +19,42 @@ const HOST_DATA = "private-zillow.p.rapidapi.com";
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
+}
+
+// ── property_data_cache (Pillar 6) ────────────────────────────────────────
+// Shared, server-only cache so the same address never bills RapidAPI twice.
+function cacheClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) return null;
+  return createClient(url, key, { auth: { persistSession: false } });
+}
+// sha256(lower(normalized address)) — Web Crypto, edge-safe.
+async function addrHash(addr: string): Promise<string> {
+  const norm = addr.trim().toLowerCase().replace(/[.,#]/g, "").replace(/\s+/g, " ");
+  const bytes = new TextEncoder().encode(norm);
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+interface CachedPayload { normalized: ReturnType<typeof normalize>; comparables: Array<{ price: number; sqft?: number; address?: string }> }
+async function cacheGet(hash: string): Promise<CachedPayload | null> {
+  const sb = cacheClient(); if (!sb) return null;
+  try {
+    const { data } = await sb.from("property_data_cache")
+      .select("normalized").eq("address_hash", hash)
+      .gt("expires_at", new Date().toISOString()).maybeSingle();
+    return data ? (data.normalized as CachedPayload) : null;
+  } catch { return null; }
+}
+async function cacheSet(hash: string, payload: CachedPayload): Promise<void> {
+  const sb = cacheClient(); if (!sb) return;
+  try {
+    await sb.from("property_data_cache").upsert({
+      address_hash: hash, provider: "private-zillow", normalized: payload,
+      fetched_at: new Date().toISOString(),
+      expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+    });
+  } catch { /* cache is best-effort */ }
 }
 
 async function call(host: string, path: string, key: string) {
@@ -249,6 +287,16 @@ export async function GET(req: Request): Promise<Response> {
 
     const attempts: Array<{ via: string; url: string; status: number }> = [];
 
+    // STEP 0 — cache. If we've already resolved this exact address, return it and
+    // skip RapidAPI entirely (Pillar 6 — never bill twice for the same address).
+    const hash = await addrHash(address);
+    if (!debug) {
+      const cached = await cacheGet(hash);
+      if (cached?.normalized && hasData(cached.normalized)) {
+        return json({ ok: true, source: "cache", match: true, normalized: cached.normalized, comparables: cached.comparables || [] });
+      }
+    }
+
     // STEP 1 — autocomplete. Walk ALL returned candidates (not just the first
     // zpid) and require a STRICT match on street #, name, city, state, ZIP.
     const ac = await call(HOST_DATA, `/autocomplete?query=${encodeURIComponent(address)}`, key);
@@ -294,6 +342,9 @@ export async function GET(req: Request): Promise<Response> {
     // STEP 3 — fetch nearby comps for ARV (best-effort, capped).
     const typedZip = parseTyped(address).zip;
     const comparables = await fetchComps(typedZip, { sqft: chosen.n.sqft, zpid: chosen.n.zpid }, key);
+
+    // Persist to the shared cache for 30 days.
+    await cacheSet(hash, { normalized: chosen.n, comparables });
 
     return finish(chosen.n, address, "address->zpid->byurl", debug ? chosen.raw : undefined, attempts, comparables);
   } catch (e) {
