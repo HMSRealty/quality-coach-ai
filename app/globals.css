@@ -301,6 +301,36 @@ button, a, input, select, textarea {
 .trend-up   { color: var(--emerald); background: var(--emerald-bg); }
 .trend-down { color: var(--rose);    background: var(--rose-bg); }
 
+/* ── Google Places Autocomplete dropdown ─────────────────────────────
+   By default Google injects raw .pac-container markup with hard-coded
+   styles + a gray pin icon that doesn't belong in our UI. Override. */
+.pac-container {
+  z-index: 9999 !important;
+  background: var(--surface-1) !important;
+  border: 1px solid var(--border-2) !important;
+  border-radius: 14px !important;
+  box-shadow: var(--shadow-lg) !important;
+  font-family: var(--font-sans) !important;
+  margin-top: 6px !important;
+  padding: 6px !important;
+  overflow: hidden !important;
+}
+.pac-container:after { display: none !important; }   /* hides "powered by Google" stripe */
+.pac-item {
+  padding: 10px 12px !important;
+  border-top: 1px solid var(--border-1) !important;
+  border-radius: 10px !important;
+  font-size: 13px !important;
+  color: var(--text-1) !important;
+  cursor: pointer !important;
+}
+.pac-item:first-child { border-top: none !important; }
+.pac-item:hover, .pac-item-selected { background: var(--surface-3) !important; }
+.pac-icon { display: none !important; }              /* kill the gray pin glyph */
+.pac-item-query { color: var(--text-1) !important; font-weight: 700 !important; font-size: 13px !important; }
+.pac-matched { color: var(--magenta) !important; }
+.pac-item span { color: var(--text-2) !important; }
+
 /* Reduce motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

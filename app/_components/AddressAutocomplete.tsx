@@ -91,6 +91,10 @@ export function AddressAutocomplete({ value, onChange, placeholder, required, st
 
   const badge = STATUS_LABEL[status];
 
+  // Reserve room on the right of the input for the status dot so it never
+  // overlaps the typed text.
+  const inputStyle: React.CSSProperties = { ...style, paddingRight: 38 };
+
   return (
     <div style={{ position: "relative" }}>
       <input
@@ -101,19 +105,20 @@ export function AddressAutocomplete({ value, onChange, placeholder, required, st
         placeholder={placeholder}
         required={required}
         autoComplete="off"
-        style={style}
+        style={inputStyle}
       />
-      <span title={badge.tip} style={{
-        position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)",
-        display: "inline-flex", alignItems: "center", gap: 5,
-        padding: "3px 8px", borderRadius: 999,
-        background: badge.bg, color: badge.fg,
-        fontSize: 10, fontWeight: 800, letterSpacing: "0.04em",
-        pointerEvents: "auto", cursor: "help",
-      }}>
-        <span style={{ width: 6, height: 6, borderRadius: "50%", background: badge.dot }} />
-        {badge.label}
-      </span>
+      {/* Compact dot — hover for full status text. */}
+      <span
+        title={`${badge.label} — ${badge.tip}`}
+        aria-label={badge.label}
+        style={{
+          position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)",
+          width: 10, height: 10, borderRadius: "50%",
+          background: badge.dot,
+          boxShadow: status === "ready" ? `0 0 10px ${badge.dot}88` : "none",
+          pointerEvents: "auto", cursor: "help",
+        }}
+      />
     </div>
   );
 }
