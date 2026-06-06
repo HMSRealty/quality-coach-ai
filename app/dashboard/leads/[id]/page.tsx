@@ -9,6 +9,7 @@ import { HandoffBrief } from "@/app/_components/HandoffBrief";
 import { DealCalculator } from "@/app/_components/DealCalculator";
 import { ExportWebhookButton } from "@/app/_components/ExportWebhookButton";
 import { AgentScorecard } from "@/app/_components/AgentScorecard";
+import { TranscriptCard } from "@/app/_components/TranscriptCard";
 import {
   ArrowLeft, MapPin, DollarSign, User, Calendar, Phone, FileText,
   CheckCircle2, XCircle, Clock, Loader2, Sparkles, Target,
@@ -41,6 +42,7 @@ interface Lead {
   bant_need: string | null;
   bant_timeline: string | null;
   call_recording_url: string | null;
+  transcript: string | null;
   rejection_reason: string | null;
   audio_duration_seconds: number | null;
   metadata: Record<string, unknown> | null;
@@ -500,6 +502,7 @@ export default function LeadDetailPage() {
         const owner = String(md.owner_name ?? "") || null;
         return (
           <>
+            <TranscriptCard transcript={lead.transcript} />
             <HandoffBrief
               personality={(md.seller_personality as string) ?? null}
               painPoint={(md.seller_pain_point as string) ?? null}
