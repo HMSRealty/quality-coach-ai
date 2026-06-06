@@ -130,6 +130,13 @@ export function GongPlayer({ src: srcProp, recordingId, downloadUrl, title, lead
     const p = (e.clientX - rect.left) / rect.width;
     a.currentTime = Math.max(0, Math.min(dur, p * dur));
   };
+  const [hover, setHover] = useState<{ x: number; t: number } | null>(null);
+  const onHoverMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!dur) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const p = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    setHover({ x: e.clientX - rect.left, t: p * dur });
+  };
   const changeRate = (next: number) => {
     setRate(next); if (audioRef.current) audioRef.current.playbackRate = next;
   };
@@ -156,9 +163,9 @@ export function GongPlayer({ src: srcProp, recordingId, downloadUrl, title, lead
       {resolving && <p style={{ fontSize: 11, color: "var(--text-3)" }}>Preparing secure stream…</p>}
 
       {/* Waveform / progress */}
-      <div onClick={seek}
+      <div onClick={seek} onMouseMove={onHoverMove} onMouseLeave={() => setHover(null)}
         style={{
-          height: 78, padding: "0 2px", borderRadius: 12, cursor: "pointer", position: "relative",
+          height: 88, padding: "0 2px", borderRadius: 14, cursor: "pointer", position: "relative",
           background: "var(--surface-3)", display: "flex", alignItems: "center", gap: 2, overflow: "hidden",
         }}>
         {/* Snippet selection band */}
@@ -174,24 +181,40 @@ export function GongPlayer({ src: srcProp, recordingId, downloadUrl, title, lead
           }} />
         )}
         {bars.map((h, i) => {
-          const filled = i / bars.length <= progress;
+          const frac = i / bars.length;
+          const filled = frac <= progress;
+          const hovered = hover && dur > 0 && frac <= hover.t / dur && frac > progress;
           return (
             <span key={i} style={{
               flex: 1,
-              height: `${h * 60 + 10}%`,
+              height: `${h * 64 + 10}%`,
               borderRadius: 2,
-              background: filled ? T.gradPrimary : "var(--surface-5)",
-              opacity: filled ? 1 : 0.65,
-              transition: "background 120ms",
+              background: filled ? T.gradPrimary : hovered ? "var(--magenta-dim)" : "var(--surface-5)",
+              opacity: filled ? 1 : hovered ? 0.9 : 0.6,
+              transition: "background 90ms, opacity 90ms",
             }} />
           );
         })}
+        {/* played playhead */}
         <span style={{
           position: "absolute", top: 0, bottom: 0,
           left: `${progress * 100}%`, width: 2,
           background: "var(--magenta)", boxShadow: "0 0 12px var(--magenta-glow)",
           pointerEvents: "none",
         }} />
+        {/* hover scrub line + time tooltip */}
+        {hover && (
+          <>
+            <span style={{ position: "absolute", top: 0, bottom: 0, left: hover.x, width: 1, background: "var(--text-3)", opacity: 0.5, pointerEvents: "none" }} />
+            <span style={{
+              position: "absolute", top: 6, left: Math.min(Math.max(hover.x, 22), 9999),
+              transform: "translateX(-50%)",
+              padding: "2px 7px", borderRadius: 6, fontSize: 10, fontWeight: 800,
+              background: "var(--text-1)", color: "var(--surface-1)",
+              fontVariantNumeric: "tabular-nums", pointerEvents: "none", whiteSpace: "nowrap",
+            }}>{fmt(hover.t)}</span>
+          </>
+        )}
       </div>
 
       {/* Transport */}

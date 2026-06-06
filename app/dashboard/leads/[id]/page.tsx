@@ -10,6 +10,7 @@ import { DealCalculator } from "@/app/_components/DealCalculator";
 import { ExportWebhookButton } from "@/app/_components/ExportWebhookButton";
 import { AgentScorecard } from "@/app/_components/AgentScorecard";
 import { TranscriptCard } from "@/app/_components/TranscriptCard";
+import Link from "next/link";
 import {
   ArrowLeft, MapPin, DollarSign, User, Calendar, Phone, FileText,
   CheckCircle2, XCircle, Clock, Loader2, Sparkles, Target,
@@ -145,7 +146,7 @@ export default function LeadDetailPage() {
 
   if (loading) return (
     <div style={{ textAlign: "center", padding: 60 }}>
-      <Loader2 size={28} className="animate-spin" style={{ color: NAVY, margin: "0 auto" }} />
+      <Loader2 size={28} className="animate-spin" style={{ color: "var(--text-1)", margin: "0 auto" }} />
     </div>
   );
 
@@ -160,44 +161,52 @@ export default function LeadDetailPage() {
 
   return (
     <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", flexDirection: "column", gap: 22 }} className="animate-in">
-      <button onClick={() => router.back()} style={{
+      <Link href="/dashboard/calls" style={{
         display: "inline-flex", alignItems: "center", gap: 6,
         padding: "6px 0", background: "none", border: "none",
-        color: SLATE, fontSize: 13, fontWeight: 600, cursor: "pointer",
-        alignSelf: "flex-start",
-      }}>
-        <ArrowLeft size={14} /> Back
-      </button>
+        color: SLATE, fontSize: 12, fontWeight: 700, cursor: "pointer",
+        alignSelf: "flex-start", textDecoration: "none",
+        textTransform: "uppercase", letterSpacing: "0.05em",
+      }}
+      onMouseEnter={(e) => (e.currentTarget.style.color = "var(--magenta)")}
+      onMouseLeave={(e) => (e.currentTarget.style.color = "var(--slate)")}
+      >
+        <ArrowLeft size={13} /> Call Library
+      </Link>
 
-      {/* Header */}
+      {/* Header hero — midnight panel with magenta glow */}
       <div style={{
-        padding: 28, borderRadius: 18,
-        background: `linear-gradient(135deg, ${NAVY} 0%, #2A3347 100%)`,
-        color: "#fff", boxShadow: "0 12px 40px rgba(35,43,58,0.30)",
+        position: "relative", overflow: "hidden",
+        padding: 30, borderRadius: 22,
+        background: "linear-gradient(135deg, #0B0F1F 0%, #161C36 100%)",
+        color: "#fff", boxShadow: "0 24px 60px rgba(11,15,31,0.45)",
+        border: "1px solid rgba(255,255,255,0.06)",
       }}>
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 18, flexWrap: "wrap", gap: 12 }}>
+        <div style={{ position: "absolute", top: -120, right: -60, width: 360, height: 360, borderRadius: "50%", background: "radial-gradient(circle, rgba(242,38,111,0.22), transparent 70%)", filter: "blur(12px)", pointerEvents: "none" }} />
+        <div style={{ position: "relative", display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 22, flexWrap: "wrap", gap: 12 }}>
           <div>
-            <p style={{ fontSize: 11, fontWeight: 700, color: TEAL, letterSpacing: "0.12em", marginBottom: 8 }}>LEAD #{lead.id.slice(0, 8)}</p>
-            <h1 style={{ fontSize: 28, fontWeight: 900, letterSpacing: "-0.02em" }}>
+            <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", marginBottom: 8, background: T.gradPrimary, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>LEAD #{lead.id.slice(0, 8)}</p>
+            <h1 style={{ fontSize: 30, fontWeight: 900, letterSpacing: "-0.02em", lineHeight: 1.1 }}>
               {lead.extracted_address || "Unknown address"}
             </h1>
             {lead.campaigns?.name && (
-              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.7)", marginTop: 6 }}>
-                Campaign: <strong style={{ color: GOLD }}>{lead.campaigns.name}</strong>
+              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", marginTop: 8 }}>
+                Campaign: <strong style={{ color: "#FF4F92" }}>{lead.campaigns.name}</strong>
               </p>
             )}
           </div>
           <div style={{
             display: "inline-flex", alignItems: "center", gap: 8,
-            padding: "10px 16px", borderRadius: 999,
+            padding: "10px 18px", borderRadius: 999,
             background: status.bg, color: status.color,
-            fontSize: 13, fontWeight: 800,
+            fontSize: 14, fontWeight: 800,
+            boxShadow: `0 8px 24px ${status.color}33`,
           }}>
-            <StatusIcon size={15} /> {lead.status}
+            <StatusIcon size={16} /> {lead.status}
           </div>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 20, marginTop: 14 }}>
+        <div style={{ position: "relative", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 14 }}>
           <HeaderStat icon={DollarSign} label="Asking Price" value={lead.asking_price ? `$${lead.asking_price.toLocaleString()}` : "—"} />
           <HeaderStat icon={User} label="Agent" value={lead.agent_name || "—"} />
           <HeaderStat icon={Calendar} label="Submitted" value={new Date(lead.created_at).toLocaleDateString()} />
@@ -217,7 +226,7 @@ export default function LeadDetailPage() {
             <p style={{ fontSize: 12, fontWeight: 700, color: status.color, marginBottom: 4 }}>
               Why this status?
             </p>
-            <p style={{ fontSize: 13, color: NAVY, lineHeight: 1.6 }}>
+            <p style={{ fontSize: 13, color: "var(--text-1)", lineHeight: 1.6 }}>
               {lead.ai_status_reason || lead.rejection_reason}
             </p>
           </div>
@@ -246,7 +255,7 @@ export default function LeadDetailPage() {
               {rows.map(([label, value]) => (
                 <div key={label}>
                   <p style={{ fontSize: 10, fontWeight: 700, color: SLATE, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 3 }}>{label}</p>
-                  <p style={{ fontSize: 13, color: NAVY, fontWeight: 600 }}>{value}</p>
+                  <p style={{ fontSize: 13, color: "var(--text-1)", fontWeight: 600 }}>{value}</p>
                 </div>
               ))}
               {zillow && (
@@ -263,7 +272,7 @@ export default function LeadDetailPage() {
                 <div style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid rgba(35,43,58,0.06)" }}>
                   <p style={{ fontSize: 11, fontWeight: 700, color: SLATE, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>Additional Properties</p>
                   {extra.map((p, i) => (
-                    <div key={i} style={{ fontSize: 12.5, color: NAVY, padding: "6px 0", borderBottom: i < extra.length - 1 ? "1px solid rgba(35,43,58,0.05)" : "none" }}>
+                    <div key={i} style={{ fontSize: 12.5, color: "var(--text-1)", padding: "6px 0", borderBottom: i < extra.length - 1 ? "1px solid rgba(35,43,58,0.05)" : "none" }}>
                       <strong>{p.address || "—"}</strong>
                       {(p.zestimate || p.asking_price) && (
                         <span style={{ color: SLATE }}> · Zestimate {p.zestimate || "—"} · Asking {p.asking_price ? `$${Number(p.asking_price).toLocaleString()}` : "—"}</span>
@@ -286,7 +295,7 @@ export default function LeadDetailPage() {
         if (!summary) return null;
         return (
           <Section icon={MessageSquare} title="What Happened on the Call" accent="#7C3AED">
-            <p style={{ fontSize: 13.5, color: NAVY, lineHeight: 1.8 }}>{summary}</p>
+            <p style={{ fontSize: 13.5, color: "var(--text-1)", lineHeight: 1.8 }}>{summary}</p>
           </Section>
         );
       })()}
@@ -294,7 +303,7 @@ export default function LeadDetailPage() {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
         <Section icon={MessageSquare} title="Agent Performance Feedback" accent={TEAL}>
           {lead.ai_feedback ? (
-            <p style={{ fontSize: 13, color: NAVY, lineHeight: 1.7 }}>{lead.ai_feedback}</p>
+            <p style={{ fontSize: 13, color: "var(--text-1)", lineHeight: 1.7 }}>{lead.ai_feedback}</p>
           ) : (
             <Empty text="No feedback yet." />
           )}
@@ -302,7 +311,7 @@ export default function LeadDetailPage() {
 
         <Section icon={FileText} title="Qualification Reasoning" accent={GOLD}>
           {lead.qualification_reason ? (
-            <p style={{ fontSize: 13, color: NAVY, lineHeight: 1.7 }}>{lead.qualification_reason}</p>
+            <p style={{ fontSize: 13, color: "var(--text-1)", lineHeight: 1.7 }}>{lead.qualification_reason}</p>
           ) : (
             <Empty text="Pending analysis." />
           )}
@@ -324,7 +333,7 @@ export default function LeadDetailPage() {
                   display: "flex", alignItems: "center", justifyContent: "center",
                   fontSize: 11, fontWeight: 800,
                 }}>{i + 1}</div>
-                <p style={{ fontSize: 13, color: NAVY, lineHeight: 1.6 }}>{pt}</p>
+                <p style={{ fontSize: 13, color: "var(--text-1)", lineHeight: 1.6 }}>{pt}</p>
               </li>
             ))}
           </ul>
@@ -366,7 +375,7 @@ export default function LeadDetailPage() {
                 <pre style={{
                   margin: 0, padding: 16, borderRadius: 10, background: "#F2F5F9",
                   border: "1px solid rgba(35,43,58,0.06)", whiteSpace: "pre-wrap",
-                  fontFamily: "var(--font-mono)", fontSize: 12.5, color: NAVY, lineHeight: 1.7,
+                  fontFamily: "var(--font-mono)", fontSize: 12.5, color: "var(--text-1)", lineHeight: 1.7,
                 }}>{template}</pre>
               </Section>
             )}
@@ -404,10 +413,10 @@ export default function LeadDetailPage() {
                         )}
                       </div>
                       <p style={{ fontSize: 12.5, color: SLATE, lineHeight: 1.6, margin: "0 0 4px 0" }}>
-                        <strong style={{ color: NAVY }}>Q:</strong> {it.question_asked || "N/A"}
+                        <strong style={{ color: "var(--text-1)" }}>Q:</strong> {it.question_asked || "N/A"}
                       </p>
                       <p style={{ fontSize: 12.5, color: SLATE, lineHeight: 1.6, margin: 0 }}>
-                        <strong style={{ color: NAVY }}>A:</strong> {it.seller_answer || "N/A"}
+                        <strong style={{ color: "var(--text-1)" }}>A:</strong> {it.seller_answer || "N/A"}
                       </p>
                     </div>
                   ))}
@@ -426,14 +435,14 @@ export default function LeadDetailPage() {
                 }}>
                   {compliancePassed ? "PASSED" : "FAILED"}
                 </div>
-                <p style={{ fontSize: 13, color: NAVY, lineHeight: 1.7 }}>{compliance}</p>
+                <p style={{ fontSize: 13, color: "var(--text-1)", lineHeight: 1.7 }}>{compliance}</p>
               </Section>
             )}
 
             {/* Next steps */}
             {regen && regen !== "No steps generated." && (
               <Section icon={TrendingUp} title="Recommended Next Steps" accent="#7C3AED">
-                <p style={{ fontSize: 13, color: NAVY, lineHeight: 1.7 }}>{regen}</p>
+                <p style={{ fontSize: 13, color: "var(--text-1)", lineHeight: 1.7 }}>{regen}</p>
               </Section>
             )}
           </>
@@ -543,12 +552,15 @@ export default function LeadDetailPage() {
 
 function HeaderStat({ icon: Icon, label, value }: { icon: React.ComponentType<{ size?: number; color?: string }>; label: string; value: string }) {
   return (
-    <div>
-      <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 4 }}>
-        <Icon size={11} color="rgba(255,255,255,0.7)" />
-        <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.7)", textTransform: "uppercase", letterSpacing: "0.05em" }}>{label}</p>
+    <div style={{
+      padding: "12px 14px", borderRadius: 12,
+      background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)",
+    }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 6 }}>
+        <Icon size={11} color="#FF4F92" />
+        <p style={{ fontSize: 10, fontWeight: 800, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{label}</p>
       </div>
-      <p style={{ fontSize: 15, fontWeight: 700, color: "#fff" }}>{value}</p>
+      <p style={{ fontSize: 16, fontWeight: 800, color: "#fff" }}>{value}</p>
     </div>
   );
 }
@@ -556,14 +568,14 @@ function HeaderStat({ icon: Icon, label, value }: { icon: React.ComponentType<{ 
 function Section({ icon: Icon, title, accent, children }: { icon: React.ComponentType<{ size?: number; color?: string }>; title: string; accent: string; children: React.ReactNode }) {
   return (
     <div style={{
-      background: "#FFFFFF", border: "1px solid rgba(35,43,58,0.08)",
-      borderRadius: 14, padding: 22, boxShadow: "0 2px 8px rgba(35,43,58,0.04)",
+      background: "var(--surface-1)", border: "1px solid var(--border-2)",
+      borderRadius: 18, padding: 22, boxShadow: "var(--shadow-md)",
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14, paddingBottom: 12, borderBottom: `1px solid ${accent}20` }}>
         <div style={{ width: 28, height: 28, borderRadius: 7, background: `${accent}15`, display: "flex", alignItems: "center", justifyContent: "center" }}>
           <Icon size={14} color={accent} />
         </div>
-        <h3 style={{ fontSize: 14, fontWeight: 800, color: NAVY }}>{title}</h3>
+        <h3 style={{ fontSize: 14, fontWeight: 800, color: "var(--text-1)" }}>{title}</h3>
       </div>
       {children}
     </div>
