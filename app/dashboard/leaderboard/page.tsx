@@ -24,8 +24,16 @@ type Row = {
   name: string;
   hot: number; warm: number; cold: number; qualified: number; total: number;
   points: number; conversion: number;
-  spark: number[]; // daily points across the range
+  spark: number[];          // daily points across the range
+  dailyTarget: number;      // 1 (part-time) or 2 (full-time)
+  dayCount: number;         // active days in range
+  targetTotal: number;      // dailyTarget * dayCount
+  pacePct: number;          // 0..100+
+  bonus: number;            // estimated payout (USD)
 };
+
+// Bonus dollar value per point. Easy to override later.
+const BONUS_PER_POINT = 25;
 
 const RANGES = [
   { key: "7d", label: "7 days", days: 7 },
@@ -100,18 +108,30 @@ export default function LeaderboardPage() {
       .select("agent_name, status, submission_date")
       .gte("submission_date", from).lte("submission_date", to);
 
+    // Per-agent targets from cold_callers (shift type, daily_target).
+    const { data: ag } = await supabase.from("cold_callers")
+      .select("name, daily_target, shift_type")
+      .eq("user_id", user.id);
+    const targetByName = new Map<string, number>();
+    (ag || []).forEach((a: { name: string | null; daily_target: number | null; shift_type: string | null }) => {
+      if (!a.name) return;
+      const t = typeof a.daily_target === "number" ? a.daily_target : (a.shift_type === "part_time" ? 1 : 2);
+      targetByName.set(a.name.trim(), t);
+    });
+
     type LR = { agent_name: string | null; status: string; submission_date: string | null };
     const map = new Map<string, Row>();
-
-    // pre-seed daily indexes
     const dates: string[] = Array.from({ length: d }, (_, i) => estShift(-(d - 1 - i)));
     const dateIdx = new Map(dates.map((s, i) => [s, i]));
+    const activeDays = new Map<string, Set<string>>();
 
     for (const l of (data || []) as LR[]) {
       const name = l.agent_name?.trim() || "Unassigned";
       const r = map.get(name) || {
         name, hot: 0, warm: 0, cold: 0, qualified: 0, total: 0, points: 0, conversion: 0,
         spark: Array(d).fill(0),
+        dailyTarget: targetByName.get(name) ?? 2,
+        dayCount: 0, targetTotal: 0, pacePct: 0, bonus: 0,
       };
       r.total++;
       const s = norm(l.status);
@@ -122,11 +142,20 @@ export default function LeaderboardPage() {
       r.points += pts;
       const di = l.submission_date ? dateIdx.get(l.submission_date) : undefined;
       if (di !== undefined) r.spark[di] += pts;
+      if (l.submission_date) {
+        const set = activeDays.get(name) || new Set<string>();
+        set.add(l.submission_date);
+        activeDays.set(name, set);
+      }
       map.set(name, r);
     }
     const out = [...map.values()].map((r) => {
       r.qualified = r.hot + r.warm + r.cold;
       r.conversion = r.total > 0 ? Math.round((r.qualified / r.total) * 100) : 0;
+      r.dayCount = activeDays.get(r.name)?.size || d;
+      r.targetTotal = r.dailyTarget * r.dayCount;
+      r.pacePct = r.targetTotal > 0 ? Math.round((r.points / r.targetTotal) * 100) : 0;
+      r.bonus = Math.round(r.points * BONUS_PER_POINT);
       return r;
     }).sort((a, b) => b.points - a.points || b.conversion - a.conversion);
     setRows(out);
@@ -227,10 +256,33 @@ export default function LeaderboardPage() {
                   <GlowingPill icon={Snowflake} label="Cold" count={r.cold} color="#0284C7" />
                 </div>
 
-                {/* Trend marker */}
-                <div style={{ position: "relative", marginTop: 10, display: "flex", alignItems: "center", gap: 5, fontSize: 11, color: SLATE }}>
-                  <TrendingUp size={11} color={lineColor} />
-                  <span>Daily trend</span>
+                {/* Pacing bar + bonus */}
+                <div style={{ position: "relative", marginTop: 14, padding: "10px 12px", borderRadius: 12, background: "var(--surface-3)", border: "1px solid var(--border-1)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                    <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.06em", color: "var(--text-3)", textTransform: "uppercase" }}>
+                      {r.pacePct >= 100 ? "✓ On pace" : r.pacePct >= 80 ? "On track" : "Behind"}
+                    </span>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: r.pacePct >= 100 ? "#10B981" : r.pacePct >= 80 ? "var(--text-1)" : "#EA580C" }}>
+                      {r.points} / {r.targetTotal} pts
+                    </span>
+                  </div>
+                  <div style={{ height: 7, borderRadius: 999, background: "var(--surface-4)", overflow: "hidden" }}>
+                    <span style={{
+                      display: "block", height: "100%",
+                      width: `${Math.min(100, r.pacePct)}%`,
+                      background: r.pacePct >= 100 ? "linear-gradient(90deg, #10B981, #34D399)" : r.pacePct >= 80 ? T.gradPrimary as string : "linear-gradient(90deg, #EA580C, #F59E0B)",
+                      boxShadow: r.pacePct >= 100 ? "0 0 14px #10B98155" : r.pacePct >= 80 ? "0 0 14px var(--magenta-glow)" : "0 0 14px #EA580C55",
+                      transition: "width 700ms ease",
+                    }} />
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6 }}>
+                    <span style={{ fontSize: 10, color: "var(--text-3)" }}>
+                      Shift target {r.dailyTarget}/day · {r.dayCount} day{r.dayCount === 1 ? "" : "s"}
+                    </span>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: "#10B981" }}>
+                      ≈ ${r.bonus.toLocaleString()} bonus
+                    </span>
+                  </div>
                 </div>
               </div>
             );

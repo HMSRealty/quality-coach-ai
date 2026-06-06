@@ -13,12 +13,13 @@ import { supabase } from "@/lib/supabase";
 import { impersonationTarget, stopImpersonation } from "@/lib/impersonation";
 import { ThemeToggle } from "@/app/_components/ThemeToggle";
 import { HelpButton } from "@/app/_components/HelpButton";
+import { OmniSearch } from "@/app/_components/OmniSearch";
 import { T } from "@/app/_components/tokens";
 import {
   LayoutDashboard, PhoneCall, FolderCog, Zap,
   UserCircle, LogOut, Bell, ChevronRight, Shield,
   BarChart3, Send, Users2, Briefcase, TrendingUp,
-  Headphones, Flag, Power, UserCog, Eye, Columns3,
+  Headphones, Flag, Power, UserCog, Eye, Columns3, Search,
 } from "lucide-react";
 
 const NAV_PRIMARY = [
@@ -296,6 +297,30 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               {pathname.split("/").pop()?.replace(/-/g, " ") || "overview"}
             </span>
           </div>
+          {/* Cmd+K search trigger (also opens via global keyboard shortcut) */}
+          <button
+            onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true, ctrlKey: true }))}
+            title="Search · ⌘K"
+            style={{
+              display: "inline-flex", alignItems: "center", gap: 8,
+              padding: "7px 10px 7px 12px", height: 36, borderRadius: 999,
+              background: "var(--surface-1)", border: "1px solid var(--border-2)",
+              color: "var(--text-2)", cursor: "pointer",
+              fontSize: 12, fontWeight: 600,
+              transition: "all 180ms var(--spring-heavy)",
+              marginRight: 4,
+            }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--border-3)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border-2)"; e.currentTarget.style.transform = "translateY(0)"; }}
+          >
+            <Search size={13} /> Search
+            <span style={{
+              display: "inline-flex", alignItems: "center", gap: 2,
+              padding: "1px 6px", borderRadius: 6,
+              background: "var(--surface-3)", color: "var(--text-3)",
+              fontSize: 10, fontWeight: 800, letterSpacing: "0.02em",
+            }}>⌘K</span>
+          </button>
           <ThemeToggle />
           <HelpButton />
           <button title="Notifications" style={{
@@ -328,6 +353,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {children}
         </main>
       </div>
+      <OmniSearch />
     </div>
   );
 }

@@ -6,7 +6,7 @@ import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
 import { T } from "@/app/_components/tokens";
 import {
-  Crown, Users2, ShieldCheck, Briefcase, Flag, PhoneCall, Search, Loader2, Mail, Building2,
+  Crown, Users2, ShieldCheck, Briefcase, Flag, PhoneCall, Search, Loader2, Mail, Building2, AlertTriangle, TrendingDown,
 } from "lucide-react";
 
 const NAVY = T.navy;
@@ -55,6 +55,8 @@ export default function MatrixPage() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [objections, setObjections] = useState<Array<{ label: string; count: number }>>([]);
+  const [objLoading, setObjLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
@@ -74,6 +76,26 @@ export default function MatrixPage() {
       const { data: t } = await supabase.from("teams").select("id, name, leader_id").eq("manager_id", user.id);
       setTeams((t || []) as Team[]);
       setLoading(false);
+
+      // Objection heatmap — aggregate metadata.primary_objection over last 30d.
+      setObjLoading(true);
+      const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+      let q = supabase.from("leads")
+        .select("status, metadata")
+        .gte("created_at", since)
+        .in("status", ["Cold", "Disqualified", "Call Back", "Duplicate"]);
+      if (org) q = q.eq("organization_id", org);
+      const { data: dq } = await q;
+      const buckets: Record<string, number> = {};
+      for (const row of (dq || []) as { metadata?: Record<string, unknown> }[]) {
+        const md = row.metadata || {};
+        const obj = (md.primary_objection as string | undefined) || "Unclassified";
+        if (obj === "None") continue;
+        buckets[obj] = (buckets[obj] || 0) + 1;
+      }
+      const arr = Object.entries(buckets).map(([label, count]) => ({ label, count })).sort((a, b) => b.count - a.count);
+      setObjections(arr);
+      setObjLoading(false);
     })();
   }, []);
 
@@ -209,6 +231,53 @@ export default function MatrixPage() {
           })}
         </div>
       )}
+
+      {/* Objection heatmap */}
+      <div className="reveal" style={{ background: "var(--surface-1)", border: "1px solid var(--border-2)", borderRadius: 16, padding: 20 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+          <span style={{
+            width: 30, height: 30, borderRadius: 9,
+            background: T.gradPrimary as string, color: "#fff",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}><AlertTriangle size={14} /></span>
+          <div style={{ flex: 1 }}>
+            <p style={{ fontSize: 14, fontWeight: 800, color: NAVY }}>Objection Heatmap</p>
+            <p style={{ fontSize: 11.5, color: SLATE }}>Why the floor is losing deals · last 30 days · Cold + Disqualified + Call-Back</p>
+          </div>
+          <TrendingDown size={14} color={SLATE} />
+        </div>
+        {objLoading ? <Loader2 size={16} className="animate-spin" style={{ color: NAVY }} /> : objections.length === 0 ? (
+          <p style={{ fontSize: 12.5, color: T.text3 as string }}>No tagged objections yet. The AI starts filling this in after the next batch of analyses.</p>
+        ) : (() => {
+          const maxC = objections[0].count;
+          const total = objections.reduce((s, o) => s + o.count, 0);
+          return (
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {objections.map((o, i) => {
+                const pct = Math.round((o.count / maxC) * 100);
+                const share = Math.round((o.count / total) * 100);
+                // Heat: red for high, orange mid, slate low
+                const heat = i === 0 ? "#DC2626" : i === 1 ? "#F2266F" : i === 2 ? "#EA580C" : i === 3 ? "#F59E0B" : "#7C3AED";
+                return (
+                  <div key={o.label} style={{ display: "grid", gridTemplateColumns: "180px 1fr 64px 50px", alignItems: "center", gap: 12 }}>
+                    <p style={{ fontSize: 13, fontWeight: 700, color: NAVY, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{o.label}</p>
+                    <div style={{ position: "relative", height: 22, borderRadius: 8, background: "var(--surface-3)", overflow: "hidden" }}>
+                      <span style={{
+                        position: "absolute", inset: 0, width: `${pct}%`,
+                        background: `linear-gradient(90deg, ${heat}, ${heat}DD)`,
+                        borderRadius: 8,
+                        boxShadow: `0 0 12px ${heat}55`,
+                      }} />
+                    </div>
+                    <span style={{ fontSize: 12, fontWeight: 800, color: NAVY }}>{o.count} deals</span>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: heat, textAlign: "right" }}>{share}%</span>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })()}
+      </div>
 
       {/* Teams */}
       {teams.length > 0 && (

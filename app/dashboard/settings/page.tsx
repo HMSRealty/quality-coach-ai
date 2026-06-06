@@ -103,6 +103,7 @@ jane@example.com,Alice Johnson,Sales Team B,Mike Brown,2024-03-10`;
       )}
 
       <ShiftTypeCard onToast={(ok, msg) => setMessage({ type: ok ? "success" : "error", text: msg })} />
+      <WebhookCard onToast={(ok, msg) => setMessage({ type: ok ? "success" : "error", text: msg })} />
 
       {/* Team Import */}
       <Card title="Import Team Structure">
@@ -257,6 +258,62 @@ function ShiftTypeCard({ onToast }: { onToast: (ok: boolean, msg: string) => voi
         </div>
       )}
       <p style={{ fontSize: 11, color: "#94A3B8", marginTop: 10 }}>Currently saved: <strong>{shift === "part_time" ? "Part-time" : "Full-time"}</strong> · target {target}/day</p>
+    </Card>
+  );
+}
+
+// ── Export webhook URL ─────────────────────────────────────────────────────
+function WebhookCard({ onToast }: { onToast: (ok: boolean, msg: string) => void }) {
+  const [url, setUrl] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { setLoading(false); return; }
+      const { data: prof } = await supabase.from("profiles").select("organization_id").eq("id", user.id).maybeSingle();
+      if (!prof?.organization_id) { setLoading(false); return; }
+      const { data: org } = await supabase.from("organizations").select("export_webhook_url").eq("id", prof.organization_id).maybeSingle();
+      if (org?.export_webhook_url) setUrl(org.export_webhook_url as string);
+      setLoading(false);
+    })();
+  }, []);
+
+  const save = async () => {
+    setSaving(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setSaving(false); return; }
+    const { data: prof } = await supabase.from("profiles").select("organization_id").eq("id", user.id).maybeSingle();
+    if (!prof?.organization_id) { setSaving(false); return; }
+    const { error } = await supabase.from("organizations").update({ export_webhook_url: url.trim() || null }).eq("id", prof.organization_id);
+    setSaving(false);
+    if (error) return onToast(false, error.message);
+    onToast(true, "Webhook URL saved");
+  };
+
+  return (
+    <Card title="Lead Export Webhook">
+      <p style={{ fontSize: 13, color: "#64748B", marginBottom: 14 }}>
+        Paste your Zapier / GoHighLevel / Make webhook URL. The <strong>Export Lead</strong> button on every Lead page sends the full payload (lead + ARV + AI summary + signed call URL) here.
+      </p>
+      {loading ? <Loader2 size={16} className="animate-spin" /> : (
+        <div style={{ display: "flex", gap: 8 }}>
+          <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://hooks.zapier.com/..."
+            style={{
+              flex: 1, padding: "10px 12px", borderRadius: 9,
+              background: "#F2F5F9", border: "1px solid rgba(35,43,58,0.10)",
+              fontSize: 13, color: "#232B3A", outline: "none",
+            }} />
+          <button onClick={save} disabled={saving} style={{
+            padding: "10px 18px", borderRadius: 9, background: "#0B0F1F",
+            color: "#fff", border: "none", cursor: saving ? "wait" : "pointer",
+            fontSize: 13, fontWeight: 700,
+          }}>
+            {saving ? <Loader2 size={13} className="animate-spin" /> : "Save"}
+          </button>
+        </div>
+      )}
     </Card>
   );
 }

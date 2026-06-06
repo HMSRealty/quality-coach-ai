@@ -5,6 +5,10 @@ import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { LeadTimeline } from "@/app/_components/LeadTimeline";
 import { GongPlayer } from "@/app/_components/GongPlayer";
+import { HandoffBrief } from "@/app/_components/HandoffBrief";
+import { DealCalculator } from "@/app/_components/DealCalculator";
+import { ExportWebhookButton } from "@/app/_components/ExportWebhookButton";
+import { AgentScorecard } from "@/app/_components/AgentScorecard";
 import {
   ArrowLeft, MapPin, DollarSign, User, Calendar, Phone, FileText,
   CheckCircle2, XCircle, Clock, Loader2, Sparkles, Target,
@@ -448,6 +452,7 @@ export default function LeadDetailPage() {
               <GongPlayer key={rec.id}
                 src={rec.storage_url}
                 downloadUrl={rec.storage_url}
+                leadId={lead.id}
                 title={`Recording ${i + 1}${rec.file_name ? " · " + rec.file_name : ""}`}
               />
             ))}
@@ -460,7 +465,7 @@ export default function LeadDetailPage() {
             </div>
           </div>
         ) : lead.call_recording_url ? (
-          <GongPlayer src={lead.call_recording_url} downloadUrl={lead.call_recording_url} title="Call Recording" />
+          <GongPlayer src={lead.call_recording_url} downloadUrl={lead.call_recording_url} leadId={lead.id} title="Call Recording" />
         ) : (
           <div style={{
             padding: 20, borderRadius: 10,
@@ -492,7 +497,35 @@ export default function LeadDetailPage() {
         )}
       </Section>
 
-      <div style={{ display: "flex", gap: 10 }}>
+      {/* Handoff brief / Deal calculator — read from metadata extracted by the AI */}
+      {(() => {
+        const md = (lead.metadata || {}) as Record<string, unknown>;
+        const zillow = (md.zillow_data as { zestimate?: number } | undefined) || {};
+        const arvNum = Number(md.arv) || Number(zillow.zestimate) || 0;
+        const repairs = Array.isArray(md.repairs_mentioned) ? (md.repairs_mentioned as string[]) : [];
+        const rehab = Number(md.rehab_cost_estimate) || 0;
+        const owner = String(md.owner_name ?? "") || null;
+        return (
+          <>
+            <HandoffBrief
+              personality={(md.seller_personality as string) ?? null}
+              painPoint={(md.seller_pain_point as string) ?? null}
+              bottomLine={(md.seller_bottom_line as string) ?? null}
+            />
+            <DealCalculator
+              leadId={lead.id}
+              ownerName={owner}
+              propertyAddress={lead.extracted_address}
+              arv={arvNum}
+              defaultRehab={rehab}
+              repairsMentioned={repairs}
+            />
+            <AgentScorecard agentName={lead.agent_name} />
+          </>
+        );
+      })()}
+
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
         <button onClick={reanalyze} disabled={reanalyzing} style={{
           display: "inline-flex", alignItems: "center", gap: 8,
           padding: "11px 18px", borderRadius: 10,
@@ -504,6 +537,7 @@ export default function LeadDetailPage() {
           {reanalyzing ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
           Re-run Review
         </button>
+        <ExportWebhookButton leadId={lead.id} />
       </div>
 
       <LeadTimeline leadId={lead.id} />

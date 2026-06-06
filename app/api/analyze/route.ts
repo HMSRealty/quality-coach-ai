@@ -75,6 +75,16 @@ interface QualJSON {
   category_reasoning?: string;
   has_reason_for_selling?: boolean;
   closing_within_3_months?: boolean;
+  // Handoff intel
+  seller_personality?: string;
+  seller_pain_point?: string;
+  seller_bottom_line?: string;
+  // Objection
+  primary_objection?: string;
+  objection_quote?: string;
+  // Rehab
+  repairs_mentioned?: string[];
+  rehab_cost_estimate?: number;
   regeneration_steps?: string;
   call_summary?: string;
   is_qualified?: boolean;
@@ -202,6 +212,26 @@ Market Value mentioned: [..]
 CALL SUMMARY: Write a clear 3-5 sentence plain-English narrative of what happened on the call —
 who spoke, what the seller said about the property and their situation, key objections or signals,
 and how it ended. Assign to the call_summary field. No jargon.
+
+ACQUISITION HANDOFF INTEL (write as if briefing a closer in 30 seconds):
+- seller_personality: one short label (e.g., "Direct", "Chatty", "Hesitant", "Defensive", "Skeptical", "Friendly", "Distrustful", "Tired") + 4-8 word qualifier.
+- seller_pain_point: the ONE concrete pain or motivation that's actually driving them to sell (e.g., "Behind on mortgage 3 months", "Inherited and lives out of state").
+- seller_bottom_line: the perceived lowest dollar amount they'd accept based on hesitation/anchoring on the call. Format "$NNN,NNN" or "unknown".
+
+OBJECTION ANALYSIS:
+- primary_objection: choose EXACTLY ONE bucket the seller used most. Allowed buckets:
+  "Price too low", "Timing - not yet", "Not selling", "Trust / scam concern", "Just curious",
+  "Already listed", "Spouse must decide", "Interest rates / market", "Hung up", "Wrong number",
+  "Repairs concern", "Tenant issue", "Tax / liens", "Language barrier", "None" (if no objection — they're motivated).
+- objection_quote: short verbatim quote tied to the chosen bucket (else "None").
+
+REPAIR / REHAB ESTIMATE (wholesaler MAO inputs — listen for explicit damage talk):
+- repairs_mentioned: array of strings (e.g., "Roof leaks", "HVAC dead 2 years", "Foundation cracks", "Old kitchen", "Vacant 6 months").
+- rehab_cost_estimate: integer USD. Conservative US ballpark per item:
+    roof leak / replace: 12000; full roof: 18000; HVAC: 8000; water heater: 2000; electrical panel: 3500;
+    plumbing repipe: 9000; kitchen full: 25000; bath full: 12000; flooring whole house: 12000;
+    foundation crack: 10000; foundation major: 30000; full cosmetic refresh: 18000; mold/abatement: 8000;
+    windows full: 12000; siding: 14000; "needs everything": 65000. If nothing said, 0.
 `.trim();
 
 // Build the runtime system prompt: base persona (or org override) + org killers
@@ -299,6 +329,10 @@ async function runQualification(
           compliance_check: { type: "STRING" }, compliance_passed: { type: "BOOLEAN" }, lead_category: { type: "STRING" },
           category_reasoning: { type: "STRING" }, has_reason_for_selling: { type: "BOOLEAN" }, requested_dnc: { type: "BOOLEAN" },
           regeneration_steps: { type: "STRING" }, call_summary: { type: "STRING" },
+          seller_personality: { type: "STRING" }, seller_pain_point: { type: "STRING" }, seller_bottom_line: { type: "STRING" },
+          primary_objection: { type: "STRING" }, objection_quote: { type: "STRING" },
+          repairs_mentioned: { type: "ARRAY", items: { type: "STRING" } },
+          rehab_cost_estimate: { type: "NUMBER" },
         },
         required: ["raw_extracted_address", "is_decision_maker", "is_commercial", "is_spanish_speaker",
           "spoken_asking_price", "spoken_market_value", "is_qualified", "qualification_reason",
@@ -568,6 +602,14 @@ export async function POST(req: Request): Promise<Response> {
         extracted_items: q.extracted_items || [],
         spoken_market_value: safeStr(q.spoken_market_value),
         call_summary: safeStr(q.call_summary),
+        // ── New extraction fields ──
+        seller_personality: safeStr(q.seller_personality),
+        seller_pain_point: safeStr(q.seller_pain_point),
+        seller_bottom_line: safeStr(q.seller_bottom_line),
+        primary_objection: safeStr(q.primary_objection) || "None",
+        objection_quote: safeStr(q.objection_quote),
+        repairs_mentioned: Array.isArray(q.repairs_mentioned) ? q.repairs_mentioned : [],
+        rehab_cost_estimate: typeof q.rehab_cost_estimate === "number" ? q.rehab_cost_estimate : 0,
       },
     }).eq("id", lead.id);
 

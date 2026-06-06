@@ -7,6 +7,7 @@ import {
   Upload, FileText, Loader2, Plus, Users, Calendar,
   BookOpen, X, Trash2, ExternalLink, CheckCircle2, AlertCircle,
 } from "lucide-react";
+import { TrainingSnippets } from "@/app/_components/TrainingSnippets";
 
 const NAVY = "#232B3A";
 const TEAL = "#2F6BFF";
@@ -221,6 +222,8 @@ export default function TrainersPage() {
         <h1 style={{ fontSize: 22, fontWeight: 800, color: NAVY, marginBottom: 4 }}>Trainer Portal</h1>
         <p style={{ fontSize: 13, color: SLATE }}>Manage batches, training materials, and coaching documentation.</p>
       </div>
+
+      <TrainingSnippets />
 
       {toast && (
         <div style={{

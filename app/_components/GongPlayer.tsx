@@ -7,7 +7,8 @@
 //   • Current / duration timecodes
 //   • Download button (RBAC-gated by caller)
 import { useEffect, useRef, useState } from "react";
-import { Play, Pause, RotateCcw, RotateCw, Download, Volume2 } from "lucide-react";
+import { Play, Pause, RotateCcw, RotateCw, Download, Volume2, Scissors, Share2, Loader2, CheckCircle2 } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 import { T } from "@/app/_components/tokens";
 
 const fmt = (s: number) => {
@@ -29,14 +30,50 @@ function fakeBars(url: string, count = 96): number[] {
   return out;
 }
 
-export function GongPlayer({ src, downloadUrl, title }: { src: string; downloadUrl?: string; title?: string }) {
+export function GongPlayer({ src, downloadUrl, title, leadId }: { src: string; downloadUrl?: string; title?: string; leadId?: string }) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
   const [t, setT] = useState(0);
   const [dur, setDur] = useState(0);
   const [rate, setRate] = useState(1);
   const [vol, setVol] = useState(1);
+  const [snipStart, setSnipStart] = useState<number | null>(null);
+  const [snipEnd, setSnipEnd] = useState<number | null>(null);
+  const [sharing, setSharing] = useState(false);
+  const [shared, setShared] = useState(false);
   const bars = fakeBars(src);
+
+  const markIn = () => setSnipStart(t);
+  const markOut = () => setSnipEnd(t);
+  const clearSnip = () => { setSnipStart(null); setSnipEnd(null); };
+  const playSnip = async () => {
+    const a = audioRef.current; if (!a || snipStart == null) return;
+    a.currentTime = snipStart;
+    await a.play(); setPlaying(true);
+    const end = snipEnd ?? Math.min(dur, snipStart + 30);
+    const onTick = () => { if (a.currentTime >= end) { a.pause(); setPlaying(false); a.removeEventListener("timeupdate", onTick); } };
+    a.addEventListener("timeupdate", onTick);
+  };
+  const shareSnip = async () => {
+    if (!leadId || snipStart == null) return;
+    setSharing(true);
+    const startMs = Math.round(snipStart * 1000);
+    const endMs = Math.round((snipEnd ?? Math.min(dur, snipStart + 30)) * 1000);
+    const { data: { user } } = await supabase.auth.getUser();
+    let orgId: string | null = null;
+    if (user) {
+      const { data: p } = await supabase.from("profiles").select("organization_id").eq("id", user.id).maybeSingle();
+      orgId = (p?.organization_id as string) ?? null;
+    }
+    const { error } = await supabase.from("training_snippets").insert({
+      lead_id: leadId, organization_id: orgId,
+      title: title || "Highlight", note: null,
+      start_ms: startMs, end_ms: endMs, source_url: src,
+      created_by: user?.id ?? null,
+    });
+    setSharing(false);
+    if (!error) { setShared(true); setTimeout(() => setShared(false), 2500); }
+  };
 
   useEffect(() => {
     const a = audioRef.current; if (!a) return;
@@ -90,6 +127,18 @@ export function GongPlayer({ src, downloadUrl, title }: { src: string; downloadU
           height: 78, padding: "0 2px", borderRadius: 12, cursor: "pointer", position: "relative",
           background: "var(--surface-3)", display: "flex", alignItems: "center", gap: 2, overflow: "hidden",
         }}>
+        {/* Snippet selection band */}
+        {snipStart != null && dur > 0 && (
+          <span style={{
+            position: "absolute", top: 0, bottom: 0,
+            left: `${(snipStart / dur) * 100}%`,
+            width: `${(((snipEnd ?? Math.min(dur, snipStart + 30)) - snipStart) / dur) * 100}%`,
+            background: "rgba(242,38,111,0.16)",
+            borderLeft: "2px solid var(--magenta)",
+            borderRight: "2px solid var(--magenta)",
+            pointerEvents: "none", zIndex: 1,
+          }} />
+        )}
         {bars.map((h, i) => {
           const filled = i / bars.length <= progress;
           return (
@@ -160,6 +209,35 @@ export function GongPlayer({ src, downloadUrl, title }: { src: string; downloadU
             style={{ width: 70 }} />
         </div>
       </div>
+
+      {/* Snippet toolbar (highlight reel) */}
+      {leadId && (
+        <div style={{
+          display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap",
+          padding: "10px 12px", borderRadius: 12,
+          background: "var(--surface-3)", border: "1px solid var(--border-1)",
+        }}>
+          <Scissors size={14} color="var(--magenta)" />
+          <span style={{ fontSize: 11, fontWeight: 800, color: "var(--text-2)", letterSpacing: "0.04em", textTransform: "uppercase" }}>Snippet</span>
+
+          <button onClick={markIn} className="btn-ghost" style={{ fontSize: 11, padding: "5px 10px" }}>
+            Mark In · {snipStart != null ? fmt(snipStart) : "—"}
+          </button>
+          <button onClick={markOut} disabled={snipStart == null} className="btn-ghost" style={{ fontSize: 11, padding: "5px 10px", opacity: snipStart == null ? 0.5 : 1 }}>
+            Mark Out · {snipEnd != null ? fmt(snipEnd) : "—"}
+          </button>
+          <button onClick={playSnip} disabled={snipStart == null} className="btn-ghost" style={{ fontSize: 11, padding: "5px 10px", opacity: snipStart == null ? 0.5 : 1 }}>
+            <Play size={11} /> Preview
+          </button>
+          {(snipStart != null || snipEnd != null) && (
+            <button onClick={clearSnip} className="btn-ghost" style={{ fontSize: 11, padding: "5px 10px" }}>Clear</button>
+          )}
+          <div style={{ flex: 1 }} />
+          <button onClick={shareSnip} disabled={sharing || snipStart == null} className="btn-brand" style={{ fontSize: 12, padding: "7px 14px" }}>
+            {shared ? <><CheckCircle2 size={12} /> Sent</> : sharing ? <><Loader2 size={12} className="animate-spin" /> Sharing…</> : <><Share2 size={12} /> Share to Trainers</>}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
