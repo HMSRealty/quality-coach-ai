@@ -123,12 +123,13 @@
 
 /* ── DARK THEME — deep midnight everywhere ───────────────────────────── */
 [data-theme="dark"] {
-  --canvas:    #060818;
-  --surface-1: #0F1428;
-  --surface-2: #0F1428;
-  --surface-3: #161C36;
-  --surface-4: #1F2748;
-  --surface-5: #2B345B;
+  /* Eye-friendly midnight palette — softer black than #000 + brighter text */
+  --canvas:    #0A0E1F;
+  --surface-1: #131830;
+  --surface-2: #131830;
+  --surface-3: #1A2040;
+  --surface-4: #232B52;
+  --surface-5: #2E3866;
 
   /* Dark theme — bright whites + clearly legible secondaries */
   --text-1: #F4F6FB;
@@ -157,12 +158,16 @@ html, body {
   background: var(--canvas);
   color: var(--text-1);
   font-family: var(--font-sans);
+  font-size: 15px;          /* slightly larger base — easier to read at desk distance */
   line-height: 1.55;
   font-feature-settings: "cv11","ss01","ss03";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
   letter-spacing: -0.005em;
 }
+::selection { background: var(--magenta-dim); color: var(--text-1); }
+[data-theme="dark"] ::selection { background: rgba(242,38,111,0.32); color: #fff; }
 html { scroll-behavior: smooth; }
 /* When Lenis is mounted it adds the .lenis class on <html>.
    Disable native smooth-scroll so Lenis's inertial scroll is the only driver. */

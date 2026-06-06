@@ -14,6 +14,7 @@ import { supabase } from "@/lib/supabase";
 import { Card } from "@/app/_components/Card";
 import { LeadDetailModal } from "@/app/_components/LeadDetailModal";
 import { SecurityBadges } from "@/app/_components/SecurityBadges";
+import { PageHeader } from "@/app/_components/PageHeader";
 import { T } from "@/app/_components/tokens";
 import {
   TrendingUp, TrendingDown, PhoneCall, CheckCircle2, XCircle,
