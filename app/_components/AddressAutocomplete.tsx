@@ -91,20 +91,37 @@ export function AddressAutocomplete({ value, onChange, placeholder, required, st
 
   const badge = STATUS_LABEL[status];
 
-  // Reserve room on the right of the input for the status dot so it never
-  // overlaps the typed text.
-  const inputStyle: React.CSSProperties = { ...style, paddingRight: 38 };
+  // Reserve room on the right for the status dot, force a clean sans-serif
+  // (some font-feature-settings render tofu glyphs), neutralize browser/extension
+  // autofill (Chrome address chips, LastPass/1Password icons, etc.).
+  const inputStyle: React.CSSProperties = {
+    ...style,
+    paddingRight: 38,
+    fontFamily: "var(--font-sans), system-ui, sans-serif",
+    fontFeatureSettings: "normal",
+  };
 
   return (
     <div style={{ position: "relative" }}>
       <input
         ref={inputRef}
-        type="text"
+        // type=search → Chrome shows clear-X instead of the address chip row
+        type="search"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         required={required}
+        // Disable EVERY form of autofill, password-manager, and predictive UI.
         autoComplete="off"
+        autoCorrect="off"
+        autoCapitalize="off"
+        spellCheck={false}
+        name="address-line"
+        data-form-type="other"
+        data-lpignore="true"
+        data-1p-ignore="true"
+        data-bwignore="true"
+        data-dashlane-ignore="true"
         style={inputStyle}
       />
       {/* Compact dot — hover for full status text. */}
