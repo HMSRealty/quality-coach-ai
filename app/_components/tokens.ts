@@ -37,6 +37,9 @@ export const T = {
   magentaDim:  "var(--magenta-dim)",
   violet:    "var(--violet)",
   violet2:   "var(--violet-2)",
+  purple:      "var(--brand-purple)",
+  purpleSoft:  "var(--brand-purple-soft)",
+  purpleGlow:  "var(--brand-purple-glow)",
   gradPrimary: "var(--grad-primary)",
   gradChrome:  "var(--grad-chrome)",
   // Back-compat for code that says T.teal — points at the new accent.

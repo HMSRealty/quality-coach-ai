@@ -18,32 +18,55 @@ import { T } from "@/app/_components/tokens";
 import {
   LayoutDashboard, PhoneCall, FolderCog, Zap,
   UserCircle, LogOut, Bell, ChevronRight, Shield,
-  BarChart3, Send, Users2, Briefcase, TrendingUp,
-  Headphones, Flag, Power, UserCog, Eye, Columns3, Search,
+  Send, Users2, Briefcase, Network,
+  Headphones, Flag, Power, UserCog, Eye, Search,
+  Settings as SettingsIcon, Webhook, Wallet, Target, ListChecks,
 } from "lucide-react";
 
-const NAV_PRIMARY = [
-  { label: "Overview",     href: "/dashboard",           icon: LayoutDashboard },
-  { label: "Matrix",       href: "/dashboard/matrix",    icon: BarChart3 },
-  { label: "Call Library", href: "/dashboard/calls",     icon: PhoneCall },
-  { label: "Campaigns",    href: "/dashboard/campaigns", icon: FolderCog },
-];
-const NAV_TEAM = [
-  { label: "Submit Lead",   href: "/dashboard/submit-lead",     icon: Send },
-  { label: "Teams",         href: "/dashboard/teams",           icon: Users2 },
-  { label: "Agents",        href: "/dashboard/callers",         icon: Users2 },
-  { label: "Trainers",      href: "/dashboard/trainers",        icon: Briefcase },
-  { label: "Roleplay Dialer", href: "/dashboard/dialer",        icon: Headphones },
-  { label: "Team Leader",   href: "/dashboard/team-leader",     icon: Flag },
-  { label: "Leaderboard",   href: "/dashboard/leaderboard",     icon: TrendingUp },
-  { label: "AI Persona",    href: "/dashboard/persona",         icon: Zap },
-  { label: "Permissions",   href: "/dashboard/permissions",     icon: Power },
-  { label: "Roles & Access",href: "/dashboard/roles",           icon: Shield },
-  { label: "Sub-Users",     href: "/dashboard/sub-users",       icon: UserCog },
+// Grouped enterprise navigation — Main · Execution & QA · HR & Operations · Admin.
+const NAV_GROUPS: { section: string; items: { label: string; href: string; icon: typeof PhoneCall }[] }[] = [
+  {
+    section: "Main",
+    items: [
+      { label: "The Matrix",   href: "/dashboard/matrix",      icon: Network },
+      { label: "Overview",     href: "/dashboard",             icon: LayoutDashboard },
+      { label: "Leads",        href: "/dashboard/calls",       icon: ListChecks },
+      { label: "Submit Lead",  href: "/dashboard/submit-lead", icon: Send },
+    ],
+  },
+  {
+    section: "Execution & QA",
+    items: [
+      { label: "Call Library",       href: "/dashboard/calls",      icon: PhoneCall },
+      { label: "AI Rules & Persona", href: "/dashboard/persona",    icon: Zap },
+      { label: "Campaigns",          href: "/dashboard/campaigns",  icon: FolderCog },
+      { label: "Roleplay Dialer",    href: "/dashboard/dialer",     icon: Headphones },
+    ],
+  },
+  {
+    section: "HR & Operations",
+    items: [
+      { label: "Floor Agents",   href: "/dashboard/callers",      icon: Users2 },
+      { label: "Teams",          href: "/dashboard/teams",        icon: Network },
+      { label: "Trainers",       href: "/dashboard/trainers",     icon: Briefcase },
+      { label: "Team Leader",    href: "/dashboard/team-leader",  icon: Flag },
+      { label: "Shift Targets",  href: "/dashboard/settings",     icon: Target },
+      { label: "Payroll & Bonus",href: "/dashboard/leaderboard",  icon: Wallet },
+    ],
+  },
+  {
+    section: "Admin",
+    items: [
+      { label: "Settings",                href: "/dashboard/settings",    icon: SettingsIcon },
+      { label: "Webhooks & Integrations", href: "/dashboard/settings",    icon: Webhook },
+      { label: "Sub-Users",               href: "/dashboard/sub-users",   icon: UserCog },
+      { label: "Permissions",             href: "/dashboard/permissions", icon: Power },
+      { label: "RBAC Matrix",             href: "/dashboard/roles",       icon: Shield },
+    ],
+  },
 ];
 const NAV_SECONDARY = [
   { label: "Profile",  href: "/dashboard/profile",  icon: UserCircle },
-  { label: "Settings", href: "/dashboard/settings", icon: BarChart3 },
 ];
 
 const PLAN_ACCENT: Record<string, string> = {
@@ -66,34 +89,36 @@ function RealTrackMark({ size = 28 }: { size?: number }) {
   );
 }
 
-function NavLink({ item, active }: { item: typeof NAV_PRIMARY[0]; active: boolean }) {
+function NavLink({ item, active }: { item: { label: string; href: string; icon: typeof PhoneCall }; active: boolean }) {
   const Icon = item.icon;
   const [hover, setHover] = useState(false);
+  const PURPLE = "#A78BFA"; // soft purple for text/icon on the dark sidebar
   return (
     <Link href={item.href}
       onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
       style={{
         position: "relative",
         display: "flex", alignItems: "center", gap: 11,
-        padding: "10px 14px", borderRadius: 12,
+        padding: "9px 13px", borderRadius: 10,
         textDecoration: "none",
-        background: active ? "rgba(242, 38, 111, 0.10)" : hover ? "rgba(255,255,255,0.05)" : "transparent",
-        color: active ? "#fff" : hover ? "#fff" : "rgba(255,255,255,0.72)",
+        background: active ? "rgba(124, 58, 237, 0.16)" : hover ? "rgba(255,255,255,0.05)" : "transparent",
+        color: active ? "#fff" : hover ? "#fff" : "rgba(255,255,255,0.66)",
         fontSize: 13, fontWeight: active ? 700 : 500,
         transform: hover && !active ? "translateX(2px)" : "translateX(0)",
         transition: "all 180ms cubic-bezier(0.16, 1, 0.30, 1)",
+        boxShadow: active ? "inset 0 0 0 1px rgba(124,58,237,0.30)" : "none",
       }}
     >
       {active && (
         <span style={{
           position: "absolute", left: -10, top: "50%", transform: "translateY(-50%)",
-          width: 3, height: 22, borderRadius: 4,
-          background: T.gradPrimary,
-          boxShadow: `0 0 18px ${T.magentaGlow}`,
+          width: 3, height: 20, borderRadius: 4,
+          background: "linear-gradient(180deg, #A78BFA, #7C3AED)",
+          boxShadow: "0 0 16px rgba(124,58,237,0.55)",
         }} />
       )}
-      <Icon size={16} strokeWidth={active ? 2.4 : 1.9}
-        color={active ? "#fff" : hover ? "#fff" : "rgba(255,255,255,0.65)"}
+      <Icon size={16} strokeWidth={active ? 2.3 : 1.9}
+        color={active ? PURPLE : hover ? "#fff" : "rgba(255,255,255,0.6)"}
         style={{ transition: "transform 240ms var(--spring-snap)", transform: hover ? "translateY(-1px)" : "translateY(0)" }} />
       {item.label}
     </Link>
@@ -161,36 +186,38 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <RealTrackMark size={28} />
         </Link>
 
-        <div style={{ padding: "16px 8px 8px" }}>
-          <SectionLabel>Workspace</SectionLabel>
-          <nav style={{ display: "flex", flexDirection: "column", gap: 3, padding: "0 8px" }}>
-            {NAV_PRIMARY.map(item => <NavLink key={item.href} item={item} active={pathname === item.href} />)}
-          </nav>
-        </div>
+        {/* Grouped nav. Each href highlights only on its FIRST occurrence so
+            shared routes (e.g. Settings) don't light up multiple rows. */}
+        {(() => {
+          const seen = new Set<string>();
+          return NAV_GROUPS.map((group, gi) => (
+            <div key={group.section} style={{ padding: gi === 0 ? "16px 8px 4px" : "4px 8px" }}>
+              <SectionLabel>{group.section}</SectionLabel>
+              <nav style={{ display: "flex", flexDirection: "column", gap: 2, padding: "0 8px" }}>
+                {group.items.map((item) => {
+                  const isActive = pathname === item.href && !seen.has(item.href);
+                  if (pathname === item.href) seen.add(item.href);
+                  return <NavLink key={item.label} item={item} active={isActive} />;
+                })}
+              </nav>
+            </div>
+          ));
+        })()}
 
-        <div style={{ height: 1, background: T.midnightLine, margin: "12px 22px" }} />
-
-        <div style={{ padding: "8px 8px" }}>
-          <SectionLabel>Team Management</SectionLabel>
-          <nav style={{ display: "flex", flexDirection: "column", gap: 3, padding: "0 8px" }}>
-            {NAV_TEAM.map(item => <NavLink key={item.href} item={item} active={pathname === item.href} />)}
-          </nav>
-        </div>
-
-        <div style={{ height: 1, background: T.midnightLine, margin: "12px 22px" }} />
+        <div style={{ height: 1, background: T.midnightLine, margin: "10px 22px" }} />
 
         <div style={{ padding: "0 16px 10px" }}>
-          <nav style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+          <nav style={{ display: "flex", flexDirection: "column", gap: 2 }}>
             {NAV_SECONDARY.map(item => <NavLink key={item.href} item={item} active={pathname === item.href} />)}
             {isAdmin && (
               <Link href="/admin" style={{
                 display: "flex", alignItems: "center", gap: 11,
-                padding: "10px 14px", borderRadius: 12, textDecoration: "none",
-                color: "rgba(255,255,255,0.72)",
-                fontSize: 13, fontWeight: 600, marginTop: 2,
+                padding: "9px 13px", borderRadius: 10, textDecoration: "none",
+                color: "rgba(255,255,255,0.66)",
+                fontSize: 13, fontWeight: 500, marginTop: 2,
               }}
               onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; e.currentTarget.style.color = "#fff"; }}
-              onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "rgba(255,255,255,0.72)"; }}
+              onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "rgba(255,255,255,0.66)"; }}
               >
                 <Shield size={16} strokeWidth={1.9} /> Admin Portal
               </Link>
