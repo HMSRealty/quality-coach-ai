@@ -32,7 +32,7 @@ const NAV_GROUPS: { section: string; items: { label: string; href: string; icon:
       { label: "The Matrix",     href: "/dashboard/matrix",      icon: Network },
       { label: "Leads Pipeline", href: "/dashboard",             icon: GitBranch },
       { label: "Campaigns",      href: "/dashboard/campaigns",   icon: FolderCog },
-      { label: "Submit Lead",    href: "/dashboard/submit-lead", icon: Send },
+      { label: "Submit Lead",    href: "/dashboard/submit", icon: Send },
     ],
   },
   {

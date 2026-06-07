@@ -8,6 +8,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import {
   KeyRound, Loader2, Copy, Check, Plus, Trash2, Webhook, Terminal, ShieldCheck, AlertTriangle,
+  Send, CheckCircle2, XCircle,
 } from "lucide-react";
 
 const SKY = "#0EA5E9";
@@ -43,6 +44,11 @@ export default function ApiIntegrationsPage() {
   const [orgId, setOrgId] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
 
+  // Test webhook
+  const [testKey, setTestKey] = useState("");
+  const [testing, setTesting] = useState(false);
+  const [testResult, setTestResult] = useState<{ ok: boolean; msg: string } | null>(null);
+
   const load = async () => {
     setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
@@ -72,8 +78,27 @@ export default function ApiIntegrationsPage() {
     });
     setGenerating(false);
     if (error) { alert("Could not create key: " + error.message); return; }
-    setFreshKey(raw); setLabel("");
+    setFreshKey(raw); setTestKey(raw); setLabel("");
     load();
+  };
+
+  const runTest = async () => {
+    const key = testKey.trim();
+    if (!key) { setTestResult({ ok: false, msg: "Paste an API key to test (or generate one above)." }); return; }
+    setTesting(true); setTestResult(null);
+    try {
+      const r = await fetch(webhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+        body: JSON.stringify({ test: true }),
+      });
+      const j = await r.json().catch(() => ({}));
+      if (r.ok && j.ok) setTestResult({ ok: true, msg: j.message || "Connection OK — your dialer is ready." });
+      else setTestResult({ ok: false, msg: j.error || `Failed (HTTP ${r.status}).` });
+    } catch (e) {
+      setTestResult({ ok: false, msg: e instanceof Error ? e.message : "Request failed." });
+    }
+    setTesting(false);
   };
 
   const revoke = async (id: string) => {
@@ -174,6 +199,29 @@ export default function ApiIntegrationsPage() {
           <code style={{ flex: 1, padding: "12px 14px", borderRadius: 10, background: "#F8FAFC", border: `1px solid ${SKY}`, fontFamily: "var(--font-mono)", fontSize: 13, color: SKY_600, fontWeight: 700, overflowX: "auto", whiteSpace: "nowrap" }}>{webhookUrl}</code>
           <CopyBtn text={webhookUrl} label="Copy URL" />
         </div>
+      </div>
+
+      {/* Test webhook */}
+      <div style={card}>
+        <p style={{ fontSize: 15, fontWeight: 800, color: "#000", display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 4 }}><Send size={16} color={SKY_600} /> Test Webhook</p>
+        <p style={{ fontSize: 12.5, color: "var(--text-2)", marginBottom: 12 }}>Send a no-op test ping to confirm your key works and the endpoint is reachable — no lead is created.</p>
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          <input value={testKey} onChange={(e) => setTestKey(e.target.value)} placeholder="Paste an API key (rt_live_…)"
+            style={{ flex: 1, minWidth: 220, padding: "11px 13px", borderRadius: 10, border: "1px solid var(--border-2)", background: "#fff", color: "#000", fontFamily: "var(--font-mono)", fontSize: 13, outline: "none" }} />
+          <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={runTest} disabled={testing}
+            style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "11px 18px", borderRadius: 10, border: "none", cursor: testing ? "wait" : "pointer", background: "linear-gradient(135deg, #0EA5E9, #0284C7)", color: "#fff", fontSize: 13, fontWeight: 800, boxShadow: "0 8px 20px rgba(14,165,233,0.35)" }}>
+            {testing ? <><Loader2 size={14} className="animate-spin" /> Testing…</> : <><Send size={14} /> Send Test</>}
+          </motion.button>
+        </div>
+        <AnimatePresence>
+          {testResult && (
+            <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={SPRING}
+              style={{ display: "flex", alignItems: "center", gap: 9, marginTop: 12, padding: "11px 14px", borderRadius: 10, fontSize: 13, fontWeight: 700,
+                background: testResult.ok ? "#ECFDF5" : "#FEF2F2", border: `1px solid ${testResult.ok ? "#A7F3D0" : "#FECACA"}`, color: testResult.ok ? MONEY : "#DC2626" }}>
+              {testResult.ok ? <CheckCircle2 size={16} /> : <XCircle size={16} />} {testResult.msg}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Payload + curl */}

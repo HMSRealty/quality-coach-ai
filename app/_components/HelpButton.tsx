@@ -47,7 +47,7 @@ const HELP: { match: string; help: Help }[] = [
     title: "Leaderboard",
     body: "Callers ranked by points: Hot 3, Warm 2, Cold 1. Pick the window with the range buttons.",
   }},
-  { match: "/dashboard/submit-lead", help: {
+  { match: "/dashboard/submit", help: {
     title: "Submit Lead",
     body: "Log a lead, optionally attach a call recording. Property details and ARV are fetched automatically on submit.",
     tips: ["Address is the only required property field", "Generate a shareable link for outside callers"],

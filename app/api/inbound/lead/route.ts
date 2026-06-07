@@ -35,6 +35,7 @@ interface Body {
   seller_name?: string;
   campaign_id?: string;
   audio_url?: string;
+  test?: boolean;
 }
 
 export async function POST(req: Request): Promise<Response> {
@@ -57,6 +58,14 @@ export async function POST(req: Request): Promise<Response> {
 
     // ── Validate payload ──
     const b = (await req.json().catch(() => ({}))) as Body;
+
+    // Connection test: verify auth + endpoint without creating a lead or
+    // downloading audio. Triggered by { "test": true } from the UI button.
+    if (b.test === true) {
+      sb.from("api_keys").update({ last_used_at: new Date().toISOString() }).eq("id", keyRow.id).then(() => {});
+      return Response.json({ ok: true, test: true, message: "API key valid — endpoint reachable. Your dialer is ready to send leads." });
+    }
+
     const address = (b.address || "").trim();
     const audioUrl = (b.audio_url || "").trim();
     if (!address) return Response.json({ ok: false, error: "address is required" }, { status: 400 });

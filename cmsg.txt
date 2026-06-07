@@ -1,0 +1,21 @@
+feat(integrations+submit): Test Webhook button + relocate manual form to /dashboard/submit (Step 7)
+
+Test Webhook: /api/inbound/lead now honors { "test": true } — it authenticates
+the API key and confirms reachability WITHOUT creating a lead or downloading
+audio. Added a "Test Webhook" card to /dashboard/settings/api: paste (or auto-
+fill from a freshly generated key) and "Send Test" → green "Connection OK" or a
+red error, so users can validate wiring before pointing a real dialer at it.
+
+Step 7 — Manual Lead Submission Form: relocated the fully-featured form from
+/dashboard/submit-lead to the canonical /dashboard/submit (git mv, no
+duplication). It already meets the spec: large Google Places address input
+(structured auto-fill via NEXT_PUBLIC_GOOGLE_MAPS_KEY), massive dashed dropzone
+with a Sky-blue active drag state + multi-file audio (.mp3/.wav/.m4a/.mp4) and a
+per-file Remove list, Agent + Campaign dropdowns, and a big Sky "Submit & Analyze
+Lead" button with a framer-motion loading state — wired to /api/leads/submit with
+the smart duplicate bypass (revive Disqualified/Error). Updated sidebar +
+HelpButton references.
+
+Verified: next build green, tsc --noEmit exit 0.
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
