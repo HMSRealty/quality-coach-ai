@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Geist_Mono, Space_Grotesk } from "next/font/google";
 import { SmoothScroll } from "@/app/_components/SmoothScroll";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 // Inter — the enterprise UI typeface (Linear / Stripe / Gong vibe).
@@ -49,6 +50,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <SmoothScroll />
         {children}
+        <Toaster position="bottom-right" expand gap={10} toastOptions={{ unstyled: true }} />
       </body>
     </html>
   );

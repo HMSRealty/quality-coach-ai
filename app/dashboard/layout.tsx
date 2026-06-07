@@ -13,10 +13,11 @@ import { supabase } from "@/lib/supabase";
 import { impersonationTarget, stopImpersonation } from "@/lib/impersonation";
 import { HelpButton } from "@/app/_components/HelpButton";
 import { OmniSearch } from "@/app/_components/OmniSearch";
+import { NotificationBell } from "@/app/_components/NotificationBell";
 import { T } from "@/app/_components/tokens";
 import {
   LayoutDashboard, PhoneCall, FolderCog, Zap,
-  UserCircle, LogOut, Bell, ChevronRight, Shield,
+  UserCircle, LogOut, ChevronRight, Shield,
   Send, Users2, Briefcase, Network,
   Headphones, Flag, Power, UserCog, Eye, Search,
   Settings as SettingsIcon, Webhook, Wallet, Target, Trophy,
@@ -357,18 +358,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             }}>⌘K</span>
           </button>
           <HelpButton />
-          <button title="Notifications" style={{
-            width: 36, height: 36, borderRadius: 10,
-            background: "var(--surface-1)", border: "1px solid var(--border-2)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            cursor: "pointer", color: "var(--slate)",
-            transition: "all 180ms var(--spring-heavy)",
-          }}
-          onMouseEnter={e => { e.currentTarget.style.background = "var(--surface-3)"; e.currentTarget.style.color = "var(--text-1)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
-          onMouseLeave={e => { e.currentTarget.style.background = "var(--surface-1)"; e.currentTarget.style.color = "var(--slate)"; e.currentTarget.style.transform = "translateY(0)"; }}
-          >
-            <Bell size={15} />
-          </button>
+          <NotificationBell />
           <Link href="/dashboard/profile" style={{
             width: 36, height: 36, borderRadius: "50%",
             background: T.gradPrimary, color: "#fff",

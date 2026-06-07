@@ -1,0 +1,23 @@
+feat(realtime): Real-Time Notification Center (Supabase Realtime + Sonner)
+
+Speed-to-lead alerts with zero refresh.
+
+useRealtimeNotifications hook: subscribes to INSERT + UPDATE on `leads`
+(filtered to the signed-in user) via Supabase Realtime channels.
+  • New decided lead (insert decided, or Processing → decided) → "✨ New Lead"
+  • status is/becomes Hot → high-priority "🔥 HOT LEAD"
+Dedupes per lead+kind, keeps an in-memory feed (40), exposes unreadCount /
+markAllRead / open, and fires a branded Sonner toast on every event.
+
+NotificationBell: header bell with an animated unread badge (solid red dot +
+count, only when unreadCount > 0) and a FinTech popover listing recent alerts —
+Hot leads in emerald, standard in black; "Mark all read"; click routes to the
+lead. Replaces the old static bell.
+
+Sonner <Toaster position="bottom-right"> mounted in the root layout; toasts are
+unstyled + fully branded (white card, sky/emerald left rail, black text),
+clickable to open the lead.
+
+Verified: next build green, tsc --noEmit exit 0.
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
