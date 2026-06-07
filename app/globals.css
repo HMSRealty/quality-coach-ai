@@ -388,3 +388,9 @@ input.pac-target-input.gm-err-autocomplete {
     scroll-behavior: auto !important;
   }
 }
+
+/* Call Intelligence Hub - two-column grid collapses on narrow viewports */
+@media (max-width: 860px) {
+  .ci-grid { grid-template-columns: 1fr !important; }
+}
+

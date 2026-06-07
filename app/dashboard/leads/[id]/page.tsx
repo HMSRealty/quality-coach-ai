@@ -9,7 +9,8 @@ import { HandoffBrief } from "@/app/_components/HandoffBrief";
 import { DealCalculator } from "@/app/_components/DealCalculator";
 import { ExportWebhookButton } from "@/app/_components/ExportWebhookButton";
 import { AgentScorecard } from "@/app/_components/AgentScorecard";
-import { TranscriptCard } from "@/app/_components/TranscriptCard";
+import { TcpaShield, ScriptComplianceTimeline, BehavioralScorecard, InteractiveTranscript } from "@/app/_components/CallIntel";
+import { parseSegments } from "@/app/_components/callAnalysis";
 import Link from "next/link";
 import {
   ArrowLeft, MapPin, DollarSign, User, Calendar, Phone, FileText,
@@ -79,6 +80,9 @@ export default function LeadDetailPage() {
   const [reanalyzing, setReanalyzing] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // Imperative seek into the primary recording player (TCPA/compliance/transcript jumps).
+  const seekRef = useRef<((sec: number) => void) | null>(null);
+  const jumpTo = (sec: number) => seekRef.current?.(sec);
 
   useEffect(() => { load(); }, [id]);
 
@@ -158,6 +162,8 @@ export default function LeadDetailPage() {
 
   const status = STATUS_CONFIG[lead.status] || STATUS_CONFIG.Processing;
   const StatusIcon = status.icon;
+  const segments = parseSegments(lead.transcript);
+  const primarySrc = recordings[0]?.storage_url || lead.call_recording_url || null;
 
   return (
     <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", flexDirection: "column", gap: 22 }} className="animate-in">
@@ -213,6 +219,9 @@ export default function LeadDetailPage() {
           <HeaderStat icon={Sparkles} label="Reviewed" value={lead.ai_processed_at ? new Date(lead.ai_processed_at).toLocaleDateString() : "Pending"} />
         </div>
       </div>
+
+      {/* TCPA & hostility early-warning shield */}
+      <TcpaShield transcript={lead.transcript} onJump={jumpTo} />
 
       {(lead.ai_status_reason || lead.rejection_reason) && (
         <div style={{
@@ -457,6 +466,8 @@ export default function LeadDetailPage() {
                 recordingId={rec.id}
                 src={rec.storage_url || undefined}
                 leadId={lead.id}
+                segments={i === 0 ? segments : undefined}
+                registerSeek={i === 0 ? (fn) => { seekRef.current = fn; } : undefined}
                 title={`Recording ${i + 1}${rec.file_name ? " · " + rec.file_name : ""}`}
               />
             ))}
@@ -469,7 +480,7 @@ export default function LeadDetailPage() {
             </div>
           </div>
         ) : lead.call_recording_url ? (
-          <GongPlayer src={lead.call_recording_url} downloadUrl={lead.call_recording_url} leadId={lead.id} title="Call Recording" />
+          <GongPlayer src={lead.call_recording_url} downloadUrl={lead.call_recording_url} leadId={lead.id} segments={segments} registerSeek={(fn) => { seekRef.current = fn; }} title="Call Recording" />
         ) : (
           <div style={{
             padding: 20, borderRadius: 10,
@@ -511,7 +522,22 @@ export default function LeadDetailPage() {
         const owner = String(md.owner_name ?? "") || null;
         return (
           <>
-            <TranscriptCard transcript={lead.transcript} />
+            {/* Behavioral scorecard + script compliance (side-by-side on wide screens) */}
+            {lead.transcript && (
+              <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(0,1fr)", gap: 20 }} className="ci-grid">
+                <BehavioralScorecard transcript={lead.transcript} agentName={lead.agent_name} />
+                <ScriptComplianceTimeline transcript={lead.transcript} onJump={jumpTo} />
+              </div>
+            )}
+
+            <InteractiveTranscript
+              transcript={lead.transcript}
+              leadId={lead.id}
+              sourceUrl={primarySrc}
+              title={lead.extracted_address || `Lead ${lead.id.slice(0, 8)}`}
+              onJump={jumpTo}
+            />
+
             <HandoffBrief
               personality={(md.seller_personality as string) ?? null}
               painPoint={(md.seller_pain_point as string) ?? null}

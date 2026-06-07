@@ -10,6 +10,10 @@ import { useEffect, useRef, useState } from "react";
 import { Play, Pause, RotateCcw, RotateCw, Download, Volume2, Scissors, Share2, Loader2, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { T } from "@/app/_components/tokens";
+import type { Segment } from "@/app/_components/callAnalysis";
+
+// Speaker-region colors mapped onto the waveform.
+const REGION = { agent: "var(--navy)", seller: "var(--brand-purple)", silence: "#DC2626" } as const;
 
 const fmt = (s: number) => {
   if (!isFinite(s) || s < 0) return "0:00";
@@ -30,7 +34,7 @@ function fakeBars(url: string, count = 96): number[] {
   return out;
 }
 
-export function GongPlayer({ src: srcProp, recordingId, downloadUrl, title, leadId }: { src?: string; recordingId?: string; downloadUrl?: string; title?: string; leadId?: string }) {
+export function GongPlayer({ src: srcProp, recordingId, downloadUrl, title, leadId, segments, registerSeek }: { src?: string; recordingId?: string; downloadUrl?: string; title?: string; leadId?: string; segments?: Segment[]; registerSeek?: (fn: (sec: number) => void) => void }) {
   const audioRef = useRef<HTMLAudioElement>(null);
   // Resolve a playable URL: signed URL via recordingId (private bucket) or a
   // legacy direct src.
@@ -119,6 +123,19 @@ export function GongPlayer({ src: srcProp, recordingId, downloadUrl, title, lead
     return () => { a.removeEventListener("timeupdate", onTime); a.removeEventListener("loadedmetadata", onMeta); a.removeEventListener("ended", onEnd); };
   }, [src]);
 
+  // Expose an imperative seek so parents (TCPA shield / compliance / transcript)
+  // can jump the player to a timestamp.
+  useEffect(() => {
+    if (!registerSeek) return;
+    registerSeek((sec: number) => {
+      const a = audioRef.current; if (!a) return;
+      a.currentTime = Math.max(0, sec);
+      setT(a.currentTime);
+      a.play().then(() => setPlaying(true)).catch(() => {});
+      a.parentElement?.scrollIntoView?.({ behavior: "smooth", block: "center" });
+    });
+  }, [registerSeek]);
+
   const toggle = async () => {
     const a = audioRef.current; if (!a) return;
     if (a.paused) { await a.play(); setPlaying(true); } else { a.pause(); setPlaying(false); }
@@ -180,6 +197,22 @@ export function GongPlayer({ src: srcProp, recordingId, downloadUrl, title, lead
             pointerEvents: "none", zIndex: 1,
           }} />
         )}
+        {/* Speaker-region strip — purple = seller, navy = agent, red = silence gap */}
+        {segments && segments.length > 0 && (() => {
+          const total = dur > 0 ? dur : segments[segments.length - 1].end || 1;
+          const strip: React.ReactNode[] = [];
+          let prevEnd = 0;
+          segments.forEach((s, i) => {
+            // Silence gap (> 2s) → red blip
+            if (s.start - prevEnd > 2) {
+              strip.push(<span key={`g${i}`} style={{ position: "absolute", top: 0, height: 7, left: `${(prevEnd / total) * 100}%`, width: `${Math.max(0.4, ((s.start - prevEnd) / total) * 100)}%`, background: REGION.silence, opacity: 0.85, borderRadius: 2 }} />);
+            }
+            const color = s.speaker === "seller" ? REGION.seller : s.speaker === "agent" ? REGION.agent : "var(--surface-5)";
+            strip.push(<span key={`s${i}`} title={`${s.speaker} · ${s.time || ""}`} style={{ position: "absolute", top: 0, height: 7, left: `${(s.start / total) * 100}%`, width: `${Math.max(0.4, ((s.end - s.start) / total) * 100)}%`, background: color, opacity: 0.92, borderRadius: 2 }} />);
+            prevEnd = s.end;
+          });
+          return <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 7, zIndex: 2, pointerEvents: "none" }}>{strip}</div>;
+        })()}
         {bars.map((h, i) => {
           const frac = i / bars.length;
           const filled = frac <= progress;
@@ -216,6 +249,17 @@ export function GongPlayer({ src: srcProp, recordingId, downloadUrl, title, lead
           </>
         )}
       </div>
+
+      {/* Region legend */}
+      {segments && segments.length > 0 && (
+        <div style={{ display: "flex", gap: 14, alignItems: "center", marginTop: -4 }}>
+          {[["Agent", REGION.agent], ["Seller", REGION.seller], ["Silence / gap", REGION.silence]].map(([label, c]) => (
+            <span key={label} style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 10, fontWeight: 700, color: "var(--text-3)" }}>
+              <span style={{ width: 10, height: 6, borderRadius: 2, background: c as string }} /> {label}
+            </span>
+          ))}
+        </div>
+      )}
 
       {/* Transport */}
       <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
