@@ -313,10 +313,10 @@ export default function SubmitLeadPage() {
             <code style={{ flex: 1, fontSize: 12, color: NAVY, fontFamily: "var(--font-mono)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               {generatedLink}
             </code>
-            <button onClick={copyLink} style={{ padding: 6, background: "#fff", border: "1px solid rgba(35,43,58,0.08)", borderRadius: 7, cursor: "pointer", color: NAVY }}>
+            <button onClick={copyLink} style={{ padding: 6, background: "var(--surface-2)", border: "1px solid var(--border-2)", borderRadius: 7, cursor: "pointer", color: NAVY }}>
               {copied ? <Check size={14} color="#059669" /> : <Copy size={14} />}
             </button>
-            <a href={generatedLink} target="_blank" rel="noreferrer" style={{ padding: 6, background: "#fff", border: "1px solid rgba(35,43,58,0.08)", borderRadius: 7, color: NAVY }}>
+            <a href={generatedLink} target="_blank" rel="noreferrer" style={{ padding: 6, background: "var(--surface-2)", border: "1px solid var(--border-2)", borderRadius: 7, color: NAVY }}>
               <ExternalLink size={14} />
             </a>
           </div>

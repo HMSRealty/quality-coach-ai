@@ -60,7 +60,7 @@ function Modal({ children, onClose, title }: { children: React.ReactNode; onClos
       backdropFilter: "blur(4px)", padding: 20,
     }}>
       <div onClick={e => e.stopPropagation()} style={{
-        background: "#FFF", borderRadius: 16, padding: 28, maxWidth: 520, width: "100%",
+        background: "var(--surface-1)", borderRadius: 16, padding: 28, maxWidth: 520, width: "100%",
         boxShadow: "0 24px 80px rgba(35,43,58,0.30)",
         maxHeight: "90vh", overflowY: "auto",
       }} className="animate-scale">

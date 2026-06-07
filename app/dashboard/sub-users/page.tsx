@@ -202,7 +202,7 @@ export default function SubUsersPage() {
                   style={{
                     display: "inline-flex", alignItems: "center", gap: 6,
                     padding: "7px 10px", borderRadius: 8,
-                    background: "#FFF", color: "#DC2626", border: "1px solid #FBCFBE",
+                    background: "var(--surface-1)", color: "#DC2626", border: "1px solid #FBCFBE",
                     fontSize: 12, fontWeight: 700, cursor: deletingId === u.id ? "wait" : "pointer",
                   }}>
                   {deletingId === u.id ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />}

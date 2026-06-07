@@ -20,7 +20,7 @@ import {
   UserCircle, LogOut, Bell, ChevronRight, Shield,
   Send, Users2, Briefcase, Network,
   Headphones, Flag, Power, UserCog, Eye, Search,
-  Settings as SettingsIcon, Webhook, Wallet, Target, ListChecks,
+  Settings as SettingsIcon, Webhook, Wallet, Target, ListChecks, Trophy,
 } from "lucide-react";
 
 // Grouped enterprise navigation — Main · Execution & QA · HR & Operations · Admin.
@@ -51,7 +51,8 @@ const NAV_GROUPS: { section: string; items: { label: string; href: string; icon:
       { label: "Trainers",       href: "/dashboard/trainers",     icon: Briefcase },
       { label: "Team Leader",    href: "/dashboard/team-leader",  icon: Flag },
       { label: "Shift Targets",  href: "/dashboard/settings",     icon: Target },
-      { label: "Payroll & Bonus",href: "/dashboard/leaderboard",  icon: Wallet },
+      { label: "Payroll & Bonus",href: "/dashboard/payroll",      icon: Wallet },
+      { label: "Leaderboard",    href: "/dashboard/leaderboard",  icon: Trophy },
     ],
   },
   {
