@@ -5,8 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { LeadTimeline } from "@/app/_components/LeadTimeline";
 import { GongPlayer } from "@/app/_components/GongPlayer";
-import { HandoffBrief } from "@/app/_components/HandoffBrief";
-import { DealCalculator } from "@/app/_components/DealCalculator";
+import { AcquisitionsPanel } from "@/app/_components/AcquisitionsPanel";
 import { ExportWebhookButton } from "@/app/_components/ExportWebhookButton";
 import { AgentScorecard } from "@/app/_components/AgentScorecard";
 import { TcpaShield, ScriptComplianceTimeline, BehavioralScorecard, InteractiveTranscript } from "@/app/_components/CallIntel";
@@ -518,7 +517,6 @@ export default function LeadDetailPage() {
         const md = (lead.metadata || {}) as Record<string, unknown>;
         const zillow = (md.zillow_data as { zestimate?: number } | undefined) || {};
         const arvNum = Number(md.arv) || Number(zillow.zestimate) || 0;
-        const repairs = Array.isArray(md.repairs_mentioned) ? (md.repairs_mentioned as string[]) : [];
         const rehab = Number(md.rehab_cost_estimate) || 0;
         const owner = String(md.owner_name ?? "") || null;
         return (
@@ -539,18 +537,17 @@ export default function LeadDetailPage() {
               onJump={jumpTo}
             />
 
-            <HandoffBrief
+            {/* Acquisitions & Deal Math engine */}
+            <AcquisitionsPanel
+              leadId={lead.id}
+              address={lead.extracted_address}
+              ownerName={owner}
+              arv={arvNum}
+              defaultRehab={rehab}
+              askingPrice={lead.asking_price}
               personality={(md.seller_personality as string) ?? null}
               painPoint={(md.seller_pain_point as string) ?? null}
               bottomLine={(md.seller_bottom_line as string) ?? null}
-            />
-            <DealCalculator
-              leadId={lead.id}
-              ownerName={owner}
-              propertyAddress={lead.extracted_address}
-              arv={arvNum}
-              defaultRehab={rehab}
-              repairsMentioned={repairs}
             />
             <AgentScorecard agentName={lead.agent_name} />
           </>

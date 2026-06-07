@@ -1,21 +1,17 @@
-feat(branding): hard pivot to Clean Enterprise (White / Sky / Emerald) + remove dark mode
+feat(acquisitions): Deal Math & Acquisitions Engine on Lead Detail (Step 4)
 
-Part 1 & 3 of the FinTech rebrand. Repainted the whole token system in
-globals.css so every token-driven component flips at once:
-- canvas -> slate-50 (#F8FAFC); cards/panels/sidebars -> pure white
-- text ramp -> slate-900/600/500/400 (sharp black); borders -> slate-100/200/300
-- primary accent (--magenta + --brand-purple + --teal/gold/violet aliases) -> SKY
-  BLUE (#0EA5E9 / #0284C7); brand gradient is now sky-on-sky (no purple)
-- added --money emerald tokens for financial numbers / success / Hot badges
+New AcquisitionsPanel (White / Sky / Emerald, framer-motion):
+- Retail-vs-Wholesale router badge (cash-deal if asking <= ~MAO, else Retail/MLS).
+- MAO calculator: editable Rehab + Wholesale Fee over Zillow ARV, computing
+  (ARV x 0.70) - Rehab - Fee, final MAO in bold vibrant emerald with a spring
+  count, plus a sky "Generate Offer PDF" button (renders a clean printable
+  one-pager and opens the print dialog).
+- AI Handoff Dossier: white card with a sky top border, 3 sharp-black bullets
+  (Personality, Pain Point, Bottom-Line Price).
+- 1-click "Export to Acquisitions CRM": posts to /api/leads/[id]/export and
+  morphs the button into a green checkmark on success (AnimatePresence).
 
-Removed dark mode entirely: deleted the [data-theme="dark"] block and dark
-::selection rule, deleted ThemeToggle.tsx and its mount in the dashboard header.
-No `dark:` utilities existed (app is inline-token styled).
-
-Reskinned the dashboard sidebar from dark chrome to white: slate text, sky
-active state (rail + soft sky bg + ring), sky logo, white user/upgrade cards.
-Converted the Lead Detail hero from a midnight panel to a white card with a sky
-top accent + light stat tiles. Hot lead badges are now vibrant emerald (money/
-success) in LeadsList and the lead header.
+Replaced the old DealCalculator + HandoffBrief on the lead page with this panel.
+Also removes the stray temp commit-message file.
 
 Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
