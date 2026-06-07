@@ -11,7 +11,6 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { impersonationTarget, stopImpersonation } from "@/lib/impersonation";
-import { ThemeToggle } from "@/app/_components/ThemeToggle";
 import { HelpButton } from "@/app/_components/HelpButton";
 import { OmniSearch } from "@/app/_components/OmniSearch";
 import { T } from "@/app/_components/tokens";
@@ -79,12 +78,12 @@ function RealTrackMark({ size = 28 }: { size?: number }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
       <svg width={size * 1.3} height={size * 0.85} viewBox="0 0 40 24" fill="none">
-        <path d="M2 22 L20 4 L38 22" stroke="#fff" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M8 22 L20 11 L32 22" stroke="rgba(255,255,255,0.55)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M2 22 L20 4 L38 22" stroke="#0EA5E9" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M8 22 L20 11 L32 22" stroke="rgba(14,165,233,0.5)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
       <span style={{ display: "flex", flexDirection: "column" }}>
-        <span style={{ fontSize: 15, fontWeight: 800, color: "#fff", letterSpacing: "0.04em", lineHeight: 1 }}>RealTrack</span>
-        <span style={{ fontSize: 9, color: "rgba(255,255,255,0.45)", letterSpacing: "0.12em", fontWeight: 600, marginTop: 3 }}>PERFORMANCE SUITE</span>
+        <span style={{ fontSize: 15, fontWeight: 800, color: "var(--text-1)", letterSpacing: "0.04em", lineHeight: 1 }}>RealTrack</span>
+        <span style={{ fontSize: 9, color: "var(--text-3)", letterSpacing: "0.12em", fontWeight: 600, marginTop: 3 }}>PERFORMANCE SUITE</span>
       </span>
     </div>
   );
@@ -93,7 +92,7 @@ function RealTrackMark({ size = 28 }: { size?: number }) {
 function NavLink({ item, active }: { item: { label: string; href: string; icon: typeof PhoneCall }; active: boolean }) {
   const Icon = item.icon;
   const [hover, setHover] = useState(false);
-  const PURPLE = "#A78BFA"; // soft purple for text/icon on the dark sidebar
+  const SKY = "#0284C7"; // sky-600 for active text/icon on the white sidebar
   return (
     <Link href={item.href}
       onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
@@ -102,24 +101,24 @@ function NavLink({ item, active }: { item: { label: string; href: string; icon: 
         display: "flex", alignItems: "center", gap: 11,
         padding: "9px 13px", borderRadius: 10,
         textDecoration: "none",
-        background: active ? "rgba(124, 58, 237, 0.16)" : hover ? "rgba(255,255,255,0.05)" : "transparent",
-        color: active ? "#fff" : hover ? "#fff" : "rgba(255,255,255,0.66)",
+        background: active ? "rgba(14, 165, 233, 0.10)" : hover ? "var(--surface-3)" : "transparent",
+        color: active ? SKY : hover ? "var(--text-1)" : "var(--text-2)",
         fontSize: 13, fontWeight: active ? 700 : 500,
         transform: hover && !active ? "translateX(2px)" : "translateX(0)",
         transition: "all 180ms cubic-bezier(0.16, 1, 0.30, 1)",
-        boxShadow: active ? "inset 0 0 0 1px rgba(124,58,237,0.30)" : "none",
+        boxShadow: active ? "inset 0 0 0 1px rgba(14,165,233,0.28)" : "none",
       }}
     >
       {active && (
         <span style={{
           position: "absolute", left: -10, top: "50%", transform: "translateY(-50%)",
           width: 3, height: 20, borderRadius: 4,
-          background: "linear-gradient(180deg, #A78BFA, #7C3AED)",
-          boxShadow: "0 0 16px rgba(124,58,237,0.55)",
+          background: "linear-gradient(180deg, #38BDF8, #0284C7)",
+          boxShadow: "0 0 14px rgba(14,165,233,0.5)",
         }} />
       )}
       <Icon size={16} strokeWidth={active ? 2.3 : 1.9}
-        color={active ? PURPLE : hover ? "#fff" : "rgba(255,255,255,0.6)"}
+        color={active ? SKY : hover ? "var(--text-1)" : "var(--text-3)"}
         style={{ transition: "transform 240ms var(--spring-snap)", transform: hover ? "translateY(-1px)" : "translateY(0)" }} />
       {item.label}
     </Link>
@@ -130,7 +129,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
     <p style={{
       fontSize: 10, fontWeight: 700, letterSpacing: "0.14em",
-      color: "rgba(255,255,255,0.40)", textTransform: "uppercase",
+      color: "var(--text-4)", textTransform: "uppercase",
       padding: "0 14px", marginBottom: 8,
     }}>{children}</p>
   );
@@ -176,8 +175,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         display: "flex", flexDirection: "column",
         position: "fixed", top: 0, left: 0, bottom: 0,
         zIndex: 40, overflowY: "auto", overscrollBehavior: "contain",
-        boxShadow: "var(--shadow-chrome)",
-        color: "#fff",
+        boxShadow: "var(--shadow-md)",
+        color: "var(--text-1)",
       }}>
         <Link href="/dashboard"
           style={{
@@ -214,11 +213,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <Link href="/admin" style={{
                 display: "flex", alignItems: "center", gap: 11,
                 padding: "9px 13px", borderRadius: 10, textDecoration: "none",
-                color: "rgba(255,255,255,0.66)",
+                color: "var(--text-2)",
                 fontSize: 13, fontWeight: 500, marginTop: 2,
               }}
-              onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; e.currentTarget.style.color = "#fff"; }}
-              onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "rgba(255,255,255,0.66)"; }}
+              onMouseEnter={e => { e.currentTarget.style.background = "var(--surface-3)"; e.currentTarget.style.color = "var(--text-1)"; }}
+              onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-2)"; }}
               >
                 <Shield size={16} strokeWidth={1.9} /> Admin Portal
               </Link>
@@ -255,7 +254,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             display: "flex", alignItems: "center", gap: 11,
             padding: "10px 12px", borderRadius: 12, textDecoration: "none",
           }}
-          onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.04)"}
+          onMouseEnter={e => e.currentTarget.style.background = "var(--surface-3)"}
           onMouseLeave={e => e.currentTarget.style.background = "transparent"}
           >
             <div style={{
@@ -265,7 +264,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               fontSize: 12, fontWeight: 800,
             }}>{initials}</div>
             <div style={{ minWidth: 0, flex: 1 }}>
-              <p style={{ fontSize: 12, fontWeight: 700, color: "#fff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              <p style={{ fontSize: 12, fontWeight: 700, color: "var(--text-1)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {displayName || "Loading…"}
               </p>
               <p style={{ fontSize: 10, color: planAccent, fontWeight: 700, textTransform: "capitalize", marginTop: 1 }}>
@@ -277,10 +276,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             display: "flex", alignItems: "center", gap: 8,
             padding: "8px 12px", borderRadius: 10, width: "100%",
             background: "transparent", border: "none", cursor: "pointer",
-            fontSize: 12, color: "rgba(255,255,255,0.55)", marginTop: 4,
+            fontSize: 12, color: "var(--text-2)", marginTop: 4,
           }}
-          onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.color = "#fff"; }}
-          onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "rgba(255,255,255,0.55)"; }}
+          onMouseEnter={e => { e.currentTarget.style.background = "var(--surface-3)"; e.currentTarget.style.color = "var(--text-1)"; }}
+          onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-2)"; }}
           >
             <LogOut size={13} /> Sign out
           </button>
@@ -349,7 +348,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               fontSize: 10, fontWeight: 800, letterSpacing: "0.02em",
             }}>⌘K</span>
           </button>
-          <ThemeToggle />
           <HelpButton />
           <button title="Notifications" style={{
             width: 36, height: 36, borderRadius: 10,

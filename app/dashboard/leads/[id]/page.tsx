@@ -58,7 +58,7 @@ interface ExtractedItem {
 }
 
 const STATUS_CONFIG: Record<string, { bg: string; color: string; icon: typeof CheckCircle2 }> = {
-  Hot:          { bg: "#FBEEE8", color: "#DC2626", icon: CheckCircle2 },
+  Hot:          { bg: "#ECFDF5", color: "#059669", icon: CheckCircle2 },
   Warm:         { bg: "#FFF7ED", color: "#EA580C", icon: CheckCircle2 },
   Cold:         { bg: "#F0F9FF", color: "#0284C7", icon: CheckCircle2 },
   Disqualified: { bg: "#F1F4F9", color: "#4B5563", icon: XCircle },
@@ -180,24 +180,25 @@ export default function LeadDetailPage() {
         <ArrowLeft size={13} /> Call Library
       </Link>
 
-      {/* Header hero — midnight panel with magenta glow */}
+      {/* Header hero — clean white panel with a sky top accent */}
       <div style={{
         position: "relative", overflow: "hidden",
         padding: 30, borderRadius: 22,
-        background: "linear-gradient(135deg, #0B0F1F 0%, #161C36 100%)",
-        color: "#fff", boxShadow: "0 24px 60px rgba(11,15,31,0.45)",
-        border: "1px solid rgba(255,255,255,0.06)",
+        background: "var(--surface-1)",
+        color: "var(--text-1)", boxShadow: "var(--shadow-md)",
+        border: "1px solid var(--border-2)",
       }}>
-        <div style={{ position: "absolute", top: -120, right: -60, width: 360, height: 360, borderRadius: "50%", background: "radial-gradient(circle, rgba(242,38,111,0.22), transparent 70%)", filter: "blur(12px)", pointerEvents: "none" }} />
+        <span style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: "var(--grad-primary)" }} />
+        <div style={{ position: "absolute", top: -120, right: -60, width: 360, height: 360, borderRadius: "50%", background: "radial-gradient(circle, rgba(14,165,233,0.10), transparent 70%)", filter: "blur(12px)", pointerEvents: "none" }} />
         <div style={{ position: "relative", display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 22, flexWrap: "wrap", gap: 12 }}>
           <div>
-            <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", marginBottom: 8, background: T.gradPrimary, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>LEAD #{lead.id.slice(0, 8)}</p>
-            <h1 style={{ fontSize: 30, fontWeight: 900, letterSpacing: "-0.02em", lineHeight: 1.1 }}>
+            <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", marginBottom: 8, color: "var(--sky-600)" }}>LEAD #{lead.id.slice(0, 8)}</p>
+            <h1 style={{ fontSize: 30, fontWeight: 900, letterSpacing: "-0.02em", lineHeight: 1.1, color: "var(--text-1)" }}>
               {lead.extracted_address || "Unknown address"}
             </h1>
             {lead.campaigns?.name && (
-              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", marginTop: 8 }}>
-                Campaign: <strong style={{ color: "#FF4F92" }}>{lead.campaigns.name}</strong>
+              <p style={{ fontSize: 13, color: "var(--text-3)", marginTop: 8 }}>
+                Campaign: <strong style={{ color: "var(--sky-600)" }}>{lead.campaigns.name}</strong>
               </p>
             )}
           </div>
@@ -580,13 +581,13 @@ function HeaderStat({ icon: Icon, label, value }: { icon: React.ComponentType<{ 
   return (
     <div style={{
       padding: "12px 14px", borderRadius: 12,
-      background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)",
+      background: "var(--surface-3)", border: "1px solid var(--border-2)",
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 6 }}>
-        <Icon size={11} color="#FF4F92" />
-        <p style={{ fontSize: 10, fontWeight: 800, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{label}</p>
+        <Icon size={11} color="var(--sky-600)" />
+        <p style={{ fontSize: 10, fontWeight: 800, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{label}</p>
       </div>
-      <p style={{ fontSize: 16, fontWeight: 800, color: "#fff" }}>{value}</p>
+      <p style={{ fontSize: 16, fontWeight: 800, color: "var(--text-1)" }}>{value}</p>
     </div>
   );
 }

@@ -11,83 +11,90 @@
 ═══════════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* ── Brand: midnight + magenta ─────────────────────────────────────── */
-  --midnight:      #0B0F1F;   /* deepest — sidebar base */
-  --midnight-2:    #11162A;   /* card surface on dark chrome */
-  --midnight-3:    #1A2140;   /* hover on dark chrome */
-  --midnight-line: rgba(255,255,255,0.08);
+  /* ═══ CLEAN ENTERPRISE — White · Sky Blue · Vibrant Green · Slate ═══
+     One bright, day-only FinTech palette. Sky = action/trust,
+     Emerald = money/success, Slate = chrome & text. */
 
-  --magenta:       #F2266F;   /* Gong-pink — primary action */
-  --magenta-2:     #FF4F92;   /* hover */
-  --magenta-3:     #B91454;   /* pressed */
-  --magenta-glow:  rgba(242, 38, 111, 0.32);
-  --magenta-dim:   rgba(242, 38, 111, 0.12);
+  /* Sidebar / chrome surfaces are now WHITE (no dark chrome). */
+  --midnight:      #0F172A;   /* slate-900 — used only as a dark TEXT/icon ink */
+  --midnight-2:    #1E293B;
+  --midnight-3:    #334155;
+  --midnight-line: rgba(15,23,42,0.08);
 
-  --violet:        #7C3AED;   /* secondary accent / gradient stop */
-  --violet-2:      #5B21B6;
+  /* Primary accent → SKY BLUE. (var name kept so token-based code repaints.) */
+  --sky:           #0EA5E9;   /* sky-500 */
+  --sky-600:       #0284C7;   /* sky-600 */
+  --magenta:       #0EA5E9;   /* primary action — now sky-500 */
+  --magenta-2:     #38BDF8;   /* hover  (sky-400) */
+  --magenta-3:     #0284C7;   /* pressed (sky-600) */
+  --magenta-glow:  rgba(14, 165, 233, 0.30);
+  --magenta-dim:   rgba(14, 165, 233, 0.12);
 
-  /* Brand gradient used on hero pills, primary buttons, top-of-card glints */
-  --grad-primary:  linear-gradient(135deg, #F2266F 0%, #7C3AED 100%);
-  --grad-chrome:   linear-gradient(180deg, #0B0F1F 0%, #0D1228 100%);
+  --violet:        #0284C7;   /* gradient stop → deeper sky (no purple) */
+  --violet-2:      #0369A1;
 
-  /* Legacy navy tokens now map to midnight so old code keeps working */
-  --navy:        var(--midnight);
-  --navy-2:      var(--midnight-2);
-  --navy-3:      var(--midnight-3);
-  --navy-light:  #EEF1F6;
-  --navy-border: #D8DEE9;
-  --navy-glow:   rgba(11,15,31,0.18);
-  --navy-ring:   rgba(11,15,31,0.30);
-  --navy-dim:    rgba(11,15,31,0.06);
+  /* Brand gradient → sky-on-sky for buttons / pills / glints */
+  --grad-primary:  linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
+  --grad-chrome:   linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%);
 
-  /* Teal alias → magenta so any "TEAL" left in code becomes the new accent */
-  --teal:        var(--magenta);
-  --teal-2:      var(--magenta-3);
+  /* Navy aliases → slate-900 ink so legacy "NAVY" text stays sharp & readable */
+  --navy:        #0F172A;
+  --navy-2:      #1E293B;
+  --navy-3:      #334155;
+  --navy-light:  #EEF2F8;
+  --navy-border: #E2E8F0;
+  --navy-glow:   rgba(2,132,199,0.16);
+  --navy-ring:   rgba(2,132,199,0.30);
+  --navy-dim:    rgba(15,23,42,0.05);
+
+  /* Teal/gold aliases → sky so any leftover accent code becomes sky-blue */
+  --teal:        var(--sky);
+  --teal-2:      var(--sky-600);
   --teal-light:  var(--magenta-dim);
-  --teal-border: rgba(242,38,111,0.30);
+  --teal-border: rgba(14,165,233,0.30);
   --teal-glow:   var(--magenta-glow);
-  --gold:        var(--magenta);
-  --gold-2:      var(--magenta-3);
+  --gold:        var(--sky);
+  --gold-2:      var(--sky-600);
   --gold-light:  var(--magenta-dim);
 
-  --red:         var(--magenta);
-  --red-hover:   var(--magenta-3);
-  --red-light:   var(--magenta-dim);
-  --red-border:  var(--teal-border);
-  --red-glow:    var(--magenta-glow);
-  --red-ring:    var(--navy-ring);
-  --red-dim:     var(--navy-dim);
+  --red:         #DC2626;
+  --red-hover:   #B91C1C;
+  --red-light:   #FEF2F2;
+  --red-border:  rgba(220,38,38,0.30);
+  --red-glow:    rgba(220,38,38,0.30);
+  --red-ring:    rgba(220,38,38,0.30);
+  --red-dim:     rgba(220,38,38,0.08);
 
   /* ── Slate ramp for muted text ─────────────────────────────────────── */
   --slate:       #4B5563;
   --slate-2:     #64748B;
   --slate-3:     #94A3B8;
 
-  /* ── Content surfaces (light side) ─────────────────────────────────── */
-  --canvas:    #F4F5FA;   /* page background — cool off-white */
-  --surface-1: #FFFFFF;   /* card */
+  /* ── Content surfaces ──────────────────────────────────────────────── */
+  --canvas:    #F8FAFC;   /* slate-50 — soft gray so white cards pop */
+  --surface-1: #FFFFFF;   /* card / panel / sidebar */
   --surface-2: #FFFFFF;
-  --surface-3: #F1F3F9;   /* input / subtle row */
-  --surface-4: #E4E7F0;
-  --surface-5: #CDD2DE;
+  --surface-3: #F1F5F9;   /* slate-100 — input / subtle row */
+  --surface-4: #E2E8F0;   /* slate-200 */
+  --surface-5: #CBD5E1;   /* slate-300 */
 
-  /* ── Borders ───────────────────────────────────────────────────────── */
-  --border-1: rgba(15,23,42,0.05);
-  --border-2: rgba(15,23,42,0.09);
-  --border-3: rgba(15,23,42,0.14);
-  --border-4: rgba(15,23,42,0.22);
-  --border-brand: rgba(242,38,111,0.30);
+  /* ── Borders (slate-200 family) ────────────────────────────────────── */
+  --border-1: #F1F5F9;                /* slate-100 hairline */
+  --border-2: #E2E8F0;                /* slate-200 — default card border */
+  --border-3: #CBD5E1;                /* slate-300 */
+  --border-4: #94A3B8;                /* slate-400 */
+  --border-brand: rgba(14,165,233,0.35);
 
-  /* ── Text (eye-friendly contrast tuned for AA on cream canvas) ─────── */
-  --text-1: #0F1424;   /* primary — slightly less harsh than pure midnight */
-  --text-2: #3F4858;   /* secondary — passes AA on white */
-  --text-3: #6B7587;   /* tertiary — readable, not faded */
-  --text-4: #B6BFCD;   /* disabled */
+  /* ── Text — sharp slate-900 ramp ───────────────────────────────────── */
+  --text-1: #0F172A;   /* slate-900 — primary, maximum readability */
+  --text-2: #475569;   /* slate-600 — secondary */
+  --text-3: #64748B;   /* slate-500 — tertiary */
+  --text-4: #94A3B8;   /* slate-400 — disabled */
 
-  --brand-300: #B7A6E8;
-  --brand-400: var(--magenta);
-  --brand-500: var(--magenta);
-  --brand-600: var(--magenta-3);
+  --brand-300: #7DD3FC;
+  --brand-400: var(--sky);
+  --brand-500: var(--sky);
+  --brand-600: var(--sky-600);
   --brand-dim: var(--magenta-dim);
   --brand-glow: var(--magenta-glow);
   --brand-ring: var(--navy-ring);
@@ -121,41 +128,20 @@
   --font-display: var(--font-geist-sans), "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
-  /* Purple accent for navigation / active states (Deep-Navy & Purple theme). */
-  --brand-purple:      #7C3AED;
-  --brand-purple-2:    #6D28D9;
-  --brand-purple-soft: rgba(124, 58, 237, 0.14);
-  --brand-purple-glow: rgba(124, 58, 237, 0.40);
+  /* Navigation / active states → SKY BLUE (replaces old purple). */
+  --brand-purple:      #0EA5E9;
+  --brand-purple-2:    #0284C7;
+  --brand-purple-soft: rgba(14, 165, 233, 0.12);
+  --brand-purple-glow: rgba(14, 165, 233, 0.40);
+
+  /* Emerald — money / success / Hot badges (var name kept for code reuse). */
+  --money:        #059669;   /* emerald-600 — financial numbers */
+  --money-2:      #10B981;   /* emerald-500 */
+  --money-soft:   rgba(16, 185, 129, 0.12);
 }
 
-/* ── DARK THEME — deep midnight everywhere ───────────────────────────── */
-[data-theme="dark"] {
-  /* Eye-friendly midnight palette — softer black than #000 + brighter text */
-  --canvas:    #0A0E1F;
-  --surface-1: #131830;
-  --surface-2: #131830;
-  --surface-3: #1A2040;
-  --surface-4: #232B52;
-  --surface-5: #2E3866;
-
-  /* Dark theme — bright whites + clearly legible secondaries */
-  --text-1: #F4F6FB;
-  --text-2: #C7CEDC;
-  --text-3: #98A0B3;
-  --text-4: #4A5471;
-
-  --border-1: rgba(255,255,255,0.06);
-  --border-2: rgba(255,255,255,0.10);
-  --border-3: rgba(255,255,255,0.18);
-  --border-4: rgba(255,255,255,0.26);
-
-  --navy-light:  #11162A;
-  --navy-border: rgba(255,255,255,0.10);
-
-  --slate:       #B5BCCB;
-  --slate-2:     #A2ABBE;
-  --slate-3:     #7C8499;
-}
+/* Dark mode removed — the app is permanently locked to the Clean Enterprise
+   light theme (white / sky / emerald / slate). */
 
 /* ── Base ────────────────────────────────────────────────────────────── */
 * { box-sizing: border-box; }
@@ -174,7 +160,6 @@ html, body {
   letter-spacing: -0.005em;
 }
 ::selection { background: var(--magenta-dim); color: var(--text-1); }
-[data-theme="dark"] ::selection { background: rgba(242,38,111,0.32); color: #fff; }
 /* ── Lenis smooth-scroll boilerplate ──────────────────────────────────
    Mandatory rules from the Lenis docs. The vertical scroll must own the
    document; never let overflow-x:hidden on html/body fight it (use a wrapper

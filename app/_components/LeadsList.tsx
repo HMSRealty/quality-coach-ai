@@ -20,7 +20,7 @@ export interface LeadItem {
 }
 
 const STATUS: Record<string, { bg: string; fg: string; glow: string }> = {
-  Hot:          { bg: "rgba(220,38,38,0.12)",  fg: "#DC2626", glow: "rgba(220,38,38,0.55)" },
+  Hot:          { bg: "rgba(5,150,105,0.12)",   fg: "#059669", glow: "rgba(5,150,105,0.55)" },
   Warm:         { bg: "rgba(234,88,12,0.12)",   fg: "#EA580C", glow: "rgba(234,88,12,0.5)" },
   Cold:         { bg: "rgba(2,132,199,0.12)",   fg: "#0284C7", glow: "rgba(2,132,199,0.5)" },
   "Call Back":  { bg: "rgba(146,64,14,0.12)",   fg: "#92400E", glow: "rgba(146,64,14,0.45)" },
