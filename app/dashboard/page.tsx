@@ -14,6 +14,7 @@ import { supabase } from "@/lib/supabase";
 import { Card } from "@/app/_components/Card";
 import { LeadDetailModal } from "@/app/_components/LeadDetailModal";
 import { SecurityBadges } from "@/app/_components/SecurityBadges";
+import { LeadsList } from "@/app/_components/LeadsList";
 import { PageHeader } from "@/app/_components/PageHeader";
 import { T } from "@/app/_components/tokens";
 import {
@@ -25,6 +26,8 @@ interface Lead {
   id: string; campaign_id: string; user_id: string; status: string;
   extracted_address: string | null; asking_price: number | null;
   qualification_reason: string | null; created_at: string;
+  agent_name?: string | null;
+  metadata?: Record<string, unknown> | null;
   campaigns?: { name: string } | null;
 }
 
@@ -151,6 +154,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdating]   = useState<string | null>(null);
   const [rerunningId, setRerunning] = useState<string | null>(null);
+  const [newIds, setNewIds]         = useState<Set<string>>(new Set());
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -188,6 +192,9 @@ export default function DashboardPage() {
           setLeads(prev => {
             const exists = prev.some(l => l.id === enriched.id);
             if (exists) return prev.map(l => l.id === enriched.id ? (enriched as Lead) : l);
+            // Flag as NEW so the list glows it, then clear after the animation.
+            setNewIds(s => { const n = new Set(s); n.add(enriched.id); return n; });
+            setTimeout(() => setNewIds(s => { const n = new Set(s); n.delete(enriched.id); return n; }), 2200);
             return [enriched as Lead, ...prev].slice(0, 200);
           });
         }).subscribe();
@@ -374,63 +381,19 @@ export default function DashboardPage() {
             </Link>
           </div>
         ) : (
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead>
-                <tr style={{ background: "var(--surface-3)" }}>
-                  {["Date", "Campaign", "Status", "Address", "Price", "Reason", ""].map(h => (
-                    <th key={h} style={{ padding: "12px 18px", textAlign: "left", fontSize: 10, fontWeight: 800, letterSpacing: "0.08em", color: "var(--text-3)", textTransform: "uppercase", whiteSpace: "nowrap" }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {recent.map((lead) => {
-                  const sc = S_CFG[lead.status] ?? { bg: "var(--surface-3)", color: "var(--text-2)" };
-                  return (
-                    <tr key={lead.id}
-                      style={{ borderTop: "1px solid var(--border-1)", cursor: "pointer", transition: "all 180ms var(--spring-heavy)" }}
-                      onMouseEnter={e => { e.currentTarget.style.background = "var(--surface-3)"; }}
-                      onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
-                      onClick={() => setOpenLeadId(lead.id)}
-                    >
-                      <td style={{ padding: "14px 18px", fontSize: 12, color: "var(--text-2)", whiteSpace: "nowrap" }}>
-                        {new Date(lead.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                      </td>
-                      <td style={{ padding: "14px 18px" }}>
-                        <span style={{ padding: "3px 10px", borderRadius: 999, background: "var(--surface-3)", color: "var(--text-2)", fontSize: 11, fontWeight: 600 }}>
-                          {lead.campaigns?.name ?? "—"}
-                        </span>
-                      </td>
-                      <td style={{ padding: "14px 18px" }}>
-                        <div style={{ position: "relative", display: "inline-block" }}>
-                          <select value={lead.status} onClick={e => e.stopPropagation()} onChange={e => updateStatus(lead.id, e.target.value)}
-                            disabled={updatingId === lead.id}
-                            style={{ appearance: "none", padding: "4px 22px 4px 10px", borderRadius: 999, fontSize: 11, fontWeight: 800, border: "none", cursor: "pointer", background: sc.bg, color: sc.color }}>
-                            {STATUS_OPTS.map(s => <option key={s} value={s}>{s}</option>)}
-                          </select>
-                          {updatingId === lead.id
-                            ? <Loader2 size={9} className="animate-spin" style={{ position: "absolute", right: 6, top: "50%", transform: "translateY(-50%)", color: sc.color, pointerEvents: "none" }} />
-                            : <ChevronDown size={10} style={{ position: "absolute", right: 6, top: "50%", transform: "translateY(-50%)", color: sc.color, pointerEvents: "none" }} />}
-                        </div>
-                      </td>
-                      <td style={{ padding: "14px 18px", fontSize: 13, color: "var(--text-1)", maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{lead.extracted_address ?? "—"}</td>
-                      <td style={{ padding: "14px 18px", fontSize: 13, color: "var(--text-1)", whiteSpace: "nowrap", fontWeight: 700 }}>
-                        {lead.asking_price ? `$${lead.asking_price.toLocaleString()}` : "—"}
-                      </td>
-                      <td style={{ padding: "14px 18px", fontSize: 12, color: "var(--text-2)", maxWidth: 260, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={lead.qualification_reason ?? ""}>
-                        {lead.qualification_reason ?? "—"}
-                      </td>
-                      <td style={{ padding: "14px 18px" }}>
-                        <button onClick={(e) => { e.stopPropagation(); rerun(lead); }} disabled={rerunningId === lead.id} className="btn-ghost"
-                          style={{ padding: "5px 12px", fontSize: 11 }}>
-                          {rerunningId === lead.id ? <Loader2 size={10} className="animate-spin" /> : <RotateCcw size={10} />} Re-run
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+          <div style={{ padding: 16 }}>
+            <LeadsList
+              leads={recent.map(l => ({
+                id: l.id,
+                address: l.extracted_address,
+                status: l.status,
+                asking: l.asking_price,
+                arv: Number((l.metadata as { arv?: number } | null)?.arv) || Number((l.metadata as { zillow_data?: { zestimate?: number } } | null)?.zillow_data?.zestimate) || null,
+                agent: (l.metadata as { agent_name?: string } | null)?.agent_name || null,
+              }))}
+              newIds={newIds}
+              onOpen={(id) => setOpenLeadId(id)}
+            />
           </div>
         )}
       </section>
