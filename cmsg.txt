@@ -1,0 +1,19 @@
+feat(anti-fraud): Truth Verification — flag manual entry that contradicts the call
+
+Backend (/api/analyze): inject the agent's manually-submitted data (address,
+asking price, seller name, notes) into the Gemini system prompt with a strict
+new TRUTH VERIFICATION instruction — cross-reference each non-blank field
+against the transcript and flag contradictions or fabrications. QualJSON +
+responseSchema gain has_data_discrepancy (boolean) and discrepancy_notes
+(string); both persist to lead.metadata. Works in audio and cheap text re-grade
+modes; blank fields are never treated as discrepancies.
+
+UI (CallIntel.tsx → Lead Details): new DataVerificationAlert — a sharp amber
+banner (bg amber-50, border amber-400, text amber-900, Lucide AlertTriangle)
+shown directly above the AI Handoff Dossier when has_data_discrepancy is true,
+displaying the AI's exact discrepancy_notes. Amber chosen deliberately: red is
+reserved for TCPA/legal, green for money/success — this reads as a QA mismatch.
+
+Verified: next build green, tsc --noEmit exit 0.
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>

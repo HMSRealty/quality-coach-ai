@@ -20,6 +20,38 @@ import {
 const SPRING = { type: "spring", stiffness: 480, damping: 34, mass: 0.7 } as const;
 
 // ──────────────────────────────────────────────────────────────────────
+// 0. Data Verification Alert (anti-fraud) — amber QA-mismatch banner.
+//    Red = TCPA/legal, Green = money/success — a manual-entry mismatch uses a
+//    sharp amber so it reads as a "QA discrepancy", not a legal risk.
+// ──────────────────────────────────────────────────────────────────────
+export function DataVerificationAlert({ hasDiscrepancy, notes }: { hasDiscrepancy: boolean; notes: string | null | undefined }) {
+  if (!hasDiscrepancy) return null;
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={SPRING}
+      style={{
+        display: "flex", alignItems: "flex-start", gap: 13, padding: "15px 18px", borderRadius: 14,
+        background: "#FFFBEB",                 // amber-50
+        border: "1px solid #FBBF24",           // amber-400
+        borderLeft: "4px solid #F59E0B",
+        boxShadow: "0 10px 30px rgba(245,158,11,0.16)",
+      }}>
+      <span style={{ width: 36, height: 36, borderRadius: 10, flexShrink: 0, background: "#FEF3C7", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <AlertTriangle size={19} color="#B45309" />
+      </span>
+      <div style={{ minWidth: 0 }}>
+        <p style={{ fontSize: 12, fontWeight: 900, letterSpacing: "0.05em", textTransform: "uppercase", color: "#92400E" }}>
+          Data Verification Alert · QA Mismatch
+        </p>
+        <p style={{ fontSize: 13.5, fontWeight: 600, color: "#78350F", lineHeight: 1.55, marginTop: 4 }}>
+          {notes || "The agent's manually-entered data does not match the call recording."}
+        </p>
+      </div>
+    </motion.div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────────────────
 // 1. TCPA & Hostility Early-Warning Shield
 // ──────────────────────────────────────────────────────────────────────
 export function TcpaShield({ transcript, onJump }: { transcript: string | null | undefined; onJump?: (sec: number) => void }) {

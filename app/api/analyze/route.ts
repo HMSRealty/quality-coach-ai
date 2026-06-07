@@ -98,6 +98,9 @@ interface QualJSON {
   spoken_asking_price?: string;
   spoken_market_value?: string;
   extracted_items?: Array<Record<string, unknown>>;
+  // Truth verification (anti-fraud): does the agent's manual entry match the call?
+  has_data_discrepancy?: boolean;
+  discrepancy_notes?: string;
 }
 
 // ── Gemini Files API upload (resumable, edge fetch) ──
@@ -247,6 +250,7 @@ function buildSystemPrompt(opts: {
   marketValue?: number | null;
   propertyAddress?: string | null;
   customRules?: string;
+  submitted?: { address?: string | null; askingPrice?: string | null; sellerName?: string | null; notes?: string | null };
 }): string {
   const persona = (opts.orgPersona && opts.orgPersona.trim().length > 30) ? opts.orgPersona.trim() : QUAL_SYSTEM;
   const killers = (opts.orgKillers && opts.orgKillers.length)
@@ -273,14 +277,29 @@ evasive answers do NOT count as a valid reason — they push the lead to COLD or
     : `\n\nLIVE API CONTEXT: Zestimate unavailable for this lead. Use the SPOKEN market value if present; otherwise rely on motivation + Kill List only.`;
   const killBlock = `\n\nACTIVE KILL LIST (auto-DISQUALIFY if ANY are true):\n${killers}\n\nSAVIOR EXCEPTION: If the PRIMARY address hits a Kill rule but the seller volunteers a DIFFERENT off-market property, extract that new address into other_properties_volunteered and qualify the lead based on the volunteered property.`;
   const overrides = opts.customRules ? `\n\nCAMPAIGN CUSTOM OVERRIDE RULES:\n${opts.customRules}` : "";
-  return `${persona}${marketCtx}${killBlock}${overrides}`;
+
+  // TRUTH VERIFICATION (anti-fraud): cross-check the agent's manual entry vs the call.
+  const s = opts.submitted;
+  const hasSubmitted = s && (s.address || s.askingPrice || s.sellerName || s.notes);
+  const verifyBlock = hasSubmitted ? `\n\nTRUTH VERIFICATION (ANTI-FRAUD — CRITICAL):
+The agent MANUALLY ENTERED the following lead data at submission. Cross-reference EACH field against what was ACTUALLY said in the audio/transcript:
+  • Submitted address:        ${s!.address || "(blank)"}
+  • Submitted asking price:   ${s!.askingPrice || "(blank)"}
+  • Submitted seller name:    ${s!.sellerName || "(blank)"}
+  • Submitted notes/motivation: ${s!.notes || "(blank)"}
+RULE: If the agent submitted information (asking price, timeframe/closing window, property condition, seller name, motivation) that CONTRADICTS the audio, or that was COMPLETELY FABRICATED (not supported anywhere in the call), you MUST flag it:
+  → set has_data_discrepancy = true
+  → set discrepancy_notes to a specific sentence citing the conflict, e.g. "Agent entered asking price $100k, but seller explicitly stated $150k firm." or "Agent entered seller name 'John', but the recording names the owner as 'Maria'."
+If every non-blank submitted field is consistent with the call (blank fields are NOT discrepancies), set has_data_discrepancy = false and discrepancy_notes = "". Never invent a discrepancy when the data agrees.` : "";
+
+  return `${persona}${marketCtx}${killBlock}${overrides}${verifyBlock}`;
 }
 
 async function runQualification(
   files: Array<{ uri: string; mime: string }>,
   customRules: string,
   key: string,
-  ctx?: { orgPersona?: string | null; orgKillers?: Array<{ id: string; label: string; rule: string; enabled?: boolean }> | null; marketValue?: number | null; propertyAddress?: string | null; transcriptText?: string | null },
+  ctx?: { orgPersona?: string | null; orgKillers?: Array<{ id: string; label: string; rule: string; enabled?: boolean }> | null; marketValue?: number | null; propertyAddress?: string | null; transcriptText?: string | null; submitted?: { address?: string | null; askingPrice?: string | null; sellerName?: string | null; notes?: string | null } },
 ): Promise<QualJSON> {
   const systemText = buildSystemPrompt({
     orgPersona: ctx?.orgPersona,
@@ -288,6 +307,7 @@ async function runQualification(
     marketValue: ctx?.marketValue,
     propertyAddress: ctx?.propertyAddress,
     customRules,
+    submitted: ctx?.submitted,
   });
   // Two input modes:
   //   • AUDIO  — attach every recording (full analysis, also produces transcript)
@@ -343,6 +363,8 @@ async function runQualification(
           repairs_mentioned: { type: "ARRAY", items: { type: "STRING" } },
           rehab_cost_estimate: { type: "NUMBER" },
           transcript: { type: "STRING" },
+          has_data_discrepancy: { type: "BOOLEAN" },
+          discrepancy_notes: { type: "STRING" },
         },
         required: ["raw_extracted_address", "is_decision_maker", "is_commercial", "is_spanish_speaker",
           "spoken_asking_price", "spoken_market_value", "is_qualified", "qualification_reason",
@@ -657,10 +679,20 @@ export async function POST(req: Request): Promise<Response> {
       if (ups.length === 0) throw new Error("All audio uploads to the AI failed");
     }
 
+    // Manually-submitted data for the TRUTH VERIFICATION cross-check.
+    const md = (lead.metadata || {}) as Record<string, unknown>;
+    const submitted = {
+      address: lead.extracted_address ?? null,
+      askingPrice: lead.asking_price != null ? `$${Number(lead.asking_price).toLocaleString()}` : null,
+      sellerName: (md.owner_name as string | undefined) || null,
+      notes: (md.reason as string | undefined) || null,
+    };
+
     // Qualification — audio mode or cheap text re-grade from the saved transcript.
     const q = await runQualification(ups, rules, key, {
       orgPersona, orgKillers, marketValue, propertyAddress: resolvedAddress,
       transcriptText: textOnly ? savedTranscript : null,
+      submitted,
     });
     // Coaching only runs in audio mode (needs the recording). On text re-runs we
     // keep the previously-saved coaching.
@@ -710,6 +742,9 @@ export async function POST(req: Request): Promise<Response> {
         objection_quote: safeStr(q.objection_quote),
         repairs_mentioned: Array.isArray(q.repairs_mentioned) ? q.repairs_mentioned : [],
         rehab_cost_estimate: typeof q.rehab_cost_estimate === "number" ? q.rehab_cost_estimate : 0,
+        // Truth verification (anti-fraud)
+        has_data_discrepancy: q.has_data_discrepancy === true,
+        discrepancy_notes: q.has_data_discrepancy === true ? safeStr(q.discrepancy_notes) : "",
       },
     }).eq("id", lead.id);
 

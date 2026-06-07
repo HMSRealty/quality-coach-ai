@@ -8,7 +8,7 @@ import { GongPlayer } from "@/app/_components/GongPlayer";
 import { AcquisitionsPanel } from "@/app/_components/AcquisitionsPanel";
 import { ExportWebhookButton } from "@/app/_components/ExportWebhookButton";
 import { AgentScorecard } from "@/app/_components/AgentScorecard";
-import { TcpaShield, ScriptComplianceTimeline, BehavioralScorecard, InteractiveTranscript } from "@/app/_components/CallIntel";
+import { TcpaShield, ScriptComplianceTimeline, BehavioralScorecard, InteractiveTranscript, DataVerificationAlert } from "@/app/_components/CallIntel";
 import { parseSegments } from "@/app/_components/callAnalysis";
 import Link from "next/link";
 import {
@@ -535,6 +535,12 @@ export default function LeadDetailPage() {
               sourceUrl={primarySrc}
               title={lead.extracted_address || `Lead ${lead.id.slice(0, 8)}`}
               onJump={jumpTo}
+            />
+
+            {/* Anti-fraud: manual entry vs call mismatch (above the dossier) */}
+            <DataVerificationAlert
+              hasDiscrepancy={md.has_data_discrepancy === true}
+              notes={(md.discrepancy_notes as string) ?? null}
             />
 
             {/* Acquisitions & Deal Math engine */}
