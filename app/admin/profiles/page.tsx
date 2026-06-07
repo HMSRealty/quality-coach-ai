@@ -11,8 +11,8 @@ import {
   Crown, ArrowUpDown, BarChart3, FolderCog, Mail,
 } from "lucide-react";
 
-const NAVY = T.navy;
-const SLATE = T.slate;
+const NAVY = T.text1;
+const SLATE = T.text2;
 
 interface Profile {
   id: string;
@@ -145,7 +145,7 @@ export default function AdminProfilesPage() {
         </div>
         <button onClick={load} style={{
           display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 14px",
-          borderRadius: 10, background: NAVY, border: "none", color: "#fff", cursor: "pointer",
+          borderRadius: 10, background: T.midnight, border: "none", color: "#fff", cursor: "pointer",
           fontSize: 12, fontWeight: 700, boxShadow: "0 2px 8px rgba(35,43,58,0.25)",
         }}>
           <RefreshCw size={13} /> Refresh

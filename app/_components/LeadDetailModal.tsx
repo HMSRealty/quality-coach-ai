@@ -5,10 +5,10 @@ import { supabase } from "@/lib/supabase";
 import { X, Flag, Calendar, MapPin, DollarSign, Phone, User, FileText, Loader2, CheckCircle2 } from "lucide-react";
 
 import { T } from "@/app/_components/tokens";
-const NAVY = T.navy;
+const NAVY = T.text1;
 const TEAL = T.teal;
 const GOLD = T.teal;
-const SLATE = T.slate;
+const SLATE = T.text2;
 
 interface Lead {
   id: string;
@@ -213,7 +213,7 @@ export function LeadDetailModal({ leadId, onClose }: { leadId: string; onClose: 
             <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
               <button onClick={saveFollowup} disabled={saving} style={{
                 flex: 1, padding: "11px 18px", borderRadius: 10,
-                background: NAVY, color: "#fff",
+                background: T.midnight, color: "#fff",
                 fontSize: 13, fontWeight: 700, border: "none",
                 cursor: saving ? "wait" : "pointer",
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 6,

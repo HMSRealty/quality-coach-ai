@@ -10,10 +10,10 @@ import {
 } from "lucide-react";
 import { T } from "@/app/_components/tokens";
 
-const NAVY = T.navy;
+const NAVY = T.text1;
 const TEAL = "#2F6BFF";
 const GOLD = "#2F6BFF";
-const SLATE = T.slate;
+const SLATE = T.text2;
 
 interface UserRow {
   id: string;
@@ -195,7 +195,7 @@ export default function AdminPage() {
           <button onClick={() => setShowCreate(true)} style={{
             display: "inline-flex", alignItems: "center", gap: 6,
             padding: "9px 16px", borderRadius: 9,
-            background: NAVY, color: "#fff", border: "none",
+            background: T.midnight, color: "#fff", border: "none",
             fontSize: 12, fontWeight: 700, cursor: "pointer",
             boxShadow: "0 4px 14px rgba(35,43,58,0.25)",
           }}>

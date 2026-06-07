@@ -4,9 +4,9 @@ import { useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Upload, Download, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 
-const NAVY = "#232B3A";
+const NAVY = "var(--text-1)";
 const TEAL = "#2F6BFF";
-const SLATE = "#4B5563";
+const SLATE = "var(--text-2)";
 
 function parseCSV(text: string): Array<{ name: string; target: string; rules: string }> {
   const rows: string[][] = [];

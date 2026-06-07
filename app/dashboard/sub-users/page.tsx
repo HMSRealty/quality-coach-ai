@@ -6,8 +6,8 @@ import { Card } from "@/app/_components/Card";
 import { startImpersonation } from "@/lib/impersonation";
 import { UserPlus, Loader2, Eye, CheckCircle2, AlertCircle, UserCog, Trash2, Download } from "lucide-react";
 
-const NAVY = "#232B3A";
-const SLATE = "#4B5563";
+const NAVY = "var(--text-1)";
+const SLATE = "var(--text-2)";
 
 interface SubUser {
   id: string; email: string; plan_tier: string; created_at: string;
@@ -140,7 +140,7 @@ export default function SubUsersPage() {
           <button onClick={createSubUser} disabled={creating} style={{
             display: "inline-flex", alignItems: "center", gap: 6,
             padding: "10px 18px", borderRadius: 10,
-            background: NAVY, color: "#fff", border: "none",
+            background: "var(--midnight)", color: "#fff", border: "none",
             fontSize: 13, fontWeight: 700, cursor: creating ? "wait" : "pointer",
           }}>
             {creating ? <Loader2 size={14} className="animate-spin" /> : <UserPlus size={14} />} Create
@@ -169,7 +169,7 @@ export default function SubUsersPage() {
                 padding: "14px 20px", borderTop: "1px solid rgba(35,43,58,0.05)",
               }}>
                 <div style={{
-                  width: 34, height: 34, borderRadius: "50%", background: NAVY, color: "#fff",
+                  width: 34, height: 34, borderRadius: "50%", background: "var(--midnight)", color: "#fff",
                   display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800,
                 }}>{u.email.slice(0, 2).toUpperCase()}</div>
                 <div style={{ flex: 1 }}>

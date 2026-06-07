@@ -12,8 +12,8 @@ import {
   Save, Loader2, RotateCcw, AlertCircle, CheckCircle2, Skull, Bot, Plus, Trash2, Lock,
 } from "lucide-react";
 
-const NAVY = T.navy;
-const SLATE = T.slate;
+const NAVY = T.text1;
+const SLATE = T.text2;
 
 interface Killer { id: string; label: string; rule: string; enabled: boolean }
 

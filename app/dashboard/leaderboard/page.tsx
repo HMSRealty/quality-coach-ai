@@ -7,8 +7,8 @@ import { supabase } from "@/lib/supabase";
 import { T } from "@/app/_components/tokens";
 import { Loader2, Trophy, Flame, Sun, Snowflake, TrendingUp } from "lucide-react";
 
-const NAVY = T.navy;
-const SLATE = T.slate;
+const NAVY = T.text1;
+const SLATE = T.text2;
 
 function estDate(d = new Date()): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(d);

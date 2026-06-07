@@ -8,9 +8,9 @@ import { AddressAutocomplete } from "@/app/_components/AddressAutocomplete";
 import { PipelineProgress } from "@/app/_components/PipelineProgress";
 import { T } from "@/app/_components/tokens";
 
-const NAVY = T.navy;
+const NAVY = T.text1;
 const TEAL = T.teal;
-const SLATE = T.slate;
+const SLATE = T.text2;
 
 interface FormOwner {
   user_id: string;
@@ -385,7 +385,7 @@ export default function DynamicSubmitPage() {
             <button onClick={resetForNewLead} style={{
               display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
               width: "100%", padding: "14px 24px", borderRadius: 11,
-              background: NAVY, color: "#fff", fontSize: 14, fontWeight: 800,
+              background: T.midnight, color: "#fff", fontSize: 14, fontWeight: 800,
               border: "none", cursor: "pointer", boxShadow: `0 6px 20px rgba(35,43,58,0.25)`,
             }}>
               <Send size={15} /> Submit New Lead

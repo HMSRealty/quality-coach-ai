@@ -13,8 +13,8 @@ import {
   Shield, AlertCircle, CheckCircle2,
 } from "lucide-react";
 
-const NAVY = T.navy;
-const SLATE = T.slate;
+const NAVY = T.text1;
+const SLATE = T.text2;
 
 interface Profile { id: string; email: string; full_name: string | null; role: string }
 interface Team {
@@ -201,7 +201,7 @@ export default function TeamsPage() {
           <input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="New team name (e.g. Dialers North)" style={{ ...inputStyle, flex: 1 }} />
           <button type="submit" disabled={busy === "create" || !newName.trim()} style={{
             display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 16px", borderRadius: 9,
-            background: NAVY, color: "#fff", border: "none", fontSize: 13, fontWeight: 700,
+            background: T.midnight, color: "#fff", border: "none", fontSize: 13, fontWeight: 700,
             cursor: busy === "create" ? "wait" : "pointer",
           }}>
             {busy === "create" ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />} Create

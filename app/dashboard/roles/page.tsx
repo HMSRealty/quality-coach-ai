@@ -8,8 +8,8 @@ import { can, normalizeRole, ROLE_LABELS, type Role, type Permission } from "@/l
 import { Check, Minus, ShieldCheck } from "lucide-react";
 
 import { T } from "@/app/_components/tokens";
-const NAVY = T.navy;
-const SLATE = T.slate;
+const NAVY = T.text1;
+const SLATE = T.text2;
 
 const ROLES: Role[] = ["owner", "admin", "qa", "team_leader", "trainer", "caller"];
 const PERMS: { key: Permission; label: string; group: string }[] = [

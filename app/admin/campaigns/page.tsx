@@ -7,8 +7,8 @@ import { CampaignCSVImport } from "@/app/_components/CampaignCSVImport";
 import { FolderCog, Loader2, Search, CheckCircle2, AlertCircle, ArrowRight } from "lucide-react";
 import { T } from "@/app/_components/tokens";
 
-const NAVY = T.navy;
-const SLATE = T.slate;
+const NAVY = T.text1;
+const SLATE = T.text2;
 
 interface Campaign {
   id: string;

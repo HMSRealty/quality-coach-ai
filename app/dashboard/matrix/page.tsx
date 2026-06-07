@@ -14,8 +14,8 @@ import {
   MoreVertical, X, Save, CheckCircle2, AlertCircle, Phone as PhoneIcon,
 } from "lucide-react";
 
-const NAVY = T.navy;
-const SLATE = T.slate;
+const NAVY = T.text1;
+const SLATE = T.text2;
 
 // ── Types ──────────────────────────────────────────────────────────────
 type RoleKey = "owner" | "admin" | "team_leader" | "acquisitions" | "qa" | "trainer" | "caller";

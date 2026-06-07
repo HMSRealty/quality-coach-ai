@@ -18,10 +18,10 @@ import {
 } from "lucide-react";
 
 import { T } from "@/app/_components/tokens";
-const NAVY = T.navy;
+const NAVY = T.text1;
 const TEAL = T.teal;
 const GOLD = T.teal;
-const SLATE = T.slate;
+const SLATE = T.text2;
 
 interface Lead {
   id: string;
@@ -329,7 +329,7 @@ export default function LeadDetailPage() {
               }}>
                 <div style={{
                   width: 22, height: 22, borderRadius: "50%", flexShrink: 0,
-                  background: NAVY, color: "#fff",
+                  background: T.midnight, color: "#fff",
                   display: "flex", alignItems: "center", justifyContent: "center",
                   fontSize: 11, fontWeight: 800,
                 }}>{i + 1}</div>
@@ -534,7 +534,7 @@ export default function LeadDetailPage() {
         <button onClick={reanalyze} disabled={reanalyzing} style={{
           display: "inline-flex", alignItems: "center", gap: 8,
           padding: "11px 18px", borderRadius: 10,
-          background: NAVY, color: "#fff",
+          background: T.midnight, color: "#fff",
           fontSize: 13, fontWeight: 700, border: "none",
           cursor: reanalyzing ? "wait" : "pointer",
           boxShadow: "0 4px 14px rgba(35,43,58,0.25)",

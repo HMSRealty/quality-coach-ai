@@ -8,9 +8,9 @@ import { AddressAutocomplete } from "@/app/_components/AddressAutocomplete";
 import { PipelineProgress } from "@/app/_components/PipelineProgress";
 
 import { T } from "@/app/_components/tokens";
-const NAVY = T.navy;
+const NAVY = T.text1;
 const TEAL = T.teal;
-const SLATE = T.slate;
+const SLATE = T.text2;
 
 interface Campaign { id: string; name: string; }
 interface ColdCaller { id: string; name: string; }
@@ -295,7 +295,7 @@ export default function SubmitLeadPage() {
         <button type="button" onClick={generateLink} disabled={generating} style={{
           display: "inline-flex", alignItems: "center", gap: 8,
           padding: "10px 18px", borderRadius: 10,
-          background: NAVY, color: "#fff",
+          background: T.midnight, color: "#fff",
           fontSize: 13, fontWeight: 700, border: "none",
           cursor: generating ? "wait" : "pointer",
           boxShadow: "0 4px 14px rgba(35,43,58,0.25)",

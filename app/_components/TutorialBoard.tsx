@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 
-const NAVY = "#232B3A";
+const NAVY = "var(--text-1)";
 const NAVY_2 = "#2A3347";
 const TEAL = "#2F6BFF";
-const SLATE = "#4B5563";
+const SLATE = "var(--text-2)";
 const ARROW = "#2F6BFF";
 
 interface Step {
@@ -35,7 +35,7 @@ function Arrow({ label, top, left }: { label: string; top: number; left: number 
   return (
     <div style={{ position: "absolute", top, left, display: "flex", alignItems: "center", gap: 6, zIndex: 5 }}>
       <div style={{
-        background: NAVY, color: "#fff", fontSize: 11, fontWeight: 800,
+        background: "var(--midnight)", color: "#fff", fontSize: 11, fontWeight: 800,
         padding: "5px 10px", borderRadius: 8, whiteSpace: "nowrap",
         boxShadow: "0 4px 14px rgba(35,43,58,0.30)",
       }}>{label}</div>
@@ -87,7 +87,7 @@ const STEPS: Step[] = [
     render: () => (
       <Chrome title="RealTrack — Submit Lead">
         <p style={{ fontSize: 13, fontWeight: 800, color: NAVY, marginBottom: 14 }}>Shareable Submission Link</p>
-        <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "9px 14px", borderRadius: 9, background: NAVY, color: "#fff", fontSize: 12, fontWeight: 700 }}>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "9px 14px", borderRadius: 9, background: "var(--midnight)", color: "#fff", fontSize: 12, fontWeight: 700 }}>
           🔗 Generate Link
         </div>
         <div style={{ marginTop: 14, padding: "10px 12px", borderRadius: 9, background: "#E8EFFF", border: `1px solid ${TEAL}55`, fontSize: 11, color: NAVY, fontFamily: "monospace", maxWidth: 360 }}>
@@ -148,7 +148,7 @@ const STEPS: Step[] = [
             "[04:30] Strong price anchor — repeat this on every call.",
             "[06:02] Ask for the decision-maker earlier next time."].map((t, i) => (
             <div key={i} style={{ display: "flex", gap: 8, padding: "8px 10px", borderRadius: 8, background: "#F2F5F9", fontSize: 11, color: NAVY }}>
-              <span style={{ minWidth: 18, height: 18, borderRadius: "50%", background: NAVY, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 800 }}>{i + 1}</span>
+              <span style={{ minWidth: 18, height: 18, borderRadius: "50%", background: "var(--midnight)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 800 }}>{i + 1}</span>
               {t}
             </div>
           ))}

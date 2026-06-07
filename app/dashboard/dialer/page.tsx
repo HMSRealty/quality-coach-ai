@@ -9,10 +9,10 @@ import {
 } from "lucide-react";
 
 import { T } from "@/app/_components/tokens";
-const NAVY = T.navy;
+const NAVY = T.text1;
 const TEAL = T.teal;
 const GOLD = T.teal;
-const SLATE = T.slate;
+const SLATE = T.text2;
 
 type CallState = "idle" | "calling" | "ringing-incoming" | "connected";
 

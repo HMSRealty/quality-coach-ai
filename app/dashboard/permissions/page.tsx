@@ -5,9 +5,9 @@ import { supabase } from "@/lib/supabase";
 import { Loader2, Search, Link2, Copy, Check, ExternalLink, Power } from "lucide-react";
 
 import { T } from "@/app/_components/tokens";
-const NAVY = T.navy;
+const NAVY = T.text1;
 const TEAL = T.teal;
-const SLATE = T.slate;
+const SLATE = T.text2;
 
 interface UserRow {
   id: string;

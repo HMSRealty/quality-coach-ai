@@ -5,10 +5,10 @@ import { supabase } from "@/lib/supabase";
 import { Flag, Calendar, Phone, Clock, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
 
 import { T } from "@/app/_components/tokens";
-const NAVY = T.navy;
+const NAVY = T.text1;
 const TEAL = T.teal;
 const GOLD = T.teal;
-const SLATE = T.slate;
+const SLATE = T.text2;
 
 interface Followup {
   id: string;
@@ -177,7 +177,7 @@ export default function FollowupsPage() {
                 <button style={{
                   display: "flex", alignItems: "center", gap: 6,
                   padding: "8px 14px", borderRadius: 8,
-                  background: NAVY, color: "#fff", border: "none",
+                  background: T.midnight, color: "#fff", border: "none",
                   fontSize: 12, fontWeight: 700, cursor: "pointer",
                 }}>
                   <Phone size={12} /> Schedule Call

@@ -9,8 +9,8 @@ import {
   CheckCircle2, AlertCircle, Pencil,
 } from "lucide-react";
 
-const NAVY = T.navy;
-const SLATE = T.slate;
+const NAVY = T.text1;
+const SLATE = T.text2;
 
 interface Agent {
   id: string;

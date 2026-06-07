@@ -9,10 +9,10 @@ import {
 } from "lucide-react";
 import { TrainingSnippets } from "@/app/_components/TrainingSnippets";
 
-const NAVY = "#232B3A";
+const NAVY = "var(--text-1)";
 const TEAL = "#2F6BFF";
 const GOLD = "#2F6BFF";
-const SLATE = "#4B5563";
+const SLATE = "var(--text-2)";
 
 interface Batch {
   id: string;
@@ -247,7 +247,7 @@ export default function TrainersPage() {
           <button onClick={() => setShowBatch(true)} style={{
             display: "inline-flex", alignItems: "center", gap: 6,
             padding: "8px 14px", borderRadius: 8,
-            background: NAVY, color: "#fff", border: "none",
+            background: "var(--midnight)", color: "#fff", border: "none",
             fontSize: 12, fontWeight: 700, cursor: "pointer",
           }}>
             <Plus size={13} /> New Batch
@@ -340,7 +340,7 @@ export default function TrainersPage() {
           <button onClick={() => setShowSession(true)} style={{
             display: "inline-flex", alignItems: "center", gap: 6,
             padding: "8px 14px", borderRadius: 8,
-            background: NAVY, color: "#fff", border: "none",
+            background: "var(--midnight)", color: "#fff", border: "none",
             fontSize: 12, fontWeight: 700, cursor: "pointer",
           }}>
             <Plus size={13} /> Document Session
@@ -358,7 +358,7 @@ export default function TrainersPage() {
               return (
                 <div key={s.id} style={{ padding: "14px 22px", borderTop: "1px solid rgba(35,43,58,0.05)" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 6 }}>
-                    <div style={{ width: 36, height: 36, borderRadius: 8, background: `${NAVY}10`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 8, background: "var(--surface-3)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                       <BookOpen size={16} color={NAVY} />
                     </div>
                     <div style={{ flex: 1 }}>
@@ -416,7 +416,7 @@ export default function TrainersPage() {
               <textarea value={newBatch.notes} onChange={e => setNewBatch({ ...newBatch, notes: e.target.value })} rows={3} style={{ ...inputStyle, resize: "vertical" }} placeholder="Focus areas, goals, etc." />
             </div>
             <button onClick={saveBatch} disabled={savingBatch} style={{
-              padding: "11px 16px", borderRadius: 10, background: NAVY, color: "#fff",
+              padding: "11px 16px", borderRadius: 10, background: "var(--midnight)", color: "#fff",
               fontSize: 13, fontWeight: 700, border: "none", cursor: "pointer",
               display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 4,
             }}>
@@ -505,7 +505,7 @@ export default function TrainersPage() {
               <textarea value={newSess.notes} onChange={e => setNewSess({ ...newSess, notes: e.target.value })} rows={4} style={{ ...inputStyle, resize: "vertical" }} placeholder="What was covered, who improved, what to revisit next session..." />
             </div>
             <button onClick={saveSession} disabled={savingSess} style={{
-              padding: "11px 16px", borderRadius: 10, background: NAVY, color: "#fff",
+              padding: "11px 16px", borderRadius: 10, background: "var(--midnight)", color: "#fff",
               fontSize: 13, fontWeight: 700, border: "none", cursor: "pointer",
               display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 4,
             }}>

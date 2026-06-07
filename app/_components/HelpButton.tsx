@@ -7,8 +7,8 @@ import { usePathname } from "next/navigation";
 import { HelpCircle, X } from "lucide-react";
 
 import { T } from "@/app/_components/tokens";
-const NAVY = T.navy;
-const SLATE = T.slate;
+const NAVY = T.text1;
+const SLATE = T.text2;
 
 type Help = { title: string; body: string; tips?: string[] };
 
