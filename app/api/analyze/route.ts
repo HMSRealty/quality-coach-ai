@@ -101,6 +101,7 @@ interface QualJSON {
   // Truth verification (anti-fraud): does the agent's manual entry match the call?
   has_data_discrepancy?: boolean;
   discrepancy_notes?: string;
+  seller_name_on_call?: string;   // the true owner/seller name as heard on the call
 }
 
 // ── Gemini Files API upload (resumable, edge fetch) ──
@@ -290,7 +291,13 @@ The agent MANUALLY ENTERED the following lead data at submission. Cross-referenc
 RULE: If the agent submitted information (asking price, timeframe/closing window, property condition, seller name, motivation) that CONTRADICTS the audio, or that was COMPLETELY FABRICATED (not supported anywhere in the call), you MUST flag it:
   → set has_data_discrepancy = true
   → set discrepancy_notes to a specific sentence citing the conflict, e.g. "Agent entered asking price $100k, but seller explicitly stated $150k firm." or "Agent entered seller name 'John', but the recording names the owner as 'Maria'."
-If every non-blank submitted field is consistent with the call (blank fields are NOT discrepancies), set has_data_discrepancy = false and discrepancy_notes = "". Never invent a discrepancy when the data agrees.` : "";
+If every non-blank submitted field is consistent with the call (blank fields are NOT discrepancies), set has_data_discrepancy = false and discrepancy_notes = "". Never invent a discrepancy when the data agrees.
+
+AUTO-CORRECTION — always report the TRUE values FROM THE CALL (these override the agent's entry downstream):
+  → raw_extracted_address = the exact property address actually stated on the call (else "Not stated on call").
+  → spoken_asking_price   = the asking price the seller actually stated on the call (else "None").
+  → seller_name_on_call   = the owner/seller name actually heard on the call (else "").
+Be precise — if the agent's address is wrong, the system will re-pull property data for the address you put in raw_extracted_address.` : "";
 
   return `${persona}${marketCtx}${killBlock}${overrides}${verifyBlock}`;
 }
@@ -365,6 +372,7 @@ async function runQualification(
           transcript: { type: "STRING" },
           has_data_discrepancy: { type: "BOOLEAN" },
           discrepancy_notes: { type: "STRING" },
+          seller_name_on_call: { type: "STRING" },
         },
         required: ["raw_extracted_address", "is_decision_maker", "is_commercial", "is_spanish_speaker",
           "spoken_asking_price", "spoken_market_value", "is_qualified", "qualification_reason",
@@ -701,8 +709,52 @@ export async function POST(req: Request): Promise<Response> {
       try { coaching = await runCoaching(ups[0].uri, ups[0].mime, key); } catch { /* coaching is best-effort */ }
     }
 
-    const { status, reason, regeneration } = decide(q, marketValue);
+    // ── AUTO-CORRECTION ── When the agent's manual entry contradicts the call,
+    // trust the call: adopt the spoken values and, if the ADDRESS was wrong,
+    // re-pull live property data (Zillow + ARV) for the address heard on the call
+    // so the verdict is computed against the RIGHT property.
+    const hasDisc = q.has_data_discrepancy === true;
+    const normAddr = (s: string) => (s || "").trim().toLowerCase().replace(/[.,#]/g, "").replace(/\s+/g, " ");
+    const callAddr = safeStr(q.raw_extracted_address);
+    const callAddrValid = !!callAddr && callAddr.toLowerCase() !== "not stated on call" && callAddr.length > 8;
+    const addrDiffers = callAddrValid && normAddr(callAddr) !== normAddr(lead.extracted_address || "");
+
+    let effMarketValue = marketValue;
+    let correctedAddress: string | null = null;
+    const corrPatch: Record<string, unknown> = {};
+
+    if (hasDisc && addrDiffers) {
+      correctedAddress = callAddr;
+      corrPatch.address_corrected_from = lead.extracted_address || null;
+      try {
+        const origin = new URL(req.url).origin;
+        const zr = await fetch(`${origin}/api/zillow?address=${encodeURIComponent(callAddr)}`);
+        const zj = await zr.json().catch(() => ({}));
+        if (zr.ok && zj.ok && zj.normalized) {
+          const normalized = zj.normalized as { zestimate?: number };
+          if (Number(normalized.zestimate) > 0) effMarketValue = Number(normalized.zestimate);
+          corrPatch.zillow_data = normalized;
+          try {
+            const ar = await fetch(`${origin}/api/leads/arv`, {
+              method: "POST", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ normalized, comparables: zj.comparables ?? [] }),
+            });
+            const aj = await ar.json().catch(() => ({}));
+            if (ar.ok) { corrPatch.arv = aj.estimatedArv ?? null; corrPatch.arv_confidence = aj.confidence ?? null; }
+          } catch { /* arv best-effort */ }
+        }
+      } catch { /* re-fetch best-effort — fall back to original market value */ }
+    }
+
+    // Decision is computed against the CORRECTED market value when the address was fixed.
+    const { status, reason, regeneration } = decide(q, effMarketValue);
     const coachingArr = coaching.split(/\n+/).map(s => s.trim()).filter(Boolean);
+
+    // Call-truth overrides for wrong manual entries.
+    const callAsking = extractFirstPrice(q.spoken_asking_price) || null;
+    const correctedAsking = hasDisc && callAsking ? callAsking : null;
+    const callSeller = safeStr(q.seller_name_on_call);
+    const correctedSeller = hasDisc && callSeller ? callSeller : null;
 
     // Keep the transcript: fresh one from audio mode, else preserve the saved one.
     const transcriptToStore = !textOnly && safeStr(q.transcript) ? safeStr(q.transcript) : (savedTranscript ?? null);
@@ -717,14 +769,19 @@ export async function POST(req: Request): Promise<Response> {
       ai_model: MODEL,
       ai_processed_at: new Date().toISOString(),
       audio_size_bytes: totalSize,
-      extracted_address: lead.extracted_address || (q.raw_extracted_address && q.raw_extracted_address !== "Not stated on call" ? q.raw_extracted_address : lead.extracted_address),
-      asking_price: lead.asking_price || (extractFirstPrice(q.spoken_asking_price) || null),
+      extracted_address: correctedAddress || lead.extracted_address || (callAddrValid ? callAddr : lead.extracted_address),
+      asking_price: correctedAsking || lead.asking_price || callAsking,
       bant_budget: safeStr(q.spoken_asking_price) !== "None" ? safeStr(q.spoken_asking_price) : null,
       bant_authority: q.is_decision_maker === false ? "Not decision maker" : "Decision maker",
       bant_need: q.has_reason_for_selling ? safeStr(q.exact_reason_quote) : "No clear motivation",
       bant_timeline: q.closing_within_3_months ? "<= 3 months" : (q.timeline_over_6_months ? "> 6 months" : "Not specified"),
       metadata: {
         ...(lead.metadata || {}),
+        ...corrPatch,                                  // re-pulled zillow_data/arv when address was corrected
+        // Owner name: trust the call when the agent's entry was wrong (keep the
+        // submitted value for the audit trail).
+        ...(correctedSeller ? { owner_name: correctedSeller, owner_name_submitted: (lead.metadata as Record<string, unknown> | null)?.owner_name ?? null } : {}),
+        ...(correctedAsking ? { asking_price_submitted: (lead.metadata as Record<string, unknown> | null)?.asking_price_submitted ?? lead.asking_price ?? null } : {}),
         lead_template: safeStr(q.raw_lead_template),
         compliance_check: safeStr(q.compliance_check),
         compliance_passed: q.compliance_passed === true,

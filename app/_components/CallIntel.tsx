@@ -46,6 +46,9 @@ export function DataVerificationAlert({ hasDiscrepancy, notes }: { hasDiscrepanc
         <p style={{ fontSize: 13.5, fontWeight: 600, color: "#78350F", lineHeight: 1.55, marginTop: 4 }}>
           {notes || "The agent's manually-entered data does not match the call recording."}
         </p>
+        <p style={{ fontSize: 11.5, fontWeight: 700, color: "#B45309", marginTop: 6, display: "inline-flex", alignItems: "center", gap: 5 }}>
+          ✓ Lead data has been auto-corrected from the recording.
+        </p>
       </div>
     </motion.div>
   );

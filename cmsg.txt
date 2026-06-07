@@ -1,0 +1,22 @@
+feat(anti-fraud): auto-correct wrong manual entry from the call + re-fetch address
+
+When the AI flags a data discrepancy, the pipeline now trusts the call and fixes
+the record instead of only warning:
+  • asking_price  -> overwritten with the price the seller actually stated
+  • owner_name    -> overwritten with seller_name_on_call (new AI field); the
+    submitted value is kept as owner_name_submitted for the audit trail
+  • extracted_address -> overwritten with the address heard on the call
+If the ADDRESS was wrong, /api/analyze re-pulls live property data for the
+corrected address (internal /api/zillow + /api/leads/arv), updates
+metadata.zillow_data / arv, and recomputes the Hot/Warm/Cold verdict against the
+CORRECT Zestimate — so a faked address can't pin the deal to the wrong property.
+Stores address_corrected_from for auditing. Honest, matching entries are
+untouched.
+
+Prompt + schema: AI now always emits the call-truth values (raw_extracted_address,
+spoken_asking_price, seller_name_on_call). UI: the amber Data Verification Alert
+gains a "Lead data has been auto-corrected from the recording" confirmation line.
+
+Verified: next build green, tsc --noEmit exit 0.
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
