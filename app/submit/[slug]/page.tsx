@@ -467,7 +467,7 @@ export default function DynamicSubmitPage() {
           <button type="button" onClick={addProperty} style={{
             display: "inline-flex", alignItems: "center", gap: 6, marginBottom: 14,
             padding: "8px 14px", borderRadius: 9, cursor: "pointer",
-            background: "#E8EFFF", color: NAVY, border: `1px solid ${TEAL}55`,
+            background: "#E8EFFF", color: NAVY, border: "1px solid color-mix(in srgb, var(--magenta) 33%, transparent)",
             fontSize: 12, fontWeight: 700,
           }}>+ Add another property</button>
           <textarea placeholder="Notes / Reason for selling" rows={3} value={formData.reason} onChange={e => setForm({ ...formData, reason: e.target.value })} style={{ ...inputStyle, resize: "vertical", marginBottom: 14, fontFamily: "var(--font-sans)" }} />
@@ -480,7 +480,7 @@ export default function DynamicSubmitPage() {
               onDrop={(e) => { e.preventDefault(); setDragOver(false); if (e.dataTransfer.files) addFiles(e.dataTransfer.files); }}
               style={{
                 padding: 22, borderRadius: 14,
-                border: `2px dashed ${dragOver ? TEAL : `${TEAL}50`}`,
+                border: `2px dashed ${dragOver ? TEAL : "color-mix(in srgb, var(--magenta) 31%, transparent)"}`,
                 background: dragOver ? "#E8EFFF" : "#EEF3FF",
                 textAlign: "center", cursor: "pointer", marginBottom: 14,
                 transition: "all 180ms ease",

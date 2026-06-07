@@ -221,8 +221,8 @@ export default function PermissionsPage() {
       {/* Info */}
       <div style={{
         padding: "14px 18px", borderRadius: 12,
-        background: `linear-gradient(135deg, ${NAVY}05 0%, ${TEAL}10 100%)`,
-        border: `1px solid ${TEAL}30`, display: "flex", gap: 12, alignItems: "center",
+        background: "linear-gradient(135deg, color-mix(in srgb, var(--text-1) 2%, transparent) 0%, color-mix(in srgb, var(--magenta) 6%, transparent) 100%)",
+        border: "1px solid color-mix(in srgb, var(--magenta) 19%, transparent)", display: "flex", gap: 12, alignItems: "center",
       }}>
         <Power size={16} color={TEAL} />
         <div style={{ flex: 1 }}>

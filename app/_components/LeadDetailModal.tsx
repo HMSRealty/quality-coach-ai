@@ -81,7 +81,7 @@ export function LeadDetailModal({ leadId, onClose }: { leadId: string; onClose: 
         <div style={{
           padding: "20px 24px", borderBottom: "1px solid rgba(35,43,58,0.08)",
           display: "flex", alignItems: "center", justifyContent: "space-between",
-          background: `linear-gradient(135deg, ${NAVY}03 0%, ${TEAL}08 100%)`,
+          background: "linear-gradient(135deg, color-mix(in srgb, var(--text-1) 1%, transparent) 0%, color-mix(in srgb, var(--magenta) 3%, transparent) 100%)",
         }}>
           <div>
             <h2 style={{ fontSize: 18, fontWeight: 800, color: NAVY }}>Lead Details</h2>
@@ -161,8 +161,8 @@ export function LeadDetailModal({ leadId, onClose }: { leadId: string; onClose: 
             {/* Follow-up section */}
             <div style={{
               padding: 16, borderRadius: 12,
-              background: flag ? `${GOLD}10` : "#F2F5F9",
-              border: flag ? `1px solid ${GOLD}50` : "1px solid rgba(35,43,58,0.08)",
+              background: flag ? "color-mix(in srgb, var(--magenta) 6%, transparent)" : "var(--surface-3)",
+              border: flag ? "1px solid color-mix(in srgb, var(--magenta) 31%, transparent)" : "1px solid var(--border-2)",
               transition: "all 240ms cubic-bezier(0.16,1,0.30,1)",
             }}>
               <label style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer", marginBottom: flag ? 14 : 0 }}>
@@ -249,7 +249,7 @@ function Fact({ icon: Icon, label, value }: { icon: React.ComponentType<{ size?:
 
 function BANTChip({ label, value }: { label: string; value: string }) {
   return (
-    <div style={{ padding: "8px 12px", borderRadius: 8, background: "#E8EFFF", border: `1px solid ${TEAL}30` }}>
+    <div style={{ padding: "8px 12px", borderRadius: 8, background: "color-mix(in srgb, var(--magenta) 8%, var(--surface-1))", border: "1px solid color-mix(in srgb, var(--magenta) 19%, transparent)" }}>
       <p style={{ fontSize: 10, fontWeight: 700, color: TEAL, marginBottom: 2 }}>{label}</p>
       <p style={{ fontSize: 12, color: NAVY }}>{value}</p>
     </div>

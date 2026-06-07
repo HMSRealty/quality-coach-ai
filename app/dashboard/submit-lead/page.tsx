@@ -307,7 +307,7 @@ export default function SubmitLeadPage() {
         {generatedLink && (
           <div style={{
             marginTop: 14, padding: "12px 14px", borderRadius: 10,
-            background: "#E8EFFF", border: `1px solid ${TEAL}40`,
+            background: "color-mix(in srgb, var(--magenta) 8%, var(--surface-1))", border: "1px solid color-mix(in srgb, var(--magenta) 25%, transparent)",
             display: "flex", alignItems: "center", gap: 10,
           }}>
             <code style={{ flex: 1, fontSize: 12, color: NAVY, fontFamily: "var(--font-mono)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>

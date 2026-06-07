@@ -567,7 +567,7 @@ export default function DialerPage() {
             <div style={{ textAlign: "center", padding: "60px 20px" }}>
               <div style={{
                 width: 100, height: 100, borderRadius: "50%",
-                background: `linear-gradient(135deg, ${NAVY}11 0%, ${TEAL}22 100%)`,
+                background: "linear-gradient(135deg, color-mix(in srgb, var(--text-1) 7%, transparent) 0%, color-mix(in srgb, var(--magenta) 13%, transparent) 100%)",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 margin: "0 auto 24px",
               }}>
@@ -585,11 +585,11 @@ export default function DialerPage() {
             <div style={{ textAlign: "center", padding: "40px 20px" }}>
               <div style={{
                 width: 120, height: 120, borderRadius: "50%",
-                background: selectedPeer?.role === "admin" ? GOLD : NAVY, color: "#fff",
+                background: selectedPeer?.role === "admin" ? GOLD : T.midnight, color: "#fff",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 fontSize: 38, fontWeight: 900,
                 margin: "0 auto 20px",
-                boxShadow: `0 12px 40px ${NAVY}40`,
+                boxShadow: "0 12px 40px color-mix(in srgb, var(--midnight) 25%, transparent)",
                 animation: callState === "calling" || callState === "ringing-incoming" ? "pulse 1.5s ease-in-out infinite" : "none",
               }}>
                 {(selectedPeer?.email || incoming?.fromName || "?").slice(0, 2).toUpperCase()}
@@ -666,8 +666,8 @@ export default function DialerPage() {
 
       <div style={{
         padding: "14px 18px", borderRadius: 12,
-        background: `linear-gradient(135deg, ${NAVY}05 0%, ${TEAL}10 100%)`,
-        border: `1px solid ${TEAL}30`,
+        background: "linear-gradient(135deg, color-mix(in srgb, var(--text-1) 2%, transparent) 0%, color-mix(in srgb, var(--magenta) 6%, transparent) 100%)",
+        border: "1px solid color-mix(in srgb, var(--magenta) 19%, transparent)",
         display: "flex", alignItems: "center", gap: 12,
       }}>
         <Headphones size={18} color={TEAL} />
