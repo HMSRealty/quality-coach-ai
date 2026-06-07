@@ -401,7 +401,7 @@ export default function MatrixPage() {
                     <Plus size={11} />
                   </button>
                 </div>
-                <div style={{ padding: "10px 12px", display: "flex", flexDirection: "column", gap: 6, maxHeight: 420, overflowY: "auto" }}>
+                <div data-lenis-prevent="true" style={{ padding: "10px 12px", display: "flex", flexDirection: "column", gap: 6, maxHeight: 420, overflowY: "auto", overscrollBehavior: "contain" }}>
                   {list.length === 0 ? (
                     <p style={{ fontSize: 12, color: T.text3 as string, textAlign: "center", padding: 16 }}>—</p>
                   ) : list.map(p => (

@@ -168,7 +168,7 @@ export default function PayrollPage() {
         </div>
       ) : (
         <div style={{ background: "var(--surface-1)", border: "1px solid var(--border-2)", borderRadius: 16, overflow: "hidden", boxShadow: "var(--shadow-sm)" }}>
-          <div style={{ overflowX: "auto" }}>
+          <div data-lenis-prevent="true" style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 820 }}>
               <thead>
                 <tr style={{ background: "var(--surface-3)" }}>

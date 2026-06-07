@@ -169,13 +169,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <div style={{ display: "flex", minHeight: "100vh", background: "var(--canvas)" }}>
 
       {/* ───────── SIDEBAR — midnight gradient, magenta indicators ───────── */}
-      <aside style={{
+      <aside data-lenis-prevent="true" style={{
         width: 256, flexShrink: 0,
         background: T.gradChrome,
         borderRight: `1px solid ${T.midnightLine}`,
         display: "flex", flexDirection: "column",
         position: "fixed", top: 0, left: 0, bottom: 0,
-        zIndex: 40, overflowY: "auto",
+        zIndex: 40, overflowY: "auto", overscrollBehavior: "contain",
         boxShadow: "var(--shadow-chrome)",
         color: "#fff",
       }}>

@@ -259,7 +259,7 @@ export default function AdminPage() {
         <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(35,43,58,0.06)" }}>
           <h3 style={{ fontSize: 14, fontWeight: 700, color: NAVY }}>Users ({filtered.length})</h3>
         </div>
-        <div style={{ overflowX: "auto" }}>
+        <div data-lenis-prevent="true" style={{ overflowX: "auto" }}>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr style={{ background: T.surface3 }}>

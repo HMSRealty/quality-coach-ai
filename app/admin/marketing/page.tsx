@@ -231,10 +231,10 @@ export default function MarketingPage() {
             <div style={{ ...C, padding: 16, overflow: "hidden" }}>
               <p style={{ fontSize: 10, color: "var(--text-dim)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 8 }}>Preview</p>
               <p style={{ fontSize: 12, fontWeight: 700, marginBottom: 10 }}>{subject || "(no subject)"}</p>
-              <pre style={{
+              <pre data-lenis-prevent="true" style={{
                 fontSize: 11, color: "var(--text-muted)", whiteSpace: "pre-wrap",
                 fontFamily: "var(--font-geist-sans)", lineHeight: 1.65,
-                maxHeight: 240, overflowY: "auto",
+                maxHeight: 240, overflowY: "auto", overscrollBehavior: "contain",
               }}>{body || "(no body)"}</pre>
             </div>
           )}

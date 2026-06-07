@@ -515,7 +515,7 @@ export default function DialerPage() {
             </div>
           </div>
 
-          <div style={{ maxHeight: 480, overflowY: "auto", padding: "8px 6px" }}>
+          <div data-lenis-prevent="true" style={{ maxHeight: 480, overflowY: "auto", overscrollBehavior: "contain", padding: "8px 6px" }}>
             {filteredPeers.length === 0 ? (
               <p style={{ padding: 20, textAlign: "center", fontSize: 12, color: SLATE }}>
                 No other users on the platform.

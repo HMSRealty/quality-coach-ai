@@ -192,7 +192,7 @@ export default function AgentsPage() {
             <p style={{ fontSize: 13 }}>No agents yet. Click <strong>Add agent</strong> to start.</p>
           </div>
         ) : (
-          <div style={{ overflowX: "auto" }}>
+          <div data-lenis-prevent="true" style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 980 }}>
               <thead>
                 <tr style={{ background: "var(--surface-3)" }}>

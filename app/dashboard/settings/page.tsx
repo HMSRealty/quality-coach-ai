@@ -173,7 +173,7 @@ jane@example.com,Alice Johnson,Sales Team B,Mike Brown,2024-03-10`;
 
       {/* CSV Format */}
       <Card title="CSV Format">
-        <div style={{
+        <div data-lenis-prevent="true" style={{
           padding: "12px", borderRadius: 8,
           background: "#F4EFE7", border: "1px solid #E5E7EB",
           fontFamily: "var(--font-mono)", fontSize: 12, color: "#4B5563",

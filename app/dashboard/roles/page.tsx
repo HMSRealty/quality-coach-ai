@@ -47,7 +47,7 @@ export default function RolesPage() {
       </div>
 
       <div style={{ background: T.surface1, border: "1px solid rgba(35,43,58,0.08)", borderRadius: 14, overflow: "hidden", boxShadow: "0 1px 3px rgba(35,43,58,0.04)" }}>
-        <div style={{ overflowX: "auto" }}>
+        <div data-lenis-prevent="true" style={{ overflowX: "auto" }}>
           <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 720 }}>
             <thead>
               <tr style={{ background: T.surface3 }}>

@@ -1,0 +1,12 @@
+fix(scroll): free nested scroll containers from Lenis (data-lenis-prevent)
+
+Lenis was hijacking wheel events and freezing independently-scrollable regions.
+Added data-lenis-prevent + overscroll-behavior:contain to: dashboard sidebar,
+admin sidebar + main, LeadDetailModal (overlay + panel), trainers modal,
+OmniSearch results, InteractiveTranscript, TranscriptCard, dialer peer list,
+matrix objection list, admin marketing preview, the table wrappers
+(callers/roles/payroll/admin profiles/admin leads/admin page), and the settings
+CSV block. globals.css already had no html/body overflow:hidden or 100vh lock,
+so document scroll and nested scrolls now coexist.
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>

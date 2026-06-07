@@ -91,13 +91,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div style={{ display: "flex", minHeight: "100vh", background: "var(--canvas)", color: "var(--text-1)" }}>
 
       {/* Sidebar */}
-      <aside style={{
+      <aside data-lenis-prevent="true" style={{
         width: "var(--sidebar-w)", flexShrink: 0,
         background: "var(--surface-1)",
         borderRight: "1px solid var(--border-2)",
         display: "flex", flexDirection: "column",
         position: "fixed", top: 0, left: 0, bottom: 0,
-        zIndex: 40, overflowY: "auto",
+        zIndex: 40, overflowY: "auto", overscrollBehavior: "contain",
       }}>
         {/* Logo — clickable */}
         <a href="/admin" style={{ textDecoration: "none", display: "block", padding: "16px 14px 12px", borderBottom: "1px solid var(--border-1)" }}>
@@ -199,7 +199,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </Link>
         </header>
 
-        <main style={{ flex: 1, padding: 28, overflowY: "auto" }}>
+        <main data-lenis-prevent="true" style={{ flex: 1, padding: 28, overflowY: "auto", overscrollBehavior: "contain" }}>
           {children}
         </main>
       </div>
