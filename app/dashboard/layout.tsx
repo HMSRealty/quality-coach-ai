@@ -19,43 +19,50 @@ import {
   UserCircle, LogOut, Bell, ChevronRight, Shield,
   Send, Users2, Briefcase, Network,
   Headphones, Flag, Power, UserCog, Eye, Search,
-  Settings as SettingsIcon, Webhook, Wallet, Target, ListChecks, Trophy,
+  Settings as SettingsIcon, Webhook, Wallet, Target, Trophy,
+  Handshake, PackageCheck, GitBranch,
 } from "lucide-react";
 
-// Grouped enterprise navigation — Main · Execution & QA · HR & Operations · Admin.
+// Corporate Command Center — navigation grouped by company department.
 const NAV_GROUPS: { section: string; items: { label: string; href: string; icon: typeof PhoneCall }[] }[] = [
   {
-    section: "Main",
+    section: "Floor Operations",
     items: [
-      { label: "The Matrix",   href: "/dashboard/matrix",      icon: Network },
-      { label: "Overview",     href: "/dashboard",             icon: LayoutDashboard },
-      { label: "Leads",        href: "/dashboard/calls",       icon: ListChecks },
-      { label: "Submit Lead",  href: "/dashboard/submit-lead", icon: Send },
+      { label: "The Matrix",     href: "/dashboard/matrix",      icon: Network },
+      { label: "Leads Pipeline", href: "/dashboard",             icon: GitBranch },
+      { label: "Campaigns",      href: "/dashboard/campaigns",   icon: FolderCog },
+      { label: "Submit Lead",    href: "/dashboard/submit-lead", icon: Send },
     ],
   },
   {
-    section: "Execution & QA",
+    section: "QA & Training",
     items: [
-      { label: "Call Library",       href: "/dashboard/calls",      icon: PhoneCall },
-      { label: "AI Rules & Persona", href: "/dashboard/persona",    icon: Zap },
-      { label: "Campaigns",          href: "/dashboard/campaigns",  icon: FolderCog },
-      { label: "Roleplay Dialer",    href: "/dashboard/dialer",     icon: Headphones },
+      { label: "Call Intelligence", href: "/dashboard/calls",    icon: PhoneCall },
+      { label: "AI Personas",       href: "/dashboard/persona",  icon: Zap },
+      { label: "Trainers",          href: "/dashboard/trainers", icon: Briefcase },
+      { label: "Roleplay Dialer",   href: "/dashboard/dialer",   icon: Headphones },
     ],
   },
   {
-    section: "HR & Operations",
+    section: "Acquisitions",
     items: [
-      { label: "Floor Agents",   href: "/dashboard/callers",      icon: Users2 },
-      { label: "Teams",          href: "/dashboard/teams",        icon: Network },
-      { label: "Trainers",       href: "/dashboard/trainers",     icon: Briefcase },
-      { label: "Team Leader",    href: "/dashboard/team-leader",  icon: Flag },
-      { label: "Shift Targets",  href: "/dashboard/settings",     icon: Target },
-      { label: "Payroll & Bonus",href: "/dashboard/payroll",      icon: Wallet },
-      { label: "Leaderboard",    href: "/dashboard/leaderboard",  icon: Trophy },
+      { label: "Deals & Offers", href: "/dashboard/deals",        icon: Handshake },
+      { label: "Dispositions",   href: "/dashboard/dispositions", icon: PackageCheck },
     ],
   },
   {
-    section: "Admin",
+    section: "HR & Accounting",
+    items: [
+      { label: "Floor Agents",    href: "/dashboard/callers",      icon: Users2 },
+      { label: "Teams",           href: "/dashboard/teams",        icon: Network },
+      { label: "Team Leader",     href: "/dashboard/team-leader",  icon: Flag },
+      { label: "Shift Targets",   href: "/dashboard/settings",     icon: Target },
+      { label: "Payroll & Bonus", href: "/dashboard/payroll",      icon: Wallet },
+      { label: "Leaderboard",     href: "/dashboard/leaderboard",  icon: Trophy },
+    ],
+  },
+  {
+    section: "IT & Administration",
     items: [
       { label: "Settings",                href: "/dashboard/settings",    icon: SettingsIcon },
       { label: "Webhooks & Integrations", href: "/dashboard/settings",    icon: Webhook },
@@ -73,16 +80,21 @@ const PLAN_ACCENT: Record<string, string> = {
   free: "#94A3B8", starter: "#0EA5E9", professional: "#0284C7", enterprise: "#0369A1",
 };
 
-// Original RealTrack mark — pyramid outline + wordmark (kept by user request).
+// RealTrack mark — flat roof chevron (thick black outer, thin green inner) +
+// pure-black "REALTRACK" wordmark. No gradient/holographic effects.
 function RealTrackMark({ size = 28 }: { size?: number }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-      <svg width={size * 1.3} height={size * 0.85} viewBox="0 0 40 24" fill="none">
-        {/* Roof — black outer, green inner */}
-        <path d="M2 22 L20 4 L38 22" stroke="#000000" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M8 22 L20 11 L32 22" stroke="#059669" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/>
+    <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
+      <svg width={size * 1.25} height={size * 0.8} viewBox="0 0 40 24" fill="none">
+        {/* Thick black outer roof chevron */}
+        <path d="M3 21 L20 5 L37 21" stroke="#000000" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"/>
+        {/* Thin vibrant green inner roof line */}
+        <path d="M10 21 L20 12 L30 21" stroke="#059669" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
-      <span style={{ fontSize: 17, fontWeight: 900, color: "#000000", letterSpacing: "0.02em", lineHeight: 1 }}>RealTrack</span>
+      <span style={{
+        fontSize: 16, fontWeight: 900, color: "#000000",
+        letterSpacing: "0.08em", lineHeight: 1, fontFamily: "var(--font-sans)",
+      }}>REALTRACK</span>
     </div>
   );
 }
@@ -99,24 +111,22 @@ function NavLink({ item, active }: { item: { label: string; href: string; icon: 
         display: "flex", alignItems: "center", gap: 11,
         padding: "9px 13px", borderRadius: 10,
         textDecoration: "none",
-        background: active ? "rgba(14, 165, 233, 0.10)" : hover ? "var(--surface-3)" : "transparent",
-        color: active ? SKY : hover ? "var(--text-1)" : "var(--text-2)",
+        background: active ? "#F0F9FF" : hover ? "#F8FAFC" : "transparent",
+        color: active ? SKY : "#000000",
         fontSize: 13, fontWeight: active ? 700 : 500,
         transform: hover && !active ? "translateX(2px)" : "translateX(0)",
         transition: "all 180ms cubic-bezier(0.16, 1, 0.30, 1)",
-        boxShadow: active ? "inset 0 0 0 1px rgba(14,165,233,0.28)" : "none",
       }}
     >
       {active && (
         <span style={{
-          position: "absolute", left: -10, top: "50%", transform: "translateY(-50%)",
-          width: 3, height: 20, borderRadius: 4,
-          background: "linear-gradient(180deg, #38BDF8, #0284C7)",
-          boxShadow: "0 0 14px rgba(14,165,233,0.5)",
+          position: "absolute", left: 0, top: "50%", transform: "translateY(-50%)",
+          width: 3, height: 18, borderRadius: "0 3px 3px 0",
+          background: SKY,
         }} />
       )}
       <Icon size={16} strokeWidth={active ? 2.3 : 1.9}
-        color={active ? SKY : hover ? "var(--text-1)" : "var(--text-3)"}
+        color={active ? SKY : "#475569"}
         style={{ transition: "transform 240ms var(--spring-snap)", transform: hover ? "translateY(-1px)" : "translateY(0)" }} />
       {item.label}
     </Link>
