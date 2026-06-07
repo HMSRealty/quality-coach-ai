@@ -70,7 +70,7 @@ const NAV_SECONDARY = [
 ];
 
 const PLAN_ACCENT: Record<string, string> = {
-  free: "#94A3B8", starter: "#34D399", professional: "#F2266F", enterprise: "#A78BFA",
+  free: "#94A3B8", starter: "#0EA5E9", professional: "#0284C7", enterprise: "#0369A1",
 };
 
 // Original RealTrack mark — pyramid outline + wordmark (kept by user request).
@@ -78,13 +78,11 @@ function RealTrackMark({ size = 28 }: { size?: number }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
       <svg width={size * 1.3} height={size * 0.85} viewBox="0 0 40 24" fill="none">
-        <path d="M2 22 L20 4 L38 22" stroke="#0EA5E9" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M8 22 L20 11 L32 22" stroke="rgba(14,165,233,0.5)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        {/* Roof — black outer, green inner */}
+        <path d="M2 22 L20 4 L38 22" stroke="#000000" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M8 22 L20 11 L32 22" stroke="#059669" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
-      <span style={{ display: "flex", flexDirection: "column" }}>
-        <span style={{ fontSize: 15, fontWeight: 800, color: "var(--text-1)", letterSpacing: "0.04em", lineHeight: 1 }}>RealTrack</span>
-        <span style={{ fontSize: 9, color: "var(--text-3)", letterSpacing: "0.12em", fontWeight: 600, marginTop: 3 }}>PERFORMANCE SUITE</span>
-      </span>
+      <span style={{ fontSize: 17, fontWeight: 900, color: "#000000", letterSpacing: "0.02em", lineHeight: 1 }}>RealTrack</span>
     </div>
   );
 }
@@ -165,17 +163,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const displayName = fullName || email;
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", background: "var(--canvas)" }}>
+    // Indestructible native-scroll SaaS shell. No Lenis here — the sidebar and
+    // main content each own a real CSS scroll container.
+    <div className="flex h-screen w-full overflow-hidden" style={{ background: "var(--canvas)", color: "var(--text-1)" }}>
 
-      {/* ───────── SIDEBAR — midnight gradient, magenta indicators ───────── */}
-      <aside data-lenis-prevent="true" style={{
-        width: 256, flexShrink: 0,
-        background: T.gradChrome,
-        borderRight: `1px solid ${T.midnightLine}`,
+      {/* ───────── SIDEBAR — white, sky indicators, native scroll ───────── */}
+      <aside className="h-full overflow-y-auto border-r flex-shrink-0" style={{
+        width: 256,
+        background: "#FFFFFF",
+        borderRight: "1px solid var(--border-2)",
         display: "flex", flexDirection: "column",
-        position: "fixed", top: 0, left: 0, bottom: 0,
-        zIndex: 40, overflowY: "auto", overscrollBehavior: "contain",
-        boxShadow: "var(--shadow-md)",
+        boxShadow: "var(--shadow-sm)",
         color: "var(--text-1)",
       }}>
         <Link href="/dashboard"
@@ -286,8 +284,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </aside>
 
-      {/* ───────── MAIN ───────── */}
-      <div style={{ marginLeft: 256, flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
+      {/* ───────── MAIN — native scroll container ───────── */}
+      <main className="flex-1 h-full overflow-y-auto relative" style={{ minWidth: 0, display: "flex", flexDirection: "column" }}>
 
         {actingAs && (
           <div style={{
@@ -295,7 +293,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             padding: "10px 16px",
             background: T.gradPrimary, color: "#fff",
             fontSize: 13, fontWeight: 700, position: "sticky", top: 0, zIndex: 50,
-            boxShadow: "0 4px 18px rgba(242,38,111,0.35)",
+            boxShadow: "0 4px 18px rgba(14,165,233,0.35)",
           }}>
             <Eye size={14} /> You are acting as <strong>{actingAs}</strong>
             <button onClick={() => stopImpersonation()} style={{
@@ -374,11 +372,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           >{initials}</Link>
         </header>
 
-        {/* No internal overflow — let the window scroll so Lenis applies smoothly */}
-        <main style={{ flex: 1, padding: "30px 36px 60px" }}>
+        {/* Content — scrolls natively inside <main> */}
+        <div style={{ flex: 1, padding: "30px 36px 60px" }}>
           {children}
-        </main>
-      </div>
+        </div>
+      </main>
       <OmniSearch />
     </div>
   );

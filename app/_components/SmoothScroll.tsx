@@ -14,7 +14,14 @@ export function SmoothScroll() {
   const lenisRef = useRef<Lenis | null>(null);
   const pathname = usePathname();
 
+  // NUCLEAR FIX: Lenis is disabled inside the SaaS app (dashboard/admin). Those
+  // areas use 100% native CSS scrolling (own scroll containers, modals, lists).
+  // Lenis stays only on public/marketing pages.
+  const lenisDisabled =
+    pathname?.startsWith("/dashboard") || pathname?.startsWith("/admin");
+
   useEffect(() => {
+    if (lenisDisabled) return; // native scrolling — never init Lenis here
     if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       return;
     }
@@ -56,7 +63,8 @@ export function SmoothScroll() {
       lenisRef.current = null;
       document.documentElement.classList.remove("lenis");
     };
-  }, []);
+    // Re-run when entering/leaving the app so Lenis is torn down on the dashboard.
+  }, [lenisDisabled]);
 
   // Route change → snap to top instantly so new pages start at the top.
   useEffect(() => {

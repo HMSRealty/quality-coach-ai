@@ -65,7 +65,7 @@ export function TranscriptCard({ transcript }: { transcript: string | null | und
         </button>
       </div>
 
-      <div data-lenis-prevent="true" style={{ maxHeight: 460, overflowY: "auto", overscrollBehavior: "contain", padding: 18, display: "flex", flexDirection: "column", gap: 12 }}>
+      <div style={{ maxHeight: 460, overflowY: "auto", overscrollBehavior: "contain", padding: 18, display: "flex", flexDirection: "column", gap: 12 }}>
         {shown.length === 0 ? (
           <p style={{ fontSize: 12, color: "var(--text-3)", textAlign: "center", padding: 16 }}>No lines match “{q}”.</p>
         ) : shown.map((l, i) => {

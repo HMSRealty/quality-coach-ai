@@ -1,0 +1,24 @@
+fix(scroll+brand): nuclear native-scroll dashboard + black/sky/white branding
+
+SCROLL — Nuclear Fix (100% native CSS scrolling in the app):
+- Lenis now hard-disabled on /dashboard and /admin (SmoothScroll bails and tears
+  down when entering the app; kept only for public/marketing pages). Effect now
+  keys on the disabled flag so navigating in destroys any live instance.
+- Rewrote the dashboard shell to the standard SaaS structure: root
+  `flex h-screen w-full overflow-hidden`, sidebar `h-full overflow-y-auto
+  border-r bg-white w-64 flex-shrink-0` (no more fixed positioning / marginLeft),
+  main `flex-1 h-full overflow-y-auto relative` as the real scroll container.
+- Stripped every data-lenis-prevent attribute from dashboard + admin + shared
+  components (no longer needed). globals.css has no overflow:hidden / height
+  lock on html or body.
+
+BRANDING — black font, sky/white, new logo:
+- --text-1 -> pure #000000 (black font everywhere).
+- Logo: black "RealTrack" wordmark, black outer + emerald inner roof; removed the
+  "PERFORMANCE SUITE" subtitle.
+- Cleared remaining magenta refs in the shell (plan accents + impersonation
+  banner shadow -> sky).
+
+Verified: next build green, tsc --noEmit exit 0.
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>

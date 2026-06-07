@@ -67,12 +67,12 @@ export function LeadDetailModal({ leadId, onClose }: { leadId: string; onClose: 
   };
 
   return (
-    <div onClick={onClose} data-lenis-prevent="true" style={{
+    <div onClick={onClose} style={{
       position: "fixed", inset: 0, background: "rgba(35,43,58,0.55)",
       display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200,
       backdropFilter: "blur(4px)", padding: 20, overflowY: "auto", overscrollBehavior: "contain",
     }}>
-      <div onClick={e => e.stopPropagation()} data-lenis-prevent="true" style={{
+      <div onClick={e => e.stopPropagation()} style={{
         background: T.surface1, borderRadius: 18, maxWidth: 720, width: "100%",
         maxHeight: "90vh", overflowY: "auto", overscrollBehavior: "contain",
         boxShadow: "0 24px 80px rgba(35,43,58,0.30)",

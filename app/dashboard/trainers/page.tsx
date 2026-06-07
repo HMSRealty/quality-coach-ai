@@ -59,7 +59,7 @@ function Modal({ children, onClose, title }: { children: React.ReactNode; onClos
       display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100,
       backdropFilter: "blur(4px)", padding: 20,
     }}>
-      <div onClick={e => e.stopPropagation()} data-lenis-prevent="true" style={{
+      <div onClick={e => e.stopPropagation()} style={{
         background: "var(--surface-1)", borderRadius: 16, padding: 28, maxWidth: 520, width: "100%",
         boxShadow: "0 24px 80px rgba(35,43,58,0.30)",
         maxHeight: "90vh", overflowY: "auto", overscrollBehavior: "contain",

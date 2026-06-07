@@ -345,7 +345,7 @@ export function InteractiveTranscript({
         </div>
       </div>
 
-      <div ref={containerRef} onMouseUp={onMouseUp} data-lenis-prevent="true" style={{ maxHeight: 480, overflowY: "auto", overscrollBehavior: "contain", padding: 18, display: "flex", flexDirection: "column", gap: 12, position: "relative" }}>
+      <div ref={containerRef} onMouseUp={onMouseUp} style={{ maxHeight: 480, overflowY: "auto", overscrollBehavior: "contain", padding: 18, display: "flex", flexDirection: "column", gap: 12, position: "relative" }}>
         {shown.map((l, i) => {
           const isAgent = l.speaker === "agent";
           const isSeller = l.speaker === "seller";

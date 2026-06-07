@@ -129,7 +129,7 @@ export function OmniSearch() {
         </div>
 
         {/* Results */}
-        <div data-lenis-prevent="true" style={{ maxHeight: "55vh", overflowY: "auto", overscrollBehavior: "contain" }}>
+        <div style={{ maxHeight: "55vh", overflowY: "auto", overscrollBehavior: "contain" }}>
           {q.trim() === "" ? (
             <Empty />
           ) : hits.length === 0 && !loading ? (

@@ -91,7 +91,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div style={{ display: "flex", minHeight: "100vh", background: "var(--canvas)", color: "var(--text-1)" }}>
 
       {/* Sidebar */}
-      <aside data-lenis-prevent="true" style={{
+      <aside style={{
         width: "var(--sidebar-w)", flexShrink: 0,
         background: "var(--surface-1)",
         borderRight: "1px solid var(--border-2)",
@@ -199,7 +199,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </Link>
         </header>
 
-        <main data-lenis-prevent="true" style={{ flex: 1, padding: 28, overflowY: "auto", overscrollBehavior: "contain" }}>
+        <main style={{ flex: 1, padding: 28, overflowY: "auto", overscrollBehavior: "contain" }}>
           {children}
         </main>
       </div>

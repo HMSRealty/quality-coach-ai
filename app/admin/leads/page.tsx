@@ -222,7 +222,7 @@ export default function AdminLeadsPage() {
               <p style={{ fontSize: 13 }}>No leads found.</p>
             </div>
           ) : (
-            <div data-lenis-prevent="true" style={{ overflowX: "auto" }}>
+            <div style={{ overflowX: "auto" }}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
                   <tr style={{ background: PANEL_2 }}>

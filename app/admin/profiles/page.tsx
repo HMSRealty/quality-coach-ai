@@ -216,7 +216,7 @@ export default function AdminProfilesPage() {
             <p style={{ fontSize: 13 }}>No users match the current filters.</p>
           </div>
         ) : (
-          <div data-lenis-prevent="true" style={{ overflowX: "auto" }}>
+          <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 880 }}>
               <thead>
                 <tr style={{ background: T.surface3 }}>
