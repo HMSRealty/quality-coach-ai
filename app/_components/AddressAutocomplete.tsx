@@ -9,7 +9,33 @@ type W = Window & {
   google?: { maps?: { places?: { Autocomplete: new (input: HTMLInputElement, options: object) => GMAutocomplete } } };
   gm_authFailure?: () => void;
 };
-type GMAutocomplete = { addListener: (e: string, cb: () => void) => void; getPlace: () => { formatted_address?: string } };
+type GMComponent = { long_name: string; short_name: string; types: string[] };
+type GMAutocomplete = { addListener: (e: string, cb: () => void) => void; getPlace: () => { formatted_address?: string; address_components?: GMComponent[] } };
+
+export interface AddressParts {
+  formatted: string;
+  street: string;
+  city: string;
+  state: string;
+  zip: string;
+}
+
+// Pull structured fields out of Google's address_components array.
+function toParts(formatted: string, comps: GMComponent[] | undefined): AddressParts {
+  const get = (type: string, short = false) => {
+    const c = comps?.find((x) => x.types.includes(type));
+    return c ? (short ? c.short_name : c.long_name) : "";
+  };
+  const streetNo = get("street_number");
+  const route = get("route");
+  return {
+    formatted,
+    street: [streetNo, route].filter(Boolean).join(" ").trim(),
+    city: get("locality") || get("sublocality") || get("postal_town"),
+    state: get("administrative_area_level_1", true),
+    zip: get("postal_code"),
+  };
+}
 
 const SCRIPT_ATTR = "data-google-places-loader";
 
@@ -46,6 +72,7 @@ function loadPlaces(key: string): Promise<"ok"> {
 interface Props {
   value: string;
   onChange: (v: string) => void;
+  onSelect?: (parts: AddressParts) => void;   // structured data on pick
   placeholder?: string;
   required?: boolean;
   style?: React.CSSProperties;
@@ -53,9 +80,10 @@ interface Props {
 
 type Status = "no-key" | "loading" | "ready" | "auth-failure" | "blocked" | "timeout" | "library-missing";
 
-export function AddressAutocomplete({ value, onChange, placeholder, required, style }: Props) {
+export function AddressAutocomplete({ value, onChange, onSelect, placeholder, required, style }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const key = process.env.NEXT_PUBLIC_GOOGLE_PLACES_KEY;
+  // Prefer NEXT_PUBLIC_GOOGLE_MAPS_KEY; fall back to the legacy PLACES name.
+  const key = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY || process.env.NEXT_PUBLIC_GOOGLE_PLACES_KEY;
   const [status, setStatus] = useState<Status>(key ? "loading" : "no-key");
 
   useEffect(() => {
@@ -75,7 +103,10 @@ export function AddressAutocomplete({ value, onChange, placeholder, required, st
         });
         ac.addListener("place_changed", () => {
           const p = ac?.getPlace();
-          if (p?.formatted_address) onChange(p.formatted_address);
+          if (p?.formatted_address) {
+            onChange(p.formatted_address);
+            onSelect?.(toParts(p.formatted_address, p.address_components));
+          }
         });
         // Google may post-hoc add the .gm-err-autocomplete class + disable
         // the input if it rejects the key. Watch for that.

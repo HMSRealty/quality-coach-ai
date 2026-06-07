@@ -1,18 +1,18 @@
 // app/api/leads/submit/route.ts
-// Multi-tenant lead intake pipeline: property enrichment -> ARV -> insert.
-// Additive: not yet wired into the UI. Works once the CRM migrations are applied
-// (needs leads.organization_id / stage / market_value / arv columns).
+// Authenticated lead intake. Inserts a lead for the signed-in user, then lets
+// the client kick /api/leads/analyze.
 //
-//   POST { orgId, createdBy, ownerName, ownerPhone, address, askingPrice, condition }
+// SMART DUPLICATE BYPASS:
+//   If a lead with the same normalized address already exists for this user:
+//     • status was "Disqualified" or "Error"  -> revive it (reset to Processing,
+//       overwrite the fields, merge metadata) and allow re-analysis.
+//     • any other status                      -> blocked as a duplicate (409).
 //
-// Secrets are ENV-only. Property vendor is abstracted (services/propertyDataProvider).
+//   POST (Bearer auth) {
+//     campaignId, callerId, agentName, address, askingPrice,
+//     ownerName, phone, reason, zillowLink, zestimate, metadata?
+//   }
 import { createClient } from "@supabase/supabase-js";
-import {
-  lookupProperty,
-  type PropertyCache,
-  type PropertyLookupResult,
-} from "@/services/propertyDataProvider";
-import { calculateArv, type Condition } from "@/services/arv";
 
 export const runtime = "edge";
 export const dynamic = "force-dynamic";
@@ -24,89 +24,114 @@ function service() {
   return createClient(url, key, { auth: { persistSession: false } });
 }
 
-// Shared property cache backed by the service-role client (RLS-exempt table).
-function dbCache(sb: ReturnType<typeof service>): PropertyCache {
-  return {
-    async get(hash) {
-      const { data } = await sb
-        .from("property_data_cache")
-        .select("normalized")
-        .eq("address_hash", hash)
-        .gt("expires_at", new Date().toISOString())
-        .maybeSingle();
-      return data ? (data.normalized as PropertyLookupResult) : null;
-    },
-    async set(hash, value) {
-      await sb.from("property_data_cache").upsert({
-        address_hash: hash,
-        provider: value.provider,
-        normalized: value,
-      });
-    },
-  };
-}
+const REVIVE_STATUSES = new Set(["disqualified", "error"]);
+const norm = (s: string) =>
+  (s || "").trim().toLowerCase().replace(/[.,#]/g, "").replace(/\s+/g, " ");
 
 interface Body {
-  orgId?: string;
-  createdBy?: string;
-  ownerName?: string;
-  ownerPhone?: string;
+  campaignId?: string;
+  callerId?: string | null;
+  agentName?: string | null;
   address?: string;
-  askingPrice?: number | string;
-  condition?: Condition;
+  askingPrice?: number | string | null;
+  ownerName?: string | null;
+  phone?: string | null;
+  reason?: string | null;
+  zillowLink?: string | null;
+  zestimate?: string | null;
+  metadata?: Record<string, unknown>;
 }
 
 export async function POST(req: Request): Promise<Response> {
   try {
+    const token = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
+    if (!token) return Response.json({ ok: false, error: "Not authenticated" }, { status: 401 });
+
     const sb = service();
+    const { data: auth } = await sb.auth.getUser(token);
+    const user = auth?.user;
+    if (!user) return Response.json({ ok: false, error: "Invalid session" }, { status: 401 });
+
     const b = (await req.json().catch(() => ({}))) as Body;
-    if (!b.orgId) return Response.json({ ok: false, error: "orgId required" }, { status: 400 });
-
-    // --- Enrichment + ARV (server-side; vendor abstracted) ---
-    let market_value: number | undefined;
-    let arv: number | null = null;
-    let arv_confidence = 0;
-
-    if (b.address) {
-      const result = await lookupProperty(b.address, dbCache(sb));
-      market_value = result.property?.marketValue;
-      const out = calculateArv({
-        subjectSqft: result.property?.sqft,
-        comparables: result.comparables,
-        condition: b.condition,
-        zipMultiplier: 1.0, // TODO: zip-level market table
-      });
-      arv = out.estimatedArv;
-      arv_confidence = out.confidence;
-    }
+    const address = (b.address || "").trim();
+    if (!address) return Response.json({ ok: false, error: "Property address is required" }, { status: 400 });
+    if (!b.campaignId) return Response.json({ ok: false, error: "Campaign is required" }, { status: 400 });
 
     const asking =
       typeof b.askingPrice === "string" ? parseFloat(b.askingPrice) : b.askingPrice ?? null;
+    const askingClean = asking != null && isFinite(asking as number) ? (asking as number) : null;
 
-    // --- Insert (trigger stamps EST submission_date + 'created' timeline event) ---
-    const { data, error } = await sb
+    const metadata = {
+      date: new Date().toISOString().split("T")[0],
+      owner_name: b.ownerName ?? "",
+      phone_number: b.phone ?? "",
+      zestimate: b.zestimate ?? "",
+      zillow_link: b.zillowLink ?? "",
+      reason: b.reason ?? "",
+      submitted_via: "internal_form",
+      ...(b.metadata || {}),
+    };
+
+    // ── Duplicate detection (same user, same normalized address) ──
+    const { data: candidates } = await sb
+      .from("leads")
+      .select("id, status, extracted_address, metadata")
+      .eq("user_id", user.id)
+      .ilike("extracted_address", `%${address.slice(0, 60)}%`)
+      .limit(20);
+
+    const match = (candidates || []).find(
+      (c) => norm(c.extracted_address || "") === norm(address),
+    );
+
+    if (match) {
+      const prev = (match.status || "").toLowerCase();
+      if (!REVIVE_STATUSES.has(prev)) {
+        // Genuine duplicate — block.
+        return Response.json(
+          { ok: false, duplicate: true, leadId: match.id, status: match.status,
+            error: `This address already exists (status: ${match.status}).` },
+          { status: 409 },
+        );
+      }
+      // Revive a Disqualified/Error lead: overwrite + merge metadata, re-queue.
+      const mergedMeta = { ...(match.metadata as Record<string, unknown> || {}), ...metadata, revived_from: match.status };
+      const { error: upErr } = await sb
+        .from("leads")
+        .update({
+          campaign_id: b.campaignId,
+          caller_id: b.callerId ?? null,
+          agent_name: b.agentName ?? null,
+          extracted_address: address,
+          asking_price: askingClean,
+          status: "Processing",
+          metadata: mergedMeta,
+        })
+        .eq("id", match.id);
+      if (upErr) return Response.json({ ok: false, error: upErr.message }, { status: 500 });
+      return Response.json({ ok: true, leadId: match.id, mode: "revived", previousStatus: match.status });
+    }
+
+    // ── New lead ──
+    const { data: inserted, error } = await sb
       .from("leads")
       .insert({
-        organization_id: b.orgId,
-        created_by: b.createdBy ?? null,
-        assigned_to: b.createdBy ?? null,
-        owner_name: b.ownerName ?? null,
-        owner_phone: b.ownerPhone ?? null,
-        property_address: b.address ?? null,
-        asking_price: asking != null && isFinite(asking as number) ? asking : null,
-        market_value,
-        arv,
-        arv_confidence,
-        status: "processing",
-        stage: "new",
+        user_id: user.id,
+        campaign_id: b.campaignId,
+        caller_id: b.callerId ?? null,
+        agent_name: b.agentName ?? null,
+        extracted_address: address,
+        asking_price: askingClean,
+        status: "Processing",
+        metadata,
       })
       .select("id")
       .single();
 
-    if (error) return Response.json({ ok: false, error: error.message }, { status: 500 });
-
-    // Hand off to the existing QA analysis route here if desired.
-    return Response.json({ ok: true, leadId: data.id, arv, arv_confidence });
+    if (error || !inserted) {
+      return Response.json({ ok: false, error: error?.message || "Insert failed" }, { status: 500 });
+    }
+    return Response.json({ ok: true, leadId: inserted.id, mode: "new" });
   } catch (e) {
     return Response.json(
       { ok: false, error: e instanceof Error ? e.message : "Server error" },

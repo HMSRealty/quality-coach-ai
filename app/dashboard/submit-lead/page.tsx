@@ -1,114 +1,82 @@
 "use client";
 
-import { useState, useEffect } from "react";
+// Lead Submission Form — Clean Enterprise (White / Sky / Emerald / Black).
+// Big Google address autocomplete, drag-drop multi-file audio upload, agent +
+// campaign selectors, and a sky "Submit & Analyze Lead" button with a
+// framer-motion loading state. Wired to /api/leads/submit (smart duplicate
+// bypass) -> /api/leads/[id]/upload -> /api/leads/analyze.
+import { useState, useEffect, useRef, useCallback } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
-import { Card } from "@/app/_components/Card";
-import { Send, Loader2, CheckCircle2, Link2, Copy, Check, Users, ExternalLink } from "lucide-react";
-import { AddressAutocomplete } from "@/app/_components/AddressAutocomplete";
-import { PipelineProgress } from "@/app/_components/PipelineProgress";
+import {
+  Send, Loader2, CheckCircle2, AlertTriangle, MapPin, UploadCloud, X,
+  Music, Link2, Copy, Check, ExternalLink,
+} from "lucide-react";
+import { AddressAutocomplete, type AddressParts } from "@/app/_components/AddressAutocomplete";
 
-import { T } from "@/app/_components/tokens";
-const NAVY = T.text1;
-const TEAL = T.teal;
-const SLATE = T.text2;
+const SKY = "#0EA5E9";
+const SKY_600 = "#0284C7";
+const MONEY = "#059669";
+const SPRING = { type: "spring", stiffness: 460, damping: 32, mass: 0.7 } as const;
 
 interface Campaign { id: string; name: string; }
 interface ColdCaller { id: string; name: string; }
 interface UserRow { id: string; email: string; }
 
-const inputStyle: React.CSSProperties = {
-  width: "100%", padding: "10px 12px", borderRadius: 9,
-  background: "#F2F5F9", border: "1px solid rgba(35,43,58,0.10)",
-  fontSize: 13, color: NAVY, outline: "none",
-};
-const labelStyle: React.CSSProperties = {
-  display: "block", fontSize: 12, fontWeight: 600, color: SLATE, marginBottom: 6,
+const ACCEPT = ".mp3,.wav,.m4a,.mp4,audio/*,video/mp4";
+const MAX_BYTES = 500 * 1024 * 1024;
+const fmtSize = (b: number) => (b > 1024 * 1024 ? `${(b / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(b / 1024))} KB`);
+
+const labelStyle: React.CSSProperties = { display: "block", fontSize: 12, fontWeight: 700, color: "#000", marginBottom: 6 };
+const fieldStyle: React.CSSProperties = {
+  width: "100%", padding: "11px 13px", borderRadius: 10,
+  background: "#fff", border: "1px solid var(--border-2)",
+  fontSize: 13.5, color: "#000", outline: "none",
 };
 
-function slugify(s: string): string {
-  return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40);
-}
+function slugify(s: string) { return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40); }
 
 export default function SubmitLeadPage() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [callers, setCallers] = useState<ColdCaller[]>([]);
   const [users, setUsers] = useState<UserRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [success, setSuccess] = useState<string | null>(null);
   const [me, setMe] = useState<{ id: string; email: string; role: string } | null>(null);
+  const [loading, setLoading] = useState(true);
 
+  const [form, setForm] = useState({
+    address: "", parts: null as AddressParts | null,
+    ownerName: "", phone: "", askingPrice: "", zillowLink: "", reason: "",
+    campaignId: "", callerId: "",
+  });
+  const [files, setFiles] = useState<File[]>([]);
+  const [dragOver, setDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  type Result = { kind: "ok" | "dup" | "err"; msg: string };
+  const [submitting, setSubmitting] = useState(false);
+  const [phase, setPhase] = useState("");
+  const [result, setResult] = useState<Result | null>(null);
+
+  // share link
   const [shareUserId, setShareUserId] = useState("");
-  const [generatedLink, setGeneratedLink] = useState("");
+  const [genLink, setGenLink] = useState("");
   const [generating, setGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
   const [origin, setOrigin] = useState("");
-  const [zLookup, setZLookup] = useState<{ busy: boolean; msg: string }>({ busy: false, msg: "" });
-  const [zData, setZData] = useState<Record<string, unknown> | null>(null);
-
-  // Fetch property data for the typed address (or Zillow link) via /api/zillow.
-  const lookupZillow = async () => {
-    const addr = formData.property_address.trim();
-    const link = formData.zillow_link.trim();
-    if (!addr && !link) { setZLookup({ busy: false, msg: "Enter an address (or Zillow link) first." }); return; }
-    setZLookup({ busy: true, msg: "Fetching property data…" });
-    try {
-      const params = new URLSearchParams();
-      if (link) params.set("url", link); else params.set("address", addr);
-      const res = await fetch(`/api/zillow?${params.toString()}`);
-      const j = await res.json().catch(() => ({}));
-      if (!res.ok || !j.ok) { setZLookup({ busy: false, msg: j.error || "Lookup failed." }); return; }
-      const n = j.normalized as Record<string, unknown>;
-      setZData(n);
-      const zest = n.zestimate as number | undefined;
-      setForm(f => ({
-        ...f,
-        property_address: (n.address as string) || f.property_address,
-        zestimate: zest ? String(zest) : f.zestimate,
-        zillow_link: (n.zillow_url as string) || f.zillow_link,
-      }));
-      if (j.warning) { setZLookup({ busy: false, msg: "⚠ " + j.warning }); return; }
-      const bits: string[] = [];
-      if (zest) bits.push(`Zestimate $${zest.toLocaleString()}`);
-      if (n.beds) bits.push(`${n.beds} bd`);
-      if (n.baths) bits.push(`${n.baths} ba`);
-      if (n.sqft) bits.push(`${(n.sqft as number).toLocaleString()} sqft`);
-      setZLookup({ busy: false, msg: bits.length ? bits.join(" · ") : "Found." });
-    } catch (e) {
-      setZLookup({ busy: false, msg: e instanceof Error ? e.message : "Lookup failed." });
-    }
-  };
-
-  const [formData, setForm] = useState({
-    date: new Date().toISOString().split("T")[0],
-    owner_name: "",
-    phone_number: "",
-    property_address: "",
-    zestimate: "",
-    zillow_link: "",
-    asking_price: "",
-    reason: "",
-    campaign_id: "",
-    caller_id: "",
-  });
 
   useEffect(() => {
     setOrigin(window.location.origin);
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const { data: profile } = await supabase
-        .from("profiles").select("id, email, role").eq("id", user.id).maybeSingle();
+      if (!user) { setLoading(false); return; }
+      const { data: profile } = await supabase.from("profiles").select("id, email, role").eq("id", user.id).maybeSingle();
       if (profile) setMe(profile);
-
       const [cRes, calRes] = await Promise.all([
         supabase.from("campaigns").select("id,name").eq("user_id", user.id),
         supabase.from("cold_callers").select("id,name").eq("user_id", user.id),
       ]);
-      if (cRes.data) setCampaigns(cRes.data);
+      if (cRes.data) { setCampaigns(cRes.data); if (cRes.data[0]) setForm(f => ({ ...f, campaignId: cRes.data![0].id })); }
       if (calRes.data) setCallers(calRes.data);
-      if (cRes.data?.length) setForm(f => ({ ...f, campaign_id: cRes.data![0].id }));
-
       if (profile?.role === "admin") {
         const { data: allUsers } = await supabase.from("profiles").select("id, email").order("email");
         if (allUsers) setUsers(allUsers);
@@ -117,321 +85,305 @@ export default function SubmitLeadPage() {
     })();
   }, []);
 
+  // ── Dropzone ──
+  const addFiles = useCallback((incoming: FileList | File[]) => {
+    const arr = Array.from(incoming).filter(f => {
+      const ok = /\.(mp3|wav|m4a|mp4)$/i.test(f.name) || f.type.startsWith("audio/") || f.type === "video/mp4";
+      return ok && f.size <= MAX_BYTES;
+    });
+    setFiles(prev => {
+      const seen = new Set(prev.map(f => f.name + f.size));
+      return [...prev, ...arr.filter(f => !seen.has(f.name + f.size))];
+    });
+  }, []);
+  const removeFile = (i: number) => setFiles(prev => prev.filter((_, idx) => idx !== i));
+
+  // ── Submit ──
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (submitting) return;
+    if (!form.address.trim()) { setResult({ kind: "err", msg: "Property address is required." }); return; }
+    if (!form.campaignId) { setResult({ kind: "err", msg: "Select a campaign." }); return; }
+
+    setSubmitting(true); setResult(null); setPhase("Enriching property…");
+
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token;
+
+    // Best-effort property enrichment (Zillow + ARV) → metadata.
+    let enriched: Record<string, unknown> | undefined;
+    try {
+      const params = new URLSearchParams();
+      if (form.zillowLink.trim()) params.set("url", form.zillowLink.trim());
+      else params.set("address", form.address.trim());
+      const r = await fetch(`/api/zillow?${params.toString()}`);
+      const j = await r.json().catch(() => ({}));
+      if (r.ok && j.ok) {
+        let arv: number | null = null, conf: number | null = null;
+        try {
+          const ar = await fetch("/api/leads/arv", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ normalized: j.normalized, comparables: j.comparables ?? [] }) });
+          const aj = await ar.json().catch(() => ({}));
+          if (ar.ok) { arv = aj.estimatedArv ?? null; conf = aj.confidence ?? null; }
+        } catch { /* best-effort */ }
+        enriched = { zillow_data: j.normalized, arv, arv_confidence: conf };
+      }
+    } catch { /* best-effort */ }
+
+    setPhase("Creating lead…");
+    const agentName = callers.find(c => c.id === form.callerId)?.name || null;
+    const metadata: Record<string, unknown> = {
+      ...(form.parts ? { addr_street: form.parts.street, addr_city: form.parts.city, addr_state: form.parts.state, addr_zip: form.parts.zip } : {}),
+      ...(enriched || {}),
+    };
+
+    const subRes = await fetch("/api/leads/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({
+        campaignId: form.campaignId, callerId: form.callerId || null, agentName,
+        address: form.address.trim(), askingPrice: form.askingPrice || null,
+        ownerName: form.ownerName, phone: form.phone, reason: form.reason,
+        zillowLink: form.zillowLink || (enriched?.zillow_data as { zillow_url?: string } | undefined)?.zillow_url || null,
+        zestimate: (enriched?.zillow_data as { zestimate?: number } | undefined)?.zestimate?.toString() || null,
+        metadata,
+      }),
+    });
+    const subJson = await subRes.json().catch(() => ({}));
+
+    if (subRes.status === 409 && subJson.duplicate) {
+      setSubmitting(false);
+      setResult({ kind: "dup", msg: subJson.error || "This address already exists." });
+      return;
+    }
+    if (!subRes.ok || !subJson.ok) {
+      setSubmitting(false);
+      setResult({ kind: "err", msg: subJson.error || "Submission failed." });
+      return;
+    }
+    const leadId: string = subJson.leadId;
+    const revived = subJson.mode === "revived";
+
+    // Upload recordings (private bucket) if any.
+    let audioUrls: string[] = [];
+    if (files.length) {
+      setPhase(`Uploading ${files.length} recording${files.length === 1 ? "" : "s"}…`);
+      const fd = new FormData();
+      files.forEach(f => fd.append("files", f));
+      const up = await fetch(`/api/leads/${leadId}/upload`, { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: fd });
+      const upJson = await up.json().catch(() => ({}));
+      if (up.ok && upJson.ok) audioUrls = upJson.urls || [];
+    }
+
+    setPhase("Running AI analysis…");
+    try {
+      await fetch("/api/leads/analyze", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ leadId, ...(audioUrls.length ? { audioUrls } : {}) }),
+      });
+    } catch { /* analyze is async-tolerant */ }
+
+    setSubmitting(false);
+    setResult({ kind: "ok", msg: revived ? "Revived a previously-disqualified lead and re-queued analysis." : "Lead submitted and sent for AI analysis." });
+    setForm(f => ({ ...f, address: "", parts: null, ownerName: "", phone: "", askingPrice: "", zillowLink: "", reason: "" }));
+    setFiles([]);
+    setTimeout(() => setResult(null), 6000);
+  };
+
+  // ── Share link ──
   const generateLink = async () => {
     if (!me) return;
-    setGenerating(true);
-    setGeneratedLink("");
-
+    setGenerating(true); setGenLink("");
     const targetUserId = me.role === "admin" && shareUserId ? shareUserId : me.id;
-    const targetEmail = me.role === "admin" && shareUserId
-      ? users.find(u => u.id === shareUserId)?.email || "user"
-      : me.email;
-
-    const { data: existing } = await supabase
-      .from("submission_forms").select("slug").eq("user_id", targetUserId).maybeSingle();
-
+    const targetEmail = me.role === "admin" && shareUserId ? (users.find(u => u.id === shareUserId)?.email || "user") : me.email;
+    const { data: existing } = await supabase.from("submission_forms").select("slug").eq("user_id", targetUserId).maybeSingle();
     let slug = existing?.slug;
     if (!slug) {
       const base = slugify(targetEmail.split("@")[0]) || `form-${targetUserId.slice(0, 6)}`;
-      let candidate = base;
-      let n = 1;
+      let candidate = base, n = 1;
       while (true) {
-        const { data: hit } = await supabase
-          .from("submission_forms").select("id").eq("slug", candidate).maybeSingle();
-        if (!hit) break;
-        candidate = `${base}-${n++}`;
+        const { data: hit } = await supabase.from("submission_forms").select("id").eq("slug", candidate).maybeSingle();
+        if (!hit) break; candidate = `${base}-${n++}`;
       }
-      const { data: created, error } = await supabase
-        .from("submission_forms")
-        .insert({ user_id: targetUserId, slug: candidate, name: "Submit a Lead", is_active: true })
-        .select("slug").single();
-      if (error) {
-        alert("Could not provision form: " + error.message);
-        setGenerating(false);
-        return;
-      }
+      const { data: created, error } = await supabase.from("submission_forms").insert({ user_id: targetUserId, slug: candidate, name: "Submit a Lead", is_active: true }).select("slug").single();
+      if (error) { alert("Could not provision form: " + error.message); setGenerating(false); return; }
       slug = created?.slug;
     }
-    setGeneratedLink(`${origin}/submit/${slug}`);
-    setGenerating(false);
+    setGenLink(`${origin}/submit/${slug}`); setGenerating(false);
   };
 
-  const copyLink = () => {
-    if (!generatedLink) return;
-    navigator.clipboard.writeText(generatedLink);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1800);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    setSuccess(null);
-
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { setSubmitting(false); return; }
-
-    const selectedCaller = callers.find(c => c.id === formData.caller_id);
-
-    // AUTO property fetch — no Lookup button anymore. We resolve the address to
-    // full Zillow data + run ARV here, then persist everything into metadata
-    // and let the AI analyzer use it during qualification.
-    let auto: Record<string, unknown> | null = zData;
-    let autoArv: { estimatedArv: number | null; confidence: number } | null = null;
-    if (!auto && (formData.property_address.trim() || formData.zillow_link.trim())) {
-      setSuccess("Fetching property data…");
-      try {
-        const params = new URLSearchParams();
-        if (formData.zillow_link.trim()) params.set("url", formData.zillow_link.trim());
-        else params.set("address", formData.property_address.trim());
-        const r = await fetch(`/api/zillow?${params.toString()}`);
-        const j = await r.json().catch(() => ({}));
-        if (r.ok && j.ok) {
-          auto = j.normalized as Record<string, unknown>;
-          // Run an ARV estimate from the comps the provider returned (or fallback).
-          try {
-            const arvRes = await fetch("/api/leads/arv", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ normalized: auto, comparables: j.comparables ?? [] }),
-            });
-            const arvJ = await arvRes.json().catch(() => ({}));
-            if (arvRes.ok) autoArv = arvJ;
-          } catch { /* arv is best-effort */ }
-        }
-      } catch { /* lookup is best-effort */ }
-    }
-
-    const leadData = {
-      user_id: user.id,
-      campaign_id: formData.campaign_id,
-      caller_id: formData.caller_id || null,
-      agent_name: selectedCaller?.name || null,
-      extracted_address: formData.property_address,
-      asking_price: formData.asking_price ? parseFloat(formData.asking_price) : null,
-      status: "Processing",
-      metadata: {
-        date: formData.date,
-        owner_name: formData.owner_name,
-        phone_number: formData.phone_number,
-        // Auto-populated from the provider (overrides empty form values)
-        zestimate: formData.zestimate || (auto?.zestimate as number | undefined)?.toString() || "",
-        zillow_link: formData.zillow_link || (auto?.zillow_url as string | undefined) || "",
-        reason: formData.reason,
-        zillow_data: auto,
-        arv: autoArv?.estimatedArv ?? null,
-        arv_confidence: autoArv?.confidence ?? null,
-        submitted_via: "internal_form",
-      },
-    };
-
-    const { data: inserted, error } = await supabase.from("leads").insert(leadData).select("id").single();
-
-    if (error || !inserted) {
-      alert("Failed to submit: " + (error?.message || "unknown"));
-      setSubmitting(false);
-      return;
-    }
-
-    setSuccess("Submitted. Analyzing call...");
-    try {
-      const res = await fetch("/api/leads/analyze", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ leadId: inserted.id }),
-      });
-      const json = await res.json().catch(() => ({}));
-      if (res.ok) setSuccess(`Done. Lead marked: ${json.status}`);
-      else setSuccess(`Submitted. Review failed: ${json.error || "unknown"} — lead remains in Processing.`);
-    } catch {
-      setSuccess("Submitted. Review request failed — will retry.");
-    }
-
-    setForm({
-      date: new Date().toISOString().split("T")[0],
-      owner_name: "", phone_number: "",
-      property_address: "", zestimate: "", zillow_link: "", asking_price: "", reason: "",
-      campaign_id: campaigns[0]?.id || "", caller_id: "",
-    });
-    setSubmitting(false);
-    setTimeout(() => setSuccess(null), 5000);
-  };
-
-  if (loading) return (
-    <div style={{ padding: "40px 24px", textAlign: "center" }}>
-      <Loader2 size={24} className="animate-spin" style={{ margin: "0 auto", color: NAVY }} />
-    </div>
-  );
-
-  const isAdmin = me?.role === "admin";
+  if (loading) return <div style={{ padding: 60, textAlign: "center" }}><Loader2 size={24} className="animate-spin" style={{ color: SKY }} /></div>;
 
   return (
-    <div style={{ maxWidth: 820, margin: "0 auto", display: "flex", flexDirection: "column", gap: 20 }} className="animate-in">
+    <div style={{ maxWidth: 760, margin: "0 auto", display: "flex", flexDirection: "column", gap: 18 }} className="animate-in">
       <div>
-        <h1 style={{ fontSize: 22, fontWeight: 800, color: NAVY, marginBottom: 4 }}>Submit Lead</h1>
-        <p style={{ fontSize: 13, color: SLATE }}>Submit a lead directly or share a public form link.</p>
+        <h1 style={{ fontSize: 24, fontWeight: 900, color: "#000", letterSpacing: "-0.02em" }}>Submit a Lead</h1>
+        <p style={{ fontSize: 13, color: "var(--text-2)", marginTop: 4 }}>Enter the property, attach call recordings, and let the AI qualify it.</p>
       </div>
 
-      <Card title="Shareable Submission Link">
-        <p style={{ fontSize: 12, color: SLATE, marginBottom: 14, lineHeight: 1.6 }}>
-          {isAdmin
-            ? "Generate a public submission link for any user. Anyone with the link can submit leads on their behalf."
-            : "Generate your own public submission link. Share it with anyone — submissions land in your dashboard."}
-        </p>
-
-        {isAdmin && (
-          <div style={{ marginBottom: 12 }}>
-            <label style={labelStyle}>
-              <Users size={12} style={{ display: "inline", marginRight: 4, marginBottom: -1 }} />
-              Generate link for which user?
-            </label>
-            <select value={shareUserId} onChange={e => setShareUserId(e.target.value)} style={inputStyle}>
-              <option value="">— Myself —</option>
-              {users.map(u => <option key={u.id} value={u.id}>{u.email}</option>)}
-            </select>
-          </div>
+      {/* Result banner */}
+      <AnimatePresence>
+        {result && (
+          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={SPRING}
+            style={{
+              display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", borderRadius: 12, fontSize: 13, fontWeight: 700,
+              background: result.kind === "ok" ? "#ECFDF5" : result.kind === "dup" ? "#FFFBEB" : "#FEF2F2",
+              border: `1px solid ${result.kind === "ok" ? "#A7F3D0" : result.kind === "dup" ? "#FCD34D" : "#FECACA"}`,
+              color: result.kind === "ok" ? MONEY : result.kind === "dup" ? "#92400E" : "#DC2626",
+            }}>
+            {result.kind === "ok" ? <CheckCircle2 size={16} /> : <AlertTriangle size={16} />} {result.msg}
+          </motion.div>
         )}
+      </AnimatePresence>
 
-        <button type="button" onClick={generateLink} disabled={generating} style={{
-          display: "inline-flex", alignItems: "center", gap: 8,
-          padding: "10px 18px", borderRadius: 10,
-          background: T.midnight, color: "#fff",
-          fontSize: 13, fontWeight: 700, border: "none",
-          cursor: generating ? "wait" : "pointer",
-          boxShadow: "0 4px 14px rgba(35,43,58,0.25)",
-        }}>
-          {generating ? <Loader2 size={14} className="animate-spin" /> : <Link2 size={14} />}
-          {generatedLink ? "Regenerate" : "Generate Link"}
-        </button>
-
-        {generatedLink && (
-          <div style={{
-            marginTop: 14, padding: "12px 14px", borderRadius: 10,
-            background: "color-mix(in srgb, var(--magenta) 8%, var(--surface-1))", border: "1px solid color-mix(in srgb, var(--magenta) 25%, transparent)",
-            display: "flex", alignItems: "center", gap: 10,
-          }}>
-            <code style={{ flex: 1, fontSize: 12, color: NAVY, fontFamily: "var(--font-mono)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-              {generatedLink}
-            </code>
-            <button onClick={copyLink} style={{ padding: 6, background: "var(--surface-2)", border: "1px solid var(--border-2)", borderRadius: 7, cursor: "pointer", color: NAVY }}>
-              {copied ? <Check size={14} color="#059669" /> : <Copy size={14} />}
-            </button>
-            <a href={generatedLink} target="_blank" rel="noreferrer" style={{ padding: 6, background: "var(--surface-2)", border: "1px solid var(--border-2)", borderRadius: 7, color: NAVY }}>
-              <ExternalLink size={14} />
-            </a>
+      {/* ── MAIN FORM CARD ── */}
+      <form onSubmit={submit}>
+        <div style={{ background: "#fff", border: "1px solid var(--border-2)", borderRadius: 18, padding: 24, boxShadow: "var(--shadow-sm)", display: "flex", flexDirection: "column", gap: 18 }}>
+          {/* Address — large prominent */}
+          <div>
+            <label style={labelStyle}><MapPin size={12} style={{ display: "inline", marginRight: 5, marginBottom: -1, color: SKY_600 }} />Property Address *</label>
+            <AddressAutocomplete
+              value={form.address}
+              onChange={(v) => setForm(f => ({ ...f, address: v }))}
+              onSelect={(parts) => setForm(f => ({ ...f, address: parts.formatted, parts }))}
+              placeholder="Start typing an address — Google will autocomplete"
+              required
+              style={{ ...fieldStyle, padding: "16px 16px", fontSize: 16, fontWeight: 600, borderColor: SKY, boxShadow: "0 0 0 3px rgba(14,165,233,0.08)" }}
+            />
+            {form.parts && (form.parts.city || form.parts.state) && (
+              <p style={{ fontSize: 11, color: "var(--text-3)", marginTop: 6 }}>
+                Parsed: {[form.parts.street, form.parts.city, form.parts.state, form.parts.zip].filter(Boolean).join(", ")}
+              </p>
+            )}
           </div>
-        )}
-      </Card>
 
-      {submitting && (() => {
-        const m = (success || "").toLowerCase();
-        const step = m.includes("done") || m.includes("marked") ? 4
-          : m.includes("submitted") || m.includes("analyzing") ? 3
-          : m.includes("fetching") || m.includes("property") ? 1
-          : 0;
-        return (
-          <div style={{
-            padding: 18, borderRadius: 14,
-            background: "var(--surface-1)", border: "1px solid var(--border-2)",
-            boxShadow: "var(--shadow-md)",
-            display: "flex", flexDirection: "column", gap: 10,
-          }}>
-            <p style={{ fontSize: 13, fontWeight: 800, color: "var(--text-1)" }}>{success || "Submitting…"}</p>
-            <PipelineProgress current={step} />
+          {/* Dropzone */}
+          <div>
+            <label style={labelStyle}>Call Recordings (multiple OK)</label>
+            <motion.div
+              onClick={() => fileInputRef.current?.click()}
+              onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={(e) => { e.preventDefault(); setDragOver(false); if (e.dataTransfer.files) addFiles(e.dataTransfer.files); }}
+              animate={{ borderColor: dragOver ? SKY : "rgba(14,165,233,0.35)", backgroundColor: dragOver ? "rgba(14,165,233,0.06)" : "#F8FAFC" }}
+              transition={{ duration: 0.15 }}
+              style={{
+                border: "2px dashed", borderRadius: 14, padding: "30px 20px", textAlign: "center", cursor: "pointer",
+              }}>
+              <motion.div animate={{ y: dragOver ? -3 : 0 }}>
+                <UploadCloud size={34} color={SKY_600} style={{ margin: "0 auto 8px" }} />
+                <p style={{ fontSize: 14, fontWeight: 800, color: "#000" }}>{dragOver ? "Drop to attach" : "Drag & drop audio here"}</p>
+                <p style={{ fontSize: 12, color: "var(--text-3)", marginTop: 3 }}>or click to browse · MP3, WAV, M4A, MP4</p>
+              </motion.div>
+              <input ref={fileInputRef} type="file" multiple accept={ACCEPT} onChange={(e) => { if (e.target.files) addFiles(e.target.files); e.target.value = ""; }} style={{ display: "none" }} />
+            </motion.div>
+
+            {/* File list */}
+            <AnimatePresence initial={false}>
+              {files.map((f, i) => (
+                <motion.div key={f.name + f.size} layout initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} transition={SPRING}
+                  style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", marginTop: 8, borderRadius: 10, background: "#F8FAFC", border: "1px solid var(--border-2)" }}>
+                  <span style={{ width: 30, height: 30, borderRadius: 8, background: "rgba(14,165,233,0.12)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <Music size={14} color={SKY_600} />
+                  </span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontSize: 12.5, fontWeight: 600, color: "#000", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{f.name}</p>
+                    <p style={{ fontSize: 11, color: "var(--text-3)" }}>{fmtSize(f.size)}</p>
+                  </div>
+                  <button type="button" onClick={() => removeFile(i)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-3)", display: "flex", padding: 4 }} title="Remove">
+                    <X size={16} />
+                  </button>
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
-        );
-      })()}
 
-      {!submitting && success && (
-        <div style={{
-          padding: "12px 16px", borderRadius: 10,
-          background: "#ECFDF5", border: "1px solid #A7F3D0",
-          display: "flex", alignItems: "center", gap: 10,
-          color: "#059669", fontSize: 13, fontWeight: 600,
-        }}>
-          <CheckCircle2 size={16} /> {success}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit}>
-        <Card title="Quick Manual Entry">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
+          {/* Agent + Campaign */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }} className="ci-grid">
             <div>
-              <label style={labelStyle}>Date</label>
-              <input type="date" value={formData.date} onChange={e => setForm({ ...formData, date: e.target.value })} required style={inputStyle} />
-            </div>
-            <div>
-              <label style={labelStyle}>Cold Caller *</label>
-              <select value={formData.caller_id} onChange={e => setForm({ ...formData, caller_id: e.target.value })} required style={inputStyle}>
-                <option value="">Select a caller...</option>
+              <label style={labelStyle}>Cold Caller (Agent)</label>
+              <select value={form.callerId} onChange={e => setForm(f => ({ ...f, callerId: e.target.value }))} style={fieldStyle}>
+                <option value="">{me ? `— Me (${me.email.split("@")[0]}) —` : "Select…"}</option>
                 {callers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
             </div>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
-            <div>
-              <label style={labelStyle}>Owner Name</label>
-              <input type="text" value={formData.owner_name} onChange={e => setForm({ ...formData, owner_name: e.target.value })} placeholder="Property owner" style={inputStyle} />
-            </div>
-            <div>
-              <label style={labelStyle}>Phone Number</label>
-              <input type="tel" value={formData.phone_number} onChange={e => setForm({ ...formData, phone_number: e.target.value })} placeholder="+1 (555) 000-0000" style={inputStyle} />
-            </div>
-          </div>
-          <div style={{ marginBottom: 14 }}>
-            <label style={labelStyle}>Property Address *</label>
-            <AddressAutocomplete
-              placeholder="Start typing — Google will autocomplete"
-              value={formData.property_address}
-              onChange={(v) => setForm({ ...formData, property_address: v })}
-              required
-              style={inputStyle}
-            />
-            <p style={{ fontSize: 11, color: SLATE, marginTop: 6 }}>
-              Property details (Zestimate, beds, baths, sqft) and a local-comp ARV are fetched automatically when you submit.
-            </p>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
-            <div>
-              <label style={labelStyle}>Zestimate</label>
-              <input type="text" value={formData.zestimate} onChange={e => setForm({ ...formData, zestimate: e.target.value })} placeholder="$275,000" style={inputStyle} />
-            </div>
-            <div>
-              <label style={labelStyle}>Zillow Link</label>
-              <input type="url" value={formData.zillow_link} onChange={e => setForm({ ...formData, zillow_link: e.target.value })} placeholder="https://zillow.com/..." style={inputStyle} />
-            </div>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
-            <div>
-              <label style={labelStyle}>Asking Price</label>
-              <input type="number" value={formData.asking_price} onChange={e => setForm({ ...formData, asking_price: e.target.value })} placeholder="250000" style={inputStyle} />
-            </div>
             <div>
               <label style={labelStyle}>Campaign *</label>
-              <select value={formData.campaign_id} onChange={e => setForm({ ...formData, campaign_id: e.target.value })} required style={inputStyle}>
-                <option value="">Select campaign...</option>
+              <select value={form.campaignId} onChange={e => setForm(f => ({ ...f, campaignId: e.target.value }))} required style={fieldStyle}>
+                <option value="">Select campaign…</option>
                 {campaigns.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
             </div>
           </div>
-          <div>
-            <label style={labelStyle}>Notes</label>
-            <textarea value={formData.reason} onChange={e => setForm({ ...formData, reason: e.target.value })} placeholder="Reason for selling, motivation, follow-up timing..." rows={3} style={{ ...inputStyle, resize: "vertical", fontFamily: "var(--font-sans)" }} />
-          </div>
-        </Card>
 
-        <button type="submit" disabled={submitting} style={{
-          display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-          width: "100%", padding: "14px 24px", borderRadius: 11,
-          background: submitting ? "#E5E9F0" : NAVY,
-          color: submitting ? SLATE : "#fff",
-          fontSize: 14, fontWeight: 800, border: "none",
-          cursor: submitting ? "wait" : "pointer",
-          boxShadow: submitting ? "none" : "0 6px 20px rgba(35,43,58,0.25)",
-        }}>
-          {submitting ? <><Loader2 size={15} className="animate-spin" /> Analyzing...</> : <><Send size={15} /> Submit & Analyze</>}
-        </button>
+          {/* Owner + Asking */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }} className="ci-grid">
+            <div><label style={labelStyle}>Owner Name</label>
+              <input value={form.ownerName} onChange={e => setForm(f => ({ ...f, ownerName: e.target.value }))} placeholder="Property owner" style={fieldStyle} /></div>
+            <div><label style={labelStyle}>Phone</label>
+              <input value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+1 (555) 000-0000" style={fieldStyle} /></div>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }} className="ci-grid">
+            <div><label style={labelStyle}>Asking Price</label>
+              <input type="number" value={form.askingPrice} onChange={e => setForm(f => ({ ...f, askingPrice: e.target.value }))} placeholder="250000" style={fieldStyle} /></div>
+            <div><label style={labelStyle}>Zillow Link</label>
+              <input type="url" value={form.zillowLink} onChange={e => setForm(f => ({ ...f, zillowLink: e.target.value }))} placeholder="https://zillow.com/…" style={fieldStyle} /></div>
+          </div>
+          <div><label style={labelStyle}>Notes</label>
+            <textarea value={form.reason} onChange={e => setForm(f => ({ ...f, reason: e.target.value }))} placeholder="Reason for selling, motivation, follow-up timing…" rows={3} style={{ ...fieldStyle, resize: "vertical", fontFamily: "var(--font-sans)" }} /></div>
+
+          {/* Submit button — framer-motion loading state */}
+          <motion.button type="submit" disabled={submitting}
+            whileHover={submitting ? undefined : { scale: 1.01 }} whileTap={submitting ? undefined : { scale: 0.99 }}
+            animate={{ background: submitting ? "#7DD3FC" : "linear-gradient(135deg, #0EA5E9, #0284C7)" }}
+            style={{
+              width: "100%", padding: "16px 24px", borderRadius: 12, border: "none",
+              color: "#fff", fontSize: 15, fontWeight: 800, cursor: submitting ? "wait" : "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 9,
+              boxShadow: "0 12px 28px rgba(14,165,233,0.40)", marginTop: 4, overflow: "hidden",
+            }}>
+            <AnimatePresence mode="wait" initial={false}>
+              {submitting ? (
+                <motion.span key="busy" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ display: "inline-flex", alignItems: "center", gap: 9 }}>
+                  <Loader2 size={17} className="animate-spin" /> {phase || "Working…"}
+                </motion.span>
+              ) : (
+                <motion.span key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ display: "inline-flex", alignItems: "center", gap: 9 }}>
+                  <Send size={17} /> Submit &amp; Analyze Lead
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </motion.button>
+        </div>
       </form>
+
+      {/* ── SHARE LINK ── */}
+      <div style={{ background: "#fff", border: "1px solid var(--border-2)", borderRadius: 18, padding: 20, boxShadow: "var(--shadow-sm)" }}>
+        <p style={{ fontSize: 14, fontWeight: 800, color: "#000", marginBottom: 4 }}>Shareable Submission Link</p>
+        <p style={{ fontSize: 12, color: "var(--text-2)", marginBottom: 14 }}>
+          {me?.role === "admin" ? "Generate a public form link for any user." : "Generate a public form link — submissions land in your dashboard."}
+        </p>
+        {me?.role === "admin" && (
+          <select value={shareUserId} onChange={e => setShareUserId(e.target.value)} style={{ ...fieldStyle, marginBottom: 12 }}>
+            <option value="">— Myself —</option>
+            {users.map(u => <option key={u.id} value={u.id}>{u.email}</option>)}
+          </select>
+        )}
+        <button type="button" onClick={generateLink} disabled={generating} style={{
+          display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 18px", borderRadius: 10,
+          background: "#fff", color: SKY_600, border: `1px solid ${SKY}`, fontSize: 13, fontWeight: 700, cursor: generating ? "wait" : "pointer",
+        }}>
+          {generating ? <Loader2 size={14} className="animate-spin" /> : <Link2 size={14} />} {genLink ? "Regenerate" : "Generate Link"}
+        </button>
+        {genLink && (
+          <div style={{ marginTop: 14, padding: "12px 14px", borderRadius: 10, background: "#F8FAFC", border: "1px solid var(--border-2)", display: "flex", alignItems: "center", gap: 10 }}>
+            <code style={{ flex: 1, fontSize: 12, color: "#000", fontFamily: "var(--font-mono)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{genLink}</code>
+            <button onClick={() => { navigator.clipboard.writeText(genLink); setCopied(true); setTimeout(() => setCopied(false), 1600); }} style={{ padding: 6, background: "#fff", border: "1px solid var(--border-2)", borderRadius: 7, cursor: "pointer", color: "#000" }}>
+              {copied ? <Check size={14} color={MONEY} /> : <Copy size={14} />}
+            </button>
+            <a href={genLink} target="_blank" rel="noreferrer" style={{ padding: 6, background: "#fff", border: "1px solid var(--border-2)", borderRadius: 7, color: "#000" }}><ExternalLink size={14} /></a>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

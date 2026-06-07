@@ -1,0 +1,27 @@
+feat(submit): rebuild Lead Submission Form + smart-duplicate submit API
+
+UI (/dashboard/submit-lead) — Clean Enterprise (white card on slate-50, sky,
+emerald, black text), framer-motion throughout:
+- Large prominent Google Places address input with a sky focus ring; on select
+  it auto-fills structured parts (street/city/state/zip) into metadata behind
+  the scenes and shows a parsed preview.
+- Massive dashed dropzone: drag-drop OR click, multiple audio files
+  (.mp3/.wav/.m4a/.mp4), animated file list with per-file Remove + size.
+- Agent (cold caller, defaults to "Me") + Campaign dropdowns.
+- Big sky "Submit & Analyze Lead" button with a morphing framer-motion loading
+  state that narrates each phase (enrich → create → upload → analyze).
+- Restyled shareable-link card.
+
+AddressAutocomplete: now reads NEXT_PUBLIC_GOOGLE_MAPS_KEY (falls back to the
+legacy PLACES name) and emits structured AddressParts via a new onSelect prop.
+
+API (/api/leads/submit) — rewritten to the app's real schema with Bearer auth
+and the SMART DUPLICATE BYPASS: same-address match whose previous status was
+Disqualified/Error is revived (reset to Processing, fields overwritten, metadata
+merged) and re-analyzed; any other existing status returns 409 duplicate. New
+addresses insert normally. Flow: submit → /api/leads/[id]/upload (private
+bucket) → /api/leads/analyze.
+
+Verified: next build green, tsc --noEmit exit 0.
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
