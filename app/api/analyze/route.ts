@@ -86,8 +86,12 @@ interface QualJSON {
   repairs_mentioned?: string[];
   rehab_cost_estimate?: number;
   // ARV — Gemini computes this from the Zillow comparables (not a "Zillow ARV").
-  estimated_arv?: number;
-  arv_reasoning?: string;
+  estimated_arv?: number;        // point estimate (midpoint)
+  estimated_arv_low?: number;    // conservative end of the range
+  estimated_arv_high?: number;   // optimistic end of the range
+  arv_reasoning?: string;        // short one-liner
+  arv_narrative?: string;        // multi-sentence valuation rationale (the "report")
+  arv_comps?: Array<{ address?: string; layout?: string; sqft?: number; status?: string; value?: number }>;
   transcript?: string;
   regeneration_steps?: string;
   call_summary?: string;
@@ -245,9 +249,14 @@ REPAIR / REHAB ESTIMATE (wholesaler MAO inputs — listen for explicit damage ta
     foundation crack: 10000; foundation major: 30000; full cosmetic refresh: 18000; mold/abatement: 8000;
     windows full: 12000; siding: 14000; "needs everything": 65000. If nothing said, 0.
 
-ARV — AFTER-REPAIR VALUE (YOU compute this from the MARKET DATA comparables — there is NO pre-computed "Zillow ARV"):
-- estimated_arv: integer USD. METHOD: from the comparable SOLD properties in MARKET DATA, take the median price-per-sqft of the comps most similar to the subject (beds/baths/area), then multiply by the SUBJECT square footage. If subject sqft is unknown, use the median comp SALE PRICE. If a Zestimate is provided, use it only as a sanity check — PREFER your comp-derived number. If there are zero comparables AND no Zestimate, set estimated_arv = 0.
-- arv_reasoning: ONE short sentence showing the math (e.g., "Median comp $142/sqft × 1,450 sqft ≈ $206,000").
+ARV — AFTER-REPAIR VALUE REPORT (act as a local appraiser; YOU produce this — there is NO pre-computed "Zillow ARV"):
+Use the MARKET DATA comps + the SUBJECT facts (sqft, beds, baths) + neighborhood knowledge. Reason about a price-per-sqft BAND for fully-renovated, retail-ready homes of this footprint in the immediate area, then apply it to the subject's square footage.
+Output ALL of:
+- estimated_arv_low / estimated_arv_high: integer USD — the conservative and optimistic ends of the ARV range.
+- estimated_arv: integer USD — the midpoint point-estimate (≈ (low+high)/2). If subject sqft is unknown, use the median comp value. If there are zero comps AND no Zestimate, set all three to 0.
+- arv_reasoning: ONE short sentence with the core math (e.g., "$88/sqft × 1,302 sqft ≈ $114,500").
+- arv_narrative: 2-3 short sentences explaining the valuation — the $/sqft band for renovated comparable-footprint homes nearby, and how it maps onto the subject's sqft to land the range. Write it like a clear appraiser note.
+- arv_comps: 4-8 comparable properties used. Each: { address, layout (e.g. "3 Bed, 1 Bath"), sqft (integer), status ("Sold" | "Active" | "Estimate"), value (integer USD) }. PREFER the real comps in MARKET DATA; if fewer than 4 are provided, you MAY add the closest neighborhood comparables you can reasonably infer and mark their status "Estimate". Never leave arv_comps empty when you produced an ARV.
 `.trim();
 
 // Build the runtime system prompt: base persona (or org override) + org killers
@@ -397,7 +406,20 @@ async function runQualification(
           repairs_mentioned: { type: "ARRAY", items: { type: "STRING" } },
           rehab_cost_estimate: { type: "NUMBER" },
           estimated_arv: { type: "NUMBER" },
+          estimated_arv_low: { type: "NUMBER" },
+          estimated_arv_high: { type: "NUMBER" },
           arv_reasoning: { type: "STRING" },
+          arv_narrative: { type: "STRING" },
+          arv_comps: {
+            type: "ARRAY",
+            items: {
+              type: "OBJECT",
+              properties: {
+                address: { type: "STRING" }, layout: { type: "STRING" },
+                sqft: { type: "NUMBER" }, status: { type: "STRING" }, value: { type: "NUMBER" },
+              },
+            },
+          },
           transcript: { type: "STRING" },
           has_data_discrepancy: { type: "BOOLEAN" },
           discrepancy_notes: { type: "STRING" },
@@ -802,10 +824,14 @@ export async function POST(req: Request): Promise<Response> {
       } catch { /* re-fetch best-effort — fall back to original market value */ }
     }
 
-    // If Zillow had no Zestimate, fall back to Gemini's comp-derived ARV so the
-    // verdict isn't stuck on "no usable market value".
-    if (!(typeof effMarketValue === "number" && effMarketValue > 0) && Number(q.estimated_arv) > 0) {
-      effMarketValue = Number(q.estimated_arv);
+    // Gemini's comp-derived ARV point estimate (midpoint of the range if needed).
+    const geminiArv = Number(q.estimated_arv) > 0
+      ? Number(q.estimated_arv)
+      : ((Number(q.estimated_arv_low) > 0 && Number(q.estimated_arv_high) > 0)
+          ? Math.round((Number(q.estimated_arv_low) + Number(q.estimated_arv_high)) / 2) : 0);
+    // If Zillow had no Zestimate, fall back to that ARV so the verdict isn't stuck.
+    if (!(typeof effMarketValue === "number" && effMarketValue > 0) && geminiArv > 0) {
+      effMarketValue = geminiArv;
     }
 
     // Call-truth overrides for wrong manual entries.
@@ -872,8 +898,12 @@ export async function POST(req: Request): Promise<Response> {
         zestimate: (correctedAddress ? (corrPatch.zillow_data as { zestimate?: number } | undefined)?.zestimate : zillowData?.zestimate) != null
           ? String((correctedAddress ? (corrPatch.zillow_data as { zestimate?: number } | undefined)?.zestimate : zillowData?.zestimate))
           : safeStr((lead.metadata as Record<string, unknown> | null)?.zestimate),
-        arv: Number(q.estimated_arv) > 0 ? Math.round(Number(q.estimated_arv)) : (Number((lead.metadata as { arv?: number } | null)?.arv) || null),
+        arv: geminiArv > 0 ? geminiArv : (Number((lead.metadata as { arv?: number } | null)?.arv) || null),
+        arv_low: Number(q.estimated_arv_low) > 0 ? Math.round(Number(q.estimated_arv_low)) : null,
+        arv_high: Number(q.estimated_arv_high) > 0 ? Math.round(Number(q.estimated_arv_high)) : null,
         arv_reasoning: safeStr(q.arv_reasoning),
+        arv_narrative: safeStr(q.arv_narrative),
+        arv_comps: Array.isArray(q.arv_comps) ? q.arv_comps.slice(0, 10) : [],
         // Truth verification (anti-fraud)
         has_data_discrepancy: q.has_data_discrepancy === true,
         discrepancy_notes: q.has_data_discrepancy === true ? safeStr(q.discrepancy_notes) : "",

@@ -566,8 +566,12 @@ export default function LeadDetailPage() {
               address={lead.extracted_address}
               ownerName={owner}
               arv={arvNum}
+              arvLow={Number(md.arv_low) || null}
+              arvHigh={Number(md.arv_high) || null}
               zestimate={zestimateNum}
               arvReasoning={(md.arv_reasoning as string) ?? null}
+              arvNarrative={(md.arv_narrative as string) ?? null}
+              aiComps={(md.arv_comps as Array<Record<string, unknown>>) ?? null}
               comparables={(md.comparables as Array<Record<string, unknown>>) ?? null}
               defaultRehab={rehab}
               askingPrice={lead.asking_price}

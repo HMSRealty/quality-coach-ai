@@ -13,18 +13,36 @@ import {
   Handshake, Building2, Brain, HeartCrack, DollarSign, ArrowRight, ChevronDown, ChevronUp,
 } from "lucide-react";
 
-interface Comp { address: string; price: number; sqft: number; beds: number | null; baths: number | null; ppsf: number; }
-function normalizeComps(raw: Array<Record<string, unknown>> | null | undefined): Comp[] {
+interface Comp { address: string; layout: string; sqft: number; status: string; value: number; ppsf: number; }
+const numOf = (v: unknown) => { const n = Number(v); return isFinite(n) && n > 0 ? n : 0; };
+
+// Gemini's appraiser comps (preferred — include layout + status).
+function fromAiComps(raw: Array<Record<string, unknown>> | null | undefined): Comp[] {
   if (!Array.isArray(raw)) return [];
-  const num = (v: unknown) => { const n = Number(v); return isFinite(n) && n > 0 ? n : 0; };
   return raw.map((c, i) => {
-    const price = num(c.price ?? c.soldPrice ?? c.lastSoldPrice ?? c.amount ?? c.zestimate);
-    const sqft = num(c.sqft ?? c.livingArea ?? c.area ?? c.finishedSqFt);
-    const beds = num(c.beds ?? c.bedrooms);
-    const baths = num(c.baths ?? c.bathrooms);
-    const address = String(c.address ?? c.streetAddress ?? c.formattedAddress ?? `Comparable ${i + 1}`);
-    return { address, price, sqft, beds: beds || null, baths: baths || null, ppsf: price && sqft ? Math.round(price / sqft) : 0 };
-  }).filter((c) => c.price > 0 || c.sqft > 0);
+    const value = numOf(c.value);
+    const sqft = numOf(c.sqft);
+    return {
+      address: String(c.address ?? `Comparable ${i + 1}`),
+      layout: String(c.layout ?? "—"),
+      sqft, status: String(c.status ?? "Sold"), value,
+      ppsf: value && sqft ? Math.round(value / sqft) : 0,
+    };
+  }).filter((c) => c.value > 0 || c.sqft > 0);
+}
+// Raw provider comps (fallback when the AI didn't return its own).
+function fromRawComps(raw: Array<Record<string, unknown>> | null | undefined): Comp[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.map((c, i) => {
+    const value = numOf(c.price ?? c.soldPrice ?? c.lastSoldPrice ?? c.amount ?? c.zestimate);
+    const sqft = numOf(c.sqft ?? c.livingArea ?? c.area ?? c.finishedSqFt);
+    const beds = numOf(c.beds ?? c.bedrooms); const baths = numOf(c.baths ?? c.bathrooms);
+    return {
+      address: String(c.address ?? c.streetAddress ?? c.formattedAddress ?? `Comparable ${i + 1}`),
+      layout: beds || baths ? `${beds || "?"} Bed, ${baths || "?"} Bath` : "—",
+      sqft, status: "Sold", value, ppsf: value && sqft ? Math.round(value / sqft) : 0,
+    };
+  }).filter((c) => c.value > 0 || c.sqft > 0);
 }
 
 const SPRING = { type: "spring", stiffness: 460, damping: 32, mass: 0.7 } as const;
@@ -34,16 +52,20 @@ const MONEY = "#059669";
 const money = (n: number) => `$${Math.round(Math.max(0, n)).toLocaleString()}`;
 
 export function AcquisitionsPanel({
-  leadId, address, ownerName, arv, zestimate, arvReasoning, comparables, defaultRehab, askingPrice,
+  leadId, address, ownerName, arv, arvLow, arvHigh, zestimate, arvReasoning, arvNarrative, aiComps, comparables, defaultRehab, askingPrice,
   personality, painPoint, bottomLine,
 }: {
   leadId: string;
   address: string | null;
   ownerName: string | null;
-  arv: number;              // AI-computed ARV (from comparables)
+  arv: number;              // AI-computed ARV (point estimate / midpoint)
+  arvLow?: number | null;   // range — conservative
+  arvHigh?: number | null;  // range — optimistic
   zestimate?: number | null; // Zillow Zestimate — market-value reference only
   arvReasoning?: string | null;
-  comparables?: Array<Record<string, unknown>> | null;
+  arvNarrative?: string | null;
+  aiComps?: Array<Record<string, unknown>> | null;          // Gemini's appraiser comps
+  comparables?: Array<Record<string, unknown>> | null;      // raw provider comps (fallback)
   defaultRehab: number;
   askingPrice: number | null;
   personality: string | null;
@@ -52,8 +74,11 @@ export function AcquisitionsPanel({
 }) {
   const [rehab, setRehab] = useState(defaultRehab || 0);
   const [fee, setFee] = useState(10000);
-  const [showComps, setShowComps] = useState(false);
-  const comps = normalizeComps(comparables);
+  const [showComps, setShowComps] = useState(true);
+  const aiList = fromAiComps(aiComps);
+  const comps = aiList.length ? aiList : fromRawComps(comparables);
+  const hasRange = !!(arvLow && arvHigh && arvHigh > arvLow);
+  const arvDisplay = hasRange ? `${money(arvLow!)} – ${money(arvHigh!)}` : (arv ? money(arv) : "—");
 
   const mao = useMemo(() => Math.max(0, arv * 0.70 - rehab - fee), [arv, rehab, fee]);
 
@@ -86,18 +111,18 @@ export function AcquisitionsPanel({
       <div class="card">
         <div class="row"><span>Property</span><strong>${address || "—"}</strong></div>
         ${zestimate ? `<div class="row"><span>Zestimate (Zillow)</span><strong>${money(zestimate)}</strong></div>` : ""}
-        <div class="row"><span>After-Repair Value (AI estimate)</span><strong>${money(arv)}</strong></div>
+        <div class="row"><span>After-Repair Value (AI estimate)</span><strong>${hasRange ? `${money(arvLow!)} – ${money(arvHigh!)}` : money(arv)}</strong></div>
         <div class="row"><span>Estimated Rehab</span><strong>${money(rehab)}</strong></div>
         <div class="row"><span>Wholesale / Assignment Fee</span><strong>${money(fee)}</strong></div>
         <div class="row"><span>Formula</span><span class="muted">(ARV × 70%) − Rehab − Fee</span></div>
         <div class="row"><span class="sky">Maximum Allowable Offer</span><span class="mao">${money(mao)}</span></div>
       </div>
-      ${arvReasoning ? `<p class="muted" style="margin-top:14px"><strong style="color:#0284C7">ARV basis:</strong> ${arvReasoning}</p>` : ""}
+      ${(arvNarrative || arvReasoning) ? `<p class="muted" style="margin-top:14px"><strong style="color:#0284C7">ARV basis:</strong> ${arvNarrative || arvReasoning}</p>` : ""}
       ${comps.length ? `<div class="card">
-        <div style="font-weight:800;margin-bottom:10px">Comparable Sales (${comps.length})</div>
+        <div style="font-weight:800;margin-bottom:10px">Comparable Properties (${comps.length})</div>
         <table style="width:100%;border-collapse:collapse;font-size:12px">
-          <tr style="color:#64748B;text-align:left"><th style="text-align:left;padding:6px 0">Comparable</th><th style="text-align:right">Sold</th><th style="text-align:right">Sqft</th><th style="text-align:right">$/sqft</th></tr>
-          ${comps.map(c => `<tr style="border-top:1px solid #F1F5F9"><td style="padding:6px 0">${c.address}</td><td style="text-align:right;color:#059669;font-weight:700">${c.price ? money(c.price) : "—"}</td><td style="text-align:right">${c.sqft ? c.sqft.toLocaleString() : "—"}</td><td style="text-align:right;font-weight:700">${c.ppsf ? "$" + c.ppsf : "—"}</td></tr>`).join("")}
+          <tr style="color:#64748B;text-align:left"><th style="text-align:left;padding:6px 0">Address</th><th style="text-align:left">Layout</th><th style="text-align:right">Sq. Ft.</th><th style="text-align:left;padding-left:10px">Status</th><th style="text-align:right">Value</th></tr>
+          ${comps.map(c => `<tr style="border-top:1px solid #F1F5F9"><td style="padding:6px 0">${c.address}</td><td>${c.layout}</td><td style="text-align:right">${c.sqft ? c.sqft.toLocaleString() : "—"}</td><td style="padding-left:10px">${c.status}</td><td style="text-align:right;color:#059669;font-weight:700">${c.value ? money(c.value) : "—"}</td></tr>`).join("")}
         </table>
       </div>` : ""}
       <p class="muted" style="margin-top:18px">This is a preliminary, non-binding cash offer estimate generated by RealTrack. Final offer subject to inspection and title review.</p>
@@ -129,7 +154,7 @@ export function AcquisitionsPanel({
           {/* Inputs */}
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             <ReadRow label="Zestimate (Zillow)" value={zestimate ? money(zestimate) : "—"} sub="Market-value reference" />
-            <ReadRow label="AI-Estimated ARV" value={arv ? money(arv) : "—"} sub={comps.length ? `From ${comps.length} comparable sale${comps.length === 1 ? "" : "s"} · see breakdown below` : "Computed from comparable sales"} accent={SKY_600} />
+            <ReadRow label="AI-Estimated ARV" value={arvDisplay} sub={hasRange ? `Midpoint ${arv ? money(arv) : "—"} · used for MAO` : (comps.length ? `From ${comps.length} comparable sale${comps.length === 1 ? "" : "s"}` : "Computed from comparable sales")} accent={SKY_600} />
             <NumberRow label="AI-Estimated Rehab Cost" value={rehab} onChange={setRehab} />
             <NumberRow label="Wholesale / Assignment Fee" value={fee} onChange={setFee} />
             <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "var(--text-3)", paddingTop: 4 }}>
@@ -167,23 +192,24 @@ export function AcquisitionsPanel({
           </div>
         </div>
 
-        {/* ── ARV breakdown: full reasoning + comparable sales ── */}
-        {(arvReasoning || comps.length > 0) && (
+        {/* ── ARV REPORT: range + narrative + comparable properties ── */}
+        {(arvNarrative || arvReasoning || comps.length > 0) && (
           <div style={{ borderTop: "1px solid var(--border-1)", padding: "16px 20px" }}>
-            {arvReasoning && (
-              <div style={{ display: "flex", gap: 9, alignItems: "flex-start", marginBottom: comps.length ? 14 : 0 }}>
-                <Calculator size={14} color={SKY_600} style={{ flexShrink: 0, marginTop: 2 }} />
-                <p style={{ fontSize: 13, color: "var(--text-1)", lineHeight: 1.6 }}>
-                  <strong style={{ color: SKY_600 }}>ARV basis:</strong> {arvReasoning}
-                </p>
-              </div>
+            {/* Estimated ARV range headline */}
+            <p style={{ fontSize: 15, fontWeight: 900, color: "#000", marginBottom: 6 }}>
+              Estimated ARV: <span style={{ color: SKY_600 }}>{arvDisplay}</span>
+            </p>
+            {(arvNarrative || arvReasoning) && (
+              <p style={{ fontSize: 13, color: "var(--text-1)", lineHeight: 1.65, marginBottom: comps.length ? 16 : 0 }}>
+                {arvNarrative || arvReasoning}
+              </p>
             )}
 
             {comps.length > 0 && (
               <>
                 <button onClick={() => setShowComps(v => !v)}
                   style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "none", border: "none", cursor: "pointer", color: "#000", fontSize: 13, fontWeight: 800, padding: 0 }}>
-                  <Building2 size={14} color={SKY_600} /> Comparable Sales ({comps.length})
+                  <Building2 size={14} color={SKY_600} /> Comparable Properties ({comps.length})
                   {showComps ? <ChevronUp size={15} color="var(--text-3)" /> : <ChevronDown size={15} color="var(--text-3)" />}
                 </button>
 
@@ -192,24 +218,31 @@ export function AcquisitionsPanel({
                     <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={SPRING}
                       style={{ overflow: "hidden" }}>
                       <div style={{ overflowX: "auto", marginTop: 12, borderRadius: 12, border: "1px solid var(--border-2)" }}>
-                        <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 560, fontSize: 12.5 }}>
+                        <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 640, fontSize: 12.5 }}>
                           <thead>
                             <tr style={{ background: "#F8FAFC" }}>
-                              {["Comparable", "Sold", "Sqft", "Bd/Ba", "$/sqft"].map((h, i) => (
-                                <th key={h} style={{ textAlign: i === 0 ? "left" : "right", padding: "9px 12px", fontSize: 10, fontWeight: 800, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--text-3)", whiteSpace: "nowrap" }}>{h}</th>
+                              {["Address", "Layout", "Sq. Ft.", "Status", "Value", "$/sqft"].map((h, i) => (
+                                <th key={h} style={{ textAlign: i >= 4 ? "right" : "left", padding: "9px 12px", fontSize: 10, fontWeight: 800, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--text-3)", whiteSpace: "nowrap" }}>{h}</th>
                               ))}
                             </tr>
                           </thead>
                           <tbody>
-                            {comps.map((c, i) => (
-                              <tr key={i} style={{ borderTop: "1px solid var(--border-1)" }}>
-                                <td style={{ padding: "9px 12px", color: "#000", fontWeight: 600, maxWidth: 240, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.address}</td>
-                                <td style={{ padding: "9px 12px", textAlign: "right", color: MONEY, fontWeight: 800, whiteSpace: "nowrap" }}>{c.price ? money(c.price) : "—"}</td>
-                                <td style={{ padding: "9px 12px", textAlign: "right", color: "var(--text-2)", whiteSpace: "nowrap" }}>{c.sqft ? c.sqft.toLocaleString() : "—"}</td>
-                                <td style={{ padding: "9px 12px", textAlign: "right", color: "var(--text-2)", whiteSpace: "nowrap" }}>{c.beds ?? "—"}/{c.baths ?? "—"}</td>
-                                <td style={{ padding: "9px 12px", textAlign: "right", color: "#000", fontWeight: 700, whiteSpace: "nowrap" }}>{c.ppsf ? `$${c.ppsf}` : "—"}</td>
-                              </tr>
-                            ))}
+                            {comps.map((c, i) => {
+                              const st = c.status.toLowerCase();
+                              const stColor = st.includes("active") ? "#0284C7" : st.includes("estimate") ? "#92400E" : MONEY;
+                              return (
+                                <tr key={i} style={{ borderTop: "1px solid var(--border-1)" }}>
+                                  <td style={{ padding: "9px 12px", color: "#000", fontWeight: 700, maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.address}</td>
+                                  <td style={{ padding: "9px 12px", color: "var(--text-2)", whiteSpace: "nowrap" }}>{c.layout}</td>
+                                  <td style={{ padding: "9px 12px", color: "var(--text-2)", whiteSpace: "nowrap" }}>{c.sqft ? `${c.sqft.toLocaleString()} sqft` : "—"}</td>
+                                  <td style={{ padding: "9px 12px", whiteSpace: "nowrap" }}>
+                                    <span style={{ fontSize: 10.5, fontWeight: 800, color: stColor, background: `color-mix(in srgb, ${stColor} 12%, transparent)`, padding: "2px 8px", borderRadius: 999 }}>{c.status}</span>
+                                  </td>
+                                  <td style={{ padding: "9px 12px", textAlign: "right", color: "#000", fontWeight: 800, whiteSpace: "nowrap" }}>{c.value ? money(c.value) : "—"}</td>
+                                  <td style={{ padding: "9px 12px", textAlign: "right", color: SKY_600, fontWeight: 700, whiteSpace: "nowrap" }}>{c.ppsf ? `$${c.ppsf}` : "—"}</td>
+                                </tr>
+                              );
+                            })}
                           </tbody>
                           {(() => {
                             const ppsfs = comps.map(c => c.ppsf).filter((n): n is number => !!n).sort((a, b) => a - b);
@@ -219,7 +252,7 @@ export function AcquisitionsPanel({
                               <tfoot>
                                 <tr style={{ borderTop: "2px solid var(--border-2)", background: "#F8FAFC" }}>
                                   <td style={{ padding: "9px 12px", fontWeight: 800, color: "#000" }}>Median $/sqft</td>
-                                  <td colSpan={3} />
+                                  <td colSpan={4} />
                                   <td style={{ padding: "9px 12px", textAlign: "right", fontWeight: 900, color: SKY_600 }}>${median}</td>
                                 </tr>
                               </tfoot>
@@ -228,7 +261,7 @@ export function AcquisitionsPanel({
                         </table>
                       </div>
                       <p style={{ fontSize: 11, color: "var(--text-3)", marginTop: 8 }}>
-                        Comparable sales supplied by the property-data provider. The AI computes ARV from the median price-per-sqft of similar comps × the subject&apos;s square footage.
+                        Recent sales, active listings &amp; market estimates for similar-footprint homes nearby. The AI derives the ARV range from the $/sqft band × the subject&apos;s square footage.
                       </p>
                     </motion.div>
                   )}
