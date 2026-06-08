@@ -101,7 +101,7 @@ function evalStrategies(opts: { arvLow: number; arvHigh: number; arvMid: number;
 }
 
 export function AcquisitionsPanel({
-  leadId, address, ownerName, arv, arvLow, arvHigh, zestimate, arvReasoning, arvNarrative, rent, aiComps, comparables, defaultRehab, askingPrice,
+  leadId, address, ownerName, arv, arvLow, arvHigh, zestimate, arvReasoning, arvNarrative, rent, compsSource, aiComps, comparables, defaultRehab, askingPrice,
   personality, painPoint, bottomLine,
 }: {
   leadId: string;
@@ -114,6 +114,7 @@ export function AcquisitionsPanel({
   arvReasoning?: string | null;
   arvNarrative?: string | null;
   rent?: number | null;       // AI-estimated market rent (BRRRR/Hold)
+  compsSource?: string | null; // where comps came from: provider | searched | mixed | none
   aiComps?: Array<Record<string, unknown>> | null;          // Gemini's appraiser comps
   comparables?: Array<Record<string, unknown>> | null;      // raw provider comps (fallback)
   defaultRehab: number;
@@ -275,11 +276,20 @@ export function AcquisitionsPanel({
 
             {comps.length > 0 && (
               <>
-                <button onClick={() => setShowComps(v => !v)}
-                  style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "none", border: "none", cursor: "pointer", color: "#000", fontSize: 13, fontWeight: 800, padding: 0 }}>
-                  <Building2 size={14} color={SKY_600} /> Comparable Properties ({comps.length})
-                  {showComps ? <ChevronUp size={15} color="var(--text-3)" /> : <ChevronDown size={15} color="var(--text-3)" />}
-                </button>
+                <div style={{ display: "flex", alignItems: "center", gap: 9, flexWrap: "wrap" }}>
+                  <button onClick={() => setShowComps(v => !v)}
+                    style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "none", border: "none", cursor: "pointer", color: "#000", fontSize: 13, fontWeight: 800, padding: 0 }}>
+                    <Building2 size={14} color={SKY_600} /> Comparable Properties ({comps.length})
+                    {showComps ? <ChevronUp size={15} color="var(--text-3)" /> : <ChevronDown size={15} color="var(--text-3)" />}
+                  </button>
+                  {(() => {
+                    const src = (compsSource || "").toLowerCase();
+                    const cfg = src === "searched" ? { t: "🔍 Live web search", c: SKY_600 }
+                      : src === "mixed" ? { t: "🔍 Search + Zillow", c: SKY_600 }
+                      : src === "provider" ? { t: "Zillow data", c: "var(--text-3)" } : null;
+                    return cfg ? <span style={{ fontSize: 10.5, fontWeight: 800, color: cfg.c, background: `color-mix(in srgb, ${cfg.c} 12%, transparent)`, padding: "3px 9px", borderRadius: 999 }}>{cfg.t}</span> : null;
+                  })()}
+                </div>
 
                 <AnimatePresence initial={false}>
                   {showComps && (

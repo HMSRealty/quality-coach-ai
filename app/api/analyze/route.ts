@@ -842,21 +842,23 @@ export async function POST(req: Request): Promise<Response> {
       } catch { /* data fetch best-effort */ }
     }
 
-    // Provider comps thin/empty → FORCE Gemini to SEARCH (Google Search grounding)
-    // for real comps near the address we're working on. Real addresses, not made up.
-    if (comparables.length < 3 && lead.extracted_address) {
+    // ENFORCED: always FORCE Gemini to SEARCH (Google Search grounding) for real
+    // comps near the address we're working on — real addresses, never invented.
+    let compsSource: "provider" | "searched" | "mixed" | "none" = comparables.length ? "provider" : "none";
+    if (lead.extracted_address) {
+      const providerCount = comparables.length;
       const searched = await runCompsSearch(lead.extracted_address, {
         sqft: (zillowData?.sqft as number | undefined) ?? null,
         beds: (zillowData?.beds as number | undefined) ?? null,
         baths: (zillowData?.baths as number | undefined) ?? null,
       }, key);
       if (searched.length) {
-        // Merge, de-duplicating by normalized address.
         const seen = new Set(comparables.map((c) => String(c.address || "").toLowerCase().replace(/\s+/g, " ").trim()));
         for (const c of searched) {
           const k = String(c.address || "").toLowerCase().replace(/\s+/g, " ").trim();
           if (k && !seen.has(k)) { seen.add(k); comparables.push(c); }
         }
+        compsSource = providerCount ? "mixed" : "searched";
       }
     }
 
@@ -930,11 +932,15 @@ export async function POST(req: Request): Promise<Response> {
           corrPatch.zillow_data = normalized;
           const nd = normalized as { zestimate?: number; sqft?: number; beds?: number; baths?: number };
           const correctedComps: Array<Record<string, unknown>> = Array.isArray(zj.comparables) ? zj.comparables : [];
-          // Force a grounded comp search for the CORRECTED address too.
-          if (correctedComps.length < 3) {
+          // Always force a grounded comp search for the CORRECTED address too.
+          {
+            const providerCount = correctedComps.length;
             const searched = await runCompsSearch(callAddr, { sqft: nd.sqft ?? null, beds: nd.beds ?? null, baths: nd.baths ?? null }, key);
             const seen = new Set(correctedComps.map((c: Record<string, unknown>) => String(c.address || "").toLowerCase().trim()));
             for (const c of searched) { const k = String(c.address || "").toLowerCase().trim(); if (k && !seen.has(k)) { seen.add(k); correctedComps.push(c); } }
+            if (searched.length) corrPatch.comps_source = providerCount ? "mixed" : "searched";
+            else if (providerCount) corrPatch.comps_source = "provider";
+            else corrPatch.comps_source = "none";
           }
           if (correctedComps.length) corrPatch.comparables = correctedComps;
 
@@ -1037,6 +1043,7 @@ export async function POST(req: Request): Promise<Response> {
         arv_reasoning: safeStr(q.arv_reasoning),
         arv_narrative: safeStr(q.arv_narrative),
         arv_comps: Array.isArray(q.arv_comps) ? q.arv_comps.slice(0, 10) : [],
+        comps_source: correctedAddress ? (corrPatch.comps_source ?? compsSource) : compsSource,
         estimated_monthly_rent: Number(q.estimated_monthly_rent) > 0 ? Math.round(Number(q.estimated_monthly_rent)) : (Number((lead.metadata as { estimated_monthly_rent?: number } | null)?.estimated_monthly_rent) || null),
         // Truth verification (anti-fraud)
         has_data_discrepancy: q.has_data_discrepancy === true,

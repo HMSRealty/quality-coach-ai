@@ -1,0 +1,17 @@
+feat(comps): enforce grounded comp search on every lead + comps-source badge
+
+Grounding billing is enabled, so make the Google-Search comp lookup the enforced
+primary source rather than a fallback. /api/analyze now runs runCompsSearch for
+the working address on EVERY analysis (not just when provider comps are thin),
+merges the real searched comps (deduped) into MARKET DATA, and the same runs for
+the corrected address in the anti-fraud path. ARV is computed from these real,
+searched comps.
+
+Tracks where comps came from in metadata.comps_source
+(provider | searched | mixed | none). UI: a badge next to "Comparable Properties"
+shows "🔍 Live web search", "🔍 Search + Zillow", or "Zillow data" so it's obvious
+grounding fired.
+
+Verified: next build green, tsc --noEmit exit 0.
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
