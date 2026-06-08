@@ -545,11 +545,15 @@ export async function POST(req: Request): Promise<Response> {
     const { data: lead, error: leadErr } = await sa.from("leads").select("*").eq("id", leadId).single();
     if (leadErr || !lead) return jsonRes({ error: "Lead not found" }, 404);
 
-    // DUPLICATE (address)
+    // DUPLICATE (address) — SMART BYPASS: only block if another lead with the
+    // same address is still ACTIVE. Dead leads (Disqualified / Error / Duplicate)
+    // do NOT block a re-submission — the new one is allowed to be re-analyzed.
     if (lead.extracted_address) {
-      const { data: dups } = await sa.from("leads").select("id")
-        .eq("user_id", lead.user_id).ilike("extracted_address", lead.extracted_address).neq("id", lead.id).limit(1);
-      if (dups && dups.length) {
+      const DEAD_STATUSES = new Set(["disqualified", "error", "duplicate"]);
+      const { data: dups } = await sa.from("leads").select("id, status")
+        .eq("user_id", lead.user_id).ilike("extracted_address", lead.extracted_address).neq("id", lead.id);
+      const activeDup = (dups || []).find((d) => !DEAD_STATUSES.has(String(d.status || "").toLowerCase()));
+      if (activeDup) {
         await sa.from("leads").update({ status: "Duplicate", rejection_reason: "Address already submitted.", ai_processed_at: new Date().toISOString() }).eq("id", lead.id);
         return jsonRes({ ok: true, status: "Duplicate" });
       }
