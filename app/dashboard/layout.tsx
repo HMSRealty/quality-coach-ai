@@ -55,7 +55,7 @@ const NAV_GROUPS: { section: string; items: { label: string; href: string; icon:
       { label: "Floor Agents",    href: "/dashboard/callers",      icon: Users2 },
       { label: "Teams",           href: "/dashboard/teams",        icon: Network },
       { label: "Team Leader",     href: "/dashboard/team-leader",  icon: Flag },
-      { label: "Shift Targets",   href: "/dashboard/settings",     icon: Target },
+      { label: "Shift Targets",   href: "/dashboard/shift-targets", icon: Target },
       { label: "Payroll & Bonus", href: "/dashboard/payroll",      icon: Wallet },
       { label: "Leaderboard",     href: "/dashboard/leaderboard",  icon: Trophy },
     ],
