@@ -445,8 +445,10 @@ MANDATORY: include the exact [MM:SS] timestamp for every critique or praise.`.tr
 }
 
 // ── Deterministic decision tree (ported from coreProcessRow) ──
-// marketValue = LIVE Zillow Zestimate (preferred over any spoken value).
-function decide(q: QualJSON, marketValue?: number | null): { status: string; reason: string; regeneration: string } {
+// marketValue = LIVE Zillow Zestimate (or Gemini comp-based ARV fallback).
+// submittedAsking = the asking price on the lead record (manual/extracted),
+//   used when the seller's price wasn't captured as a "spoken" value.
+function decide(q: QualJSON, marketValue?: number | null, submittedAsking?: number | null): { status: string; reason: string; regeneration: string } {
   const aiReason = safeStr(q.qualification_reason) || "No reason.";
   let regeneration = safeStr(q.regeneration_steps) || "No steps generated.";
   const isDecisionMaker = q.is_decision_maker !== false;
@@ -472,6 +474,9 @@ function decide(q: QualJSON, marketValue?: number | null): { status: string; rea
 
   let asking = NaN, spokenMv = NaN;
   if (q.spoken_asking_price && safeStr(q.spoken_asking_price).toLowerCase() !== "none") asking = extractFirstPrice(q.spoken_asking_price);
+  // Fall back to the asking price on the lead (manual entry / template extraction)
+  // when the seller's number wasn't tagged as "spoken" — so a real price still drives the math.
+  if ((isNaN(asking) || asking <= 0) && typeof submittedAsking === "number" && submittedAsking > 0) asking = submittedAsking;
   if (q.spoken_market_value && safeStr(q.spoken_market_value).toLowerCase() !== "none") spokenMv = extractFirstPrice(q.spoken_market_value);
   // The LIVE Zillow Zestimate is the single source of truth. Fall back to a
   // spoken market value only when no Zestimate was resolved.
@@ -803,15 +808,18 @@ export async function POST(req: Request): Promise<Response> {
       effMarketValue = Number(q.estimated_arv);
     }
 
-    // Decision is computed against the CORRECTED market value when the address was fixed.
-    const { status, reason, regeneration } = decide(q, effMarketValue);
-    const coachingArr = coaching.split(/\n+/).map(s => s.trim()).filter(Boolean);
-
     // Call-truth overrides for wrong manual entries.
     const callAsking = extractFirstPrice(q.spoken_asking_price) || null;
     const correctedAsking = hasDisc && callAsking ? callAsking : null;
     const callSeller = safeStr(q.seller_name_on_call);
     const correctedSeller = hasDisc && callSeller ? callSeller : null;
+
+    // Decision is computed against the CORRECTED market value when the address was
+    // fixed, and falls back to the lead's asking price when the seller's number
+    // wasn't captured as "spoken".
+    const submittedAskingNum = correctedAsking ?? (lead.asking_price != null ? Number(lead.asking_price) : null);
+    const { status, reason, regeneration } = decide(q, effMarketValue, submittedAskingNum);
+    const coachingArr = coaching.split(/\n+/).map(s => s.trim()).filter(Boolean);
 
     // Keep the transcript: fresh one from audio mode, else preserve the saved one.
     const transcriptToStore = !textOnly && safeStr(q.transcript) ? safeStr(q.transcript) : (savedTranscript ?? null);
