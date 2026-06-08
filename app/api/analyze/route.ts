@@ -85,6 +85,9 @@ interface QualJSON {
   // Rehab
   repairs_mentioned?: string[];
   rehab_cost_estimate?: number;
+  // ARV — Gemini computes this from the Zillow comparables (not a "Zillow ARV").
+  estimated_arv?: number;
+  arv_reasoning?: string;
   transcript?: string;
   regeneration_steps?: string;
   call_summary?: string;
@@ -241,6 +244,10 @@ REPAIR / REHAB ESTIMATE (wholesaler MAO inputs — listen for explicit damage ta
     plumbing repipe: 9000; kitchen full: 25000; bath full: 12000; flooring whole house: 12000;
     foundation crack: 10000; foundation major: 30000; full cosmetic refresh: 18000; mold/abatement: 8000;
     windows full: 12000; siding: 14000; "needs everything": 65000. If nothing said, 0.
+
+ARV — AFTER-REPAIR VALUE (YOU compute this from the MARKET DATA comparables — there is NO pre-computed "Zillow ARV"):
+- estimated_arv: integer USD. METHOD: from the comparable SOLD properties in MARKET DATA, take the median price-per-sqft of the comps most similar to the subject (beds/baths/area), then multiply by the SUBJECT square footage. If subject sqft is unknown, use the median comp SALE PRICE. If a Zestimate is provided, use it only as a sanity check — PREFER your comp-derived number. If there are zero comparables AND no Zestimate, set estimated_arv = 0.
+- arv_reasoning: ONE short sentence showing the math (e.g., "Median comp $142/sqft × 1,450 sqft ≈ $206,000").
 `.trim();
 
 // Build the runtime system prompt: base persona (or org override) + org killers
@@ -252,6 +259,7 @@ function buildSystemPrompt(opts: {
   propertyAddress?: string | null;
   customRules?: string;
   submitted?: { address?: string | null; askingPrice?: string | null; sellerName?: string | null; notes?: string | null };
+  marketData?: { zestimate?: number | null; sqft?: number | null; beds?: number | null; baths?: number | null; comparables?: Array<Record<string, unknown>> | null };
 }): string {
   const persona = (opts.orgPersona && opts.orgPersona.trim().length > 30) ? opts.orgPersona.trim() : QUAL_SYSTEM;
   const killers = (opts.orgKillers && opts.orgKillers.length)
@@ -299,14 +307,32 @@ AUTO-CORRECTION — always report the TRUE values FROM THE CALL (these override 
   → seller_name_on_call   = the owner/seller name actually heard on the call (else "").
 Be precise — if the agent's address is wrong, the system will re-pull property data for the address you put in raw_extracted_address.` : "";
 
-  return `${persona}${marketCtx}${killBlock}${overrides}${verifyBlock}`;
+  // MARKET DATA (raw Zillow facts + comparables) — the AI uses this to COMPUTE
+  // the ARV itself. Zillow only supplies data; Gemini does the math.
+  const m = opts.marketData;
+  const comps = (m?.comparables || []).slice(0, 12);
+  const marketDataBlock = (m && (m.zestimate || comps.length)) ? `\n\nMARKET DATA (raw — compute ARV from this; do NOT expect a ready-made ARV):
+SUBJECT: ${m.sqft ? `${m.sqft} sqft` : "sqft unknown"}${m.beds ? `, ${m.beds} bd` : ""}${m.baths ? `, ${m.baths} ba` : ""}
+ZESTIMATE (reference only): ${m.zestimate ? `$${Math.round(m.zestimate).toLocaleString()}` : "unavailable"}
+COMPARABLE SALES (${comps.length}):
+${comps.length ? comps.map((c, i) => {
+    const price = (c.price ?? c.soldPrice ?? c.lastSoldPrice ?? c.zestimate) as number | undefined;
+    const sqft = (c.sqft ?? c.livingArea ?? c.area) as number | undefined;
+    const bd = (c.beds ?? c.bedrooms) as number | undefined;
+    const ba = (c.baths ?? c.bathrooms) as number | undefined;
+    const addr = (c.address ?? c.streetAddress ?? `Comp ${i + 1}`) as string;
+    const ppsf = price && sqft ? ` ($${Math.round(price / sqft)}/sqft)` : "";
+    return `  ${i + 1}. ${addr} — ${price ? `$${Math.round(price).toLocaleString()}` : "n/a"}${sqft ? `, ${sqft} sqft` : ""}${bd ? `, ${bd}bd` : ""}${ba ? `/${ba}ba` : ""}${ppsf}`;
+  }).join("\n") : "  (none returned by the data provider)"}` : "";
+
+  return `${persona}${marketCtx}${killBlock}${overrides}${verifyBlock}${marketDataBlock}`;
 }
 
 async function runQualification(
   files: Array<{ uri: string; mime: string }>,
   customRules: string,
   key: string,
-  ctx?: { orgPersona?: string | null; orgKillers?: Array<{ id: string; label: string; rule: string; enabled?: boolean }> | null; marketValue?: number | null; propertyAddress?: string | null; transcriptText?: string | null; submitted?: { address?: string | null; askingPrice?: string | null; sellerName?: string | null; notes?: string | null } },
+  ctx?: { orgPersona?: string | null; orgKillers?: Array<{ id: string; label: string; rule: string; enabled?: boolean }> | null; marketValue?: number | null; propertyAddress?: string | null; transcriptText?: string | null; submitted?: { address?: string | null; askingPrice?: string | null; sellerName?: string | null; notes?: string | null }; marketData?: { zestimate?: number | null; sqft?: number | null; beds?: number | null; baths?: number | null; comparables?: Array<Record<string, unknown>> | null } },
 ): Promise<QualJSON> {
   const systemText = buildSystemPrompt({
     orgPersona: ctx?.orgPersona,
@@ -315,6 +341,7 @@ async function runQualification(
     propertyAddress: ctx?.propertyAddress,
     customRules,
     submitted: ctx?.submitted,
+    marketData: ctx?.marketData,
   });
   // Two input modes:
   //   • AUDIO  — attach every recording (full analysis, also produces transcript)
@@ -369,6 +396,8 @@ async function runQualification(
           primary_objection: { type: "STRING" }, objection_quote: { type: "STRING" },
           repairs_mentioned: { type: "ARRAY", items: { type: "STRING" } },
           rehab_cost_estimate: { type: "NUMBER" },
+          estimated_arv: { type: "NUMBER" },
+          arv_reasoning: { type: "STRING" },
           transcript: { type: "STRING" },
           has_data_discrepancy: { type: "BOOLEAN" },
           discrepancy_notes: { type: "STRING" },
@@ -673,12 +702,35 @@ export async function POST(req: Request): Promise<Response> {
       } catch { /* columns absent pre-migration */ }
     }
 
-    // Live Zillow market context — extracted at submit time and stored in metadata.
-    const zillowData = (lead.metadata as { zillow_data?: { zestimate?: number; address?: string } } | null)?.zillow_data;
-    const marketValue: number | null =
-      (zillowData?.zestimate as number | undefined) ?? null;
+    // ── ZILLOW = DATA ONLY ── Ensure we have the property facts + comparables.
+    // Use what was stored at submit; if missing (e.g. inbound-API leads), pull it
+    // now. Gemini will COMPUTE the ARV from these comps — Zillow gives no ARV.
+    const mdNow = (lead.metadata || {}) as Record<string, unknown>;
+    let zillowData = mdNow.zillow_data as { zestimate?: number; address?: string; sqft?: number; beds?: number; baths?: number } | undefined;
+    let comparables = (mdNow.comparables as Array<Record<string, unknown>> | undefined) || [];
+    // Re-pull when we lack a Zestimate OR have no comparables (Gemini needs comps
+    // to compute the ARV). /api/zillow is cache-backed, so this is cheap.
+    if (((!zillowData || !zillowData.zestimate) || comparables.length === 0) && lead.extracted_address) {
+      try {
+        const origin = new URL(req.url).origin;
+        const zr = await fetch(`${origin}/api/zillow?address=${encodeURIComponent(lead.extracted_address)}`);
+        const zj = await zr.json().catch(() => ({}));
+        if (zr.ok && zj.ok && zj.normalized) {
+          zillowData = zj.normalized;
+          if (Array.isArray(zj.comparables) && zj.comparables.length) comparables = zj.comparables;
+        }
+      } catch { /* data fetch best-effort */ }
+    }
+    const marketValue: number | null = (zillowData?.zestimate as number | undefined) ?? null;
     const resolvedAddress: string | null =
       (zillowData?.address as string | undefined) ?? lead.extracted_address ?? null;
+    const marketData = {
+      zestimate: zillowData?.zestimate ?? null,
+      sqft: (zillowData?.sqft as number | undefined) ?? null,
+      beds: (zillowData?.beds as number | undefined) ?? null,
+      baths: (zillowData?.baths as number | undefined) ?? null,
+      comparables,
+    };
 
     const key = geminiKey();
     // Upload EVERY attached call to Gemini so the AI hears them all (audio mode).
@@ -704,7 +756,7 @@ export async function POST(req: Request): Promise<Response> {
     const q = await runQualification(ups, rules, key, {
       orgPersona, orgKillers, marketValue, propertyAddress: resolvedAddress,
       transcriptText: textOnly ? savedTranscript : null,
-      submitted,
+      submitted, marketData,
     });
     // Coaching only runs in audio mode (needs the recording). On text re-runs we
     // keep the previously-saved coaching.
@@ -738,16 +790,17 @@ export async function POST(req: Request): Promise<Response> {
           const normalized = zj.normalized as { zestimate?: number };
           if (Number(normalized.zestimate) > 0) effMarketValue = Number(normalized.zestimate);
           corrPatch.zillow_data = normalized;
-          try {
-            const ar = await fetch(`${origin}/api/leads/arv`, {
-              method: "POST", headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ normalized, comparables: zj.comparables ?? [] }),
-            });
-            const aj = await ar.json().catch(() => ({}));
-            if (ar.ok) { corrPatch.arv = aj.estimatedArv ?? null; corrPatch.arv_confidence = aj.confidence ?? null; }
-          } catch { /* arv best-effort */ }
+          // Store the corrected comparables so the NEXT analysis recomputes ARV
+          // (via Gemini) against the right property.
+          if (Array.isArray(zj.comparables) && zj.comparables.length) corrPatch.comparables = zj.comparables;
         }
       } catch { /* re-fetch best-effort — fall back to original market value */ }
+    }
+
+    // If Zillow had no Zestimate, fall back to Gemini's comp-derived ARV so the
+    // verdict isn't stuck on "no usable market value".
+    if (!(typeof effMarketValue === "number" && effMarketValue > 0) && Number(q.estimated_arv) > 0) {
+      effMarketValue = Number(q.estimated_arv);
     }
 
     // Decision is computed against the CORRECTED market value when the address was fixed.
@@ -803,6 +856,16 @@ export async function POST(req: Request): Promise<Response> {
         objection_quote: safeStr(q.objection_quote),
         repairs_mentioned: Array.isArray(q.repairs_mentioned) ? q.repairs_mentioned : [],
         rehab_cost_estimate: typeof q.rehab_cost_estimate === "number" ? q.rehab_cost_estimate : 0,
+        // ── Market data: Zillow supplies facts, Gemini computes the ARV ──
+        // (corrPatch already set corrected zillow_data/comparables when the
+        //  address was fixed — don't overwrite those here.)
+        ...(!correctedAddress && zillowData ? { zillow_data: zillowData } : {}),
+        ...(!correctedAddress && comparables.length ? { comparables } : {}),
+        zestimate: (correctedAddress ? (corrPatch.zillow_data as { zestimate?: number } | undefined)?.zestimate : zillowData?.zestimate) != null
+          ? String((correctedAddress ? (corrPatch.zillow_data as { zestimate?: number } | undefined)?.zestimate : zillowData?.zestimate))
+          : safeStr((lead.metadata as Record<string, unknown> | null)?.zestimate),
+        arv: Number(q.estimated_arv) > 0 ? Math.round(Number(q.estimated_arv)) : (Number((lead.metadata as { arv?: number } | null)?.arv) || null),
+        arv_reasoning: safeStr(q.arv_reasoning),
         // Truth verification (anti-fraud)
         has_data_discrepancy: q.has_data_discrepancy === true,
         discrepancy_notes: q.has_data_discrepancy === true ? safeStr(q.discrepancy_notes) : "",

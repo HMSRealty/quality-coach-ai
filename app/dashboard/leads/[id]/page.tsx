@@ -532,7 +532,8 @@ export default function LeadDetailPage() {
       {(() => {
         const md = (lead.metadata || {}) as Record<string, unknown>;
         const zillow = (md.zillow_data as { zestimate?: number } | undefined) || {};
-        const arvNum = Number(md.arv) || Number(zillow.zestimate) || 0;
+        const zestimateNum = Number(zillow.zestimate) || Number(md.zestimate) || 0;
+        const arvNum = Number(md.arv) || 0;   // AI-computed ARV (from comparables)
         const rehab = Number(md.rehab_cost_estimate) || 0;
         const owner = String(md.owner_name ?? "") || null;
         return (
@@ -565,6 +566,8 @@ export default function LeadDetailPage() {
               address={lead.extracted_address}
               ownerName={owner}
               arv={arvNum}
+              zestimate={zestimateNum}
+              arvReasoning={(md.arv_reasoning as string) ?? null}
               defaultRehab={rehab}
               askingPrice={lead.asking_price}
               personality={(md.seller_personality as string) ?? null}

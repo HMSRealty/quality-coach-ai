@@ -20,13 +20,15 @@ const MONEY = "#059669";
 const money = (n: number) => `$${Math.round(Math.max(0, n)).toLocaleString()}`;
 
 export function AcquisitionsPanel({
-  leadId, address, ownerName, arv, defaultRehab, askingPrice,
+  leadId, address, ownerName, arv, zestimate, arvReasoning, defaultRehab, askingPrice,
   personality, painPoint, bottomLine,
 }: {
   leadId: string;
   address: string | null;
   ownerName: string | null;
-  arv: number;
+  arv: number;              // AI-computed ARV (from comparables)
+  zestimate?: number | null; // Zillow Zestimate — market-value reference only
+  arvReasoning?: string | null;
   defaultRehab: number;
   askingPrice: number | null;
   personality: string | null;
@@ -66,7 +68,8 @@ export function AcquisitionsPanel({
       <p class="muted">${today} · Prepared for ${ownerName || "Property Owner"}</p>
       <div class="card">
         <div class="row"><span>Property</span><strong>${address || "—"}</strong></div>
-        <div class="row"><span>Estimated ARV (Zillow)</span><strong>${money(arv)}</strong></div>
+        ${zestimate ? `<div class="row"><span>Zestimate (Zillow)</span><strong>${money(zestimate)}</strong></div>` : ""}
+        <div class="row"><span>After-Repair Value (AI estimate)</span><strong>${money(arv)}</strong></div>
         <div class="row"><span>Estimated Rehab</span><strong>${money(rehab)}</strong></div>
         <div class="row"><span>Wholesale / Assignment Fee</span><strong>${money(fee)}</strong></div>
         <div class="row"><span>Formula</span><span class="muted">(ARV × 70%) − Rehab − Fee</span></div>
@@ -100,7 +103,8 @@ export function AcquisitionsPanel({
         <div style={{ padding: 20, display: "grid", gridTemplateColumns: "minmax(0,1.1fr) minmax(0,0.9fr)", gap: 20 }} className="ci-grid">
           {/* Inputs */}
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <ReadRow label="Zillow ARV" value={money(arv)} />
+            <ReadRow label="Zestimate (Zillow)" value={zestimate ? money(zestimate) : "—"} sub="Market-value reference" />
+            <ReadRow label="AI-Estimated ARV" value={arv ? money(arv) : "—"} sub={arvReasoning || "Computed from comparable sales"} accent={SKY_600} />
             <NumberRow label="AI-Estimated Rehab Cost" value={rehab} onChange={setRehab} />
             <NumberRow label="Wholesale / Assignment Fee" value={fee} onChange={setFee} />
             <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "var(--text-3)", paddingTop: 4 }}>
@@ -177,11 +181,14 @@ function RouterBadge({ route }: { route: "wholesale" | "retail" }) {
   );
 }
 
-function ReadRow({ label, value }: { label: string; value: string }) {
+function ReadRow({ label, value, sub, accent }: { label: string; value: string; sub?: string; accent?: string }) {
   return (
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "11px 14px", borderRadius: 10, background: "var(--surface-3)", border: "1px solid var(--border-1)" }}>
-      <span style={{ fontSize: 12.5, color: "var(--text-2)", fontWeight: 600 }}>{label}</span>
-      <span style={{ fontSize: 15, fontWeight: 800, color: "var(--text-1)" }}>{value}</span>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, padding: "11px 14px", borderRadius: 10, background: "var(--surface-3)", border: "1px solid var(--border-1)" }}>
+      <div style={{ minWidth: 0 }}>
+        <span style={{ fontSize: 12.5, color: "var(--text-2)", fontWeight: 600 }}>{label}</span>
+        {sub && <p style={{ fontSize: 10.5, color: "var(--text-3)", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{sub}</p>}
+      </div>
+      <span style={{ fontSize: 15, fontWeight: 800, color: accent || "var(--text-1)", flexShrink: 0 }}>{value}</span>
     </div>
   );
 }
