@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/lib/supabase";
-import { Search, RotateCcw, Loader2, PhoneCall, Download, CheckSquare, Trash2 } from "lucide-react";
+import { Search, RotateCcw, Loader2, PhoneCall, Download, CheckSquare, Trash2, FileSpreadsheet } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { LeadsList, type LeadItem } from "@/app/_components/LeadsList";
+import { ImportLeads } from "@/app/_components/ImportLeads";
 
 interface Lead {
   id: string;
@@ -43,6 +44,7 @@ export default function CallsPage() {
   const [selectMode, setSelectMode] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkBusy, setBulkBusy] = useState(false);
+  const [importing, setImporting] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -161,6 +163,11 @@ export default function CallsPage() {
           </p>
         </div>
         <div style={{ display: "flex", gap: 10 }}>
+          <button onClick={() => setImporting(true)} style={{
+            display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 14px", borderRadius: 9,
+            background: "var(--surface-1)", color: "var(--text-1)", border: "1px solid var(--border-2)",
+            fontSize: 12, fontWeight: 700, cursor: "pointer",
+          }}><FileSpreadsheet size={13} /> Import</button>
           <button onClick={() => { setSelectMode(m => !m); setSelected(new Set()); }} style={{
             display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 14px", borderRadius: 9,
             background: selectMode ? "#0EA5E9" : "var(--surface-1)", color: selectMode ? "#fff" : "var(--text-1)",
@@ -229,6 +236,8 @@ export default function CallsPage() {
         <LeadsList leads={filtered.map(toItem)} newIds={newIds} onOpen={(id) => router.push(`/dashboard/leads/${id}`)} onDelete={deleteLead}
           selectable={selectMode} selectedIds={selected} onToggleSelect={toggleSelect} />
       )}
+
+      {importing && <ImportLeads onClose={() => setImporting(false)} onDone={() => { setImporting(false); load(); }} />}
     </div>
   );
 }

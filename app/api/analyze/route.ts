@@ -26,6 +26,29 @@ function geminiKey(): string {
   return k;
 }
 
+// Resolve & download an audio URL. Handles public Google Drive share links
+// (file/d/<id> or ?id=<id>) by hitting the direct-download endpoint and clearing
+// the large-file virus-scan interstitial via the confirm token.
+function driveFileId(u: string): string | null {
+  const m = u.match(/drive\.google\.com\/file\/d\/([^/?#]+)/) || u.match(/[?&]id=([^&]+)/);
+  return m ? m[1] : null;
+}
+async function fetchAudioUrl(url: string): Promise<{ bytes: ArrayBuffer; mime: string } | null> {
+  const id = driveFileId(url);
+  let target = id ? `https://drive.google.com/uc?export=download&id=${id}` : url;
+  let resp = await fetch(target);
+  let ct = resp.headers.get("content-type") || "";
+  if (id && ct.includes("text/html")) {
+    const html = await resp.text();
+    const tok = html.match(/confirm=([0-9A-Za-z_-]+)/);
+    if (tok) { target = `${target}&confirm=${tok[1]}`; resp = await fetch(target); ct = resp.headers.get("content-type") || ""; }
+  }
+  if (!resp.ok) return null;
+  const bytes = await resp.arrayBuffer();
+  const mime = ct.includes("audio") || ct.includes("video") || ct.includes("mp4") ? ct : "audio/mpeg";
+  return { bytes, mime };
+}
+
 // ── helpers (ported) ──
 function safeStr(v: unknown): string {
   if (v === null || v === undefined) return "";
@@ -735,10 +758,8 @@ export async function POST(req: Request): Promise<Response> {
 
     for (const url of urlList) {
       try {
-        const resp = await fetch(url);
-        if (!resp.ok) continue;
-        const b = await resp.arrayBuffer();
-        inputs.push({ bytes: b, mime: resp.headers.get("content-type") || "audio/mpeg", size: b.byteLength });
+        const got = await fetchAudioUrl(url);
+        if (got) inputs.push({ bytes: got.bytes, mime: got.mime, size: got.bytes.byteLength });
       } catch { /* skip individual failures */ }
     }
     // Keep the newest N files within the byte ceiling (cost guard).
