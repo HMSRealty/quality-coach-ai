@@ -23,6 +23,68 @@ async function sha256hex(s: string): Promise<string> {
   return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
+// ── Google Drive connection (OAuth) for private call recordings ──
+function GoogleDriveCard() {
+  const [loading, setLoading] = useState(true);
+  const [connected, setConnected] = useState(false);
+  const [email, setEmail] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [flash, setFlash] = useState<string>("");
+
+  const load = async () => {
+    setLoading(true);
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { setLoading(false); return; }
+    const r = await fetch("/api/google/status", { headers: { Authorization: `Bearer ${session.access_token}` } });
+    const j = await r.json().catch(() => ({}));
+    setConnected(!!j.connected); setEmail(j.email ?? null); setLoading(false);
+  };
+  useEffect(() => {
+    const p = new URLSearchParams(window.location.search).get("google");
+    if (p === "connected") setFlash("Google Drive connected.");
+    else if (p === "denied") setFlash("Connection cancelled.");
+    else if (p === "norefresh") setFlash("Please re-connect and allow access (no refresh token returned).");
+    else if (p) setFlash("Connection failed — try again.");
+    if (p) window.history.replaceState({}, "", "/dashboard/settings/api");
+    load();
+  }, []);
+
+  const connect = async () => {
+    setBusy(true);
+    const { data: { session } } = await supabase.auth.getSession();
+    const r = await fetch("/api/google/connect", { method: "POST", headers: { Authorization: `Bearer ${session?.access_token}` } });
+    const j = await r.json().catch(() => ({}));
+    if (j.ok && j.url) { window.location.href = j.url; return; }
+    setBusy(false); setFlash(j.error || "Could not start Google connection.");
+  };
+  const disconnect = async () => {
+    if (!confirm("Disconnect Google Drive?")) return;
+    setBusy(true);
+    const { data: { session } } = await supabase.auth.getSession();
+    await fetch("/api/google/status", { method: "DELETE", headers: { Authorization: `Bearer ${session?.access_token}` } });
+    setBusy(false); setConnected(false); setEmail(null); setFlash("Disconnected.");
+  };
+
+  const card: React.CSSProperties = { background: "#fff", border: "1px solid var(--border-2)", borderRadius: 16, padding: 22, boxShadow: "var(--shadow-sm)" };
+  return (
+    <div style={card}>
+      <p style={{ fontSize: 15, fontWeight: 800, color: "#000", display: "inline-flex", alignItems: "center", gap: 8 }}><ShieldCheck size={16} color={SKY_600} /> Google Drive</p>
+      <p style={{ fontSize: 12.5, color: "var(--text-2)", margin: "4px 0 14px" }}>Connect Drive so the AI can qualify leads from <strong>private</strong> call-recording links (public links already work without this).</p>
+      {flash && <p style={{ fontSize: 12.5, fontWeight: 700, color: MONEY, marginBottom: 10 }}>{flash}</p>}
+      {loading ? <Loader2 size={16} className="animate-spin" style={{ color: SKY_600 }} /> : connected ? (
+        <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 7, fontSize: 13, fontWeight: 800, color: MONEY, background: "#ECFDF5", border: "1px solid #A7F3D0", padding: "7px 13px", borderRadius: 999 }}><Check size={14} /> Connected{email ? ` · ${email}` : ""}</span>
+          <button onClick={disconnect} disabled={busy} className="btn-ghost" style={{ fontSize: 12 }}>Disconnect</button>
+        </div>
+      ) : (
+        <button onClick={connect} disabled={busy} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 16px", borderRadius: 10, background: "linear-gradient(135deg, #0EA5E9, #0284C7)", color: "#fff", border: "none", fontSize: 13, fontWeight: 800, cursor: busy ? "wait" : "pointer", boxShadow: "0 8px 20px rgba(14,165,233,0.35)" }}>
+          {busy ? <Loader2 size={14} className="animate-spin" /> : <ShieldCheck size={14} />} Connect Google Drive
+        </button>
+      )}
+    </div>
+  );
+}
+
 // ── Outbound webhooks: org export + per-campaign webhooks (editable) ──
 function OutboundWebhooks() {
   const [orgId, setOrgId] = useState<string | null>(null);
@@ -214,6 +276,7 @@ export default function ApiIntegrationsPage() {
         )}
       </AnimatePresence>
 
+      <GoogleDriveCard />
       <OutboundWebhooks />
 
       {/* Generate + key list */}

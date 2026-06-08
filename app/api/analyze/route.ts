@@ -4,6 +4,7 @@
 // decision tree mapping AI flags → status / reason, exactly like the sheet engine.
 
 import { createClient } from "@supabase/supabase-js";
+import { getDriveAccessToken } from "@/lib/googleDrive";
 
 export const runtime = "edge";
 export const dynamic = "force-dynamic";
@@ -33,8 +34,19 @@ function driveFileId(u: string): string | null {
   const m = u.match(/drive\.google\.com\/file\/d\/([^/?#]+)/) || u.match(/[?&]id=([^&]+)/);
   return m ? m[1] : null;
 }
-async function fetchAudioUrl(url: string): Promise<{ bytes: ArrayBuffer; mime: string } | null> {
+async function fetchAudioUrl(url: string, driveToken?: string | null): Promise<{ bytes: ArrayBuffer; mime: string } | null> {
   const id = driveFileId(url);
+  // PRIVATE Drive: if we have the owner's OAuth token, pull via the Drive API.
+  if (id && driveToken) {
+    try {
+      const r = await fetch(`https://www.googleapis.com/drive/v3/files/${id}?alt=media&supportsAllDrives=true`, { headers: { Authorization: `Bearer ${driveToken}` } });
+      if (r.ok) {
+        const bytes = await r.arrayBuffer();
+        const ct = r.headers.get("content-type") || "";
+        return { bytes, mime: ct.includes("audio") || ct.includes("video") || ct.includes("mp4") ? ct : "audio/mpeg" };
+      }
+    } catch { /* fall through to public attempt */ }
+  }
   let target = id ? `https://drive.google.com/uc?export=download&id=${id}` : url;
   let resp = await fetch(target);
   let ct = resp.headers.get("content-type") || "";
@@ -756,9 +768,11 @@ export async function POST(req: Request): Promise<Response> {
       }
     }
 
+    // Private Google Drive access token for this lead's owner (if connected).
+    const driveToken = await getDriveAccessToken(sa, lead.user_id).catch(() => null);
     for (const url of urlList) {
       try {
-        const got = await fetchAudioUrl(url);
+        const got = await fetchAudioUrl(url, driveToken);
         if (got) inputs.push({ bytes: got.bytes, mime: got.mime, size: got.bytes.byteLength });
       } catch { /* skip individual failures */ }
     }

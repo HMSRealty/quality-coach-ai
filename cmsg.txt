@@ -1,0 +1,25 @@
+feat(google): private Google Drive OAuth — connect + qualify private call links
+
+Completes the Drive integration. I set up the Google Cloud side (Drive API
+enabled, OAuth consent screen with test user, Web OAuth client with redirect
+URIs for realtrack.com + quality-coach-ai.pages.dev) and added the
+GOOGLE_OAUTH_CLIENT_ID/SECRET secrets in Cloudflare.
+
+Code:
+- lib/googleDrive.ts: signed-state CSRF, code exchange, refresh-token storage,
+  getDriveAccessToken (auto-refresh), Drive file-id parsing.
+- /api/google/connect (returns consent URL, scope drive.readonly, offline) →
+  /api/google/callback (exchanges code, stores refresh token via service role) →
+  /api/google/status (GET connection + email, DELETE to disconnect).
+- migration 0016_google_tokens (per-user tokens; no anon SELECT — owner DELETE
+  only; service role manages).
+- analyzer: fetchAudioUrl now pulls PRIVATE Drive files via the Drive API using
+  the lead owner's access token (falls back to the public path). Token fetched
+  once per analysis from the owner's connection.
+- Integrations page: "Connect Google Drive" card (status + connect/disconnect),
+  handles the ?google= callback flash.
+
+ACTION: run migration 0016_google_tokens.sql.
+Verified: next build green, tsc --noEmit exit 0.
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
