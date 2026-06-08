@@ -102,9 +102,6 @@ jane@example.com,Alice Johnson,Sales Team B,Mike Brown,2024-03-10`;
         </div>
       )}
 
-      <ShiftTypeCard onToast={(ok, msg) => setMessage({ type: ok ? "success" : "error", text: msg })} />
-      <WebhookCard onToast={(ok, msg) => setMessage({ type: ok ? "success" : "error", text: msg })} />
-
       {/* Team Import */}
       <Card title="Import Team Structure">
         <p style={{ fontSize: 13, color: "#64748B", marginBottom: 14, lineHeight: 1.65 }}>

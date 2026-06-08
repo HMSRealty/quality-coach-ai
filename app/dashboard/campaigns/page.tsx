@@ -13,6 +13,7 @@ interface Campaign {
   custom_rules: string;
   is_active: boolean;
   target: number | null;
+  webhook_url: string | null;
   created_at: string;
   user_id: string;
 }
@@ -52,6 +53,7 @@ export default function CampaignsPage() {
   };
 
   const [target, setTarget] = useState<string>("");
+  const [webhook, setWebhook] = useState<string>("");
 
   const create = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,16 +68,24 @@ export default function CampaignsPage() {
       name,
       custom_rules: rules,
       target: targetNum,
+      webhook_url: webhook.trim() || null,
       is_active: true,
     });
 
     if (error) {
       alert("Failed to create campaign: " + error.message);
     } else {
-      setName(""); setRules(""); setTarget("");
+      setName(""); setRules(""); setTarget(""); setWebhook("");
       loadAll();
     }
     setSaving(false);
+  };
+
+  const updateWebhook = async (id: string, raw: string) => {
+    const v = raw.trim() || null;
+    const { error } = await supabase.from("campaigns").update({ webhook_url: v }).eq("id", id);
+    if (error) { alert(error.message); return; }
+    setCampaigns(p => p.map(c => c.id === id ? { ...c, webhook_url: v } : c));
   };
 
   const updateTarget = async (id: string, raw: string) => {
@@ -254,6 +264,21 @@ export default function CampaignsPage() {
           }}>
             {c.custom_rules}
           </p>
+
+          {!isAssigned && (
+            <div style={{ marginTop: 14, paddingTop: 12, borderTop: "1px solid var(--border-1)" }} onClick={(e) => e.stopPropagation()}>
+              <p style={{ fontSize: 10, fontWeight: 800, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>Outbound Webhook</p>
+              <input
+                type="url"
+                defaultValue={c.webhook_url ?? ""}
+                onBlur={(e) => updateWebhook(c.id, e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }}
+                placeholder="https://hooks.zapier.com/..."
+                style={{ width: "100%", padding: "8px 10px", borderRadius: 8, background: "var(--surface-1)", border: "1px solid var(--border-2)", fontSize: 12, color: "var(--text-1)", outline: "none", fontFamily: "var(--font-mono)" }}
+              />
+              <p style={{ fontSize: 10, color: "var(--text-4)", marginTop: 5 }}>Saved on blur. Managed centrally under Webhooks &amp; Integrations.</p>
+            </div>
+          )}
         </div>
       )}
     </Card>
@@ -338,6 +363,23 @@ export default function CampaignsPage() {
                 style={inputStyle}
               />
               <p style={{ fontSize: 11, color: "var(--text-3)", marginTop: 6 }}>How many qualified leads this campaign should produce. Optional.</p>
+            </div>
+
+            <div>
+              <label style={{
+                display: "block", fontSize: 11, fontWeight: 700, color: "var(--text-3)",
+                marginBottom: 8, letterSpacing: "0.06em", textTransform: "uppercase",
+              }}>
+                Outbound Webhook (optional)
+              </label>
+              <input
+                type="url"
+                value={webhook}
+                onChange={e => setWebhook(e.target.value)}
+                placeholder="https://hooks.zapier.com/..."
+                style={inputStyle}
+              />
+              <p style={{ fontSize: 11, color: "var(--text-3)", marginTop: 6 }}>Qualified leads from this campaign can be pushed here.</p>
             </div>
 
             <div>

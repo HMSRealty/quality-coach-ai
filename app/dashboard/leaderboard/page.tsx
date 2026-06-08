@@ -96,6 +96,8 @@ export default function LeaderboardPage() {
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [days, setDays] = useState(30);
+  const [q, setQ] = useState("");
+  const [pace, setPace] = useState<"all" | "onpace" | "behind">("all");
 
   const load = useCallback(async (d: number) => {
     setLoading(true);
@@ -183,7 +185,15 @@ export default function LeaderboardPage() {
             <span style={{ fontSize: 11, color: SLATE, alignSelf: "center", marginLeft: 4 }}>pts per qualification</span>
           </div>
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+          <input value={q} onChange={e => setQ(e.target.value)} placeholder="Search agent…"
+            style={{ padding: "8px 12px", borderRadius: 9, border: "1px solid var(--border-2)", background: "var(--surface-1)", color: "var(--text-1)", fontSize: 13, outline: "none", minWidth: 150 }} />
+          <select value={pace} onChange={e => setPace(e.target.value as typeof pace)}
+            style={{ padding: "8px 12px", borderRadius: 9, border: "1px solid var(--border-2)", background: "var(--surface-1)", color: "var(--text-1)", fontSize: 13, outline: "none" }}>
+            <option value="all">All pace</option>
+            <option value="onpace">On pace</option>
+            <option value="behind">Behind</option>
+          </select>
           {RANGES.map((r) => (
             <button key={r.key} onClick={() => setDays(r.days)} className={days === r.days ? "btn-brand" : "btn-ghost"}
               style={{ padding: "8px 16px", fontSize: 12 }}>
@@ -193,16 +203,21 @@ export default function LeaderboardPage() {
         </div>
       </div>
 
-      {loading ? (
+      {(() => {
+        const shown = rows.filter(r =>
+          (!q.trim() || r.name.toLowerCase().includes(q.toLowerCase())) &&
+          (pace === "all" || (pace === "onpace" ? r.pacePct >= 100 : r.pacePct < 100)),
+        );
+        return loading ? (
         <div style={{ padding: 80, textAlign: "center" }}><Loader2 size={28} className="animate-spin" style={{ color: NAVY }} /></div>
-      ) : rows.length === 0 ? (
+      ) : shown.length === 0 ? (
         <div style={{ padding: 60, textAlign: "center", background: "var(--surface-1)", borderRadius: 18, border: "1px solid var(--border-2)" }}>
           <Trophy size={36} color="#CBD5E1" style={{ margin: "0 auto 10px" }} />
-          <p style={{ fontSize: 14, color: SLATE }}>No qualified leads in this range yet.</p>
+          <p style={{ fontSize: 14, color: SLATE }}>{rows.length ? "No agents match your filter." : "No qualified leads in this range yet."}</p>
         </div>
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 16 }}>
-          {rows.map((r, i) => {
+          {shown.map((r, i) => {
             const medal = medalColor(i);
             const accent = i === 0 ? T.magenta as string : i === 1 ? "#7C3AED" : "#0284C7";
             const lineColor = i === 0 ? "#F2266F" : i === 1 ? "#7C3AED" : "#0284C7";
@@ -213,11 +228,6 @@ export default function LeaderboardPage() {
                 borderRadius: 18, padding: 18,
                 boxShadow: medal ? `0 12px 30px ${medal}28` : "var(--shadow-md)",
               }}>
-                {/* Sparkline behind everything */}
-                <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
-                  <Sparkline data={r.spark} color={lineColor} />
-                </div>
-
                 {/* Rank ribbon */}
                 <div style={{ position: "relative", display: "flex", alignItems: "center", gap: 14 }}>
                   <div style={{ position: "relative" }}>
@@ -288,7 +298,8 @@ export default function LeaderboardPage() {
             );
           })}
         </div>
-      )}
+      );
+      })()}
     </div>
   );
 }
