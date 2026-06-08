@@ -112,7 +112,7 @@ export default function ApiIntegrationsPage() {
     load();
   };
 
-  const webhookUrl = `${origin || "https://app.realtrack.io"}/api/inbound/lead`;
+  const webhookUrl = `${origin || "https://app.realtrack.com"}/api/inbound/lead`;
   const payload = JSON.stringify({
     address: "123 Main St, Austin, TX 78701",
     seller_name: "John Doe",

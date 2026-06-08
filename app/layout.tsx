@@ -26,18 +26,35 @@ const spaceGrotesk = Space_Grotesk({
   display: "swap",
 });
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://realtrack.com";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: "RealTrack",
+    default: "RealTrack — Real Estate Call Intelligence & Acquisitions OS",
     template: "%s · RealTrack",
   },
   description:
-    "Enterprise outbound real estate platform. Run teams, track KPIs, score every call, and scale revenue.",
-  keywords: ["real estate outbound", "cold calling", "team management", "call analytics", "lead intake"],
+    "RealTrack listens to your cold calls, qualifies leads against live market data, computes ARV & MAO, and routes deals to acquisitions — the operating system for real-estate call centers.",
+  keywords: ["real estate wholesaling", "cold calling QA", "call analytics", "ARV calculator", "MAO calculator", "acquisitions CRM", "lead intake"],
+  applicationName: "RealTrack",
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    siteName: "RealTrack",
+    url: SITE_URL,
+    title: "RealTrack — Real Estate Call Intelligence & Acquisitions OS",
+    description: "Qualify every call, compute ARV & MAO, and route deals to acquisitions — automatically.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "RealTrack",
+    description: "Real estate call intelligence & acquisitions OS.",
+  },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0B0F1F",
+  themeColor: "#FFFFFF",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
