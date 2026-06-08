@@ -1,0 +1,13 @@
+feat(integrations): Webhooks hub (campaign + export) + page header renames
+
+Webhooks & Integrations (/dashboard/settings/api): new "Outbound Webhooks"
+section — edit the default org export webhook and every per-campaign webhook in
+one place (saves on blur). Sits alongside the existing inbound API keys + webhook
+URL + cURL/JSON examples, making this the single integrations hub.
+
+Renamed page headers to match the new nav: Deals & Offers -> "Hot Leads Alert",
+Dispositions -> "Cash Buyers".
+
+Verified: next build green, tsc --noEmit exit 0.
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>

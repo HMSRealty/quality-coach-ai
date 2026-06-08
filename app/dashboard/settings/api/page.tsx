@@ -23,6 +23,64 @@ async function sha256hex(s: string): Promise<string> {
   return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
+// ── Outbound webhooks: org export + per-campaign webhooks (editable) ──
+function OutboundWebhooks() {
+  const [orgId, setOrgId] = useState<string | null>(null);
+  const [exportUrl, setExportUrl] = useState("");
+  const [campaigns, setCampaigns] = useState<Array<{ id: string; name: string; webhook_url: string | null }>>([]);
+  const [loading, setLoading] = useState(true);
+  const [savedFlash, setSavedFlash] = useState("");
+
+  useEffect(() => {
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { setLoading(false); return; }
+      const { data: prof } = await supabase.from("profiles").select("organization_id").eq("id", user.id).maybeSingle();
+      const oid = (prof?.organization_id as string) ?? null; setOrgId(oid);
+      if (oid) { const { data: org } = await supabase.from("organizations").select("export_webhook_url").eq("id", oid).maybeSingle(); if (org?.export_webhook_url) setExportUrl(org.export_webhook_url as string); }
+      const { data: cs } = await supabase.from("campaigns").select("id, name, webhook_url").eq("user_id", user.id).order("created_at", { ascending: false });
+      setCampaigns((cs || []) as typeof campaigns);
+      setLoading(false);
+    })();
+  }, []);
+
+  const flash = (m: string) => { setSavedFlash(m); setTimeout(() => setSavedFlash(""), 1600); };
+  const saveExport = async () => { if (!orgId) return; await supabase.from("organizations").update({ export_webhook_url: exportUrl.trim() || null }).eq("id", orgId); flash("Export webhook saved"); };
+  const saveCampaign = async (id: string, v: string) => { await supabase.from("campaigns").update({ webhook_url: v.trim() || null }).eq("id", id); setCampaigns(p => p.map(c => c.id === id ? { ...c, webhook_url: v.trim() || null } : c)); flash("Campaign webhook saved"); };
+
+  const card: React.CSSProperties = { background: "#fff", border: "1px solid var(--border-2)", borderRadius: 16, padding: 22, boxShadow: "var(--shadow-sm)" };
+  const inp: React.CSSProperties = { width: "100%", padding: "9px 11px", borderRadius: 9, border: "1px solid var(--border-2)", background: "#fff", color: "#000", fontFamily: "var(--font-mono)", fontSize: 12.5, outline: "none" };
+
+  return (
+    <div style={card}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <p style={{ fontSize: 15, fontWeight: 800, color: "#000", display: "inline-flex", alignItems: "center", gap: 8 }}><Webhook size={16} color={SKY_600} /> Outbound Webhooks</p>
+        {savedFlash && <span style={{ fontSize: 11.5, fontWeight: 800, color: MONEY }}>✓ {savedFlash}</span>}
+      </div>
+      <p style={{ fontSize: 12.5, color: "var(--text-2)", margin: "4px 0 14px" }}>Where qualified leads get pushed (Zapier / GHL / Make / your CRM).</p>
+
+      <label style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--text-3)" }}>Default export webhook (all leads)</label>
+      <div style={{ display: "flex", gap: 8, marginTop: 6, marginBottom: 16 }}>
+        <input value={exportUrl} onChange={e => setExportUrl(e.target.value)} onBlur={saveExport} placeholder="https://hooks.zapier.com/..." style={inp} />
+      </div>
+
+      <label style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--text-3)" }}>Per-campaign webhooks</label>
+      {loading ? <Loader2 size={16} className="animate-spin" style={{ color: SKY_600, marginTop: 8 }} /> : campaigns.length === 0 ? (
+        <p style={{ fontSize: 12.5, color: "var(--text-3)", marginTop: 8 }}>No campaigns yet.</p>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 8 }}>
+          {campaigns.map(c => (
+            <div key={c.id} style={{ display: "grid", gridTemplateColumns: "minmax(120px,180px) 1fr", gap: 10, alignItems: "center" }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: "#000", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.name}</span>
+              <input defaultValue={c.webhook_url ?? ""} onBlur={e => saveCampaign(c.id, e.target.value)} placeholder="https://… (campaign-specific)" style={inp} />
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function CopyBtn({ text, label }: { text: string; label?: string }) {
   const [done, setDone] = useState(false);
   return (
@@ -155,6 +213,8 @@ export default function ApiIntegrationsPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <OutboundWebhooks />
 
       {/* Generate + key list */}
       <div style={card}>

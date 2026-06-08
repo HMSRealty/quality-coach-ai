@@ -52,8 +52,8 @@ export default function DealsPage() {
           <Handshake size={19} color={SKY_600} />
         </span>
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 900, color: "#000", letterSpacing: "-0.02em" }}>Deals &amp; Offers</h1>
-          <p style={{ fontSize: 13, color: "var(--text-2)" }}>Qualified leads ready for an offer — {leads.length} in the pipeline.</p>
+          <h1 style={{ fontSize: 24, fontWeight: 900, color: "#000", letterSpacing: "-0.02em" }}>Hot Leads Alert</h1>
+          <p style={{ fontSize: 13, color: "var(--text-2)" }}>Hot &amp; warm leads ready for an offer — {leads.length} live.</p>
         </div>
       </div>
 

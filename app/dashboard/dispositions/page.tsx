@@ -44,8 +44,8 @@ export default function DispositionsPage() {
             <PackageCheck size={19} color={SKY_600} />
           </span>
           <div>
-            <h1 style={{ fontSize: 24, fontWeight: 900, color: "#000", letterSpacing: "-0.02em" }}>Dispositions</h1>
-            <p style={{ fontSize: 13, color: "var(--text-2)" }}>Move contracted deals to cash buyers and track each assignment.</p>
+            <h1 style={{ fontSize: 24, fontWeight: 900, color: "#000", letterSpacing: "-0.02em" }}>Cash Buyers</h1>
+            <p style={{ fontSize: 13, color: "var(--text-2)" }}>Buyer pipeline &amp; dispositions — move contracted deals to cash buyers.</p>
           </div>
         </div>
         <button disabled style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 16px", borderRadius: 10, background: "#fff", color: SKY_600, border: `1px solid #0EA5E9`, fontSize: 13, fontWeight: 700, cursor: "not-allowed", opacity: 0.65 }}>
