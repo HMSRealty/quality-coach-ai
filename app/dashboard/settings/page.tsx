@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { Upload, Download, Loader2, CheckCircle2, AlertCircle, FileUp } from "lucide-react";
+import { Download, Loader2, CheckCircle2, AlertCircle, FileUp, ShieldAlert, Trash2 } from "lucide-react";
 import { Card } from "@/app/_components/Card";
 
 const RED = "#232B3A";
@@ -184,6 +184,83 @@ jane@example.com,Alice Johnson,Sales Team B,Mike Brown,2024-03-10`;
           <p>jane@example.com,Jane Doe,Sales Team B,Mike Brown,2024-02-01</p>
         </div>
       </Card>
+
+      <DangerZoneCard />
+    </div>
+  );
+}
+
+// ── Danger Zone: owner-only full data reset ────────────────────────────────
+function DangerZoneCard() {
+  const [isOwner, setIsOwner] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [confirm, setConfirm] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState<{ ok: boolean; msg: string } | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
+      const r = String(data?.role || "").toLowerCase();
+      setIsOwner(["owner", "admin", "user"].includes(r));
+    })();
+  }, []);
+
+  if (!isOwner) return null;
+
+  const doReset = async () => {
+    setBusy(true); setResult(null);
+    const { data: { session } } = await supabase.auth.getSession();
+    const r = await fetch("/api/org/reset", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${session?.access_token}` },
+      body: JSON.stringify({ confirm: "DELETE" }),
+    });
+    const j = await r.json().catch(() => ({}));
+    setBusy(false);
+    if (r.ok && j.ok) { setResult({ ok: true, msg: "All CRM data has been reset." }); setOpen(false); setConfirm(""); }
+    else setResult({ ok: false, msg: j.error || "Reset failed." });
+  };
+
+  return (
+    <div style={{ background: "#fff", border: "1px solid #FECACA", borderRadius: 16, padding: 20, boxShadow: "var(--shadow-sm)" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 6 }}>
+        <ShieldAlert size={17} color="#DC2626" />
+        <p style={{ fontSize: 15, fontWeight: 800, color: "#DC2626" }}>Danger Zone</p>
+      </div>
+      <p style={{ fontSize: 13, color: "#475569", lineHeight: 1.6, marginBottom: 14 }}>
+        Permanently delete <strong>all of your CRM data</strong> — every lead, call recording, campaign and agent in your account. This cannot be undone. Your login, team logins and organization stay intact. <strong>Owner only.</strong>
+      </p>
+
+      {result && (
+        <div style={{ marginBottom: 12, padding: "10px 14px", borderRadius: 10, fontSize: 13, fontWeight: 700,
+          background: result.ok ? "#ECFDF5" : "#FEF2F2", border: `1px solid ${result.ok ? "#A7F3D0" : "#FECACA"}`, color: result.ok ? "#059669" : "#DC2626" }}>
+          {result.msg}
+        </div>
+      )}
+
+      {!open ? (
+        <button onClick={() => setOpen(true)} style={{
+          display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 16px", borderRadius: 10,
+          background: "#fff", color: "#DC2626", border: "1px solid #DC2626", fontSize: 13, fontWeight: 800, cursor: "pointer",
+        }}><Trash2 size={14} /> Reset all CRM data</button>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: 14, borderRadius: 12, background: "#FEF2F2", border: "1px solid #FECACA" }}>
+          <p style={{ fontSize: 13, fontWeight: 700, color: "#991B1B" }}>Type <code style={{ background: "#fff", padding: "1px 6px", borderRadius: 4, border: "1px solid #FECACA" }}>DELETE</code> to confirm:</p>
+          <input value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="DELETE" autoFocus
+            style={{ padding: "10px 12px", borderRadius: 9, border: "1px solid #FCA5A5", background: "#fff", color: "#000", fontSize: 14, fontWeight: 800, letterSpacing: "0.1em", outline: "none" }} />
+          <div style={{ display: "flex", gap: 8 }}>
+            <button onClick={() => { setOpen(false); setConfirm(""); }} style={{ padding: "9px 16px", borderRadius: 9, background: "#fff", border: "1px solid var(--border-2)", color: "#000", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>Cancel</button>
+            <button onClick={doReset} disabled={confirm !== "DELETE" || busy} style={{
+              display: "inline-flex", alignItems: "center", gap: 7, padding: "9px 18px", borderRadius: 9,
+              background: confirm === "DELETE" ? "#DC2626" : "#FCA5A5", color: "#fff", border: "none",
+              fontSize: 13, fontWeight: 800, cursor: confirm === "DELETE" && !busy ? "pointer" : "not-allowed",
+            }}>{busy ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />} Permanently delete everything</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

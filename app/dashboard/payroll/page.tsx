@@ -7,6 +7,7 @@ import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { T } from "@/app/_components/tokens";
 import { Loader2, Wallet, Download, Calculator } from "lucide-react";
+import { DialerHoursCalculator } from "@/app/_components/DialerHoursCalculator";
 
 const NAVY = T.text1;
 const SLATE = T.text2;
@@ -216,6 +217,9 @@ export default function PayrollPage() {
           </div>
         </div>
       )}
+
+      {/* Dialer hours → pay */}
+      <DialerHoursCalculator />
     </div>
   );
 }
