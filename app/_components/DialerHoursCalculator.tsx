@@ -5,8 +5,9 @@
 // converts it to decimal hours, and multiplies by an hourly rate.
 // Supports CSV upload keyed on the "Payable Hours" column + a name column,
 // matching names to CRM agents, and manual employee rows.
-import { useMemo, useRef, useState } from "react";
-import { Clock, Upload, Plus, Trash2, Download } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { Clock, Upload, Plus, Trash2, Download, Save, Loader2, Check } from "lucide-react";
 
 const SKY = "#0EA5E9";
 const SKY_600 = "#0284C7";
@@ -52,7 +53,41 @@ function parseCSV(text: string): { name: string; raw: string }[] {
 export function DialerHoursCalculator() {
   const [rate, setRate] = useState(12);
   const [rows, setRows] = useState<Row[]>([{ name: "", raw: "", rate: null }]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // Load persisted rows + default rate on mount.
+  useEffect(() => {
+    (async () => {
+      const r = localStorage.getItem("dialer_hours_rate");
+      if (r) setRate(Number(r) || 12);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { setLoading(false); return; }
+      const { data } = await supabase.from("dialer_hours")
+        .select("employee_name, payable_hours_raw, rate, position")
+        .eq("user_id", user.id).order("position", { ascending: true });
+      if (data && data.length) {
+        setRows(data.map(d => ({ name: d.employee_name || "", raw: d.payable_hours_raw || "", rate: d.rate != null ? Number(d.rate) : null })));
+      }
+      setLoading(false);
+    })();
+  }, []);
+
+  // Persist all rows (wipe + insert) so they survive refresh.
+  const saveAll = async (toSave: Row[]) => {
+    setSaving(true); setSaved(false);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setSaving(false); return; }
+    const { data: prof } = await supabase.from("profiles").select("organization_id").eq("id", user.id).maybeSingle();
+    await supabase.from("dialer_hours").delete().eq("user_id", user.id);
+    const payload = toSave
+      .filter(r => r.name.trim() || r.raw.trim())
+      .map((r, i) => ({ user_id: user.id, organization_id: (prof?.organization_id as string) ?? null, employee_name: r.name || null, payable_hours_raw: r.raw || null, rate: r.rate, position: i }));
+    if (payload.length) await supabase.from("dialer_hours").insert(payload);
+    setSaving(false); setSaved(true); setTimeout(() => setSaved(false), 1800);
+  };
 
   const computed = useMemo(() => rows.map(r => {
     const hours = parsePayableHours(r.raw);
@@ -70,9 +105,15 @@ export function DialerHoursCalculator() {
     const text = await f.text();
     const parsed = parseCSV(text);
     if (!parsed.length) { alert('CSV must include a "Payable Hours" column (and ideally a Name column).'); }
-    else setRows(parsed.map(p => ({ name: p.name, raw: p.raw, rate: null })));
+    else {
+      const next = parsed.map(p => ({ name: p.name, raw: p.raw, rate: null as number | null }));
+      setRows(next);
+      await saveAll(next);   // auto-save uploaded hours so they survive refresh
+    }
     if (fileRef.current) fileRef.current.value = "";
   };
+
+  const updateRate = (v: number) => { setRate(v); try { localStorage.setItem("dialer_hours_rate", String(v)); } catch { /* ignore */ } };
 
   const downloadTemplate = () => {
     const csv = "Name,Payable Hours\nJohn Smith,12 Hours 60 Mins.\nJane Doe,8 Hours 30 Mins.";
@@ -97,9 +138,12 @@ export function DialerHoursCalculator() {
           <label style={{ fontSize: 12, fontWeight: 700, color: "#000" }}>Hourly rate</label>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 2 }}>
             <span style={{ fontWeight: 800, color: "var(--text-3)" }}>$</span>
-            <input type="number" min={0} step={0.5} value={rate} onChange={e => setRate(Math.max(0, Number(e.target.value) || 0))}
+            <input type="number" min={0} step={0.5} value={rate} onChange={e => updateRate(Math.max(0, Number(e.target.value) || 0))}
               style={{ ...inp, width: 76, fontWeight: 800 }} />
           </div>
+          <button onClick={() => saveAll(rows)} disabled={saving || loading} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 13px", borderRadius: 9, background: saved ? MONEY : "#fff", color: saved ? "#fff" : SKY_600, border: `1px solid ${saved ? MONEY : SKY}`, fontSize: 12.5, fontWeight: 800, cursor: saving ? "wait" : "pointer" }}>
+            {saving ? <Loader2 size={13} className="animate-spin" /> : saved ? <Check size={13} /> : <Save size={13} />} {saved ? "Saved" : "Save"}
+          </button>
           <button onClick={() => fileRef.current?.click()} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 13px", borderRadius: 9, background: SKY, color: "#fff", border: "none", fontSize: 12.5, fontWeight: 800, cursor: "pointer" }}><Upload size={13} /> Upload CSV</button>
           <button onClick={downloadTemplate} className="btn-ghost" style={{ fontSize: 12, padding: "8px 12px" }}><Download size={12} /> Template</button>
           <input ref={fileRef} type="file" accept=".csv" onChange={onFile} style={{ display: "none" }} />

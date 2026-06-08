@@ -8,6 +8,7 @@ import { supabase } from "@/lib/supabase";
 import { T } from "@/app/_components/tokens";
 import { Loader2, Wallet, Download, Calculator } from "lucide-react";
 import { DialerHoursCalculator } from "@/app/_components/DialerHoursCalculator";
+import { CompensationStructure } from "@/app/_components/CompensationStructure";
 
 const NAVY = T.text1;
 const SLATE = T.text2;
@@ -217,6 +218,9 @@ export default function PayrollPage() {
           </div>
         </div>
       )}
+
+      {/* Compensation base + KPI structure (the payment base ground) */}
+      <CompensationStructure />
 
       {/* Dialer hours → pay */}
       <DialerHoursCalculator />

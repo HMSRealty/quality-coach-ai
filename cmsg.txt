@@ -1,0 +1,18 @@
+feat(payroll): persist dialer hours + Compensation & KPI structure (HR base)
+
+Fix: dialer hours no longer vanish on refresh. New public.dialer_hours table
+(migration 0013, owner RLS). The calculator loads saved rows on mount, auto-saves
+after a CSV upload, and has an explicit Save button; the default hourly rate
+persists in localStorage.
+
+HR & Accounting base (item #1): new public.comp_titles (migration 0014) +
+CompensationStructure component on the Payroll page — set a base salary per job
+title and an editable KPI table (KPI · Percentage · Payment) per title, with a
+"basis" line auto-hinted by role (Team Leader = documentation + team
+performance; Trainer/Coach = documentation + sessions). Shows KPI totals + total
+earning potential. This is the payment base Payroll will build on.
+
+ACTION: run migrations 0013_dialer_hours.sql and 0014_compensation.sql.
+Verified: next build green, tsc --noEmit exit 0.
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
