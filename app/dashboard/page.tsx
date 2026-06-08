@@ -13,7 +13,6 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { Card } from "@/app/_components/Card";
 import { LeadDetailModal } from "@/app/_components/LeadDetailModal";
-import { SecurityBadges } from "@/app/_components/SecurityBadges";
 import { LeadsList } from "@/app/_components/LeadsList";
 import { PageHeader } from "@/app/_components/PageHeader";
 import { T } from "@/app/_components/tokens";
@@ -397,9 +396,6 @@ export default function DashboardPage() {
           </div>
         )}
       </section>
-
-      {/* ── SECURITY STRIP ────────────────────────────────────────── */}
-      <SecurityBadges />
 
       {openLeadId && <LeadDetailModal leadId={openLeadId} onClose={() => setOpenLeadId(null)} />}
     </div>

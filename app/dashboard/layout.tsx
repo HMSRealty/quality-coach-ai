@@ -18,10 +18,10 @@ import { T } from "@/app/_components/tokens";
 import {
   LayoutDashboard, PhoneCall, FolderCog, Zap,
   UserCircle, LogOut, ChevronRight, Shield,
-  Send, Users2, Briefcase, Network,
-  Headphones, Flag, Power, UserCog, Eye, Search,
+  Send, Users2, Network,
+  Flag, Power, UserCog, Eye, Search,
   Settings as SettingsIcon, Webhook, Wallet, Target, Trophy,
-  Handshake, PackageCheck, GitBranch,
+  GitBranch, Flame,
 } from "lucide-react";
 
 // Corporate Command Center — navigation grouped by company department.
@@ -38,17 +38,15 @@ const NAV_GROUPS: { section: string; items: { label: string; href: string; icon:
   {
     section: "QA & Training",
     items: [
-      { label: "Call Intelligence", href: "/dashboard/calls",    icon: PhoneCall },
-      { label: "AI Personas",       href: "/dashboard/persona",  icon: Zap },
-      { label: "Trainers",          href: "/dashboard/trainers", icon: Briefcase },
-      { label: "Roleplay Dialer",   href: "/dashboard/dialer",   icon: Headphones },
+      { label: "Leads",       href: "/dashboard/calls",    icon: PhoneCall },
+      { label: "QA Persona",  href: "/dashboard/persona",  icon: Zap },
     ],
   },
   {
     section: "Acquisitions",
     items: [
-      { label: "Deals & Offers", href: "/dashboard/deals",        icon: Handshake },
-      { label: "Dispositions",   href: "/dashboard/dispositions", icon: PackageCheck },
+      { label: "Hot Leads Alert", href: "/dashboard/deals",        icon: Flame },
+      { label: "Cash Buyers",     href: "/dashboard/dispositions", icon: Users2 },
     ],
   },
   {

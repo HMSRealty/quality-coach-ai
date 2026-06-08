@@ -8,7 +8,7 @@
 //   • Token-driven so it works in light + dark mode.
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { MapPin, User, DollarSign, Trash2 } from "lucide-react";
+import { MapPin, User, DollarSign, Trash2, Check } from "lucide-react";
 
 export interface LeadItem {
   id: string;
@@ -46,7 +46,7 @@ function StatusPill({ status }: { status: string }) {
   );
 }
 
-function LeadCard({ lead, isNew, onOpen, onDelete }: { lead: LeadItem; isNew: boolean; onOpen?: (id: string) => void; onDelete?: (id: string) => void }) {
+function LeadCard({ lead, isNew, onOpen, onDelete, selectable, selected, onToggleSelect }: { lead: LeadItem; isNew: boolean; onOpen?: (id: string) => void; onDelete?: (id: string) => void; selectable?: boolean; selected?: boolean; onToggleSelect?: (id: string) => void }) {
   const [glow, setGlow] = useState(isNew);
   const [hover, setHover] = useState(false);
   useEffect(() => {
@@ -63,16 +63,16 @@ function LeadCard({ lead, isNew, onOpen, onDelete }: { lead: LeadItem; isNew: bo
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, scale: 0.96, transition: { duration: 0.18 } }}
       transition={{ type: "spring", stiffness: 520, damping: 36, mass: 0.7 }}
-      onClick={() => onOpen?.(lead.id)}
+      onClick={() => (selectable ? onToggleSelect?.(lead.id) : onOpen?.(lead.id))}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       style={{
         display: "grid",
-        gridTemplateColumns: "minmax(0,1fr) auto",
+        gridTemplateColumns: selectable ? "auto minmax(0,1fr) auto" : "minmax(0,1fr) auto",
         alignItems: "center", gap: 14,
         padding: "14px 16px", borderRadius: 14, cursor: "pointer",
-        background: "var(--surface-1)",
-        border: `1px solid ${glow ? "var(--brand-purple)" : hover ? "var(--border-3)" : "var(--border-2)"}`,
+        background: selected ? "color-mix(in srgb, var(--sky) 7%, var(--surface-1))" : "var(--surface-1)",
+        border: `1px solid ${selected ? "var(--sky)" : glow ? "var(--brand-purple)" : hover ? "var(--border-3)" : "var(--border-2)"}`,
         boxShadow: glow
           ? "0 0 0 3px var(--brand-purple-soft), 0 14px 30px rgba(124,58,237,0.18)"
           : hover ? "0 10px 26px rgba(11,15,31,0.12)" : "var(--shadow-sm)",
@@ -80,6 +80,17 @@ function LeadCard({ lead, isNew, onOpen, onDelete }: { lead: LeadItem; isNew: bo
         transition: "border-color 220ms ease, box-shadow 260ms ease, transform 200ms cubic-bezier(0.16,1,0.30,1)",
       }}
     >
+      {selectable && (
+        <span onClick={(e) => { e.stopPropagation(); onToggleSelect?.(lead.id); }}
+          style={{
+            width: 22, height: 22, borderRadius: 6, flexShrink: 0, cursor: "pointer",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            background: selected ? "var(--sky)" : "var(--surface-3)",
+            border: `1.5px solid ${selected ? "var(--sky)" : "var(--border-3)"}`,
+          }}>
+          {selected && <Check size={14} color="#fff" strokeWidth={3} />}
+        </span>
+      )}
       {/* Left: address + agent */}
       <div style={{ minWidth: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -121,7 +132,7 @@ function LeadCard({ lead, isNew, onOpen, onDelete }: { lead: LeadItem; isNew: bo
   );
 }
 
-export function LeadsList({ leads, newIds, onOpen, onDelete }: { leads: LeadItem[]; newIds?: Set<string>; onOpen?: (id: string) => void; onDelete?: (id: string) => void }) {
+export function LeadsList({ leads, newIds, onOpen, onDelete, selectable, selectedIds, onToggleSelect }: { leads: LeadItem[]; newIds?: Set<string>; onOpen?: (id: string) => void; onDelete?: (id: string) => void; selectable?: boolean; selectedIds?: Set<string>; onToggleSelect?: (id: string) => void }) {
   // Track which ids have appeared so only genuinely-new ones get the glow.
   const seen = useRef<Set<string>>(new Set());
   const [, force] = useState(0);
@@ -141,6 +152,9 @@ export function LeadsList({ leads, newIds, onOpen, onDelete }: { leads: LeadItem
             isNew={!!newIds?.has(lead.id)}
             onOpen={onOpen}
             onDelete={onDelete}
+            selectable={selectable}
+            selected={!!selectedIds?.has(lead.id)}
+            onToggleSelect={onToggleSelect}
           />
         ))}
       </AnimatePresence>

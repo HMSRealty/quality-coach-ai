@@ -1,0 +1,15 @@
+feat(nav+leads): sidebar relabels/removals + bulk select & delete leads
+
+Sidebar: Call Intelligence -> "Leads", AI Personas -> "QA Persona"; removed
+Trainers and Roleplay Dialer; Deals & Offers -> "Hot Leads Alert" (Flame icon),
+Dispositions -> "Cash Buyers". Removed the "Enterprise Grade Security" strip from
+the Overview (Leads Pipeline).
+
+Leads (Call Library): new "Select" mode — checkboxes on each card, a bulk action
+bar (N selected · Select all/Clear · Delete selected) that deletes via the
+existing DELETE /api/leads/[id] (parallel, optimistic). LeadsList gained
+selectable/selectedIds/onToggleSelect props.
+
+Verified: next build green, tsc --noEmit exit 0.
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>

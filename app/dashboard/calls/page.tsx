@@ -2,10 +2,9 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/lib/supabase";
-import { Search, RotateCcw, Loader2, PhoneCall, Download } from "lucide-react";
+import { Search, RotateCcw, Loader2, PhoneCall, Download, CheckSquare, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { LeadsList, type LeadItem } from "@/app/_components/LeadsList";
-import { T } from "@/app/_components/tokens";
 
 interface Lead {
   id: string;
@@ -41,6 +40,9 @@ export default function CallsPage() {
   const [campaigns, setCampaigns] = useState<string[]>([]);
   const [newIds, setNewIds] = useState<Set<string>>(new Set());
   const seen = useRef<Set<string>>(new Set());
+  const [selectMode, setSelectMode] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkBusy, setBulkBusy] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -114,6 +116,22 @@ export default function CallsPage() {
     if (!r.ok || !j.ok) { alert("Delete failed: " + (j.error || "unknown")); load(); }
   };
 
+  const toggleSelect = (id: string) => setSelected(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+
+  const bulkDelete = async () => {
+    const ids = [...selected];
+    if (!ids.length) return;
+    if (!confirm(`Delete ${ids.length} lead${ids.length === 1 ? "" : "s"} and their recordings? This cannot be undone.`)) return;
+    setBulkBusy(true);
+    setLeads(prev => prev.filter(l => !selected.has(l.id))); // optimistic
+    const { data: { session } } = await supabase.auth.getSession();
+    const headers = { Authorization: `Bearer ${session?.access_token}` };
+    const results = await Promise.allSettled(ids.map(id => fetch(`/api/leads/${id}`, { method: "DELETE", headers })));
+    const failed = results.filter(r => r.status === "rejected").length;
+    setSelected(new Set()); setSelectMode(false); setBulkBusy(false);
+    if (failed) { alert(`${failed} deletion(s) failed.`); load(); }
+  };
+
   const exportCSV = () => {
     const headers = ["Date", "Agent", "Address", "Status", "Campaign", "Price", "Reason"];
     const rows = filtered.map(l => [
@@ -143,6 +161,11 @@ export default function CallsPage() {
           </p>
         </div>
         <div style={{ display: "flex", gap: 10 }}>
+          <button onClick={() => { setSelectMode(m => !m); setSelected(new Set()); }} style={{
+            display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 14px", borderRadius: 9,
+            background: selectMode ? "#0EA5E9" : "var(--surface-1)", color: selectMode ? "#fff" : "var(--text-1)",
+            border: `1px solid ${selectMode ? "#0EA5E9" : "var(--border-2)"}`, fontSize: 12, fontWeight: 700, cursor: "pointer",
+          }}><CheckSquare size={13} /> {selectMode ? "Done" : "Select"}</button>
           <button onClick={exportCSV} style={{
             display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 14px", borderRadius: 9,
             background: "var(--surface-1)", color: "var(--text-1)", border: "1px solid var(--border-2)",
@@ -150,11 +173,30 @@ export default function CallsPage() {
           }}><Download size={13} /> Export CSV</button>
           <button onClick={load} style={{
             display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 14px", borderRadius: 9,
-            background: T.purple, color: "#fff", border: "none",
-            fontSize: 12, fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 14px rgba(124,58,237,0.30)",
+            background: "#0EA5E9", color: "#fff", border: "none",
+            fontSize: 12, fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 14px rgba(14,165,233,0.30)",
           }}><RotateCcw size={13} /> Refresh</button>
         </div>
       </div>
+
+      {/* Bulk action bar */}
+      {selectMode && (
+        <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 16px", borderRadius: 12, background: "#F0F9FF", border: "1px solid #0EA5E9", flexWrap: "wrap" }}>
+          <span style={{ fontSize: 13, fontWeight: 800, color: "#0369A1" }}>{selected.size} selected</span>
+          <button onClick={() => setSelected(selected.size === filtered.length ? new Set() : new Set(filtered.map(l => l.id)))}
+            style={{ background: "none", border: "none", cursor: "pointer", color: "#0284C7", fontSize: 12.5, fontWeight: 700 }}>
+            {selected.size === filtered.length ? "Clear all" : "Select all"}
+          </button>
+          <div style={{ flex: 1 }} />
+          <button onClick={bulkDelete} disabled={!selected.size || bulkBusy} style={{
+            display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 9,
+            background: selected.size ? "#DC2626" : "#FCA5A5", color: "#fff", border: "none",
+            fontSize: 12.5, fontWeight: 800, cursor: selected.size ? "pointer" : "not-allowed",
+          }}>
+            {bulkBusy ? <Loader2 size={13} className="animate-spin" /> : <Trash2 size={13} />} Delete selected
+          </button>
+        </div>
+      )}
 
       <div style={{
         display: "flex", gap: 10, padding: 14, borderRadius: 12, flexWrap: "wrap",
@@ -184,7 +226,8 @@ export default function CallsPage() {
           <p style={{ fontSize: 14, fontWeight: 600 }}>No leads found.</p>
         </div>
       ) : (
-        <LeadsList leads={filtered.map(toItem)} newIds={newIds} onOpen={(id) => router.push(`/dashboard/leads/${id}`)} onDelete={deleteLead} />
+        <LeadsList leads={filtered.map(toItem)} newIds={newIds} onOpen={(id) => router.push(`/dashboard/leads/${id}`)} onDelete={deleteLead}
+          selectable={selectMode} selectedIds={selected} onToggleSelect={toggleSelect} />
       )}
     </div>
   );
