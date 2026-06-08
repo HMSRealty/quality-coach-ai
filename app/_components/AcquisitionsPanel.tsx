@@ -16,6 +16,10 @@ import {
 interface Comp { address: string; layout: string; sqft: number; status: string; value: number; ppsf: number; }
 const numOf = (v: unknown) => { const n = Number(v); return isFinite(n) && n > 0 ? n : 0; };
 
+// Reject obviously-fabricated / placeholder addresses (AI hallucinations).
+const FAKE_ADDR = /anywhere|somewhere|\banother (rd|st|ave|dr)|nearby (ln|st|rd)|anytown|\bexample\b|placeholder|\bsample\b|\bfictional\b|\bunknown\b|^comparable\s*\d/i;
+const isRealAddr = (a: string) => !!a && a.length > 6 && !FAKE_ADDR.test(a);
+
 // Gemini's appraiser comps (preferred — include layout + status).
 function fromAiComps(raw: Array<Record<string, unknown>> | null | undefined): Comp[] {
   if (!Array.isArray(raw)) return [];
@@ -121,8 +125,11 @@ export function AcquisitionsPanel({
   const [rehab, setRehab] = useState(defaultRehab || 0);
   const [fee, setFee] = useState(10000);
   const [showComps, setShowComps] = useState(true);
-  const aiList = fromAiComps(aiComps);
-  const comps = aiList.length ? aiList : fromRawComps(comparables);
+  // Prefer REAL provider comps; only use the AI's comps if the provider returned
+  // none — and in all cases drop fabricated placeholder addresses.
+  const rawList = fromRawComps(comparables).filter(c => isRealAddr(c.address));
+  const aiList = fromAiComps(aiComps).filter(c => isRealAddr(c.address));
+  const comps = rawList.length ? rawList : aiList;
   const hasRange = !!(arvLow && arvHigh && arvHigh > arvLow);
   const arvDisplay = hasRange ? `${money(arvLow!)} – ${money(arvHigh!)}` : (arv ? money(arv) : "—");
 
@@ -256,6 +263,13 @@ export function AcquisitionsPanel({
             {(arvNarrative || arvReasoning) && (
               <p style={{ fontSize: 13, color: "var(--text-1)", lineHeight: 1.65, marginBottom: comps.length ? 16 : 0 }}>
                 {arvNarrative || arvReasoning}
+              </p>
+            )}
+
+            {comps.length === 0 && arvMid > 0 && (
+              <p style={{ fontSize: 12, color: "var(--text-3)", display: "flex", alignItems: "center", gap: 7 }}>
+                <Building2 size={14} color="var(--text-3)" />
+                No verified comparable sales were returned for this address — ARV estimated from the area&apos;s price-per-square-foot.
               </p>
             )}
 

@@ -257,7 +257,7 @@ Output ALL of:
 - estimated_arv: integer USD — the midpoint point-estimate (≈ (low+high)/2). If subject sqft is unknown, use the median comp value. If there are zero comps AND no Zestimate, set all three to 0.
 - arv_reasoning: ONE short sentence with the core math (e.g., "$88/sqft × 1,302 sqft ≈ $114,500").
 - arv_narrative: 2-3 short sentences explaining the valuation — the $/sqft band for renovated comparable-footprint homes nearby, and how it maps onto the subject's sqft to land the range. Write it like a clear appraiser note.
-- arv_comps: 4-8 comparable properties used. Each: { address, layout (e.g. "3 Bed, 1 Bath"), sqft (integer), status ("Sold" | "Active" | "Estimate"), value (integer USD) }. PREFER the real comps in MARKET DATA; if fewer than 4 are provided, you MAY add the closest neighborhood comparables you can reasonably infer and mark their status "Estimate". Never leave arv_comps empty when you produced an ARV.
+- arv_comps: list ONLY the comparable properties that ACTUALLY appear in the MARKET DATA above — copy their real addresses, sqft and value verbatim. Each: { address, layout (e.g. "3 Bed, 1 Bath"), sqft (integer), status ("Sold" | "Active" | "Estimate"), value (integer USD) }. If MARKET DATA lists NO comparable sales, return an EMPTY arv_comps array — you still produce the ARV from the Zestimate / price-per-sqft band. NEVER invent, guess, or use placeholder addresses (absolutely no "123 Anywhere St", "456 Somewhere Ave", "Main St, Anytown", fictional streets, or fabricated house numbers). Real addresses from the data only.
 - estimated_monthly_rent: integer USD — the realistic MARKET RENT for the renovated subject (used to test BRRRR & buy-and-hold cash flow). Base it on the area + footprint; if you truly cannot estimate, set 0.
 `.trim();
 
@@ -352,6 +352,7 @@ async function runArvReport(m: MarketData, address: string | null, key: string):
   const comps = (m.comparables || []).slice(0, 12);
   if (!m.zestimate && comps.length === 0) return {};
   const system = `You are a local real-estate appraiser. Using the MARKET DATA below for ${address || "the subject property"}, produce an After-Repair Value (ARV) report for a fully-renovated, retail-ready version of the SUBJECT. Reason about a price-per-sqft band for renovated comparable-footprint homes nearby and apply it to the subject's square footage. Also estimate estimated_monthly_rent (realistic market rent for the renovated subject, integer USD).
+arv_comps: list ONLY the comparables that ACTUALLY appear in MARKET DATA (real addresses, verbatim). If there are none, return an EMPTY array — never invent or use placeholder addresses ("123 Anywhere St", "Somewhere Ave", etc.).
 ${marketDataText(m)}`;
   const payload = {
     systemInstruction: { parts: [{ text: system }] },
