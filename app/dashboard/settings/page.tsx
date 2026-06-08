@@ -2,8 +2,30 @@
 
 import { useState, useRef, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { Download, Loader2, CheckCircle2, AlertCircle, FileUp, ShieldAlert, Trash2 } from "lucide-react";
+import { Download, Loader2, CheckCircle2, AlertCircle, FileUp, ShieldAlert, Trash2,
+  FolderCog, Webhook, UserCog, Power, Shield, Target, Wallet, UserCircle, Network, Zap, ChevronRight } from "lucide-react";
 import { Card } from "@/app/_components/Card";
+import Link from "next/link";
+
+const HUB: { group: string; items: { label: string; href: string; icon: typeof FolderCog; desc: string }[] }[] = [
+  { group: "Operations", items: [
+    { label: "Campaigns", href: "/dashboard/campaigns", icon: FolderCog, desc: "Rules, targets & per-campaign webhooks" },
+    { label: "QA Persona", href: "/dashboard/persona", icon: Zap, desc: "AI qualification persona & kill list" },
+    { label: "Shift Targets", href: "/dashboard/shift-targets", icon: Target, desc: "Upload the matrix sheet → set shifts" },
+  ] },
+  { group: "People & Pay", items: [
+    { label: "Floor Agents", href: "/dashboard/callers", icon: Network, desc: "Manage agents" },
+    { label: "Teams", href: "/dashboard/teams", icon: Network, desc: "Team structure" },
+    { label: "Payroll & Comp", href: "/dashboard/payroll", icon: Wallet, desc: "Salary base, KPIs & dialer hours" },
+  ] },
+  { group: "Access & Integrations", items: [
+    { label: "Webhooks & Integrations", href: "/dashboard/settings/api", icon: Webhook, desc: "Inbound API + outbound webhooks" },
+    { label: "Sub-Users", href: "/dashboard/sub-users", icon: UserCog, desc: "Add users with roles" },
+    { label: "Permissions", href: "/dashboard/permissions", icon: Power, desc: "What each role can do" },
+    { label: "RBAC Matrix", href: "/dashboard/roles", icon: Shield, desc: "Role permission map" },
+    { label: "Profile", href: "/dashboard/profile", icon: UserCircle, desc: "Your account" },
+  ] },
+];
 
 const RED = "#232B3A";
 
@@ -83,9 +105,31 @@ jane@example.com,Alice Johnson,Sales Team B,Mike Brown,2024-03-10`;
     <div style={{ maxWidth: 700, margin: "0 auto", display: "flex", flexDirection: "column", gap: 22 }} className="animate-in">
       {/* Header */}
       <div>
-        <h1 style={{ fontSize: 22, fontWeight: 800, color: "#232B3A", marginBottom: 4 }}>Settings</h1>
-        <p style={{ fontSize: 13, color: "#64748B" }}>Manage your team structure and organization.</p>
+        <h1 style={{ fontSize: 22, fontWeight: 800, color: "#000", marginBottom: 4 }}>Settings</h1>
+        <p style={{ fontSize: 13, color: "#475569" }}>Everything you can configure, in one place.</p>
       </div>
+
+      {/* Master hub */}
+      {HUB.map(section => (
+        <div key={section.group}>
+          <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "#94A3B8", marginBottom: 8 }}>{section.group}</p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 10 }}>
+            {section.items.map(it => {
+              const Icon = it.icon;
+              return (
+                <Link key={it.href} href={it.href} style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 11, padding: "13px 15px", borderRadius: 12, background: "#fff", border: "1px solid var(--border-2)", boxShadow: "var(--shadow-sm)" }}>
+                  <span style={{ width: 34, height: 34, borderRadius: 9, flexShrink: 0, background: "color-mix(in srgb, #0EA5E9 12%, transparent)", display: "flex", alignItems: "center", justifyContent: "center" }}><Icon size={16} color="#0284C7" /></span>
+                  <span style={{ flex: 1, minWidth: 0 }}>
+                    <span style={{ display: "block", fontSize: 13.5, fontWeight: 800, color: "#000" }}>{it.label}</span>
+                    <span style={{ display: "block", fontSize: 11.5, color: "var(--text-3)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{it.desc}</span>
+                  </span>
+                  <ChevronRight size={16} color="var(--text-4)" />
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      ))}
 
       {/* Messages */}
       {message && (
