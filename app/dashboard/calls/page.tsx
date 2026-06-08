@@ -105,6 +105,15 @@ export default function CallsPage() {
     return true;
   });
 
+  const deleteLead = async (leadId: string) => {
+    if (!confirm("Delete this lead and its recordings? This cannot be undone.")) return;
+    setLeads(prev => prev.filter(l => l.id !== leadId)); // optimistic
+    const { data: { session } } = await supabase.auth.getSession();
+    const r = await fetch(`/api/leads/${leadId}`, { method: "DELETE", headers: { Authorization: `Bearer ${session?.access_token}` } });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok || !j.ok) { alert("Delete failed: " + (j.error || "unknown")); load(); }
+  };
+
   const exportCSV = () => {
     const headers = ["Date", "Agent", "Address", "Status", "Campaign", "Price", "Reason"];
     const rows = filtered.map(l => [
@@ -175,7 +184,7 @@ export default function CallsPage() {
           <p style={{ fontSize: 14, fontWeight: 600 }}>No leads found.</p>
         </div>
       ) : (
-        <LeadsList leads={filtered.map(toItem)} newIds={newIds} onOpen={(id) => router.push(`/dashboard/leads/${id}`)} />
+        <LeadsList leads={filtered.map(toItem)} newIds={newIds} onOpen={(id) => router.push(`/dashboard/leads/${id}`)} onDelete={deleteLead} />
       )}
     </div>
   );

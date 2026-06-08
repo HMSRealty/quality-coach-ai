@@ -8,7 +8,7 @@
 //   • Token-driven so it works in light + dark mode.
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { MapPin, User, DollarSign } from "lucide-react";
+import { MapPin, User, DollarSign, Trash2 } from "lucide-react";
 
 export interface LeadItem {
   id: string;
@@ -46,7 +46,7 @@ function StatusPill({ status }: { status: string }) {
   );
 }
 
-function LeadCard({ lead, isNew, onOpen }: { lead: LeadItem; isNew: boolean; onOpen?: (id: string) => void }) {
+function LeadCard({ lead, isNew, onOpen, onDelete }: { lead: LeadItem; isNew: boolean; onOpen?: (id: string) => void; onDelete?: (id: string) => void }) {
   const [glow, setGlow] = useState(isNew);
   const [hover, setHover] = useState(false);
   useEffect(() => {
@@ -105,12 +105,23 @@ function LeadCard({ lead, isNew, onOpen }: { lead: LeadItem; isNew: boolean; onO
           <p style={{ fontSize: 15, fontWeight: 800, color: "var(--text-1)" }}>{fmt(lead.arv)}</p>
         </div>
         <StatusPill status={lead.status} />
+        {onDelete && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onDelete(lead.id); }}
+            title="Delete lead"
+            style={{
+              width: 30, height: 30, borderRadius: 8, flexShrink: 0,
+              background: hover ? "#FEF2F2" : "transparent", border: "1px solid var(--border-2)",
+              color: "#DC2626", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+              opacity: hover ? 1 : 0.45, transition: "opacity 160ms ease, background 160ms ease",
+            }}><Trash2 size={14} /></button>
+        )}
       </div>
     </motion.div>
   );
 }
 
-export function LeadsList({ leads, newIds, onOpen }: { leads: LeadItem[]; newIds?: Set<string>; onOpen?: (id: string) => void }) {
+export function LeadsList({ leads, newIds, onOpen, onDelete }: { leads: LeadItem[]; newIds?: Set<string>; onOpen?: (id: string) => void; onDelete?: (id: string) => void }) {
   // Track which ids have appeared so only genuinely-new ones get the glow.
   const seen = useRef<Set<string>>(new Set());
   const [, force] = useState(0);
@@ -129,6 +140,7 @@ export function LeadsList({ leads, newIds, onOpen }: { leads: LeadItem[]; newIds
             lead={lead}
             isNew={!!newIds?.has(lead.id)}
             onOpen={onOpen}
+            onDelete={onDelete}
           />
         ))}
       </AnimatePresence>

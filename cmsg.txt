@@ -1,0 +1,17 @@
+feat(leads): delete leads (API + Call Library + Lead Detail)
+
+New DELETE /api/leads/[id] (edge, service role): Bearer-auth, owner/same-org
+checked, removes the lead's recordings from storage + their call_uploads /
+training_snippets / lead_events rows, then deletes the lead. Works regardless of
+RLS while still enforcing tenancy explicitly.
+
+UI:
+- Call Library: a hover Trash button on each LeadsList card → confirm →
+  optimistic removal (framer-motion exit animation) → DELETE call; reloads on
+  failure. (onDelete is opt-in, so the dashboard Overview list is unchanged.)
+- Lead Detail: a red "Delete Lead" button in the actions row → confirm → DELETE
+  → redirect to /dashboard/calls.
+
+Verified: next build green, tsc --noEmit exit 0.
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>

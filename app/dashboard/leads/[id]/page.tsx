@@ -14,7 +14,7 @@ import Link from "next/link";
 import {
   ArrowLeft, MapPin, DollarSign, User, Calendar, Phone, FileText,
   CheckCircle2, XCircle, Clock, Loader2, Sparkles, Target,
-  MessageSquare, TrendingUp, AlertTriangle, RefreshCw, Upload, Download,
+  MessageSquare, TrendingUp, AlertTriangle, RefreshCw, Upload, Download, Trash2,
 } from "lucide-react";
 
 import { T } from "@/app/_components/tokens";
@@ -78,6 +78,7 @@ export default function LeadDetailPage() {
   const [loading, setLoading] = useState(true);
   const [reanalyzing, setReanalyzing] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   // Imperative seek into the primary recording player (TCPA/compliance/transcript jumps).
   const seekRef = useRef<((sec: number) => void) | null>(null);
@@ -101,6 +102,21 @@ export default function LeadDetailPage() {
       .order("created_at", { ascending: true });
     setRecordings((ups || []) as typeof recordings);
     setLoading(false);
+  };
+
+  const deleteLead = async () => {
+    if (!lead) return;
+    if (!confirm("Delete this lead and its recordings? This cannot be undone.")) return;
+    setDeleting(true);
+    const { data: { session } } = await supabase.auth.getSession();
+    const r = await fetch(`/api/leads/${lead.id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${session?.access_token}` },
+    });
+    const j = await r.json().catch(() => ({}));
+    if (r.ok && j.ok) { router.push("/dashboard/calls"); return; }
+    setDeleting(false);
+    alert("Delete failed: " + (j.error || "unknown"));
   };
 
   const reanalyze = async () => {
@@ -573,6 +589,17 @@ export default function LeadDetailPage() {
           Re-run Review
         </button>
         <ExportWebhookButton leadId={lead.id} />
+        <div style={{ flex: 1 }} />
+        <button onClick={deleteLead} disabled={deleting} style={{
+          display: "inline-flex", alignItems: "center", gap: 8,
+          padding: "11px 18px", borderRadius: 10,
+          background: "#fff", color: "#DC2626", border: "1px solid #FECACA",
+          fontSize: 13, fontWeight: 700,
+          cursor: deleting ? "wait" : "pointer",
+        }}>
+          {deleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+          Delete Lead
+        </button>
       </div>
 
       <LeadTimeline leadId={lead.id} />
