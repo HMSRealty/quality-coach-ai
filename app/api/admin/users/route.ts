@@ -46,6 +46,7 @@ export async function POST(req: NextRequest) {
   try {
     const { user: caller, role: callerRole } = await getCaller(req);
     const isAdmin = callerRole === "admin";
+    const isManager = can(callerRole, "users.manage"); // owner/admin
 
     const body = await req.json();
     const { email, password, plan_tier = "starter" } = body;
@@ -53,10 +54,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "email and password are required" }, { status: 400 });
     }
 
-    // Non-admins may only create sub-users (role forced to 'user', parented to them).
-    const role = isAdmin ? (body.role || "user") : "user";
+    // Owners/admins may assign a role to the sub-users they create (parented to
+    // them). Everyone else can only make a plain sub-user.
+    const allowedRoles = new Set(["caller", "qa", "team_leader", "trainer", "admin", "user"]);
+    const requested = String(body.role || "").toLowerCase();
+    const role = isManager ? (allowedRoles.has(requested) ? requested : "caller") : "user";
     const parent_user_id = isAdmin
-      ? (body.parent_user_id || null)
+      ? (body.parent_user_id || caller.id)
       : caller.id;
 
     const sa = admin();

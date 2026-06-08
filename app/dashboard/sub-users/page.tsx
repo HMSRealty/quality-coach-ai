@@ -10,7 +10,7 @@ const NAVY = "var(--text-1)";
 const SLATE = "var(--text-2)";
 
 interface SubUser {
-  id: string; email: string; plan_tier: string; created_at: string;
+  id: string; email: string; plan_tier: string; role?: string; created_at: string;
   can_download_calls?: boolean;
 }
 
@@ -28,7 +28,7 @@ export default function SubUsersPage() {
   const [actingId, setActingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
-  const [form, setForm] = useState({ email: "", password: "", plan_tier: "starter" });
+  const [form, setForm] = useState({ email: "", password: "", plan_tier: "starter", role: "caller" });
   const [toast, setToast] = useState<{ type: "ok" | "err"; msg: string } | null>(null);
 
   const load = async () => {
@@ -38,7 +38,7 @@ export default function SubUsersPage() {
     setMe(user.id);
     const { data } = await supabase
       .from("profiles")
-      .select("id, email, plan_tier, created_at, can_download_calls")
+      .select("id, email, plan_tier, role, created_at, can_download_calls")
       .eq("parent_user_id", user.id)
       .order("created_at", { ascending: false });
     setSubUsers((data || []) as SubUser[]);
@@ -59,13 +59,13 @@ export default function SubUsersPage() {
     const res = await fetch("/api/admin/users", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${session?.access_token}` },
-      body: JSON.stringify({ email: form.email, password: form.password, plan_tier: form.plan_tier }),
+      body: JSON.stringify({ email: form.email, password: form.password, plan_tier: form.plan_tier, role: form.role }),
     });
     const json = await res.json().catch(() => ({}));
     setCreating(false);
     if (!res.ok) return showToast("err", json.error || "Failed to create sub-user");
-    showToast("ok", `Created ${form.email}`);
-    setForm({ email: "", password: "", plan_tier: "starter" });
+    showToast("ok", `Created ${form.email} (${form.role.replace("_", " ")})`);
+    setForm({ email: "", password: "", plan_tier: "starter", role: "caller" });
     load();
   };
 
@@ -131,7 +131,14 @@ export default function SubUsersPage() {
           <input type="email" placeholder="Email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} style={inputStyle} />
           <input type="text" placeholder="Temporary password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} style={inputStyle} />
         </div>
-        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+        <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+          <select value={form.role} onChange={e => setForm({ ...form, role: e.target.value })} style={{ ...inputStyle, maxWidth: 200 }}>
+            <option value="caller">Caller</option>
+            <option value="qa">QA</option>
+            <option value="team_leader">Team Leader</option>
+            <option value="trainer">Trainer / Coach</option>
+            <option value="admin">Admin</option>
+          </select>
           <select value={form.plan_tier} onChange={e => setForm({ ...form, plan_tier: e.target.value })} style={{ ...inputStyle, maxWidth: 200 }}>
             <option value="starter">Starter</option>
             <option value="professional">Professional</option>
@@ -174,7 +181,7 @@ export default function SubUsersPage() {
                 }}>{u.email.slice(0, 2).toUpperCase()}</div>
                 <div style={{ flex: 1 }}>
                   <p style={{ fontSize: 13, fontWeight: 700, color: NAVY }}>{u.email}</p>
-                  <p style={{ fontSize: 11, color: SLATE, textTransform: "capitalize" }}>{u.plan_tier} plan</p>
+                  <p style={{ fontSize: 11, color: SLATE, textTransform: "capitalize" }}>{(u.role || "user").replace("_", " ")} · {u.plan_tier} plan</p>
                 </div>
                 <button onClick={() => toggleDownload(u)} disabled={togglingId === u.id}
                   title={u.can_download_calls ? "Click to disable call downloads" : "Click to enable call downloads"}
