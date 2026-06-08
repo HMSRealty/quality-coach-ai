@@ -318,9 +318,18 @@ Be precise — if the agent's address is wrong, the system will re-pull property
 
   // MARKET DATA (raw Zillow facts + comparables) — the AI uses this to COMPUTE
   // the ARV itself. Zillow only supplies data; Gemini does the math.
-  const m = opts.marketData;
-  const comps = (m?.comparables || []).slice(0, 12);
-  const marketDataBlock = (m && (m.zestimate || comps.length)) ? `\n\nMARKET DATA (raw — compute ARV from this; do NOT expect a ready-made ARV):
+  const marketDataBlock = opts.marketData ? `\n\n${marketDataText(opts.marketData)}` : "";
+
+  return `${persona}${marketCtx}${killBlock}${overrides}${verifyBlock}${marketDataBlock}`;
+}
+
+type MarketData = { zestimate?: number | null; sqft?: number | null; beds?: number | null; baths?: number | null; comparables?: Array<Record<string, unknown>> | null };
+
+// Format the raw property facts + comparables for the prompt.
+function marketDataText(m: MarketData): string {
+  const comps = (m.comparables || []).slice(0, 12);
+  if (!m.zestimate && comps.length === 0) return "MARKET DATA: none available for this address.";
+  return `MARKET DATA (raw — compute ARV from this; do NOT expect a ready-made ARV):
 SUBJECT: ${m.sqft ? `${m.sqft} sqft` : "sqft unknown"}${m.beds ? `, ${m.beds} bd` : ""}${m.baths ? `, ${m.baths} ba` : ""}
 ZESTIMATE (reference only): ${m.zestimate ? `$${Math.round(m.zestimate).toLocaleString()}` : "unavailable"}
 COMPARABLE SALES (${comps.length}):
@@ -332,9 +341,42 @@ ${comps.length ? comps.map((c, i) => {
     const addr = (c.address ?? c.streetAddress ?? `Comp ${i + 1}`) as string;
     const ppsf = price && sqft ? ` ($${Math.round(price / sqft)}/sqft)` : "";
     return `  ${i + 1}. ${addr} — ${price ? `$${Math.round(price).toLocaleString()}` : "n/a"}${sqft ? `, ${sqft} sqft` : ""}${bd ? `, ${bd}bd` : ""}${ba ? `/${ba}ba` : ""}${ppsf}`;
-  }).join("\n") : "  (none returned by the data provider)"}` : "";
+  }).join("\n") : "  (none returned by the data provider)"}`;
+}
 
-  return `${persona}${marketCtx}${killBlock}${overrides}${verifyBlock}${marketDataBlock}`;
+// Focused ARV-only recompute — used when the address was corrected, so the ARV
+// reflects the RIGHT property's comparables (not the wrong submitted address).
+async function runArvReport(m: MarketData, address: string | null, key: string): Promise<Partial<QualJSON>> {
+  const comps = (m.comparables || []).slice(0, 12);
+  if (!m.zestimate && comps.length === 0) return {};
+  const system = `You are a local real-estate appraiser. Using the MARKET DATA below for ${address || "the subject property"}, produce an After-Repair Value (ARV) report for a fully-renovated, retail-ready version of the SUBJECT. Reason about a price-per-sqft band for renovated comparable-footprint homes nearby and apply it to the subject's square footage.
+${marketDataText(m)}`;
+  const payload = {
+    systemInstruction: { parts: [{ text: system }] },
+    contents: [{ role: "user", parts: [{ text: "Produce the ARV report JSON." }] }],
+    generationConfig: {
+      temperature: 0.2, responseMimeType: "application/json",
+      responseSchema: {
+        type: "OBJECT",
+        properties: {
+          estimated_arv: { type: "NUMBER" }, estimated_arv_low: { type: "NUMBER" }, estimated_arv_high: { type: "NUMBER" },
+          arv_reasoning: { type: "STRING" }, arv_narrative: { type: "STRING" },
+          arv_comps: { type: "ARRAY", items: { type: "OBJECT", properties: {
+            address: { type: "STRING" }, layout: { type: "STRING" }, sqft: { type: "NUMBER" }, status: { type: "STRING" }, value: { type: "NUMBER" },
+          } } },
+        },
+        required: ["estimated_arv", "estimated_arv_low", "estimated_arv_high", "arv_reasoning", "arv_narrative", "arv_comps"],
+      },
+    },
+  };
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${key}`, {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
+    });
+    if (!res.ok) return {};
+    const j = await res.json();
+    return JSON.parse(j?.candidates?.[0]?.content?.parts?.[0]?.text || "{}") as Partial<QualJSON>;
+  } catch { return {}; }
 }
 
 async function runQualification(
@@ -817,9 +859,24 @@ export async function POST(req: Request): Promise<Response> {
           const normalized = zj.normalized as { zestimate?: number };
           if (Number(normalized.zestimate) > 0) effMarketValue = Number(normalized.zestimate);
           corrPatch.zillow_data = normalized;
-          // Store the corrected comparables so the NEXT analysis recomputes ARV
-          // (via Gemini) against the right property.
-          if (Array.isArray(zj.comparables) && zj.comparables.length) corrPatch.comparables = zj.comparables;
+          const correctedComps = Array.isArray(zj.comparables) ? zj.comparables : [];
+          if (correctedComps.length) corrPatch.comparables = correctedComps;
+
+          // RE-COMPUTE the ARV against the CORRECTED property's comps so the
+          // address, Zillow data, and ARV all match in this single pass.
+          const nd = normalized as { zestimate?: number; sqft?: number; beds?: number; baths?: number };
+          const arvRpt = await runArvReport(
+            { zestimate: nd.zestimate ?? null, sqft: nd.sqft ?? null, beds: nd.beds ?? null, baths: nd.baths ?? null, comparables: correctedComps },
+            callAddr, key,
+          );
+          if (Number(arvRpt.estimated_arv) > 0 || Number(arvRpt.estimated_arv_low) > 0) {
+            q.estimated_arv = arvRpt.estimated_arv;
+            q.estimated_arv_low = arvRpt.estimated_arv_low;
+            q.estimated_arv_high = arvRpt.estimated_arv_high;
+            q.arv_reasoning = arvRpt.arv_reasoning;
+            q.arv_narrative = arvRpt.arv_narrative;
+            q.arv_comps = arvRpt.arv_comps;
+          }
         }
       } catch { /* re-fetch best-effort — fall back to original market value */ }
     }
