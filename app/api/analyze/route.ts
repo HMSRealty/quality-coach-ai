@@ -346,6 +346,50 @@ ${comps.length ? comps.map((c, i) => {
   }).join("\n") : "  (none returned by the data provider)"}`;
 }
 
+// Live comparable-sales search via Gemini + Google Search GROUNDING. Plain
+// Gemini can't look anything up — with the google_search tool it actually
+// retrieves real recent sales/listings, so addresses are REAL, not invented.
+// Returns provider-shaped comps ({ price, sqft, address, beds, baths, status }).
+async function runCompsSearch(
+  address: string | null,
+  facts: { sqft?: number | null; beds?: number | null; baths?: number | null },
+  key: string,
+): Promise<Array<Record<string, unknown>>> {
+  if (!address) return [];
+  const prompt = `Use Google Search to find 5-8 REAL recently-SOLD or currently-ACTIVE comparable homes near "${address}"${facts.sqft ? `, around ${facts.sqft} sqft` : ""}${facts.beds ? `, ${facts.beds} bed` : ""}${facts.baths ? `/${facts.baths} bath` : ""}.
+Search real estate sources (Zillow, Redfin, Realtor.com, county records). Use ONLY real properties you actually find, with their REAL street addresses and REAL sale/list prices.
+Return ONLY a JSON array (no prose, no markdown). Each item:
+{"address": string, "sqft": number, "value": number, "status": "Sold"|"Active", "beds": number, "baths": number}
+If you cannot find real comparable sales, return []. NEVER invent, guess, or use placeholder addresses ("123 Anywhere St", "Somewhere Ave", "Anytown", etc.).`;
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${key}`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        tools: [{ google_search: {} }],          // GROUNDING — lets Gemini actually search
+        generationConfig: { temperature: 0.1 },
+      }),
+    });
+    if (!res.ok) return [];
+    const j = await res.json();
+    const text: string = j?.candidates?.[0]?.content?.parts?.map((p: { text?: string }) => p.text || "").join("") || "";
+    const m = text.match(/\[[\s\S]*\]/);          // grounded responses are text — extract the JSON array
+    if (!m) return [];
+    const arr = JSON.parse(m[0]) as Array<Record<string, unknown>>;
+    return (Array.isArray(arr) ? arr : [])
+      .map((c) => ({
+        address: String(c.address ?? ""), sqft: Number(c.sqft) || undefined,
+        price: Number(c.value ?? c.price) || undefined,
+        beds: Number(c.beds) || undefined, baths: Number(c.baths) || undefined,
+        status: String(c.status ?? "Sold"),
+      }))
+      .filter((c) => c.address && !FAKE_COMP_ADDR.test(c.address) && (c.price || c.sqft))
+      .slice(0, 8);
+  } catch { return []; }
+}
+
+const FAKE_COMP_ADDR = /anywhere|somewhere|\banother (rd|st|ave|dr)|nearby (ln|st|rd)|anytown|\bexample\b|placeholder|\bsample\b|fictional|^comparable\s*\d|123 main st/i;
+
 // Focused ARV-only recompute — used when the address was corrected, so the ARV
 // reflects the RIGHT property's comparables (not the wrong submitted address).
 async function runArvReport(m: MarketData, address: string | null, key: string): Promise<Partial<QualJSON>> {
@@ -776,6 +820,8 @@ export async function POST(req: Request): Promise<Response> {
       } catch { /* columns absent pre-migration */ }
     }
 
+    const key = geminiKey();
+
     // ── ZILLOW = DATA ONLY ── Ensure we have the property facts + comparables.
     // Use what was stored at submit; if missing (e.g. inbound-API leads), pull it
     // now. Gemini will COMPUTE the ARV from these comps — Zillow gives no ARV.
@@ -795,6 +841,25 @@ export async function POST(req: Request): Promise<Response> {
         }
       } catch { /* data fetch best-effort */ }
     }
+
+    // Provider comps thin/empty → FORCE Gemini to SEARCH (Google Search grounding)
+    // for real comps near the address we're working on. Real addresses, not made up.
+    if (comparables.length < 3 && lead.extracted_address) {
+      const searched = await runCompsSearch(lead.extracted_address, {
+        sqft: (zillowData?.sqft as number | undefined) ?? null,
+        beds: (zillowData?.beds as number | undefined) ?? null,
+        baths: (zillowData?.baths as number | undefined) ?? null,
+      }, key);
+      if (searched.length) {
+        // Merge, de-duplicating by normalized address.
+        const seen = new Set(comparables.map((c) => String(c.address || "").toLowerCase().replace(/\s+/g, " ").trim()));
+        for (const c of searched) {
+          const k = String(c.address || "").toLowerCase().replace(/\s+/g, " ").trim();
+          if (k && !seen.has(k)) { seen.add(k); comparables.push(c); }
+        }
+      }
+    }
+
     const marketValue: number | null = (zillowData?.zestimate as number | undefined) ?? null;
     const resolvedAddress: string | null =
       (zillowData?.address as string | undefined) ?? lead.extracted_address ?? null;
@@ -806,7 +871,6 @@ export async function POST(req: Request): Promise<Response> {
       comparables,
     };
 
-    const key = geminiKey();
     // Upload EVERY attached call to Gemini so the AI hears them all (audio mode).
     const ups: Array<{ uri: string; mime: string }> = [];
     if (!textOnly) {
@@ -864,12 +928,18 @@ export async function POST(req: Request): Promise<Response> {
           const normalized = zj.normalized as { zestimate?: number };
           if (Number(normalized.zestimate) > 0) effMarketValue = Number(normalized.zestimate);
           corrPatch.zillow_data = normalized;
-          const correctedComps = Array.isArray(zj.comparables) ? zj.comparables : [];
+          const nd = normalized as { zestimate?: number; sqft?: number; beds?: number; baths?: number };
+          const correctedComps: Array<Record<string, unknown>> = Array.isArray(zj.comparables) ? zj.comparables : [];
+          // Force a grounded comp search for the CORRECTED address too.
+          if (correctedComps.length < 3) {
+            const searched = await runCompsSearch(callAddr, { sqft: nd.sqft ?? null, beds: nd.beds ?? null, baths: nd.baths ?? null }, key);
+            const seen = new Set(correctedComps.map((c: Record<string, unknown>) => String(c.address || "").toLowerCase().trim()));
+            for (const c of searched) { const k = String(c.address || "").toLowerCase().trim(); if (k && !seen.has(k)) { seen.add(k); correctedComps.push(c); } }
+          }
           if (correctedComps.length) corrPatch.comparables = correctedComps;
 
           // RE-COMPUTE the ARV against the CORRECTED property's comps so the
           // address, Zillow data, and ARV all match in this single pass.
-          const nd = normalized as { zestimate?: number; sqft?: number; beds?: number; baths?: number };
           const arvRpt = await runArvReport(
             { zestimate: nd.zestimate ?? null, sqft: nd.sqft ?? null, beds: nd.beds ?? null, baths: nd.baths ?? null, comparables: correctedComps },
             callAddr, key,

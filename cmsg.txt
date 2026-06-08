@@ -1,0 +1,19 @@
+feat(comps): force Gemini to SEARCH for real comps (Google Search grounding)
+
+Root cause of the "random addresses": plain Gemini can't look anything up, so
+when the data provider returned no comparables it invented placeholders.
+
+New runCompsSearch(): calls gemini-2.5-flash with the google_search GROUNDING
+tool so Gemini actually retrieves real recent sales/active listings near the
+exact address we're working on, returns them as JSON (real addresses, prices,
+sqft, status), and is hard-blocked from placeholders (prompt + regex filter).
+
+Wired into /api/analyze: whenever provider comps are thin (< 3), it forces a
+grounded search for lead.extracted_address and merges the real comps (deduped by
+address) into MARKET DATA before the ARV is computed. Same grounded search runs
+for the CORRECTED address in the auto-correction path. Gemini then computes the
+ARV from these real comps.
+
+Verified: next build green, tsc --noEmit exit 0.
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
