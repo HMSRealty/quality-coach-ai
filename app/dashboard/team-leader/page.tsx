@@ -8,15 +8,16 @@ import {
 } from "recharts";
 import { Users, Loader2, TrendingUp, Target, Phone, AlertCircle } from "lucide-react";
 
-const BG = "#232B3A";
-const PANEL = "#121826";
-const PANEL_2 = "#0E1320";
-const TEAL = "#4D82FF";
-const TEAL_DIM = "rgba(226,115,75,0.18)";
-const TXT = "#E8ECF3";
-const MUTED = "#8A97AB";
-const GOLD = "#FFC857";
-const ROSE = "#FF5C7C";
+// Clean Enterprise light palette (was a dark theme — unreadable on the white app).
+const BG = "#F8FAFC";       // page canvas
+const PANEL = "#FFFFFF";    // card
+const PANEL_2 = "#F1F5F9";  // subtle row
+const TEAL = "#0EA5E9";     // sky accent
+const TEAL_DIM = "rgba(14,165,233,0.12)";
+const TXT = "#0F172A";      // slate-900 text
+const MUTED = "#64748B";    // slate-500 secondary
+const GOLD = "#059669";     // money green (was pale yellow — invisible on white)
+const ROSE = "#DC2626";     // red
 
 interface Caller { id: string; name: string; team_id: string | null; aggregate_stats: Record<string, unknown> | null; }
 interface Lead { id: string; status: string; caller_id: string | null; created_at: string; ai_coaching_points: string[] | null; }
@@ -28,6 +29,7 @@ export default function TeamLeaderPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<string>("all");
+  const [rangeDays, setRangeDays] = useState<number>(30); // 0 = all time
 
   useEffect(() => {
     (async () => {
@@ -61,9 +63,11 @@ export default function TeamLeaderPage() {
     ? callers
     : callers.filter(c => c.team_id === selectedTeam);
   const visibleCallerIds = new Set(visibleCallers.map(c => c.id));
-  const visibleLeads = selectedTeam === "all"
+  const rangeCutoff = rangeDays > 0 ? Date.now() - rangeDays * 86_400_000 : 0;
+  const visibleLeads = (selectedTeam === "all"
     ? leads
-    : leads.filter(l => l.caller_id && visibleCallerIds.has(l.caller_id));
+    : leads.filter(l => l.caller_id && visibleCallerIds.has(l.caller_id)))
+    .filter(l => !rangeCutoff || (l.created_at && new Date(l.created_at).getTime() >= rangeCutoff));
 
   if (loading) return (
     <div style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center", background: BG }}>
@@ -132,26 +136,39 @@ export default function TeamLeaderPage() {
               {selectedTeam === "all" ? "All teams aggregated" : `Team: ${teams.find(t => t.id === selectedTeam)?.name || ""}`} · {visibleCallers.length} callers · {totalLeads} leads processed
             </p>
           </div>
-          <div>
-            <label style={{ display: "block", fontSize: 10, fontWeight: 700, color: MUTED, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>
-              View team
-            </label>
-            <select
-              value={selectedTeam}
-              onChange={e => setSelectedTeam(e.target.value)}
-              style={{
-                padding: "9px 14px", borderRadius: 10,
-                background: PANEL, color: TXT,
-                border: `1px solid rgba(226,115,75,0.20)`,
-                fontSize: 13, fontWeight: 600, outline: "none",
-                minWidth: 220,
-              }}
-            >
-              <option value="all">All Teams (Aggregate)</option>
-              {teams.map(t => (
-                <option key={t.id} value={t.id}>{t.name}</option>
-              ))}
-            </select>
+          <div style={{ display: "flex", gap: 12, alignItems: "flex-end", flexWrap: "wrap" }}>
+            <div>
+              <label style={{ display: "block", fontSize: 10, fontWeight: 700, color: MUTED, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>Date range</label>
+              <div style={{ display: "flex", gap: 6 }}>
+                {[{ d: 7, l: "7d" }, { d: 30, l: "30d" }, { d: 90, l: "90d" }, { d: 0, l: "All" }].map(r => (
+                  <button key={r.l} onClick={() => setRangeDays(r.d)}
+                    style={{ padding: "8px 14px", borderRadius: 9, fontSize: 12, fontWeight: 800, cursor: "pointer",
+                      background: rangeDays === r.d ? TEAL : PANEL, color: rangeDays === r.d ? "#fff" : TXT,
+                      border: `1px solid ${rangeDays === r.d ? TEAL : "var(--border-2)"}` }}>{r.l}</button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label style={{ display: "block", fontSize: 10, fontWeight: 700, color: MUTED, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                View team
+              </label>
+              <select
+                value={selectedTeam}
+                onChange={e => setSelectedTeam(e.target.value)}
+                style={{
+                  padding: "9px 14px", borderRadius: 10,
+                  background: PANEL, color: TXT,
+                  border: `1px solid var(--border-2)`,
+                  fontSize: 13, fontWeight: 600, outline: "none",
+                  minWidth: 220,
+                }}
+              >
+                <option value="all">All Teams (Aggregate)</option>
+                {teams.map(t => (
+                  <option key={t.id} value={t.id}>{t.name}</option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
 
@@ -165,8 +182,8 @@ export default function TeamLeaderPage() {
             <div key={s.label} style={{
               padding: 18, borderRadius: 14,
               background: PANEL,
-              border: `1px solid rgba(226,115,75,0.10)`,
-              boxShadow: `0 4px 16px rgba(0,0,0,0.30)`,
+              border: `1px solid var(--border-2)`,
+              boxShadow: `var(--shadow-sm)`,
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
                 <div style={{
@@ -188,7 +205,7 @@ export default function TeamLeaderPage() {
             {perCallerData.length === 0 ? <Empty /> : (
               <ResponsiveContainer width="100%" height={260}>
                 <BarChart data={perCallerData}>
-                  <CartesianGrid stroke="rgba(255,255,255,0.05)" />
+                  <CartesianGrid stroke="#E2E8F0" />
                   <XAxis dataKey="name" stroke={MUTED} style={{ fontSize: 11 }} />
                   <YAxis stroke={MUTED} style={{ fontSize: 11 }} />
                   <Tooltip contentStyle={{ background: PANEL_2, border: `1px solid ${TEAL_DIM}`, borderRadius: 8, fontSize: 12 }} />
@@ -219,7 +236,7 @@ export default function TeamLeaderPage() {
         <DarkPanel title="7-Day Trend">
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={days}>
-              <CartesianGrid stroke="rgba(255,255,255,0.05)" />
+              <CartesianGrid stroke="#E2E8F0" />
               <XAxis dataKey="day" stroke={MUTED} style={{ fontSize: 11 }} />
               <YAxis stroke={MUTED} style={{ fontSize: 11 }} />
               <Tooltip contentStyle={{ background: PANEL_2, border: `1px solid ${TEAL_DIM}`, borderRadius: 8, fontSize: 12 }} />
@@ -237,7 +254,7 @@ export default function TeamLeaderPage() {
                 <li key={i} style={{
                   display: "flex", alignItems: "center", gap: 12,
                   padding: "12px 14px", borderRadius: 10,
-                  background: PANEL_2, border: "1px solid rgba(255,255,255,0.04)",
+                  background: PANEL_2, border: "1px solid var(--border-2)",
                 }}>
                   <div style={{
                     minWidth: 36, height: 28, borderRadius: 6, padding: "0 10px",
@@ -260,8 +277,8 @@ function DarkPanel({ title, children }: { title: string; children: React.ReactNo
   return (
     <div style={{
       padding: 20, borderRadius: 14,
-      background: PANEL, border: `1px solid rgba(226,115,75,0.10)`,
-      boxShadow: `0 4px 16px rgba(0,0,0,0.30)`,
+      background: PANEL, border: `1px solid var(--border-2)`,
+      boxShadow: `var(--shadow-sm)`,
     }}>
       <h3 style={{ fontSize: 13, fontWeight: 700, color: TXT, marginBottom: 14, letterSpacing: "0.02em" }}>{title}</h3>
       {children}
