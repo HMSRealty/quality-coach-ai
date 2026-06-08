@@ -571,6 +571,7 @@ export default function LeadDetailPage() {
               zestimate={zestimateNum}
               arvReasoning={(md.arv_reasoning as string) ?? null}
               arvNarrative={(md.arv_narrative as string) ?? null}
+              rent={Number(md.estimated_monthly_rent) || null}
               aiComps={(md.arv_comps as Array<Record<string, unknown>>) ?? null}
               comparables={(md.comparables as Array<Record<string, unknown>>) ?? null}
               defaultRehab={rehab}

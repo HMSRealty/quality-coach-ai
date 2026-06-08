@@ -92,6 +92,7 @@ interface QualJSON {
   arv_reasoning?: string;        // short one-liner
   arv_narrative?: string;        // multi-sentence valuation rationale (the "report")
   arv_comps?: Array<{ address?: string; layout?: string; sqft?: number; status?: string; value?: number }>;
+  estimated_monthly_rent?: number; // market rent for the renovated subject (drives BRRRR/Hold)
   transcript?: string;
   regeneration_steps?: string;
   call_summary?: string;
@@ -257,6 +258,7 @@ Output ALL of:
 - arv_reasoning: ONE short sentence with the core math (e.g., "$88/sqft × 1,302 sqft ≈ $114,500").
 - arv_narrative: 2-3 short sentences explaining the valuation — the $/sqft band for renovated comparable-footprint homes nearby, and how it maps onto the subject's sqft to land the range. Write it like a clear appraiser note.
 - arv_comps: 4-8 comparable properties used. Each: { address, layout (e.g. "3 Bed, 1 Bath"), sqft (integer), status ("Sold" | "Active" | "Estimate"), value (integer USD) }. PREFER the real comps in MARKET DATA; if fewer than 4 are provided, you MAY add the closest neighborhood comparables you can reasonably infer and mark their status "Estimate". Never leave arv_comps empty when you produced an ARV.
+- estimated_monthly_rent: integer USD — the realistic MARKET RENT for the renovated subject (used to test BRRRR & buy-and-hold cash flow). Base it on the area + footprint; if you truly cannot estimate, set 0.
 `.trim();
 
 // Build the runtime system prompt: base persona (or org override) + org killers
@@ -349,7 +351,7 @@ ${comps.length ? comps.map((c, i) => {
 async function runArvReport(m: MarketData, address: string | null, key: string): Promise<Partial<QualJSON>> {
   const comps = (m.comparables || []).slice(0, 12);
   if (!m.zestimate && comps.length === 0) return {};
-  const system = `You are a local real-estate appraiser. Using the MARKET DATA below for ${address || "the subject property"}, produce an After-Repair Value (ARV) report for a fully-renovated, retail-ready version of the SUBJECT. Reason about a price-per-sqft band for renovated comparable-footprint homes nearby and apply it to the subject's square footage.
+  const system = `You are a local real-estate appraiser. Using the MARKET DATA below for ${address || "the subject property"}, produce an After-Repair Value (ARV) report for a fully-renovated, retail-ready version of the SUBJECT. Reason about a price-per-sqft band for renovated comparable-footprint homes nearby and apply it to the subject's square footage. Also estimate estimated_monthly_rent (realistic market rent for the renovated subject, integer USD).
 ${marketDataText(m)}`;
   const payload = {
     systemInstruction: { parts: [{ text: system }] },
@@ -364,6 +366,7 @@ ${marketDataText(m)}`;
           arv_comps: { type: "ARRAY", items: { type: "OBJECT", properties: {
             address: { type: "STRING" }, layout: { type: "STRING" }, sqft: { type: "NUMBER" }, status: { type: "STRING" }, value: { type: "NUMBER" },
           } } },
+          estimated_monthly_rent: { type: "NUMBER" },
         },
         required: ["estimated_arv", "estimated_arv_low", "estimated_arv_high", "arv_reasoning", "arv_narrative", "arv_comps"],
       },
@@ -462,6 +465,7 @@ async function runQualification(
               },
             },
           },
+          estimated_monthly_rent: { type: "NUMBER" },
           transcript: { type: "STRING" },
           has_data_discrepancy: { type: "BOOLEAN" },
           discrepancy_notes: { type: "STRING" },
@@ -876,6 +880,7 @@ export async function POST(req: Request): Promise<Response> {
             q.arv_reasoning = arvRpt.arv_reasoning;
             q.arv_narrative = arvRpt.arv_narrative;
             q.arv_comps = arvRpt.arv_comps;
+            if (Number(arvRpt.estimated_monthly_rent) > 0) q.estimated_monthly_rent = arvRpt.estimated_monthly_rent;
           }
         }
       } catch { /* re-fetch best-effort — fall back to original market value */ }
@@ -961,6 +966,7 @@ export async function POST(req: Request): Promise<Response> {
         arv_reasoning: safeStr(q.arv_reasoning),
         arv_narrative: safeStr(q.arv_narrative),
         arv_comps: Array.isArray(q.arv_comps) ? q.arv_comps.slice(0, 10) : [],
+        estimated_monthly_rent: Number(q.estimated_monthly_rent) > 0 ? Math.round(Number(q.estimated_monthly_rent)) : (Number((lead.metadata as { estimated_monthly_rent?: number } | null)?.estimated_monthly_rent) || null),
         // Truth verification (anti-fraud)
         has_data_discrepancy: q.has_data_discrepancy === true,
         discrepancy_notes: q.has_data_discrepancy === true ? safeStr(q.discrepancy_notes) : "",

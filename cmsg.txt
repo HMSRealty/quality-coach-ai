@@ -1,0 +1,22 @@
+feat(deal): exit-strategy analysis — Flip vs BRRRR vs Hold across the ARV band
+
+Answers "does this deal actually work?" per exit strategy, in the deal's exact
+price band.
+
+Backend (/api/analyze): Gemini now also returns estimated_monthly_rent (market
+rent for the renovated subject), included in the ARV recompute too and persisted
+to metadata.
+
+UI (AcquisitionsPanel): new "Does this deal work?" card computed live from the
+ARV range, editable rehab, purchase (asking, else MAO) and rent:
+  • Fix & Flip — net profit range = ARV − purchase − rehab − 8% selling − 3%
+    holding; Works ≥ $30k, Marginal ≥ $12k, else Pass.
+  • BRRRR — capital left after a 75%-ARV refi + post-refi monthly cash flow;
+    Works if ≤ $10k left in AND cash-flowing.
+  • Buy & Hold — 20%-down monthly cash flow + 1% rule check.
+Each shows a Works/Marginal/Pass badge (green/amber/red) and a "Best fit" tag.
+Recomputes as the user edits rehab/fee. Conservative-estimate disclaimer.
+
+Verified: next build green, tsc --noEmit exit 0.
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>

@@ -49,10 +49,55 @@ const SPRING = { type: "spring", stiffness: 460, damping: 32, mass: 0.7 } as con
 const SKY = "#0EA5E9";
 const SKY_600 = "#0284C7";
 const MONEY = "#059669";
-const money = (n: number) => `$${Math.round(Math.max(0, n)).toLocaleString()}`;
+const AMBER = "#D97706";
+const RED = "#DC2626";
+const money = (n: number) => `${n < 0 ? "-$" : "$"}${Math.round(Math.abs(n)).toLocaleString()}`;
+
+type Verdict = "Works" | "Marginal" | "Pass";
+const vColor = (v: Verdict) => (v === "Works" ? MONEY : v === "Marginal" ? AMBER : RED);
+const vRank = (v: Verdict) => (v === "Works" ? 2 : v === "Marginal" ? 1 : 0);
+
+// Evaluate the three exit strategies for the deal across the ARV price band.
+// Standard investor math; deliberately conservative on costs.
+function evalStrategies(opts: { arvLow: number; arvHigh: number; arvMid: number; rehab: number; purchase: number; rent: number }) {
+  const { arvLow, arvHigh, arvMid, rehab, purchase, rent } = opts;
+  const dbg = (loan: number) => loan * 0.0067;            // ~7% 30-yr P&I per $ of loan / month
+  const noi = rent * 0.6;                                  // rent minus ~40% (tax/ins/maint/vac/mgmt)
+
+  // FLIP — profit = ARV − purchase − rehab − selling(8%) − holding(3%)
+  const flipAt = (arv: number) => arv - purchase - rehab - arv * 0.08 - arv * 0.03;
+  const flipLow = flipAt(arvLow || arvMid), flipHigh = flipAt(arvHigh || arvMid), flipMid = flipAt(arvMid);
+  const flipV: Verdict = flipMid >= 30000 ? "Works" : flipMid >= 12000 ? "Marginal" : "Pass";
+
+  // BRRRR — refi 75% ARV; cash left in = (purchase+rehab) − refi; cashflow after refi debt
+  const refi = arvMid * 0.75;
+  const cashLeft = purchase + rehab - refi;
+  const brrrrCf = noi - dbg(refi);
+  const brrrrV: Verdict = cashLeft <= 10000 && brrrrCf > 100 ? "Works"
+    : cashLeft <= 30000 && brrrrCf >= 0 ? "Marginal" : "Pass";
+
+  // HOLD — buy at purchase, 20% down conventional; cashflow + 1% rule
+  const holdCf = noi - dbg(purchase * 0.8);
+  const onePct = rent > 0 && rent >= purchase * 0.01;
+  const holdV: Verdict = holdCf >= 200 && onePct ? "Works" : holdCf >= 0 ? "Marginal" : "Pass";
+
+  const ranked = [
+    { key: "Flip", v: flipV, score: flipMid },
+    { key: "BRRRR", v: brrrrV, score: brrrrCf * 1000 - cashLeft },
+    { key: "Hold", v: holdV, score: holdCf * 1000 },
+  ].sort((a, b) => vRank(b.v) - vRank(a.v) || b.score - a.score);
+  const best = ranked[0].v === "Pass" ? "None" : ranked[0].key;
+
+  return {
+    flip: { v: flipV, low: flipLow, high: flipHigh, mid: flipMid },
+    brrrr: { v: brrrrV, cashLeft, cashflow: brrrrCf },
+    hold: { v: holdV, cashflow: holdCf, onePct },
+    rent, best,
+  };
+}
 
 export function AcquisitionsPanel({
-  leadId, address, ownerName, arv, arvLow, arvHigh, zestimate, arvReasoning, arvNarrative, aiComps, comparables, defaultRehab, askingPrice,
+  leadId, address, ownerName, arv, arvLow, arvHigh, zestimate, arvReasoning, arvNarrative, rent, aiComps, comparables, defaultRehab, askingPrice,
   personality, painPoint, bottomLine,
 }: {
   leadId: string;
@@ -64,6 +109,7 @@ export function AcquisitionsPanel({
   zestimate?: number | null; // Zillow Zestimate — market-value reference only
   arvReasoning?: string | null;
   arvNarrative?: string | null;
+  rent?: number | null;       // AI-estimated market rent (BRRRR/Hold)
   aiComps?: Array<Record<string, unknown>> | null;          // Gemini's appraiser comps
   comparables?: Array<Record<string, unknown>> | null;      // raw provider comps (fallback)
   defaultRehab: number;
@@ -81,6 +127,14 @@ export function AcquisitionsPanel({
   const arvDisplay = hasRange ? `${money(arvLow!)} – ${money(arvHigh!)}` : (arv ? money(arv) : "—");
 
   const mao = useMemo(() => Math.max(0, arv * 0.70 - rehab - fee), [arv, rehab, fee]);
+
+  // Exit-strategy analysis (Flip vs BRRRR vs Hold) across the ARV price band.
+  const arvMid = arv || (arvLow && arvHigh ? Math.round((arvLow + arvHigh) / 2) : 0);
+  const purchase = askingPrice || mao;
+  const strat = useMemo(
+    () => evalStrategies({ arvLow: arvLow || arvMid, arvHigh: arvHigh || arvMid, arvMid, rehab, purchase, rent: rent || 0 }),
+    [arvLow, arvHigh, arvMid, rehab, purchase, rent],
+  );
 
   // Router: a wholesale/cash deal needs the asking price to sit at/below MAO (room
   // to assign). If the seller wants near-retail, route to MLS.
@@ -272,6 +326,46 @@ export function AcquisitionsPanel({
         )}
       </div>
 
+      {/* ── EXIT STRATEGY: Flip vs BRRRR vs Hold ── */}
+      {arvMid > 0 && (
+        <div style={{ background: "#fff", border: "1px solid var(--border-2)", borderRadius: 18, padding: 22, boxShadow: "var(--shadow-sm)" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", marginBottom: 4 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ width: 30, height: 30, borderRadius: 8, background: "color-mix(in srgb, #0EA5E9 14%, transparent)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <Calculator size={15} color={SKY_600} />
+              </span>
+              <p style={{ fontSize: 15, fontWeight: 800, color: "#000" }}>Does this deal work? — Flip vs BRRRR vs Hold</p>
+            </div>
+            {strat.best !== "None" && (
+              <span style={{ fontSize: 11.5, fontWeight: 800, color: MONEY, background: "color-mix(in srgb, #059669 12%, transparent)", padding: "4px 11px", borderRadius: 999 }}>
+                Best fit: {strat.best}
+              </span>
+            )}
+          </div>
+          <p style={{ fontSize: 11.5, color: "var(--text-3)", marginBottom: 14 }}>
+            At purchase <strong style={{ color: "var(--text-1)" }}>{money(purchase)}</strong> · rehab {money(rehab)} · ARV {arvDisplay}{rent ? ` · est. rent ${money(rent)}/mo` : ""}
+          </p>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }} className="ci-grid">
+            <StrategyCard title="Fix & Flip" verdict={strat.flip.v}
+              metric={hasRange ? `${money(strat.flip.low)} – ${money(strat.flip.high)}` : money(strat.flip.mid)}
+              metricLabel="Net profit (sell)"
+              note={`After 8% selling + 3% holding on ARV. Midpoint ${money(strat.flip.mid)}.`} />
+            <StrategyCard title="BRRRR" verdict={strat.brrrr.v}
+              metric={strat.brrrr.cashLeft <= 0 ? `All out +${money(-strat.brrrr.cashLeft)}` : `${money(strat.brrrr.cashLeft)} left in`}
+              metricLabel="Capital after 75% refi"
+              note={rent ? `Cash flow ${money(strat.brrrr.cashflow)}/mo post-refi.` : "Add a rent estimate for cash-flow check."} />
+            <StrategyCard title="Buy & Hold" verdict={strat.hold.v}
+              metric={rent ? `${money(strat.hold.cashflow)}/mo` : "—"}
+              metricLabel="Cash flow (20% down)"
+              note={rent ? `${strat.hold.onePct ? "Meets" : "Below"} the 1% rule (rent vs price).` : "Add a rent estimate to evaluate."} />
+          </div>
+          <p style={{ fontSize: 10.5, color: "var(--text-4)", marginTop: 12 }}>
+            Estimates only — assumes ~7% financing, conventional terms, and standard cost ratios. Verify rents, taxes, and insurance before committing.
+          </p>
+        </div>
+      )}
+
       {/* ── AI Handoff Dossier ── */}
       {(personality || painPoint || bottomLine) && (
         <div style={{ background: "#fff", border: "1px solid var(--border-2)", borderTop: `3px solid ${SKY}`, borderRadius: 16, padding: 20, boxShadow: "var(--shadow-sm)" }}>
@@ -307,6 +401,21 @@ function RouterBadge({ route }: { route: "wholesale" | "retail" }) {
     }}>
       <Icon size={13} /> {wholesale ? "Wholesale / Cash Deal" : "Retail / MLS"}
     </span>
+  );
+}
+
+function StrategyCard({ title, verdict, metric, metricLabel, note }: { title: string; verdict: Verdict; metric: string; metricLabel: string; note: string }) {
+  const c = vColor(verdict);
+  return (
+    <div style={{ borderRadius: 14, padding: 16, background: "#fff", border: `1px solid ${verdict === "Works" ? "color-mix(in srgb, #059669 35%, transparent)" : "var(--border-2)"}`, borderTop: `3px solid ${c}` }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+        <p style={{ fontSize: 13.5, fontWeight: 800, color: "#000" }}>{title}</p>
+        <span style={{ fontSize: 11, fontWeight: 900, color: c, background: `color-mix(in srgb, ${c} 12%, transparent)`, padding: "3px 10px", borderRadius: 999 }}>{verdict}</span>
+      </div>
+      <p style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--text-3)" }}>{metricLabel}</p>
+      <p style={{ fontSize: 20, fontWeight: 900, color: c, lineHeight: 1.1, margin: "2px 0 6px" }}>{metric}</p>
+      <p style={{ fontSize: 11.5, color: "var(--text-2)", lineHeight: 1.5 }}>{note}</p>
+    </div>
   );
 }
 
