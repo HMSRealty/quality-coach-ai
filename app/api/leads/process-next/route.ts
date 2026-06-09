@@ -16,7 +16,7 @@ import { createClient } from "@supabase/supabase-js";
 export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
-const STALE_MS = 6 * 60 * 1000; // a lead Processing longer than this is considered stuck
+const STALE_MS = 3 * 60 * 1000; // a lead Processing longer than this is considered stuck
 
 function service() {
   return createClient(
@@ -81,28 +81,32 @@ export async function POST(req: NextRequest) {
     // 4) INGEST the recording from Drive into our own storage (once), THEN analyze
     //    purely in-house — analyze never touches Drive. Bounded by internal
     //    timeouts. Finally, tick again for the next lead.
-    const work = (async () => {
-      try {
-        await fetch(`${origin}/api/leads/${target.id}/ingest`, { method: "POST", headers: { "Content-Type": "application/json" } });
-      } catch { /* analyze will fall back to the Drive link if ingest failed */ }
-      try {
-        await fetch(`${origin}/api/leads/analyze`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ leadId: target.id }),
-        });
-      } catch { /* analyze flips the lead to a final status itself; continue */ }
+    // Run ingest + analyze INLINE so the work reliably completes within THIS
+    // request (Cloudflare can drop background `waitUntil` work — that's what left
+    // leads stuck). The caller (client heartbeat / queue trigger) holds the
+    // connection. Bounded by analyze's internal timeouts.
+    try {
+      await fetch(`${origin}/api/leads/${target.id}/ingest`, { method: "POST", headers: { "Content-Type": "application/json" } });
+    } catch { /* analyze will fall back to the Drive link if ingest failed */ }
+    try {
+      await fetch(`${origin}/api/leads/analyze`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ leadId: target.id }),
+      });
+    } catch { /* analyze flips the lead to a final status itself; continue */ }
+
+    // Best-effort hand-off to the next lead (the client heartbeat is the reliable
+    // driver; this just keeps things moving when no dashboard is open).
+    await runInBackground((async () => {
       try {
         await fetch(`${origin}/api/leads/process-next`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId }),
+          method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userId }),
         });
-      } catch { /* the client heartbeat will resume it */ }
-    })();
-    await runInBackground(work);
+      } catch { /* heartbeat resumes it */ }
+    })());
 
-    return NextResponse.json({ ok: true, started: target.id });
+    return NextResponse.json({ ok: true, processed: target.id });
   } catch (e) {
     return NextResponse.json({ error: e instanceof Error ? e.message : "Server error" }, { status: 500 });
   }

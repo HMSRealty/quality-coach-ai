@@ -62,12 +62,13 @@ export function ProcessingMonitor() {
     prevIds.current = nextIds;
     setJobs(next);
 
-    // Heartbeat: while any lead is Queued, tick the server queue every poll. The
-    // tick is idempotent — it returns "busy" if a fresh lead is processing,
-    // resets any stuck lead, and otherwise starts the next. This keeps the queue
-    // moving and self-heals a dropped background chain whenever the app is open.
-    const anyQueued = next.some((j) => j.pending);
-    if (anyQueued && uid) {
+    // Heartbeat: while ANY lead is Queued OR Processing, tick the server queue
+    // every poll. The tick is idempotent — it returns "busy" if a lead is fresh,
+    // resets a stuck one, and otherwise starts the next. Firing on active leads
+    // too means even a single stuck Processing lead (nothing queued behind it)
+    // gets watchdog-reset and re-driven instead of spinning forever.
+    const anyJob = next.length > 0;
+    if (anyJob && uid) {
       fetch("/api/leads/process-next", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
