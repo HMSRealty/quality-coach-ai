@@ -1,18 +1,17 @@
 "use client";
 
-// Bulk import leads from CSV (owner, phone, address, asking, condition, closing,
-// reason, + a call Google-Drive link). Each row becomes a lead and is queued for
-// AI qualification straight from the Drive link.
+// Bulk import leads from CSV. Column order is irrelevant — detection is
+// driven by header keywords (multi-keyword count) + cell content patterns.
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
-import { Upload, X, Loader2, CheckCircle2, Download, FileSpreadsheet } from "lucide-react";
+import { Upload, X, Loader2, CheckCircle2, Download, FileSpreadsheet, Info } from "lucide-react";
 import { Portal } from "@/app/_components/Portal";
 
 const SKY = "#0EA5E9";
 const MONEY = "#059669";
 
-// RFC-ish CSV: respects quoted fields (addresses contain commas).
+// RFC-ish CSV parser: handles quoted fields (commas & newlines inside quotes).
 function parseCsv(text: string): string[][] {
   const rows: string[][] = []; let cur: string[] = []; let field = ""; let q = false;
   for (let i = 0; i < text.length; i++) {
@@ -23,94 +22,122 @@ function parseCsv(text: string): string[][] {
     } else {
       if (c === '"') q = true;
       else if (c === ",") { cur.push(field); field = ""; }
-      else if (c === "\n" || c === "\r") { if (c === "\r" && text[i + 1] === "\n") i++; cur.push(field); rows.push(cur); cur = []; field = ""; }
-      else field += c;
+      else if (c === "\n" || c === "\r") {
+        if (c === "\r" && text[i + 1] === "\n") i++;
+        cur.push(field); rows.push(cur); cur = []; field = "";
+      } else field += c;
     }
   }
   if (field.length || cur.length) { cur.push(field); rows.push(cur); }
   return rows.filter(r => r.some(c => c.trim()));
 }
 
-// Keywords associated with each logical field (substring match on header).
-const HEADER_KW: Record<string, string[]> = {
-  owner:     ["owner", "seller", "name", "contact name", "lead name"],
-  phone:     ["phone", "mobile", "cell", "number", "tel", "contact"],
-  address:   ["address", "property", "location", "street"],
-  asking:    ["asking", "price", "amount", "offer", "list"],
-  condition: ["condition", "repair", "rehab", "status"],
-  closing:   ["closing", "timeline", "how soon", "when", "urgency"],
-  reason:    ["reason", "motivation", "why", "note", "comment", "selling"],
-  drive:     ["drive", "recording", "audio", "call", "link", "url", "media"],
+// ── Field keyword tables ────────────────────────────────────────────────────
+// Each entry: longer / more specific phrases FIRST (they score higher via count).
+const FIELD_KW: Record<string, string[]> = {
+  // Cold-caller / agent who made the call
+  cc:          ["cold caller", "cold call name", "cc name", "agent name", "va name", "rep name", "caller name", "cc "],
+  // Property owner / seller
+  owner:       ["owner name", "seller name", "owner", "seller"],
+  // Phone number
+  phone:       ["owner number", "phone number", "contact number", "owner phone", "mobile", "cell", "phone", "tel", "number"],
+  // Property address
+  address:     ["property address", "property addr", "address", "location", "street"],
+  // Asking price
+  asking:      ["asking price", "list price", "asking", "offer price", "price"],
+  // Property condition
+  condition:   ["condition", "year built", "property condition", "repairs needed", "repair"],
+  // Closing timeline
+  closing:     ["closing timeline", "closing", "timeline", "how soon", "close date"],
+  // Reason for selling
+  reason:      ["reason for selling", "reason for sale", "reason", "motivation", "why sell"],
+  // Zestimate / market value from Zillow column
+  zestimate:   ["zestimate", "zillow estimate", "market value", "zillow value"],
+  // Direct Zillow listing URL
+  zillow_url:  ["zillow link", "zillow url", "zillow listing", "listing link", "zillow"],
+  // Google Drive recording link
+  drive:       ["call recording", "recording link", "drive link", "google drive", "audio link",
+                 "recording", "audio", "drive", "link", "url"],
 };
 
-// Content-pattern detectors — score a cell value for each field type.
+// Content-pattern scoring — how strongly does a cell value suggest each field?
 function scoreCell(val: string): Record<string, number> {
   const v = val.trim();
-  if (!v) return {};
+  if (!v || v.toLowerCase() === "na" || v === "—" || v === "-") return {};
   const scores: Record<string, number> = {};
-  // Drive: any http URL, especially drive.google.com
-  if (/^https?:\/\//i.test(v)) { scores.drive = v.includes("drive.google") ? 10 : 6; }
-  // Phone: 7-15 digits with common separators
-  if (/^\+?[\d\s\-().]{7,15}$/.test(v) && /\d{7,}/.test(v.replace(/\D/g, ""))) scores.phone = 8;
-  // Asking price: dollar amount
-  if (/^\$?[\d,]+(\.\d{1,2})?k?$/.test(v.replace(/\s/g, ""))) scores.asking = 6;
-  // Address: has digits + letters, no http
-  if (/\d/.test(v) && /[a-zA-Z]/.test(v) && !v.startsWith("http") && v.length > 8) scores.address = 4;
-  // Owner name: 2-4 words, only letters/spaces
-  if (/^[A-Za-z\s'-]{4,40}$/.test(v) && v.trim().split(/\s+/).length >= 2) scores.owner = 3;
+  // Drive: http URL; big bonus for drive.google.com
+  if (/^https?:\/\//i.test(v)) {
+    scores.drive = v.toLowerCase().includes("drive.google") || v.toLowerCase().includes("drive.") ? 12 : 5;
+    if (v.toLowerCase().includes("zillow.com")) scores.zillow_url = 10;
+  }
+  // Phone: looks like a phone number (7-15 digits after stripping separators)
+  if (/^\+?[\d\s\-().]{7,18}$/.test(v) && v.replace(/\D/g, "").length >= 7) scores.phone = 9;
+  // Asking / price: a clean dollar amount (no long text after)
+  if (/^\$?[\d,]+(\.\d{1,2})?k?$/i.test(v.replace(/\s+/g, ""))) scores.asking = 7;
+  // Zestimate cell: number that may be prefixed with $ and followed by "Zestimate"/"Redfin"
+  if (/\$[\d,]+/.test(v) && /zestimate|redfin|zillow/i.test(v)) scores.zestimate = 10;
+  // Address: has a leading street number + letters, no http
+  if (/^\d+\s+[A-Za-z]/.test(v) && v.length > 6 && !v.startsWith("http")) scores.address = 8;
+  // Owner / seller name: 2-5 words, only letters, spaces, hyphens, apostrophes
+  if (/^[A-Za-z\s'\-]{4,50}$/.test(v) && v.trim().split(/\s+/).length >= 2 && v.trim().split(/\s+/).length <= 5) scores.owner = 4;
   return scores;
 }
 
+// Count how many keywords from the list are substrings of col (longer keywords
+// first in the list so they contribute more to the count).
+function kwCount(col: string, kws: string[]): number {
+  return kws.filter(kw => col.includes(kw)).length;
+}
+
+type MappedRow = Record<string, string>;
+
 function mapHeader(header: string[], dataRows: string[][]): Record<string, number> {
   const h = header.map(x => x.trim().toLowerCase());
-  const fields = Object.keys(HEADER_KW);
+  const fields = Object.keys(FIELD_KW);
+  const sampleRows = dataRows.slice(0, 8);
 
-  // Score each (field, column) pair by header keyword matches.
-  const headerScore: number[][] = fields.map(field =>
-    h.map(col => HEADER_KW[field].some(kw => col.includes(kw)) ? 5 : 0)
-  );
+  // Header scores: count of matching keywords × 6 (larger than single content-match).
+  const hScore = fields.map(f => h.map(col => kwCount(col, FIELD_KW[f]) * 6));
 
-  // Score each (field, column) pair by content of first 5 data rows.
-  const contentScore: number[][] = fields.map(() => Array(h.length).fill(0));
-  const sampleRows = dataRows.slice(0, 5);
+  // Content scores: accumulated over sample rows.
+  const cScore = fields.map(() => Array(h.length).fill(0));
   for (const row of sampleRows) {
     for (let c = 0; c < h.length; c++) {
-      const cell = row[c] || "";
-      const cs = scoreCell(cell);
-      fields.forEach((field, fi) => {
-        if (cs[field]) contentScore[fi][c] += cs[field];
-      });
+      const cs = scoreCell(row[c] || "");
+      fields.forEach((f, fi) => { if (cs[f]) cScore[fi][c] += cs[f]; });
     }
   }
 
-  // Combined score: header keyword match wins if strong; content breaks ties.
-  const combined: number[][] = fields.map((_, fi) =>
-    h.map((_, c) => headerScore[fi][c] * 3 + contentScore[fi][c])
-  );
+  // Combined = header dominates (×3 weight) + content breaks ties.
+  const combined = fields.map((_, fi) => h.map((_, c) => hScore[fi][c] * 3 + cScore[fi][c]));
 
-  // Greedy assignment: pick highest-score (field, column) pairs without reuse.
+  // Greedy assignment — highest (field, col) score first, no column reuse.
+  const triples: { fi: number; col: number; score: number }[] = [];
+  fields.forEach((_, fi) => h.forEach((_, col) => {
+    if (combined[fi][col] > 0) triples.push({ fi, col, score: combined[fi][col] });
+  }));
+  triples.sort((a, b) => b.score - a.score);
+
   const assigned: Record<string, number> = {};
   const usedCols = new Set<number>();
-  // Sort all (field, col, score) triples by score desc.
-  const triples: { fi: number; col: number; score: number }[] = [];
-  fields.forEach((_, fi) => {
-    h.forEach((_, col) => {
-      if (combined[fi][col] > 0) triples.push({ fi, col, score: combined[fi][col] });
-    });
-  });
-  triples.sort((a, b) => b.score - a.score);
   for (const { fi, col } of triples) {
     const field = fields[fi];
-    if (assigned[field] !== undefined) continue; // already assigned
-    if (usedCols.has(col)) continue;             // column taken
+    if (assigned[field] !== undefined || usedCols.has(col)) continue;
     assigned[field] = col;
     usedCols.add(col);
   }
-
-  // Any unassigned field gets -1.
   const idx: Record<string, number> = {};
-  for (const field of fields) idx[field] = assigned[field] ?? -1;
+  for (const f of fields) idx[f] = assigned[f] ?? -1;
   return idx;
+}
+
+// Parse a dollar amount out of messy strings like "$273,500 Zestimate®" or "$459,600 Redfin".
+function parseMoneyStr(s: string): number | null {
+  if (!s || /^na$/i.test(s.trim()) || s.trim() === "--" || s.trim() === "$--") return null;
+  const m = s.replace(/,/g, "").match(/\$?([\d]+(?:\.\d+)?)/);
+  if (!m) return null;
+  const n = Number(m[1]);
+  return isFinite(n) && n > 0 ? n : null;
 }
 
 interface Campaign { id: string; name: string; }
@@ -118,7 +145,8 @@ interface Campaign { id: string; name: string; }
 export function ImportLeads({ onClose, onDone }: { onClose: () => void; onDone: () => void }) {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [campaignId, setCampaignId] = useState("");
-  const [rows, setRows] = useState<Record<string, string>[]>([]);
+  const [rows, setRows] = useState<MappedRow[]>([]);
+  const [detected, setDetected] = useState<Record<string, string>>({}); // field → header name
   const [fileName, setFileName] = useState("");
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState({ done: 0, total: 0 });
@@ -133,15 +161,39 @@ export function ImportLeads({ onClose, onDone }: { onClose: () => void; onDone: 
   }, []);
 
   const onFile = async (f: File) => {
-    setErr(""); setFileName(f.name);
+    setErr(""); setFileName(f.name); setRows([]); setDetected({});
     const grid = parseCsv(await f.text());
-    if (grid.length < 2) { setErr("CSV needs a header row + at least one lead."); return; }
-    const idx = mapHeader(grid[0], grid.slice(1));
-    if (idx.address < 0 && idx.drive < 0) { setErr("Could not detect an address or call-link column. Rename your headers or check that values contain addresses and URLs."); return; }
-    const mapped = grid.slice(1).map(cells => {
-      const get = (k: string) => (idx[k] >= 0 ? (cells[idx[k]] || "").trim() : "");
-      return { owner: get("owner"), phone: get("phone"), address: get("address"), asking: get("asking"), condition: get("condition"), closing: get("closing"), reason: get("reason"), drive: get("drive") };
-    }).filter(r => r.address || r.drive);
+    if (grid.length < 2) { setErr("CSV needs a header row + at least one data row."); return; }
+    const header = grid[0];
+    const dataGrid = grid.slice(1);
+    const idx = mapHeader(header, dataGrid);
+
+    // Build human-readable detection map for the preview.
+    const det: Record<string, string> = {};
+    for (const [field, col] of Object.entries(idx)) {
+      if (col >= 0) det[field] = header[col]?.trim() || `col ${col + 1}`;
+    }
+    setDetected(det);
+
+    if (idx.address < 0 && idx.drive < 0) {
+      setErr("Could not detect an address or call-link column. Check that your CSV has an address column and/or a Google Drive link column.");
+      return;
+    }
+
+    const get = (cells: string[], k: string) => idx[k] >= 0 ? (cells[idx[k]] || "").trim() : "";
+    const mapped = dataGrid.map(cells => ({
+      cc:          get(cells, "cc"),
+      owner:       get(cells, "owner"),
+      phone:       get(cells, "phone"),
+      address:     get(cells, "address"),
+      asking:      get(cells, "asking"),
+      condition:   get(cells, "condition"),
+      closing:     get(cells, "closing"),
+      reason:      get(cells, "reason"),
+      zestimate:   get(cells, "zestimate"),
+      zillow_url:  get(cells, "zillow_url"),
+      drive:       get(cells, "drive"),
+    })).filter(r => r.address || r.drive);
     setRows(mapped);
   };
 
@@ -156,21 +208,38 @@ export function ImportLeads({ onClose, onDone }: { onClose: () => void; onDone: 
     for (let i = 0; i < rows.length; i++) {
       const r = rows[i];
       try {
-        const asking = r.asking ? Number(r.asking.replace(/[^\d.]/g, "")) : null;
+        const askingRaw = parseMoneyStr(r.asking);
+        const zestimateRaw = parseMoneyStr(r.zestimate);
         const { data: lead } = await supabase.from("leads").insert({
           user_id: user.id, organization_id: orgId, campaign_id: campaignId,
-          agent_name: r.owner || null, extracted_address: r.address || null,
-          asking_price: asking != null && isFinite(asking) ? asking : null,
+          // CC name is the cold caller; owner name is the property seller.
+          agent_name: r.cc || r.owner || null,
+          extracted_address: r.address || null,
+          asking_price: askingRaw && askingRaw > 0 ? askingRaw : null,
           status: "Processing",
-          metadata: { owner_name: r.owner, phone_number: r.phone, reason: r.reason, condition: r.condition, closing: r.closing, source_audio_url: r.drive || null, submitted_via: "csv_import" },
+          metadata: {
+            owner_name: r.owner || null,
+            cc_name: r.cc || null,
+            phone_number: r.phone || null,
+            reason: r.reason || null,
+            condition: r.condition || null,
+            closing: r.closing || null,
+            // Pre-populate Zillow data from the form columns if present.
+            ...(zestimateRaw ? { zestimate: zestimateRaw } : {}),
+            ...(r.zillow_url ? { zillow_link: r.zillow_url } : {}),
+            source_audio_url: r.drive || null,
+            submitted_via: "csv_import",
+          },
         }).select("id").single();
+
+        // Only trigger analysis if a recording link exists.
         if (lead?.id && r.drive) {
           fetch("/api/leads/analyze", {
             method: "POST", headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ leadId: lead.id, audioUrls: [r.drive] }),
           }).catch(() => {});
         }
-      } catch { /* skip a bad row */ }
+      } catch { /* skip bad row */ }
       setProgress({ done: i + 1, total: rows.length });
     }
     setBusy(false);
@@ -178,9 +247,18 @@ export function ImportLeads({ onClose, onDone }: { onClose: () => void; onDone: 
   };
 
   const template = () => {
-    const csv = 'Owner Name,Phone,Address,Asking Price,Condition,Closing,Reason,Call Drive Link\n"John Smith","+1 555-0100","123 Main St, Austin, TX 78701","250000","Needs roof","ASAP","Relocating","https://drive.google.com/file/d/FILEID/view?usp=sharing"';
+    const csv = [
+      "CC Name,Owner Name,Owner Number,Property Address,Asking Price,Zestimate,Zillow Link,Condition,Closing,Reason,Call Recording Link",
+      '"JULIA","William Peyton","501-658-3698","1313 Washington St, Little Rock, AR 72204","42000","$42586 Zestimate","https://www.zillow.com/homedetails/.../","Good","ASAP","Relocating","https://drive.google.com/open?id=XXXX"',
+    ].join("\n");
     const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
     const a = document.createElement("a"); a.href = url; a.download = "leads-import-template.csv"; a.click(); URL.revokeObjectURL(url);
+  };
+
+  const FIELD_LABELS: Record<string, string> = {
+    cc: "Cold Caller", owner: "Owner Name", phone: "Phone", address: "Address",
+    asking: "Asking Price", zestimate: "Zestimate", zillow_url: "Zillow Link",
+    condition: "Condition", closing: "Closing", reason: "Reason", drive: "Recording Link",
   };
 
   return (
@@ -188,13 +266,14 @@ export function ImportLeads({ onClose, onDone }: { onClose: () => void; onDone: 
     <div onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }}
       style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(15,23,42,0.45)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
       <motion.div initial={{ opacity: 0, y: 8, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ type: "spring", stiffness: 420, damping: 30 }}
-        style={{ width: "100%", maxWidth: 620, background: "#fff", borderRadius: 18, boxShadow: "0 24px 60px rgba(15,23,42,0.30)", overflow: "hidden" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: "1px solid var(--border-1)" }}>
+        style={{ width: "100%", maxWidth: 660, background: "#fff", borderRadius: 18, boxShadow: "0 24px 60px rgba(15,23,42,0.30)", overflow: "hidden", maxHeight: "90vh", display: "flex", flexDirection: "column" }}>
+
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: "1px solid var(--border-1)", flexShrink: 0 }}>
           <p style={{ fontSize: 16, fontWeight: 800, color: "#000", display: "inline-flex", alignItems: "center", gap: 9 }}><FileSpreadsheet size={18} color={SKY} /> Import Leads (CSV)</p>
           <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-3)" }}><X size={18} /></button>
         </div>
 
-        <div style={{ padding: 20, display: "flex", flexDirection: "column", gap: 14 }}>
+        <div style={{ padding: 20, display: "flex", flexDirection: "column", gap: 14, overflowY: "auto" }}>
           <div>
             <label style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--text-3)", display: "block", marginBottom: 6 }}>Campaign</label>
             <select value={campaignId} onChange={e => setCampaignId(e.target.value)} style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: "1px solid var(--border-2)", background: "#fff", color: "#000", fontSize: 13, outline: "none" }}>
@@ -203,16 +282,40 @@ export function ImportLeads({ onClose, onDone }: { onClose: () => void; onDone: 
             </select>
           </div>
 
-          <label style={{ border: "2px dashed color-mix(in srgb, #0EA5E9 35%, transparent)", borderRadius: 14, padding: "26px 18px", textAlign: "center", cursor: "pointer", background: "#F8FAFC", display: "block" }}>
+          <label style={{ border: "2px dashed color-mix(in srgb, #0EA5E9 35%, transparent)", borderRadius: 14, padding: "22px 18px", textAlign: "center", cursor: "pointer", background: "#F8FAFC", display: "block" }}>
             <input type="file" accept=".csv" onChange={e => { const f = e.target.files?.[0]; if (f) onFile(f); }} style={{ display: "none" }} />
-            <Upload size={28} color="#0284C7" style={{ margin: "0 auto 8px" }} />
+            <Upload size={26} color="#0284C7" style={{ margin: "0 auto 8px" }} />
             <p style={{ fontSize: 14, fontWeight: 800, color: "#000" }}>{fileName || "Click to choose a CSV"}</p>
-            <p style={{ fontSize: 12, color: "var(--text-3)", marginTop: 3 }}>Any column order — columns are auto-detected by name and content</p>
+            <p style={{ fontSize: 12, color: "var(--text-3)", marginTop: 3 }}>Any column order — headers are auto-detected by name and cell content</p>
           </label>
+
+          {/* Detected column mapping preview */}
+          {Object.keys(detected).length > 0 && (
+            <div style={{ borderRadius: 12, border: "1px solid #0EA5E933", background: "#F0F9FF", padding: "12px 14px" }}>
+              <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.05em", textTransform: "uppercase", color: "#0284C7", marginBottom: 8, display: "inline-flex", alignItems: "center", gap: 5 }}>
+                <Info size={11} /> Detected columns
+              </p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                {Object.entries(FIELD_LABELS).map(([field, label]) => {
+                  const col = detected[field];
+                  if (!col) return null;
+                  return (
+                    <span key={field} style={{ fontSize: 11, padding: "3px 9px", borderRadius: 999, background: "#fff", border: "1px solid #0EA5E955", color: "#0369A1", fontWeight: 700 }}>
+                      {label} → <span style={{ color: "#000" }}>{col}</span>
+                    </span>
+                  );
+                })}
+              </div>
+              {rows.length > 0 && (
+                <p style={{ fontSize: 12, fontWeight: 700, color: MONEY, marginTop: 8 }}>
+                  {rows.length} lead{rows.length === 1 ? "" : "s"} ready · {rows.filter(r => r.drive).length} with recording
+                </p>
+              )}
+            </div>
+          )}
 
           <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
             <button onClick={template} className="btn-ghost" style={{ fontSize: 12 }}><Download size={12} /> Download template</button>
-            {rows.length > 0 && <span style={{ fontSize: 12.5, fontWeight: 700, color: MONEY }}>{rows.length} lead{rows.length === 1 ? "" : "s"} parsed</span>}
           </div>
 
           {err && <p style={{ fontSize: 12.5, color: "#DC2626", fontWeight: 600 }}>{err}</p>}
@@ -232,7 +335,9 @@ export function ImportLeads({ onClose, onDone }: { onClose: () => void; onDone: 
               {busy ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />} Import &amp; Qualify
             </button>
           </div>
-          <p style={{ fontSize: 11, color: "var(--text-4)" }}>Columns are auto-detected by header name and cell content — no fixed order required. The call link should be a <strong>public</strong> Google Drive share link; the AI downloads it and qualifies the lead automatically.</p>
+          <p style={{ fontSize: 11, color: "var(--text-4)" }}>
+            Leads with a recording link are sent for AI analysis. Leads without a recording stay as <strong>Processing</strong> — you can upload a recording later to trigger analysis.
+          </p>
         </div>
       </motion.div>
     </div>
