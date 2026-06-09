@@ -30,12 +30,12 @@ function geminiKey(): string {
 // POST to a Gemini endpoint with automatic retry on transient errors
 // (429 rate-limit, 500/502/503/504 overload). This eliminates most sporadic
 // "Error" statuses, which are almost always transient model overloads.
-async function geminiPost(url: string, body: unknown, tries = 4): Promise<Response> {
+async function geminiPost(url: string, body: unknown, tries = 2): Promise<Response> {
   let last: Response | null = null;
   for (let i = 0; i < tries; i++) {
     let res: Response;
     try {
-      res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      res = await tfetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
     } catch {
       // network blip — wait and retry
       if (i < tries - 1) { await new Promise((r) => setTimeout(r, 1000 * (i + 1))); continue; }
@@ -199,7 +199,7 @@ interface QualJSON {
 // ── Gemini Files API upload (resumable, edge fetch) ──
 async function uploadToGemini(bytes: ArrayBuffer, mime: string, key: string): Promise<{ uri: string; mime: string }> {
   const size = bytes.byteLength;
-  const init = await fetch(`https://generativelanguage.googleapis.com/upload/v1beta/files?key=${key}`, {
+  const init = await tfetch(`https://generativelanguage.googleapis.com/upload/v1beta/files?key=${key}`, {
     method: "POST",
     headers: {
       "X-Goog-Upload-Protocol": "resumable",
@@ -213,7 +213,7 @@ async function uploadToGemini(bytes: ArrayBuffer, mime: string, key: string): Pr
   if (!init.ok) throw new Error(`Gemini upload init failed: ${init.status}`);
   const uploadUrl = init.headers.get("X-Goog-Upload-URL") || init.headers.get("x-goog-upload-url");
   if (!uploadUrl) throw new Error("Gemini upload URL missing");
-  const fin = await fetch(uploadUrl, {
+  const fin = await tfetch(uploadUrl, {
     method: "POST",
     headers: {
       "X-Goog-Upload-Protocol": "resumable",

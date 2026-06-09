@@ -62,12 +62,12 @@ export function ProcessingMonitor() {
     prevIds.current = nextIds;
     setJobs(next);
 
-    // Self-heal: leads are Queued (user pressed Start) but nothing is Processing
-    // → the background chain dropped. Re-nudge it. Only acts on Queued, so it
-    // never starts work the user didn't initiate.
-    const anyActive = next.some((j) => !j.pending);
+    // Heartbeat: while any lead is Queued, tick the server queue every poll. The
+    // tick is idempotent — it returns "busy" if a fresh lead is processing,
+    // resets any stuck lead, and otherwise starts the next. This keeps the queue
+    // moving and self-heals a dropped background chain whenever the app is open.
     const anyQueued = next.some((j) => j.pending);
-    if (anyQueued && !anyActive && uid) {
+    if (anyQueued && uid) {
       fetch("/api/leads/process-next", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
