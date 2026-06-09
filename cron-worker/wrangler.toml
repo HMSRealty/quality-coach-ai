@@ -1,0 +1,19 @@
+# RealTrack queue cron — a tiny standalone Cloudflare Worker whose only job is to
+# ping the Pages app's drain endpoint every minute, so the lead-analysis queue
+# keeps draining even when no dashboard tab is open.
+#
+# One-time deploy:
+#   1. cd cron-worker
+#   2. npx wrangler secret put CRON_SECRET        # paste the SAME value you set as CRON_SECRET on the Pages project
+#   3. npx wrangler deploy
+#
+# Adjust DRAIN_URL below to your production domain if not using the pages.dev URL.
+name = "realtrack-queue-cron"
+main = "src/index.js"
+compatibility_date = "2024-11-01"
+
+[triggers]
+crons = ["* * * * *"]   # every minute
+
+[vars]
+DRAIN_URL = "https://quality-coach-ai.pages.dev/api/cron/drain"
