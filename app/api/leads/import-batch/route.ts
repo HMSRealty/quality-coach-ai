@@ -49,7 +49,6 @@ export async function POST(req: NextRequest) {
       { auth: { persistSession: false } },
     );
 
-    const origin = req.nextUrl.origin;
     const leadIds: Array<{ id: string; driveUrl: string }> = [];
     let skipped = 0;
 
@@ -90,14 +89,9 @@ export async function POST(req: NextRequest) {
     // whole batch at once — avoids rate-limit/overload and keeps each analysis
     // clean. This runs in the BACKGROUND (waitUntil) so the HTTP response below
     // returns immediately; the client can navigate away while the queue drains.
-    // Leads are now "Pending". Kick the sequential queue ONCE — it processes the
-    // oldest pending lead, then chains to the next as each finishes (one at a
-    // time, no parallel hammering of the AI). Fire-and-forget; it's idempotent.
-    fetch(`${origin}/api/leads/process-next`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId }),
-    }).catch(() => {});
+    // Leads land as "Pending" and stay there. The USER triggers qualification
+    // from the Call Library ("Start qualifying"), which processes them one at a
+    // time. We do NOT auto-fire analysis on import.
 
     return NextResponse.json({
       ok: true,

@@ -180,15 +180,13 @@ export default function LeadDetailPage() {
       setUploading(false);
       return;
     }
-    // Queue it: mark Pending and let the sequential processor pick it up, so a
-    // newly-added recording is analyzed one-at-a-time alongside any other
-    // pending leads (never overlapping AI runs for the same user).
-    await supabase.from("leads").update({ status: "Pending" }).eq("id", lead.id);
-    await fetch("/api/leads/process-next", {
+    // Single explicit upload → analyze this one lead right away.
+    const uploadedUrls: string[] = upJson.urls || [];
+    await fetch("/api/leads/analyze", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: lead.user_id }),
-    }).catch(() => {});
+      body: JSON.stringify({ leadId: lead.id, audioUrls: uploadedUrls }),
+    });
     await load();
     setUploading(false);
   };

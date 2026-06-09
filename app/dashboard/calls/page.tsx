@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/lib/supabase";
-import { Search, RotateCcw, Loader2, PhoneCall, Download, CheckSquare, Trash2, FileSpreadsheet } from "lucide-react";
+import { Search, RotateCcw, Loader2, PhoneCall, Download, CheckSquare, Trash2, FileSpreadsheet, Play, StopCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { LeadsList, type LeadItem } from "@/app/_components/LeadsList";
 import { ImportLeads } from "@/app/_components/ImportLeads";
@@ -21,7 +21,7 @@ interface Lead {
   campaigns?: { name: string } | null;
 }
 
-const STATUS_OPTS = ["All", "Hot", "Warm", "Cold", "Call Back", "Disqualified", "Duplicate", "Error"];
+const STATUS_OPTS = ["All", "Pending", "Hot", "Warm", "Cold", "Call Back", "Disqualified", "Duplicate", "Error"];
 
 function arvOf(l: Lead): number | null {
   const m = l.metadata as { arv?: number; zillow_data?: { zestimate?: number } } | null;
@@ -45,6 +45,10 @@ export default function CallsPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkBusy, setBulkBusy] = useState(false);
   const [importing, setImporting] = useState(false);
+  // Sequential, client-driven qualification of Pending leads.
+  const [qualifying, setQualifying] = useState(false);
+  const [qProgress, setQProgress] = useState({ done: 0, total: 0, current: "" });
+  const stopRef = useRef(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -109,6 +113,55 @@ export default function CallsPage() {
     return true;
   });
 
+  const pendingLeads = leads.filter(l => l.status === "Pending");
+
+  // Qualify Pending leads ONE AT A TIME, driven by the browser so it never
+  // depends on fragile background execution. Each lead: mark Processing → run
+  // analyze (Gemini + Zillow) → wait for it to finish → move to the next.
+  const startQualifying = async () => {
+    if (qualifying) return;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    const { data } = await supabase
+      .from("leads")
+      .select("id, metadata, call_recording_url, extracted_address, created_at")
+      .eq("user_id", user.id).eq("status", "Pending")
+      .order("created_at", { ascending: true });
+    const queue = (data || []) as Array<{ id: string; metadata: Record<string, unknown> | null; call_recording_url: string | null; extracted_address: string | null }>;
+    if (!queue.length) return;
+
+    stopRef.current = false;
+    setQualifying(true);
+    setQProgress({ done: 0, total: queue.length, current: "" });
+
+    for (let i = 0; i < queue.length; i++) {
+      if (stopRef.current) break;
+      const lead = queue[i];
+      const driveLink = (lead.metadata && typeof lead.metadata.source_audio_url === "string" ? lead.metadata.source_audio_url : null) || lead.call_recording_url || null;
+      setQProgress({ done: i, total: queue.length, current: lead.extracted_address || "lead" });
+
+      // Show it as actively processing (best-effort; analyze sets the final status).
+      try { await supabase.from("leads").update({ status: "Processing" }).eq("id", lead.id); } catch { /* RLS may block; analyze still runs */ }
+
+      try {
+        await fetch("/api/leads/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ leadId: lead.id, ...(driveLink ? { audioUrls: [driveLink] } : {}) }),
+        });
+      } catch { /* analyze flips the lead to a final status itself; keep going */ }
+
+      setQProgress({ done: i + 1, total: queue.length, current: lead.extracted_address || "lead" });
+      // Realtime subscription reflects each lead's new status automatically.
+    }
+
+    setQualifying(false);
+    stopRef.current = false;
+    await load();
+  };
+
+  const stopQualifying = () => { stopRef.current = true; };
+
   const deleteLead = async (leadId: string) => {
     if (!confirm("Delete this lead and its recordings? This cannot be undone.")) return;
     setLeads(prev => prev.filter(l => l.id !== leadId)); // optimistic
@@ -163,6 +216,20 @@ export default function CallsPage() {
           </p>
         </div>
         <div style={{ display: "flex", gap: 10 }}>
+          {pendingLeads.length > 0 && !qualifying && (
+            <button onClick={startQualifying} style={{
+              display: "inline-flex", alignItems: "center", gap: 7, padding: "9px 16px", borderRadius: 9,
+              background: "linear-gradient(135deg, #059669, #047857)", color: "#fff", border: "none",
+              fontSize: 12.5, fontWeight: 800, cursor: "pointer", boxShadow: "0 4px 14px rgba(5,150,105,0.32)",
+            }}><Play size={14} /> Start qualifying ({pendingLeads.length})</button>
+          )}
+          {qualifying && (
+            <button onClick={stopQualifying} style={{
+              display: "inline-flex", alignItems: "center", gap: 7, padding: "9px 16px", borderRadius: 9,
+              background: "#DC2626", color: "#fff", border: "none",
+              fontSize: 12.5, fontWeight: 800, cursor: "pointer",
+            }}><StopCircle size={14} /> Stop ({qProgress.done}/{qProgress.total})</button>
+          )}
           <button onClick={() => setImporting(true)} style={{
             display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 14px", borderRadius: 9,
             background: "var(--surface-1)", color: "var(--text-1)", border: "1px solid var(--border-2)",
@@ -185,6 +252,22 @@ export default function CallsPage() {
           }}><RotateCcw size={13} /> Refresh</button>
         </div>
       </div>
+
+      {/* Sequential qualification progress */}
+      {qualifying && (
+        <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", borderRadius: 12, background: "#ECFDF5", border: "1px solid #059669", flexWrap: "wrap" }}>
+          <Loader2 size={16} className="animate-spin" style={{ color: "#059669" }} />
+          <span style={{ fontSize: 13, fontWeight: 800, color: "#047857" }}>
+            Qualifying {qProgress.done}/{qProgress.total}
+          </span>
+          <span style={{ fontSize: 12.5, color: "#065F46", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            {qProgress.current ? `Now: ${qProgress.current}` : "Starting…"}
+          </span>
+          <div style={{ flex: 1, minWidth: 120, height: 6, borderRadius: 999, background: "#A7F3D0", overflow: "hidden" }}>
+            <div style={{ width: `${qProgress.total ? (qProgress.done / qProgress.total) * 100 : 0}%`, height: "100%", background: "#059669", transition: "width 300ms" }} />
+          </div>
+        </div>
+      )}
 
       {/* Bulk action bar */}
       {selectMode && (

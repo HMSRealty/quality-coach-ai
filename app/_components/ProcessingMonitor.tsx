@@ -61,18 +61,6 @@ export function ProcessingMonitor() {
     }
     prevIds.current = nextIds;
     setJobs(next);
-
-    // Self-heal: if leads are queued (Pending) but nothing is Processing, the
-    // background chain may have been dropped — nudge the queue to resume.
-    const anyActive = next.some((j) => !j.pending);
-    const anyQueued = next.some((j) => j.pending);
-    if (anyQueued && !anyActive && uid) {
-      fetch("/api/leads/process-next", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: uid }),
-      }).catch(() => {});
-    }
   };
 
   useEffect(() => {

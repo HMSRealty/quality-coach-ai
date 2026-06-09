@@ -27,6 +27,28 @@ function geminiKey(): string {
   return k;
 }
 
+// POST to a Gemini endpoint with automatic retry on transient errors
+// (429 rate-limit, 500/502/503/504 overload). This eliminates most sporadic
+// "Error" statuses, which are almost always transient model overloads.
+async function geminiPost(url: string, body: unknown, tries = 4): Promise<Response> {
+  let last: Response | null = null;
+  for (let i = 0; i < tries; i++) {
+    let res: Response;
+    try {
+      res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    } catch {
+      // network blip — wait and retry
+      if (i < tries - 1) { await new Promise((r) => setTimeout(r, 1000 * (i + 1))); continue; }
+      throw new Error("Gemini request failed (network)");
+    }
+    if (res.ok) return res;
+    last = res;
+    if (![429, 500, 502, 503, 504].includes(res.status)) return res; // non-retryable
+    if (i < tries - 1) await new Promise((r) => setTimeout(r, 1000 * (i + 1)));
+  }
+  return last as Response;
+}
+
 // Resolve & download an audio URL. Handles public Google Drive share links
 // (file/d/<id> or ?id=<id>) by hitting the direct-download endpoint and clearing
 // the large-file virus-scan interstitial via the confirm token.
@@ -424,13 +446,10 @@ Return ONLY a JSON array (no prose, no markdown). Each item:
 {"address": string, "sqft": number, "value": number, "status": "Sold"|"Active", "beds": number, "baths": number}
 If you cannot find real comparable sales, return []. NEVER invent, guess, or use placeholder addresses ("123 Anywhere St", "Somewhere Ave", "Anytown", etc.).`;
   try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${key}`, {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-        tools: [{ google_search: {} }],          // GROUNDING — lets Gemini actually search
-        generationConfig: { temperature: 0.1 },
-      }),
+    const res = await geminiPost(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${key}`, {
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      tools: [{ google_search: {} }],          // GROUNDING — lets Gemini actually search
+      generationConfig: { temperature: 0.1 },
     });
     if (!res.ok) return [];
     const j = await res.json();
@@ -480,9 +499,7 @@ ${marketDataText(m)}`;
     },
   };
   try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${key}`, {
-      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
-    });
+    const res = await geminiPost(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${key}`, payload);
     if (!res.ok) return {};
     const j = await res.json();
     return JSON.parse(j?.candidates?.[0]?.content?.parts?.[0]?.text || "{}") as Partial<QualJSON>;
@@ -584,13 +601,12 @@ async function runQualification(
       },
     },
   };
-  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${key}`, {
-    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
-  });
+  const res = await geminiPost(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${key}`, payload);
   if (!res.ok) throw new Error(`Qualification AI HTTP ${res.status}: ${(await res.text()).slice(0, 200)}`);
   const j = await res.json();
   const text = j?.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
-  return JSON.parse(text) as QualJSON;
+  try { return JSON.parse(text) as QualJSON; }
+  catch { throw new Error("Qualification AI returned invalid JSON"); }
 }
 
 async function runCoaching(fileUri: string, mime: string, key: string): Promise<string> {
@@ -609,10 +625,9 @@ MANDATORY: include the exact [MM:SS] timestamp for every critique or praise.`.tr
       responseSchema: { type: "OBJECT", properties: { coaching_points: { type: "STRING" } }, required: ["coaching_points"] },
     },
   };
-  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${key}`, {
-    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
-  });
-  if (!res.ok) throw new Error(`Coaching AI HTTP ${res.status}`);
+  // Coaching is non-essential — never let it fail the whole analysis.
+  const res = await geminiPost(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${key}`, payload);
+  if (!res.ok) return "No feedback.";
   const j = await res.json();
   const text = j?.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
   try { return safeStr(JSON.parse(text).coaching_points) || "No feedback."; }
