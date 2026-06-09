@@ -162,11 +162,19 @@ export default function SubmitLeadPage() {
       return;
     }
 
-    setSuccess("Submitted — queued for analysis.");
+    setSuccess("Running AI analysis…");
     try {
-      // Enqueue for ordered, one-at-a-time backend analysis (high-volume safe).
-      await fetch(`/api/leads/${inserted.id}/queue`, { method: "POST", headers: { "Content-Type": "application/json" } });
-    } catch { /* worker + heartbeat will still pick it up */ }
+      const res = await fetch("/api/leads/analyze", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ leadId: inserted.id }),
+      });
+      const j = await res.json().catch(() => ({}));
+      if (res.ok && j.status) setSuccess(`Done — lead marked ${j.status}.`);
+      else { await fetch(`/api/leads/${inserted.id}/queue`, { method: "POST", headers: { "Content-Type": "application/json" } }).catch(() => {}); setSuccess("Submitted — review will finish shortly."); }
+    } catch {
+      await fetch(`/api/leads/${inserted.id}/queue`, { method: "POST", headers: { "Content-Type": "application/json" } }).catch(() => {});
+      setSuccess("Submitted — review will finish shortly.");
+    }
 
     setForm({
       date: new Date().toISOString().split("T")[0],

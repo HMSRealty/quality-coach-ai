@@ -172,15 +172,30 @@ export default function SubmitLeadPage() {
       await fetch(`/api/leads/${leadId}/upload`, { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: fd });
     }
 
-    // Enqueue for ORDERED, one-at-a-time backend analysis (handles high volume
-    // safely — no direct AI call here). audioUrls/recordings are already attached.
-    setPhase("Queuing for analysis…");
+    // Qualify RIGHT HERE — the browser drives the AI review and waits for the
+    // result (reliable, no dependence on background workers). If anything hiccups
+    // (e.g. a transient API spike), we silently fall back to the ordered queue so
+    // the user NEVER sees an error — the lead still gets reviewed shortly.
+    setPhase("Running AI analysis…");
+    let resultMsg = revived ? "Revived a previously-disqualified lead — review running." : "Lead submitted — review running.";
     try {
-      await fetch(`/api/leads/${leadId}/queue`, { method: "POST", headers: { "Content-Type": "application/json" } });
-    } catch { /* the worker + heartbeat will still pick it up */ }
+      const res = await fetch("/api/leads/analyze", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ leadId }),
+      });
+      const j = await res.json().catch(() => ({}));
+      if (res.ok && j.status) resultMsg = `Lead reviewed — marked ${j.status}.`;
+      else {
+        await fetch(`/api/leads/${leadId}/queue`, { method: "POST", headers: { "Content-Type": "application/json" } }).catch(() => {});
+        resultMsg = "Lead submitted — review will finish shortly.";
+      }
+    } catch {
+      await fetch(`/api/leads/${leadId}/queue`, { method: "POST", headers: { "Content-Type": "application/json" } }).catch(() => {});
+      resultMsg = "Lead submitted — review will finish shortly.";
+    }
 
     setSubmitting(false);
-    setResult({ kind: "ok", msg: revived ? "Revived a previously-disqualified lead — queued for analysis." : "Lead submitted — queued for AI analysis." });
+    setResult({ kind: "ok", msg: resultMsg });
     setForm(f => ({ ...f, address: "", parts: null, ownerName: "", phone: "", askingPrice: "", zillowLink: "", reason: "" }));
     setFiles([]);
     setTimeout(() => setResult(null), 6000);

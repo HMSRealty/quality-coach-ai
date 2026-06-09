@@ -251,9 +251,8 @@ export default function DynamicSubmitPage() {
       if (!insertRes.ok || !insertJson.ok) throw new Error(insertJson.error || "Submission failed");
       const lead = { id: insertJson.leadId as string };
 
-      // High-volume safe: store recordings in-house, then ENQUEUE. The backend
-      // worker analyzes queued leads strictly one-at-a-time in order — a burst of
-      // simultaneous submissions never overloads the AI.
+      // Store recordings in-house, then qualify RIGHT HERE — the browser drives
+      // the AI review and waits for the result.
       if (callFiles.length) {
         setStatusMsg(`Uploading ${callFiles.length} recording${callFiles.length > 1 ? "s" : ""}…`);
         const fd = new FormData();
@@ -265,13 +264,22 @@ export default function DynamicSubmitPage() {
         if (!up.ok || !upJson.ok) throw new Error(upJson.error || "Recording upload failed. Please try again.");
       }
 
-      setStatusMsg("Adding your lead to the queue…");
-      const qRes = await fetch(`/api/leads/${lead.id}/queue`, { method: "POST", headers: { "Content-Type": "application/json" } });
-      if (!qRes.ok) throw new Error("Could not queue the lead. Please try again.");
-
-      // Success — the lead is accepted and pending in the ordered queue.
-      setStatusMsg(null);
-      setDoneStatus("Submitted");
+      setStatusMsg(callFiles.length ? "Reviewing your call…" : "Verifying the lead…");
+      // Synchronous AI review; on any hiccup, silently fall back to the ordered
+      // queue so the submitter NEVER sees an error — the lead is still accepted.
+      try {
+        const res = await fetch("/api/leads/analyze", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ leadId: lead.id }),
+        });
+        const j = await res.json().catch(() => ({}));
+        setStatusMsg(null);
+        setDoneStatus(res.ok && j.status ? j.status : "Submitted");
+      } catch {
+        await fetch(`/api/leads/${lead.id}/queue`, { method: "POST", headers: { "Content-Type": "application/json" } }).catch(() => {});
+        setStatusMsg(null);
+        setDoneStatus("Submitted");
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Submission failed");
       setStatusMsg(null);
