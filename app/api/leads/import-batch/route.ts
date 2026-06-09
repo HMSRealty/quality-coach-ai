@@ -86,14 +86,29 @@ export async function POST(req: NextRequest) {
       } catch { skipped++; }
     }
 
-    // Fire analyze for every lead that has a recording.
-    // Each fetch is an independent Edge request that completes regardless of what the client does next.
-    for (const { id, driveUrl } of leadIds) {
-      fetch(`${origin}/api/leads/analyze`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ leadId: id, audioUrls: [driveUrl] }),
-      }).catch(() => {});
+    // Analyze leads ONE AT A TIME (sequential) so we never hammer Gemini with a
+    // whole batch at once — avoids rate-limit/overload and keeps each analysis
+    // clean. This runs in the BACKGROUND (waitUntil) so the HTTP response below
+    // returns immediately; the client can navigate away while the queue drains.
+    const drainQueue = async () => {
+      for (const { id, driveUrl } of leadIds) {
+        try {
+          await fetch(`${origin}/api/leads/analyze`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ leadId: id, audioUrls: [driveUrl] }),
+          });
+        } catch { /* keep draining the rest of the queue */ }
+      }
+    };
+
+    try {
+      // Cloudflare Pages: keep the worker alive to finish the queue post-response.
+      const { getRequestContext } = await import("@cloudflare/next-on-pages");
+      getRequestContext().ctx.waitUntil(drainQueue());
+    } catch {
+      // Local/dev or non-CF runtime: just run it (don't block the response longer than needed).
+      void drainQueue();
     }
 
     return NextResponse.json({
