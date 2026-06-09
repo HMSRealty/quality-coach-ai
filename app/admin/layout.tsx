@@ -7,7 +7,7 @@ import { supabase } from "@/lib/supabase";
 import {
   LayoutDashboard, Users, FolderCog, CreditCard,
   Database, Mail, LogOut, ShieldAlert, ChevronRight,
-  BarChart3,
+  BarChart3, Shield,
 } from "lucide-react";
 import { T } from "@/app/_components/tokens";
 
@@ -18,6 +18,7 @@ const NAV = [
   { label: "Payments",     href: "/admin/payments",      icon: CreditCard },
   { label: "Global Leads", href: "/admin/leads",         icon: Database },
   { label: "Marketing",    href: "/admin/marketing",     icon: Mail },
+  { label: "RBAC Matrix",  href: "/admin/rbac",          icon: Shield },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

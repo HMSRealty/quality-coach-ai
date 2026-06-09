@@ -9,6 +9,7 @@ import { T } from "@/app/_components/tokens";
 import { Loader2, Wallet, Download, Calculator } from "lucide-react";
 import { DialerHoursCalculator } from "@/app/_components/DialerHoursCalculator";
 import { CompensationStructure } from "@/app/_components/CompensationStructure";
+import { SalaryCalculator } from "@/app/_components/SalaryCalculator";
 
 const NAVY = T.text1;
 const SLATE = T.text2;
@@ -218,6 +219,9 @@ export default function PayrollPage() {
           </div>
         </div>
       )}
+
+      {/* Manual salary calculator — hours, leads, KPIs */}
+      <SalaryCalculator />
 
       {/* Compensation base + KPI structure (the payment base ground) */}
       <CompensationStructure />

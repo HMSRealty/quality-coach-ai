@@ -1,53 +1,18 @@
 "use client";
 
-// Acquisitions & Deal Math Engine — Clean Enterprise (White / Sky / Emerald).
-//   1. Retail-vs-Wholesale router badge
-//   2. MAO calculator: (ARV * 0.70) - Rehab - Wholesale Fee  (money in green)
-//   3. AI Handoff Dossier (sky top border, 3 bullets)
-//   4. 1-click webhook export with morph-to-checkmark success animation
+// Acquisitions & Deal Math Engine — Manual ARV + Comps table.
+// Acquisition runs the ARV manually: enter comps, set ARV, get MAO.
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import {
   Calculator, FileText, Send, CheckCircle2, Loader2, AlertCircle,
-  Handshake, Building2, Brain, HeartCrack, DollarSign, ArrowRight, ChevronDown, ChevronUp,
+  Handshake, Building2, Brain, HeartCrack, DollarSign, ArrowRight,
+  Plus, Trash2,
 } from "lucide-react";
 
-interface Comp { address: string; layout: string; sqft: number; status: string; value: number; ppsf: number; }
+interface ManualComp { address: string; layout: string; sqft: string; status: string; value: string; }
 const numOf = (v: unknown) => { const n = Number(v); return isFinite(n) && n > 0 ? n : 0; };
-
-// Reject obviously-fabricated / placeholder addresses (AI hallucinations).
-const FAKE_ADDR = /anywhere|somewhere|\banother (rd|st|ave|dr)|nearby (ln|st|rd)|anytown|\bexample\b|placeholder|\bsample\b|\bfictional\b|\bunknown\b|^comparable\s*\d/i;
-const isRealAddr = (a: string) => !!a && a.length > 6 && !FAKE_ADDR.test(a);
-
-// Gemini's appraiser comps (preferred — include layout + status).
-function fromAiComps(raw: Array<Record<string, unknown>> | null | undefined): Comp[] {
-  if (!Array.isArray(raw)) return [];
-  return raw.map((c, i) => {
-    const value = numOf(c.value);
-    const sqft = numOf(c.sqft);
-    return {
-      address: String(c.address ?? `Comparable ${i + 1}`),
-      layout: String(c.layout ?? "—"),
-      sqft, status: String(c.status ?? "Sold"), value,
-      ppsf: value && sqft ? Math.round(value / sqft) : 0,
-    };
-  }).filter((c) => c.value > 0 || c.sqft > 0);
-}
-// Raw provider comps (fallback when the AI didn't return its own).
-function fromRawComps(raw: Array<Record<string, unknown>> | null | undefined): Comp[] {
-  if (!Array.isArray(raw)) return [];
-  return raw.map((c, i) => {
-    const value = numOf(c.price ?? c.soldPrice ?? c.lastSoldPrice ?? c.amount ?? c.zestimate);
-    const sqft = numOf(c.sqft ?? c.livingArea ?? c.area ?? c.finishedSqFt);
-    const beds = numOf(c.beds ?? c.bedrooms); const baths = numOf(c.baths ?? c.bathrooms);
-    return {
-      address: String(c.address ?? c.streetAddress ?? c.formattedAddress ?? `Comparable ${i + 1}`),
-      layout: beds || baths ? `${beds || "?"} Bed, ${baths || "?"} Bath` : "—",
-      sqft, status: "Sold", value, ppsf: value && sqft ? Math.round(value / sqft) : 0,
-    };
-  }).filter((c) => c.value > 0 || c.sqft > 0);
-}
 
 const SPRING = { type: "spring", stiffness: 460, damping: 32, mass: 0.7 } as const;
 const SKY = "#0EA5E9";
@@ -61,26 +26,21 @@ type Verdict = "Works" | "Marginal" | "Pass";
 const vColor = (v: Verdict) => (v === "Works" ? MONEY : v === "Marginal" ? AMBER : RED);
 const vRank = (v: Verdict) => (v === "Works" ? 2 : v === "Marginal" ? 1 : 0);
 
-// Evaluate the three exit strategies for the deal across the ARV price band.
-// Standard investor math; deliberately conservative on costs.
 function evalStrategies(opts: { arvLow: number; arvHigh: number; arvMid: number; rehab: number; purchase: number; rent: number }) {
   const { arvLow, arvHigh, arvMid, rehab, purchase, rent } = opts;
-  const dbg = (loan: number) => loan * 0.0067;            // ~7% 30-yr P&I per $ of loan / month
-  const noi = rent * 0.6;                                  // rent minus ~40% (tax/ins/maint/vac/mgmt)
+  const dbg = (loan: number) => loan * 0.0067;
+  const noi = rent * 0.6;
 
-  // FLIP — profit = ARV − purchase − rehab − selling(8%) − holding(3%)
   const flipAt = (arv: number) => arv - purchase - rehab - arv * 0.08 - arv * 0.03;
   const flipLow = flipAt(arvLow || arvMid), flipHigh = flipAt(arvHigh || arvMid), flipMid = flipAt(arvMid);
   const flipV: Verdict = flipMid >= 30000 ? "Works" : flipMid >= 12000 ? "Marginal" : "Pass";
 
-  // BRRRR — refi 75% ARV; cash left in = (purchase+rehab) − refi; cashflow after refi debt
   const refi = arvMid * 0.75;
   const cashLeft = purchase + rehab - refi;
   const brrrrCf = noi - dbg(refi);
   const brrrrV: Verdict = cashLeft <= 10000 && brrrrCf > 100 ? "Works"
     : cashLeft <= 30000 && brrrrCf >= 0 ? "Marginal" : "Pass";
 
-  // HOLD — buy at purchase, 20% down conventional; cashflow + 1% rule
   const holdCf = noi - dbg(purchase * 0.8);
   const onePct = rent > 0 && rent >= purchase * 0.01;
   const holdV: Verdict = holdCf >= 200 && onePct ? "Works" : holdCf >= 0 ? "Marginal" : "Pass";
@@ -100,58 +60,62 @@ function evalStrategies(opts: { arvLow: number; arvHigh: number; arvMid: number;
   };
 }
 
+const emptyComp = (): ManualComp => ({ address: "", layout: "", sqft: "", status: "Sold", value: "" });
+
+const INP: React.CSSProperties = {
+  width: "100%", padding: "6px 9px", borderRadius: 8,
+  border: "1px solid var(--border-2)", background: "#fff",
+  color: "#000", fontSize: 12.5, outline: "none",
+};
+
 export function AcquisitionsPanel({
-  leadId, address, ownerName, arv, arvLow, arvHigh, zestimate, arvReasoning, arvNarrative, rent, compsSource, aiComps, comparables, defaultRehab, askingPrice,
+  leadId, address, ownerName, zestimate, rent, defaultRehab, askingPrice,
   personality, painPoint, bottomLine,
 }: {
   leadId: string;
   address: string | null;
   ownerName: string | null;
-  arv: number;              // AI-computed ARV (point estimate / midpoint)
-  arvLow?: number | null;   // range — conservative
-  arvHigh?: number | null;  // range — optimistic
-  zestimate?: number | null; // Zillow Zestimate — market-value reference only
-  arvReasoning?: string | null;
-  arvNarrative?: string | null;
-  rent?: number | null;       // AI-estimated market rent (BRRRR/Hold)
-  compsSource?: string | null; // where comps came from: provider | searched | mixed | none
-  aiComps?: Array<Record<string, unknown>> | null;          // Gemini's appraiser comps
-  comparables?: Array<Record<string, unknown>> | null;      // raw provider comps (fallback)
+  zestimate?: number | null;
+  rent?: number | null;
   defaultRehab: number;
   askingPrice: number | null;
   personality: string | null;
   painPoint: string | null;
   bottomLine: string | null;
 }) {
+  const [arv, setArv] = useState(0);
   const [rehab, setRehab] = useState(defaultRehab || 0);
   const [fee, setFee] = useState(10000);
-  const [showComps, setShowComps] = useState(true);
-  // Prefer REAL provider comps; only use the AI's comps if the provider returned
-  // none — and in all cases drop fabricated placeholder addresses.
-  const rawList = fromRawComps(comparables).filter(c => isRealAddr(c.address));
-  const aiList = fromAiComps(aiComps).filter(c => isRealAddr(c.address));
-  const comps = rawList.length ? rawList : aiList;
-  const hasRange = !!(arvLow && arvHigh && arvHigh > arvLow);
-  const arvDisplay = hasRange ? `${money(arvLow!)} – ${money(arvHigh!)}` : (arv ? money(arv) : "—");
+  const [comps, setComps] = useState<ManualComp[]>([emptyComp()]);
 
   const mao = useMemo(() => Math.max(0, arv * 0.70 - rehab - fee), [arv, rehab, fee]);
-
-  // Exit-strategy analysis (Flip vs BRRRR vs Hold) across the ARV price band.
-  const arvMid = arv || (arvLow && arvHigh ? Math.round((arvLow + arvHigh) / 2) : 0);
   const purchase = askingPrice || mao;
+
   const strat = useMemo(
-    () => evalStrategies({ arvLow: arvLow || arvMid, arvHigh: arvHigh || arvMid, arvMid, rehab, purchase, rent: rent || 0 }),
-    [arvLow, arvHigh, arvMid, rehab, purchase, rent],
+    () => evalStrategies({ arvLow: arv, arvHigh: arv, arvMid: arv, rehab, purchase, rent: rent || 0 }),
+    [arv, rehab, purchase, rent],
   );
 
-  // Router: a wholesale/cash deal needs the asking price to sit at/below MAO (room
-  // to assign). If the seller wants near-retail, route to MLS.
-  const route = useMemo(() => {
-    if (!askingPrice || !arv) return "wholesale" as const;
-    if (askingPrice <= mao * 1.08) return "wholesale" as const;
-    if (askingPrice >= arv * 0.90) return "retail" as const;
-    return "wholesale" as const;
+  const route = useMemo<"wholesale" | "retail">(() => {
+    if (!askingPrice || !arv) return "wholesale";
+    if (askingPrice <= mao * 1.08) return "wholesale";
+    if (askingPrice >= arv * 0.90) return "retail";
+    return "wholesale";
   }, [askingPrice, arv, mao]);
+
+  // Auto-derive median ARV from comps when arv is 0 (user hasn't overridden).
+  const compRows = comps.map(c => ({ ...c, sqftN: numOf(c.sqft), valueN: numOf(c.value) }));
+  const validComps = compRows.filter(c => c.valueN > 0);
+  const medianValue = (() => {
+    if (!validComps.length) return 0;
+    const sorted = [...validComps].sort((a, b) => a.valueN - b.valueN);
+    return sorted[Math.floor(sorted.length / 2)].valueN;
+  })();
+
+  const setComp = (i: number, patch: Partial<ManualComp>) =>
+    setComps(cs => cs.map((c, idx) => idx === i ? { ...c, ...patch } : c));
+  const addComp = () => setComps(cs => [...cs, emptyComp()]);
+  const removeComp = (i: number) => setComps(cs => cs.filter((_, idx) => idx !== i));
 
   const generateOfferPDF = () => {
     const today = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
@@ -173,18 +137,17 @@ export function AcquisitionsPanel({
       <div class="card">
         <div class="row"><span>Property</span><strong>${address || "—"}</strong></div>
         ${zestimate ? `<div class="row"><span>Zestimate (Zillow)</span><strong>${money(zestimate)}</strong></div>` : ""}
-        <div class="row"><span>After-Repair Value (AI estimate)</span><strong>${hasRange ? `${money(arvLow!)} – ${money(arvHigh!)}` : money(arv)}</strong></div>
+        <div class="row"><span>After-Repair Value (manual)</span><strong>${arv ? money(arv) : "—"}</strong></div>
         <div class="row"><span>Estimated Rehab</span><strong>${money(rehab)}</strong></div>
         <div class="row"><span>Wholesale / Assignment Fee</span><strong>${money(fee)}</strong></div>
         <div class="row"><span>Formula</span><span class="muted">(ARV × 70%) − Rehab − Fee</span></div>
         <div class="row"><span class="sky">Maximum Allowable Offer</span><span class="mao">${money(mao)}</span></div>
       </div>
-      ${(arvNarrative || arvReasoning) ? `<p class="muted" style="margin-top:14px"><strong style="color:#0284C7">ARV basis:</strong> ${arvNarrative || arvReasoning}</p>` : ""}
-      ${comps.length ? `<div class="card">
-        <div style="font-weight:800;margin-bottom:10px">Comparable Properties (${comps.length})</div>
+      ${validComps.length ? `<div class="card">
+        <div style="font-weight:800;margin-bottom:10px">Comparable Properties (${validComps.length})</div>
         <table style="width:100%;border-collapse:collapse;font-size:12px">
           <tr style="color:#64748B;text-align:left"><th style="text-align:left;padding:6px 0">Address</th><th style="text-align:left">Layout</th><th style="text-align:right">Sq. Ft.</th><th style="text-align:left;padding-left:10px">Status</th><th style="text-align:right">Value</th></tr>
-          ${comps.map(c => `<tr style="border-top:1px solid #F1F5F9"><td style="padding:6px 0">${c.address}</td><td>${c.layout}</td><td style="text-align:right">${c.sqft ? c.sqft.toLocaleString() : "—"}</td><td style="padding-left:10px">${c.status}</td><td style="text-align:right;color:#059669;font-weight:700">${c.value ? money(c.value) : "—"}</td></tr>`).join("")}
+          ${validComps.map(c => `<tr style="border-top:1px solid #F1F5F9"><td style="padding:6px 0">${c.address || "—"}</td><td>${c.layout || "—"}</td><td style="text-align:right">${c.sqftN ? c.sqftN.toLocaleString() : "—"}</td><td style="padding-left:10px">${c.status}</td><td style="text-align:right;color:#059669;font-weight:700">${money(c.valueN)}</td></tr>`).join("")}
         </table>
       </div>` : ""}
       <p class="muted" style="margin-top:18px">This is a preliminary, non-binding cash offer estimate generated by RealTrack. Final offer subject to inspection and title review.</p>
@@ -197,7 +160,76 @@ export function AcquisitionsPanel({
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-      {/* ── MAO Calculator (the money UI) ── */}
+
+      {/* ── Comparable Properties (manual entry) ── */}
+      <div style={{ background: "#fff", border: "1px solid var(--border-2)", borderRadius: 18, boxShadow: "var(--shadow-sm)", overflow: "hidden" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "16px 20px", borderBottom: "1px solid var(--border-1)", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ width: 32, height: 32, borderRadius: 9, background: "color-mix(in srgb, #0EA5E9 14%, transparent)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Building2 size={16} color={SKY_600} />
+            </span>
+            <div>
+              <p style={{ fontSize: 15, fontWeight: 800, color: "var(--text-1)" }}>Comparable Properties</p>
+              <p style={{ fontSize: 11, color: "var(--text-3)" }}>Enter comps manually — median value auto-populates ARV</p>
+            </div>
+          </div>
+          {medianValue > 0 && (
+            <span style={{ fontSize: 12, fontWeight: 800, color: MONEY, background: "color-mix(in srgb, #059669 12%, transparent)", padding: "4px 11px", borderRadius: 999 }}>
+              Median comp value: {money(medianValue)}
+            </span>
+          )}
+        </div>
+
+        <div style={{ padding: 16, overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 700 }}>
+            <thead>
+              <tr style={{ background: "#F8FAFC" }}>
+                {["Address", "Layout", "Sq. Ft.", "Status", "Sale Value", ""].map((h, i) => (
+                  <th key={i} style={{ padding: "8px 10px", textAlign: i >= 4 ? "right" : "left", fontSize: 10, fontWeight: 800, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--text-3)", whiteSpace: "nowrap", borderBottom: "1px solid var(--border-2)" }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {comps.map((c, i) => (
+                <tr key={i} style={{ borderBottom: "1px solid var(--border-1)" }}>
+                  <td style={{ padding: "6px 8px", minWidth: 180 }}>
+                    <input value={c.address} onChange={e => setComp(i, { address: e.target.value })} placeholder="123 Oak St, City, ST" style={INP} />
+                  </td>
+                  <td style={{ padding: "6px 8px", minWidth: 110 }}>
+                    <input value={c.layout} onChange={e => setComp(i, { layout: e.target.value })} placeholder="3 Bed / 2 Bath" style={INP} />
+                  </td>
+                  <td style={{ padding: "6px 8px", minWidth: 90 }}>
+                    <input type="number" min={0} value={c.sqft} onChange={e => setComp(i, { sqft: e.target.value })} placeholder="1500" style={{ ...INP, textAlign: "right" }} />
+                  </td>
+                  <td style={{ padding: "6px 8px", minWidth: 100 }}>
+                    <select value={c.status} onChange={e => setComp(i, { status: e.target.value })} style={{ ...INP }}>
+                      <option>Sold</option>
+                      <option>Active</option>
+                      <option>Pending</option>
+                    </select>
+                  </td>
+                  <td style={{ padding: "6px 8px", minWidth: 110 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: "var(--text-3)" }}>$</span>
+                      <input type="number" min={0} value={c.value} onChange={e => setComp(i, { value: e.target.value })} placeholder="0" style={{ ...INP, textAlign: "right" }} />
+                    </div>
+                  </td>
+                  <td style={{ padding: "6px 8px", textAlign: "center" }}>
+                    <button onClick={() => removeComp(i)} disabled={comps.length === 1} style={{ background: "none", border: "none", cursor: comps.length === 1 ? "default" : "pointer", color: "var(--text-3)", padding: 4, display: "flex" }}>
+                      <Trash2 size={14} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <button onClick={addComp} style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 10, padding: "7px 13px", borderRadius: 9, background: "#F8FAFC", border: "1px solid var(--border-2)", color: SKY_600, fontSize: 12.5, fontWeight: 800, cursor: "pointer" }}>
+            <Plus size={13} /> Add comp
+          </button>
+        </div>
+      </div>
+
+      {/* ── MAO Calculator ── */}
       <div style={{ background: "#fff", border: "1px solid var(--border-2)", borderRadius: 18, boxShadow: "var(--shadow-sm)", overflow: "hidden" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "18px 20px", borderBottom: "1px solid var(--border-1)", flexWrap: "wrap" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -213,18 +245,31 @@ export function AcquisitionsPanel({
         </div>
 
         <div style={{ padding: 20, display: "grid", gridTemplateColumns: "minmax(0,1.1fr) minmax(0,0.9fr)", gap: 20 }} className="ci-grid">
-          {/* Inputs */}
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <ReadRow label="Zestimate (Zillow)" value={zestimate ? money(zestimate) : "—"} sub="Market-value reference" />
-            <ReadRow label="AI-Estimated ARV" value={arvDisplay} sub={hasRange ? `Midpoint ${arv ? money(arv) : "—"} · used for MAO` : (comps.length ? `From ${comps.length} comparable sale${comps.length === 1 ? "" : "s"}` : "Computed from comparable sales")} accent={SKY_600} />
-            <NumberRow label="AI-Estimated Rehab Cost" value={rehab} onChange={setRehab} />
+            {zestimate ? <ReadRow label="Zestimate (Zillow)" value={money(zestimate)} sub="Market-value reference" /> : null}
+            {medianValue > 0 && (
+              <ReadRow label="Median comp value" value={money(medianValue)} sub={`From ${validComps.length} comp${validComps.length === 1 ? "" : "s"} above`} accent={SKY_600} />
+            )}
+            {/* Manual ARV input */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 14px", borderRadius: 10, background: "#F0F9FF", border: `1px solid ${SKY_600}55` }}>
+              <div>
+                <span style={{ fontSize: 12.5, color: "var(--text-2)", fontWeight: 700 }}>ARV (After-Repair Value)</span>
+                <p style={{ fontSize: 10.5, color: "var(--text-3)", marginTop: 2 }}>Enter manually — used for MAO</p>
+              </div>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
+                <span style={{ fontSize: 14, fontWeight: 800, color: SKY_600 }}>$</span>
+                <input type="number" min={0} step={1000} value={arv || ""} onChange={e => setArv(Math.max(0, Number(e.target.value) || 0))}
+                  placeholder={medianValue ? String(medianValue) : "0"}
+                  style={{ width: 110, textAlign: "right", padding: "5px 8px", borderRadius: 8, border: `1px solid ${SKY_600}55`, background: "#fff", color: "#000", fontSize: 15, fontWeight: 800, outline: "none" }} />
+              </div>
+            </div>
+            <NumberRow label="Estimated Rehab Cost" value={rehab} onChange={setRehab} />
             <NumberRow label="Wholesale / Assignment Fee" value={fee} onChange={setFee} />
             <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "var(--text-3)", paddingTop: 4 }}>
               <span style={{ fontWeight: 700, color: SKY_600 }}>(ARV × 0.70)</span> − Rehab − Fee
             </div>
           </div>
 
-          {/* MAO result */}
           <div style={{
             borderRadius: 14, padding: 20, display: "flex", flexDirection: "column", justifyContent: "center",
             background: "var(--money-soft)", border: "1px solid color-mix(in srgb, #059669 30%, transparent)",
@@ -234,12 +279,12 @@ export function AcquisitionsPanel({
             </p>
             <motion.p key={mao} initial={{ scale: 0.92, opacity: 0.4 }} animate={{ scale: 1, opacity: 1 }} transition={SPRING}
               style={{ fontSize: 38, fontWeight: 900, color: MONEY, letterSpacing: "-0.02em", lineHeight: 1.05, margin: "6px 0 2px" }}>
-              {money(mao)}
+              {arv ? money(mao) : "—"}
             </motion.p>
             {askingPrice ? (
               <p style={{ fontSize: 12, color: "var(--text-3)" }}>
                 Seller asking <strong style={{ color: "var(--text-1)" }}>{money(askingPrice)}</strong>
-                {askingPrice <= mao ? " · spread in your favor" : ` · ${money(askingPrice - mao)} over MAO`}
+                {arv && askingPrice <= mao ? " · spread in your favor" : arv ? ` · ${money(askingPrice - mao)} over MAO` : ""}
               </p>
             ) : null}
             <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={generateOfferPDF}
@@ -253,105 +298,10 @@ export function AcquisitionsPanel({
             </motion.button>
           </div>
         </div>
-
-        {/* ── ARV REPORT: range + narrative + comparable properties ── */}
-        {(arvNarrative || arvReasoning || comps.length > 0) && (
-          <div style={{ borderTop: "1px solid var(--border-1)", padding: "16px 20px" }}>
-            {/* Estimated ARV range headline */}
-            <p style={{ fontSize: 15, fontWeight: 900, color: "#000", marginBottom: 6 }}>
-              Estimated ARV: <span style={{ color: SKY_600 }}>{arvDisplay}</span>
-            </p>
-            {(arvNarrative || arvReasoning) && (
-              <p style={{ fontSize: 13, color: "var(--text-1)", lineHeight: 1.65, marginBottom: comps.length ? 16 : 0 }}>
-                {arvNarrative || arvReasoning}
-              </p>
-            )}
-
-            {comps.length === 0 && arvMid > 0 && (
-              <p style={{ fontSize: 12, color: "var(--text-3)", display: "flex", alignItems: "center", gap: 7 }}>
-                <Building2 size={14} color="var(--text-3)" />
-                No verified comparable sales were returned for this address — ARV estimated from the area&apos;s price-per-square-foot.
-              </p>
-            )}
-
-            {comps.length > 0 && (
-              <>
-                <div style={{ display: "flex", alignItems: "center", gap: 9, flexWrap: "wrap" }}>
-                  <button onClick={() => setShowComps(v => !v)}
-                    style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "none", border: "none", cursor: "pointer", color: "#000", fontSize: 13, fontWeight: 800, padding: 0 }}>
-                    <Building2 size={14} color={SKY_600} /> Comparable Properties ({comps.length})
-                    {showComps ? <ChevronUp size={15} color="var(--text-3)" /> : <ChevronDown size={15} color="var(--text-3)" />}
-                  </button>
-                  {(() => {
-                    const src = (compsSource || "").toLowerCase();
-                    const cfg = src === "searched" ? { t: "🔍 Live web search", c: SKY_600 }
-                      : src === "mixed" ? { t: "🔍 Search + Zillow", c: SKY_600 }
-                      : src === "provider" ? { t: "Zillow data", c: "var(--text-3)" } : null;
-                    return cfg ? <span style={{ fontSize: 10.5, fontWeight: 800, color: cfg.c, background: `color-mix(in srgb, ${cfg.c} 12%, transparent)`, padding: "3px 9px", borderRadius: 999 }}>{cfg.t}</span> : null;
-                  })()}
-                </div>
-
-                <AnimatePresence initial={false}>
-                  {showComps && (
-                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={SPRING}
-                      style={{ overflow: "hidden" }}>
-                      <div style={{ overflowX: "auto", marginTop: 12, borderRadius: 12, border: "1px solid var(--border-2)" }}>
-                        <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 640, fontSize: 12.5 }}>
-                          <thead>
-                            <tr style={{ background: "#F8FAFC" }}>
-                              {["Address", "Layout", "Sq. Ft.", "Status", "Value", "$/sqft"].map((h, i) => (
-                                <th key={h} style={{ textAlign: i >= 4 ? "right" : "left", padding: "9px 12px", fontSize: 10, fontWeight: 800, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--text-3)", whiteSpace: "nowrap" }}>{h}</th>
-                              ))}
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {comps.map((c, i) => {
-                              const st = c.status.toLowerCase();
-                              const stColor = st.includes("active") ? "#0284C7" : st.includes("estimate") ? "#92400E" : MONEY;
-                              return (
-                                <tr key={i} style={{ borderTop: "1px solid var(--border-1)" }}>
-                                  <td style={{ padding: "9px 12px", color: "#000", fontWeight: 700, maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.address}</td>
-                                  <td style={{ padding: "9px 12px", color: "var(--text-2)", whiteSpace: "nowrap" }}>{c.layout}</td>
-                                  <td style={{ padding: "9px 12px", color: "var(--text-2)", whiteSpace: "nowrap" }}>{c.sqft ? `${c.sqft.toLocaleString()} sqft` : "—"}</td>
-                                  <td style={{ padding: "9px 12px", whiteSpace: "nowrap" }}>
-                                    <span style={{ fontSize: 10.5, fontWeight: 800, color: stColor, background: `color-mix(in srgb, ${stColor} 12%, transparent)`, padding: "2px 8px", borderRadius: 999 }}>{c.status}</span>
-                                  </td>
-                                  <td style={{ padding: "9px 12px", textAlign: "right", color: "#000", fontWeight: 800, whiteSpace: "nowrap" }}>{c.value ? money(c.value) : "—"}</td>
-                                  <td style={{ padding: "9px 12px", textAlign: "right", color: SKY_600, fontWeight: 700, whiteSpace: "nowrap" }}>{c.ppsf ? `$${c.ppsf}` : "—"}</td>
-                                </tr>
-                              );
-                            })}
-                          </tbody>
-                          {(() => {
-                            const ppsfs = comps.map(c => c.ppsf).filter((n): n is number => !!n).sort((a, b) => a - b);
-                            const median = ppsfs.length ? ppsfs[Math.floor(ppsfs.length / 2)] : 0;
-                            if (!median) return null;
-                            return (
-                              <tfoot>
-                                <tr style={{ borderTop: "2px solid var(--border-2)", background: "#F8FAFC" }}>
-                                  <td style={{ padding: "9px 12px", fontWeight: 800, color: "#000" }}>Median $/sqft</td>
-                                  <td colSpan={4} />
-                                  <td style={{ padding: "9px 12px", textAlign: "right", fontWeight: 900, color: SKY_600 }}>${median}</td>
-                                </tr>
-                              </tfoot>
-                            );
-                          })()}
-                        </table>
-                      </div>
-                      <p style={{ fontSize: 11, color: "var(--text-3)", marginTop: 8 }}>
-                        Recent sales, active listings &amp; market estimates for similar-footprint homes nearby. The AI derives the ARV range from the $/sqft band × the subject&apos;s square footage.
-                      </p>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </>
-            )}
-          </div>
-        )}
       </div>
 
-      {/* ── EXIT STRATEGY: Flip vs BRRRR vs Hold ── */}
-      {arvMid > 0 && (
+      {/* ── EXIT STRATEGY ── */}
+      {arv > 0 && (
         <div style={{ background: "#fff", border: "1px solid var(--border-2)", borderRadius: 18, padding: 22, boxShadow: "var(--shadow-sm)" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", marginBottom: 4 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -367,14 +317,14 @@ export function AcquisitionsPanel({
             )}
           </div>
           <p style={{ fontSize: 11.5, color: "var(--text-3)", marginBottom: 14 }}>
-            At purchase <strong style={{ color: "var(--text-1)" }}>{money(purchase)}</strong> · rehab {money(rehab)} · ARV {arvDisplay}{rent ? ` · est. rent ${money(rent)}/mo` : ""}
+            At purchase <strong style={{ color: "var(--text-1)" }}>{money(purchase)}</strong> · rehab {money(rehab)} · ARV {money(arv)}{rent ? ` · est. rent ${money(rent)}/mo` : ""}
           </p>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }} className="ci-grid">
             <StrategyCard title="Fix & Flip" verdict={strat.flip.v}
-              metric={hasRange ? `${money(strat.flip.low)} – ${money(strat.flip.high)}` : money(strat.flip.mid)}
+              metric={money(strat.flip.mid)}
               metricLabel="Net profit (sell)"
-              note={`After 8% selling + 3% holding on ARV. Midpoint ${money(strat.flip.mid)}.`} />
+              note={`After 8% selling + 3% holding on ARV.`} />
             <StrategyCard title="BRRRR" verdict={strat.brrrr.v}
               metric={strat.brrrr.cashLeft <= 0 ? `All out +${money(-strat.brrrr.cashLeft)}` : `${money(strat.brrrr.cashLeft)} left in`}
               metricLabel="Capital after 75% refi"
@@ -385,7 +335,7 @@ export function AcquisitionsPanel({
               note={rent ? `${strat.hold.onePct ? "Meets" : "Below"} the 1% rule (rent vs price).` : "Add a rent estimate to evaluate."} />
           </div>
           <p style={{ fontSize: 10.5, color: "var(--text-4)", marginTop: 12 }}>
-            Estimates only — assumes ~7% financing, conventional terms, and standard cost ratios. Verify rents, taxes, and insurance before committing.
+            Estimates only — assumes ~7% financing, conventional terms, and standard cost ratios.
           </p>
         </div>
       )}

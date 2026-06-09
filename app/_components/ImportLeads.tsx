@@ -38,12 +38,21 @@ const COLS: Record<string, string[]> = {
   condition: ["condition", "property condition"],
   closing:   ["closing", "closing timeline", "how soon", "timeline"],
   reason:    ["reason", "reason for selling", "motivation", "notes"],
-  drive:     ["call drive link", "drive link", "call link", "recording", "audio", "call recording", "link"],
+  // Drive column: match by substring so "Call Drive Link", "Drive Link URL",
+  // "Recording URL", "Google Drive Link", etc. all resolve correctly.
+  drive:     ["drive", "recording", "audio", "call link"],
 };
 function mapHeader(header: string[]) {
   const h = header.map(x => x.trim().toLowerCase());
   const idx: Record<string, number> = {};
-  for (const key of Object.keys(COLS)) idx[key] = h.findIndex(col => COLS[key].includes(col));
+  for (const key of Object.keys(COLS)) {
+    if (key === "drive") {
+      // Substring match: first column whose header contains any keyword wins.
+      idx[key] = h.findIndex(col => COLS[key].some(kw => col.includes(kw)));
+    } else {
+      idx[key] = h.findIndex(col => COLS[key].includes(col));
+    }
+  }
   return idx;
 }
 
@@ -71,7 +80,7 @@ export function ImportLeads({ onClose, onDone }: { onClose: () => void; onDone: 
     const grid = parseCsv(await f.text());
     if (grid.length < 2) { setErr("CSV needs a header row + at least one lead."); return; }
     const idx = mapHeader(grid[0]);
-    if (idx.address < 0 && idx.drive < 0) { setErr('CSV must include at least an "Address" and a "Call Drive Link" column.'); return; }
+    if (idx.address < 0 && idx.drive < 0) { setErr('CSV must include at least an "Address" column and a column containing "drive", "recording", or "audio" for the call link.'); return; }
     const mapped = grid.slice(1).map(cells => {
       const get = (k: string) => (idx[k] >= 0 ? (cells[idx[k]] || "").trim() : "");
       return { owner: get("owner"), phone: get("phone"), address: get("address"), asking: get("asking"), condition: get("condition"), closing: get("closing"), reason: get("reason"), drive: get("drive") };

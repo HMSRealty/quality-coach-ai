@@ -67,7 +67,6 @@ const NAV_GROUPS: { section: string; items: { label: string; href: string; icon:
       { label: "Webhooks & Integrations", href: "/dashboard/settings/api", icon: Webhook },
       { label: "Sub-Users",               href: "/dashboard/sub-users",   icon: UserCog },
       { label: "Permissions",             href: "/dashboard/permissions", icon: Power },
-      { label: "RBAC Matrix",             href: "/dashboard/roles",       icon: Shield },
     ],
   },
 ];
