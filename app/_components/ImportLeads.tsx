@@ -201,47 +201,28 @@ export function ImportLeads({ onClose, onDone }: { onClose: () => void; onDone: 
     if (!campaignId) { setErr("Pick a campaign for these leads."); return; }
     if (!rows.length) { setErr("Upload a CSV first."); return; }
     setBusy(true); setErr(""); setProgress({ done: 0, total: rows.length });
-    const { data: { user } } = await supabase.auth.getUser(); if (!user) { setBusy(false); return; }
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setBusy(false); return; }
     const { data: prof } = await supabase.from("profiles").select("organization_id").eq("id", user.id).maybeSingle();
     const orgId = (prof?.organization_id as string) ?? null;
 
-    for (let i = 0; i < rows.length; i++) {
-      const r = rows[i];
-      try {
-        const askingRaw = parseMoneyStr(r.asking);
-        const zestimateRaw = parseMoneyStr(r.zestimate);
-        const { data: lead } = await supabase.from("leads").insert({
-          user_id: user.id, organization_id: orgId, campaign_id: campaignId,
-          // CC name is the cold caller; owner name is the property seller.
-          agent_name: r.cc || r.owner || null,
-          extracted_address: r.address || null,
-          asking_price: askingRaw && askingRaw > 0 ? askingRaw : null,
-          status: "Processing",
-          metadata: {
-            owner_name: r.owner || null,
-            cc_name: r.cc || null,
-            phone_number: r.phone || null,
-            reason: r.reason || null,
-            condition: r.condition || null,
-            closing: r.closing || null,
-            // Pre-populate Zillow data from the form columns if present.
-            ...(zestimateRaw ? { zestimate: zestimateRaw } : {}),
-            ...(r.zillow_url ? { zillow_link: r.zillow_url } : {}),
-            source_audio_url: r.drive || null,
-            submitted_via: "csv_import",
-          },
-        }).select("id").single();
-
-        // Only trigger analysis if a recording link exists.
-        if (lead?.id && r.drive) {
-          fetch("/api/leads/analyze", {
-            method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ leadId: lead.id, audioUrls: [r.drive] }),
-          }).catch(() => {});
-        }
-      } catch { /* skip bad row */ }
-      setProgress({ done: i + 1, total: rows.length });
+    try {
+      // Single server-side call — lead creation + analyze firing all happen on
+      // the server. Safe to navigate away immediately; analysis continues in the
+      // background as independent Vercel function invocations.
+      const res = await fetch("/api/leads/import-batch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rows, campaignId, userId: user.id, orgId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Import failed");
+      setProgress({ done: data.imported || rows.length, total: rows.length });
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Import failed");
     }
+
     setBusy(false);
     onDone();
   };

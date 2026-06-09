@@ -121,15 +121,17 @@ export default function LeadDetailPage() {
     alert("Delete failed: " + (j.error || "unknown"));
   };
 
-  const reanalyze = async () => {
+  const [reanalyzedMsg, setReanalyzedMsg] = useState("");
+  const reanalyze = () => {
     setReanalyzing(true);
-    await fetch("/api/leads/analyze", {
+    // Fire-and-forget: analysis runs on the server regardless of navigation.
+    fetch("/api/leads/analyze", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ leadId: id }),
-    });
-    await load();
-    setReanalyzing(false);
+    }).then(() => load()).catch(() => {}).finally(() => setReanalyzing(false));
+    setReanalyzedMsg("Analysis queued — results appear when complete.");
+    setTimeout(() => setReanalyzedMsg(""), 5000);
   };
 
   const fetchZillowData = async () => {
@@ -629,7 +631,7 @@ export default function LeadDetailPage() {
         );
       })()}
 
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
         <button onClick={reanalyze} disabled={reanalyzing} style={{
           display: "inline-flex", alignItems: "center", gap: 8,
           padding: "11px 18px", borderRadius: 10,
@@ -639,8 +641,13 @@ export default function LeadDetailPage() {
           boxShadow: "0 4px 14px rgba(35,43,58,0.25)",
         }}>
           {reanalyzing ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
-          Re-run Review
+          {reanalyzing ? "Queuing…" : "Re-run Review"}
         </button>
+        {reanalyzedMsg && (
+          <span style={{ fontSize: 12, fontWeight: 700, color: "#059669", background: "#ECFDF5", padding: "5px 12px", borderRadius: 999, border: "1px solid #A7F3D0" }}>
+            {reanalyzedMsg}
+          </span>
+        )}
         <ExportWebhookButton leadId={lead.id} />
         <div style={{ flex: 1 }} />
         <button onClick={deleteLead} disabled={deleting} style={{
