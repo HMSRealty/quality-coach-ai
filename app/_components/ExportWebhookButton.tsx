@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { Send, Loader2, CheckCircle2, AlertCircle, X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { T } from "@/app/_components/tokens";
+import { Portal } from "@/app/_components/Portal";
 
 export function ExportWebhookButton({ leadId }: { leadId: string }) {
   const [open, setOpen] = useState(false);
@@ -53,49 +54,55 @@ export function ExportWebhookButton({ leadId }: { leadId: string }) {
       </button>
 
       {open && (
-        <div onMouseDown={(e) => { if (e.target === e.currentTarget) setOpen(false); }} style={{
-          position: "fixed", inset: 0, zIndex: 200,
-          background: "rgba(8,10,24,0.55)", backdropFilter: "blur(6px)",
-          display: "flex", alignItems: "center", justifyContent: "center", padding: 16,
-        }}>
-          <div style={{
-            width: "100%", maxWidth: 480, borderRadius: 18,
-            background: "var(--surface-1)", border: "1px solid var(--border-2)",
-            boxShadow: "0 24px 60px rgba(0,0,0,0.40)", padding: 22,
+        <Portal>
+          <div onMouseDown={(e) => { if (e.target === e.currentTarget) setOpen(false); }} style={{
+            position: "fixed", inset: 0, zIndex: 9999,
+            background: "rgba(8,10,24,0.55)", backdropFilter: "blur(6px)",
+            display: "flex", alignItems: "center", justifyContent: "center", padding: 16,
           }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
-              <p style={{ fontSize: 16, fontWeight: 800, color: "var(--text-1)" }}>Export to webhook</p>
-              <button onClick={() => setOpen(false)} style={{ background: "transparent", border: "none", cursor: "pointer", color: "var(--text-3)" }}><X size={15} /></button>
-            </div>
-            <p style={{ fontSize: 12.5, color: "var(--text-2)", marginBottom: 12 }}>
-              Paste a Zapier / GoHighLevel / Make webhook URL. Save it under Settings to skip this dialog next time.
-            </p>
-            <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://hooks.zapier.com/..."
-              style={{
-                width: "100%", padding: "10px 12px", borderRadius: 10, fontSize: 13,
-                background: "var(--surface-3)", border: "1px solid var(--border-2)", color: "var(--text-1)", outline: "none",
-              }} />
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 14 }}>
-              <button onClick={() => setOpen(false)} className="btn-ghost">Cancel</button>
-              <button onClick={() => fire(url)} disabled={busy || !url.trim()} className="btn-brand">
-                {busy ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />} Send
-              </button>
+            <div style={{
+              width: "100%", maxWidth: 480, borderRadius: 18,
+              background: "var(--surface-1)", border: "1px solid var(--border-2)",
+              boxShadow: "0 24px 60px rgba(0,0,0,0.40)", padding: 22,
+              animation: "modalIn 180ms cubic-bezier(0.16,1,0.3,1) both",
+            }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+                <p style={{ fontSize: 16, fontWeight: 800, color: "var(--text-1)" }}>Export to webhook</p>
+                <button onClick={() => setOpen(false)} style={{ background: "transparent", border: "none", cursor: "pointer", color: "var(--text-3)" }}><X size={15} /></button>
+              </div>
+              <p style={{ fontSize: 12.5, color: "var(--text-2)", marginBottom: 12 }}>
+                Paste a Zapier / GoHighLevel / Make webhook URL. Save it under Settings to skip this dialog next time.
+              </p>
+              <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://hooks.zapier.com/..."
+                style={{
+                  width: "100%", padding: "10px 12px", borderRadius: 10, fontSize: 13,
+                  background: "var(--surface-3)", border: "1px solid var(--border-2)", color: "var(--text-1)", outline: "none",
+                }} />
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 14 }}>
+                <button onClick={() => setOpen(false)} className="btn-ghost">Cancel</button>
+                <button onClick={() => fire(url)} disabled={busy || !url.trim()} className="btn-brand">
+                  {busy ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />} Send
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        </Portal>
       )}
 
       {toast && (
-        <div style={{
-          position: "fixed", bottom: 22, right: 22, zIndex: 200,
-          padding: "10px 14px", borderRadius: 10,
-          background: toast.ok ? "#ECFDF5" : "#FBEEE8", color: toast.ok ? "#065F46" : "#991B1B",
-          border: `1px solid ${toast.ok ? "#A7F3D0" : "#FBCFBE"}`,
-          fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", gap: 8,
-          boxShadow: "var(--shadow-md)",
-        }}>
-          {toast.ok ? <CheckCircle2 size={14} /> : <AlertCircle size={14} />} {toast.msg}
-        </div>
+        <Portal>
+          <div style={{
+            position: "fixed", bottom: 22, right: 22, zIndex: 9999,
+            padding: "10px 14px", borderRadius: 10,
+            background: toast.ok ? "#ECFDF5" : "#FBEEE8", color: toast.ok ? "#065F46" : "#991B1B",
+            border: `1px solid ${toast.ok ? "#A7F3D0" : "#FBCFBE"}`,
+            fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", gap: 8,
+            boxShadow: "var(--shadow-md)",
+            animation: "modalIn 180ms cubic-bezier(0.16,1,0.3,1) both",
+          }}>
+            {toast.ok ? <CheckCircle2 size={14} /> : <AlertCircle size={14} />} {toast.msg}
+          </div>
+        </Portal>
       )}
     </>
   );

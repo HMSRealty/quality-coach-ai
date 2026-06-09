@@ -4,6 +4,7 @@
 // Esc to close. Searches across leads (address, owner, agent, AI feedback /
 // reason / coaching points). Mounted once in the dashboard layout.
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Portal } from "@/app/_components/Portal";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { Search, X, ArrowRight, Loader2, Phone, MapPin, User, Flame, Sun, Snowflake, CornerDownLeft, Command } from "lucide-react";
@@ -85,10 +86,11 @@ export function OmniSearch() {
 
   if (!open) return null;
   return (
+    <Portal>
     <div
       onMouseDown={(e) => { if (e.target === e.currentTarget) setOpen(false); }}
       style={{
-        position: "fixed", inset: 0, zIndex: 200,
+        position: "fixed", inset: 0, zIndex: 9999,
         background: "rgba(8,10,24,0.55)", backdropFilter: "blur(6px)",
         display: "flex", alignItems: "flex-start", justifyContent: "center",
         paddingTop: "12vh", padding: "12vh 16px 16px",
@@ -184,6 +186,7 @@ export function OmniSearch() {
         </div>
       </div>
     </div>
+    </Portal>
   );
 }
 

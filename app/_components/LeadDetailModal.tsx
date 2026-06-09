@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { X, Flag, Calendar, MapPin, DollarSign, Phone, User, FileText, Loader2, CheckCircle2 } from "lucide-react";
 
 import { T } from "@/app/_components/tokens";
+import { Portal } from "@/app/_components/Portal";
 const NAVY = T.text1;
 const TEAL = T.teal;
 const GOLD = T.teal;
@@ -67,10 +68,11 @@ export function LeadDetailModal({ leadId, onClose }: { leadId: string; onClose: 
   };
 
   return (
+    <Portal>
     <div onClick={onClose} style={{
       position: "fixed", inset: 0, background: "rgba(35,43,58,0.55)",
-      display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200,
-      backdropFilter: "blur(4px)", padding: 20, overflowY: "auto", overscrollBehavior: "contain",
+      display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999,
+      backdropFilter: "blur(4px)", padding: 20,
     }}>
       <div onClick={e => e.stopPropagation()} style={{
         background: T.surface1, borderRadius: 18, maxWidth: 720, width: "100%",
@@ -233,6 +235,7 @@ export function LeadDetailModal({ leadId, onClose }: { leadId: string; onClose: 
         )}
       </div>
     </div>
+    </Portal>
   );
 }
 

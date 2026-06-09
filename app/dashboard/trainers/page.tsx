@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { Portal } from "@/app/_components/Portal";
 import { supabase } from "@/lib/supabase";
 import { Card } from "@/app/_components/Card";
 import {
@@ -54,25 +55,28 @@ const labelStyle: React.CSSProperties = {
 
 function Modal({ children, onClose, title }: { children: React.ReactNode; onClose: () => void; title: string }) {
   return (
-    <div onClick={onClose} style={{
-      position: "fixed", inset: 0, background: "rgba(35,43,58,0.50)",
-      display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100,
-      backdropFilter: "blur(4px)", padding: 20,
-    }}>
-      <div onClick={e => e.stopPropagation()} style={{
-        background: "var(--surface-1)", borderRadius: 16, padding: 28, maxWidth: 520, width: "100%",
-        boxShadow: "0 24px 80px rgba(35,43,58,0.30)",
-        maxHeight: "90vh", overflowY: "auto", overscrollBehavior: "contain",
-      }} className="animate-scale">
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
-          <h2 style={{ fontSize: 17, fontWeight: 800, color: NAVY }}>{title}</h2>
-          <button onClick={onClose} style={{ background: "transparent", border: "none", cursor: "pointer", color: SLATE, padding: 4 }}>
-            <X size={18} />
-          </button>
+    <Portal>
+      <div onClick={onClose} style={{
+        position: "fixed", inset: 0, background: "rgba(35,43,58,0.50)",
+        display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999,
+        backdropFilter: "blur(4px)", padding: 20,
+      }}>
+        <div onClick={e => e.stopPropagation()} style={{
+          background: "var(--surface-1)", borderRadius: 16, padding: 28, maxWidth: 520, width: "100%",
+          boxShadow: "0 24px 80px rgba(35,43,58,0.30)",
+          maxHeight: "90vh", overflowY: "auto", overscrollBehavior: "contain",
+          animation: "modalIn 200ms cubic-bezier(0.16,1,0.3,1) both",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
+            <h2 style={{ fontSize: 17, fontWeight: 800, color: NAVY }}>{title}</h2>
+            <button onClick={onClose} style={{ background: "transparent", border: "none", cursor: "pointer", color: SLATE, padding: 4 }}>
+              <X size={18} />
+            </button>
+          </div>
+          {children}
         </div>
-        {children}
       </div>
-    </div>
+    </Portal>
   );
 }
 

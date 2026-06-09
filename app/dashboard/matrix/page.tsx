@@ -5,6 +5,7 @@
 // (Managers / Team Leaders / Acquisitions / QA / Trainers / Callers) plus the
 // 30-day Objection Heatmap.
 import { useEffect, useState, useMemo, useCallback } from "react";
+import { Portal } from "@/app/_components/Portal";
 import { supabase } from "@/lib/supabase";
 import { T } from "@/app/_components/tokens";
 import {
@@ -628,8 +629,9 @@ function PersonModal({
   const labelStyle: React.CSSProperties = { fontSize: 10, fontWeight: 800, color: "var(--text-3)", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 4, display: "block" };
 
   return (
+    <Portal>
     <div onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}
-      style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(8,10,24,0.55)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+      style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(8,10,24,0.55)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
       <div className="animate-scale" style={{
         width: "100%", maxWidth: 560, borderRadius: 18,
         background: "var(--surface-1)", border: "1px solid var(--border-2)",
@@ -705,5 +707,6 @@ function PersonModal({
         </div>
       </div>
     </div>
+    </Portal>
   );
 }

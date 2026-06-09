@@ -3,6 +3,7 @@
 // Cash Buyers CRM — buyer list with buy-box criteria, area targeting, and
 // filtering (match a deal price/area against your buyers' criteria).
 import { useEffect, useMemo, useState } from "react";
+import { Portal } from "@/app/_components/Portal";
 import { supabase } from "@/lib/supabase";
 import {
   Users, Plus, Trash2, Loader2, Search, Building2, Phone, Mail, MapPin, X, Pencil, Filter,
@@ -153,9 +154,10 @@ export default function CashBuyersPage() {
 
       {/* Add/Edit modal */}
       {showForm && (
-        <div onMouseDown={e => { if (e.target === e.currentTarget) setShowForm(false); }} data-lenis-prevent="true"
-          style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(15,23,42,0.45)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16, overflowY: "auto", overscrollBehavior: "contain" }}>
-          <div style={{ width: "100%", maxWidth: 560, background: "#fff", borderRadius: 18, boxShadow: "0 24px 60px rgba(15,23,42,0.30)", overflow: "hidden" }}>
+        <Portal>
+        <div onMouseDown={e => { if (e.target === e.currentTarget) setShowForm(false); }}
+          style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(15,23,42,0.45)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+          <div style={{ width: "100%", maxWidth: 560, background: "#fff", borderRadius: 18, boxShadow: "0 24px 60px rgba(15,23,42,0.30)", overflow: "hidden", animation: "modalIn 200ms cubic-bezier(0.16,1,0.3,1) both" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: "1px solid var(--border-1)" }}>
               <p style={{ fontSize: 16, fontWeight: 800, color: "#000" }}>{editId ? "Edit buyer" : "Add cash buyer"}</p>
               <button onClick={() => setShowForm(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-3)" }}><X size={18} /></button>
@@ -179,6 +181,7 @@ export default function CashBuyersPage() {
             </div>
           </div>
         </div>
+        </Portal>
       )}
     </div>
   );

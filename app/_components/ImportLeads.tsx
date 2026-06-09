@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { Upload, X, Loader2, CheckCircle2, Download, FileSpreadsheet } from "lucide-react";
+import { Portal } from "@/app/_components/Portal";
 
 const SKY = "#0EA5E9";
 const MONEY = "#059669";
@@ -127,9 +128,10 @@ export function ImportLeads({ onClose, onDone }: { onClose: () => void; onDone: 
   };
 
   return (
-    <div onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }} data-lenis-prevent="true"
-      style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(15,23,42,0.45)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16, overflowY: "auto", overscrollBehavior: "contain" }}>
-      <motion.div initial={{ opacity: 0, y: 10, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }}
+    <Portal>
+    <div onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }}
+      style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(15,23,42,0.45)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+      <motion.div initial={{ opacity: 0, y: 8, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ type: "spring", stiffness: 420, damping: 30 }}
         style={{ width: "100%", maxWidth: 620, background: "#fff", borderRadius: 18, boxShadow: "0 24px 60px rgba(15,23,42,0.30)", overflow: "hidden" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: "1px solid var(--border-1)" }}>
           <p style={{ fontSize: 16, fontWeight: 800, color: "#000", display: "inline-flex", alignItems: "center", gap: 9 }}><FileSpreadsheet size={18} color={SKY} /> Import Leads (CSV)</p>
@@ -178,5 +180,6 @@ export function ImportLeads({ onClose, onDone }: { onClose: () => void; onDone: 
         </div>
       </motion.div>
     </div>
+    </Portal>
   );
 }
