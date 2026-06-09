@@ -745,10 +745,18 @@ export async function POST(req: Request): Promise<Response> {
     // same address is still ACTIVE. Dead leads (Disqualified / Error / Duplicate)
     // do NOT block a re-submission — the new one is allowed to be re-analyzed.
     if (lead.extracted_address) {
-      const DEAD_STATUSES = new Set(["disqualified", "error", "duplicate"]);
-      const { data: dups } = await sa.from("leads").select("id, status")
+      // Non-blocking statuses: dead leads AND siblings still being processed
+      // (so parallel imports of the same address don't flag each other, and a
+      // stuck "Processing" row never blocks a fresh submission).
+      const NON_BLOCKING = new Set(["disqualified", "error", "duplicate", "processing"]);
+      const { data: dups } = await sa.from("leads").select("id, status, created_at")
         .eq("user_id", lead.user_id).ilike("extracted_address", lead.extracted_address).neq("id", lead.id);
-      const activeDup = (dups || []).find((d) => !DEAD_STATUSES.has(String(d.status || "").toLowerCase()));
+      // Only an EARLIER-created, live lead blocks — guarantees at most one of a
+      // same-address pair is ever marked Duplicate, never both.
+      const myCreated = new Date(lead.created_at || 0).getTime();
+      const activeDup = (dups || []).find((d) =>
+        !NON_BLOCKING.has(String(d.status || "").toLowerCase()) &&
+        new Date(d.created_at || 0).getTime() <= myCreated);
       if (activeDup) {
         await sa.from("leads").update({ status: "Duplicate", rejection_reason: "Address already submitted.", ai_processed_at: new Date().toISOString() }).eq("id", lead.id);
         return jsonRes({ ok: true, status: "Duplicate" });
