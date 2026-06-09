@@ -35,15 +35,6 @@ async function runInBackground(p: Promise<unknown>) {
   }
 }
 
-// Does this lead have something analyzable attached?
-async function hasRecording(sb: ReturnType<typeof service>, lead: { id: string; call_recording_url: string | null; metadata: Record<string, unknown> | null }) {
-  if (lead.call_recording_url) return true;
-  const driveLink = lead.metadata && typeof lead.metadata.source_audio_url === "string" ? lead.metadata.source_audio_url : null;
-  if (driveLink) return true;
-  const { count } = await sb.from("call_uploads").select("id", { count: "exact", head: true }).eq("lead_id", lead.id);
-  return (count ?? 0) > 0;
-}
-
 export async function POST(req: NextRequest) {
   try {
     const { userId } = (await req.json().catch(() => ({}))) as { userId?: string };
@@ -58,24 +49,22 @@ export async function POST(req: NextRequest) {
       .eq("user_id", userId).eq("status", "Processing");
     if ((busy ?? 0) > 0) return NextResponse.json({ ok: true, busy: true });
 
-    // 2) Find the oldest Pending lead that has a recording to work on.
+    // 2) Find the oldest QUEUED lead (user pressed Start) that has a recording.
+    //    "Pending" leads are idle imports the user hasn't started yet.
     const { data: pending } = await sb.from("leads")
       .select("id, call_recording_url, metadata, created_at")
-      .eq("user_id", userId).eq("status", "Pending")
+      .eq("user_id", userId).eq("status", "Queued")
       .order("created_at", { ascending: true })
-      .limit(20);
+      .limit(50);
 
-    let target: { id: string; call_recording_url: string | null; metadata: Record<string, unknown> | null } | null = null;
-    for (const l of (pending || []) as Array<{ id: string; call_recording_url: string | null; metadata: Record<string, unknown> | null }>) {
-      if (await hasRecording(sb, l)) { target = l; break; }
-    }
+    const target = ((pending || [])[0] as { id: string; call_recording_url: string | null; metadata: Record<string, unknown> | null } | undefined) || null;
     if (!target) return NextResponse.json({ ok: true, done: true });
 
-    // 3) Claim it (Pending → Processing). The eq("status","Pending") guard makes
+    // 3) Claim it (Queued → Processing). The eq("status","Queued") guard makes
     //    this a best-effort atomic claim against a racing trigger.
     const { data: claimed } = await sb.from("leads")
       .update({ status: "Processing" })
-      .eq("id", target.id).eq("status", "Pending")
+      .eq("id", target.id).eq("status", "Queued")
       .select("id").maybeSingle();
     if (!claimed) return NextResponse.json({ ok: true, raced: true });
 

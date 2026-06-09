@@ -64,6 +64,7 @@ const STATUS_CONFIG: Record<string, { bg: string; color: string; icon: typeof Ch
   "Call Back":  { bg: "#FFFBEB", color: "#92400E", icon: Phone },
   Processing:   { bg: "#F1F4F9", color: "#4B5563", icon: Clock },
   Pending:      { bg: "#F5F7FA", color: "#64748B", icon: Clock },
+  Queued:       { bg: "#EFF6FF", color: "#1D4ED8", icon: Clock },
   Duplicate:    { bg: "#EAF0FF", color: "#92400E", icon: AlertTriangle },
   Commercial:   { bg: "#F5F3FF", color: "#7C3AED", icon: AlertTriangle },
   Error:        { bg: "#FBEEE8", color: "#DC2626", icon: AlertTriangle },

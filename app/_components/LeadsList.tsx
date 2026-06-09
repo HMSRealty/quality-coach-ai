@@ -27,6 +27,9 @@ const STATUS: Record<string, { bg: string; fg: string; glow: string }> = {
   Disqualified: { bg: "var(--surface-3)",       fg: "var(--text-3)", glow: "rgba(124,58,237,0.0)" },
   Duplicate:    { bg: "rgba(124,58,237,0.12)",  fg: "#7C3AED", glow: "rgba(124,58,237,0.5)" },
   Processing:   { bg: "var(--surface-3)",       fg: "var(--text-3)", glow: "rgba(124,58,237,0.0)" },
+  Pending:      { bg: "var(--surface-3)",       fg: "var(--text-3)", glow: "rgba(124,58,237,0.0)" },
+  Queued:       { bg: "rgba(29,78,216,0.10)",   fg: "#1D4ED8", glow: "rgba(29,78,216,0.4)" },
+  Error:        { bg: "rgba(220,38,38,0.10)",   fg: "#DC2626", glow: "rgba(220,38,38,0.4)" },
 };
 const fmt = (n: number | null | undefined) => (n ? `$${Math.round(n).toLocaleString()}` : "—");
 

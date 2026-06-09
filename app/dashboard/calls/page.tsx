@@ -45,10 +45,8 @@ export default function CallsPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkBusy, setBulkBusy] = useState(false);
   const [importing, setImporting] = useState(false);
-  // Sequential, client-driven qualification of Pending leads.
+  // "qualifying" = transient flag while we flip Pending→Queued and kick the chain.
   const [qualifying, setQualifying] = useState(false);
-  const [qProgress, setQProgress] = useState({ done: 0, total: 0, current: "" });
-  const stopRef = useRef(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -114,53 +112,36 @@ export default function CallsPage() {
   });
 
   const pendingLeads = leads.filter(l => l.status === "Pending");
+  const queuedLeads = leads.filter(l => l.status === "Queued");
 
-  // Qualify Pending leads ONE AT A TIME, driven by the browser so it never
-  // depends on fragile background execution. Each lead: mark Processing → run
-  // analyze (Gemini + Zillow) → wait for it to finish → move to the next.
+  // Start qualifying: flip the user's idle "Pending" leads to "Queued" and kick
+  // the SERVER queue. The server processes them one-at-a-time in the background
+  // (self-chaining), so it keeps running even if this tab is closed. The monitor
+  // re-nudges the chain if it ever drops.
   const startQualifying = async () => {
     if (qualifying) return;
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
-    const { data } = await supabase
-      .from("leads")
-      .select("id, metadata, call_recording_url, extracted_address, created_at")
-      .eq("user_id", user.id).eq("status", "Pending")
-      .order("created_at", { ascending: true });
-    const queue = (data || []) as Array<{ id: string; metadata: Record<string, unknown> | null; call_recording_url: string | null; extracted_address: string | null }>;
-    if (!queue.length) return;
-
-    stopRef.current = false;
     setQualifying(true);
-    setQProgress({ done: 0, total: queue.length, current: "" });
-
-    for (let i = 0; i < queue.length; i++) {
-      if (stopRef.current) break;
-      const lead = queue[i];
-      const driveLink = (lead.metadata && typeof lead.metadata.source_audio_url === "string" ? lead.metadata.source_audio_url : null) || lead.call_recording_url || null;
-      setQProgress({ done: i, total: queue.length, current: lead.extracted_address || "lead" });
-
-      // Show it as actively processing (best-effort; analyze sets the final status).
-      try { await supabase.from("leads").update({ status: "Processing" }).eq("id", lead.id); } catch { /* RLS may block; analyze still runs */ }
-
-      try {
-        await fetch("/api/leads/analyze", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ leadId: lead.id, ...(driveLink ? { audioUrls: [driveLink] } : {}) }),
-        });
-      } catch { /* analyze flips the lead to a final status itself; keep going */ }
-
-      setQProgress({ done: i + 1, total: queue.length, current: lead.extracted_address || "lead" });
-      // Realtime subscription reflects each lead's new status automatically.
-    }
-
-    setQualifying(false);
-    stopRef.current = false;
+    // Mark all idle Pending leads as Queued (user-initiated).
+    await supabase.from("leads").update({ status: "Queued" }).eq("user_id", user.id).eq("status", "Pending");
     await load();
+    // Kick the background chain.
+    await fetch("/api/leads/process-next", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: user.id }),
+    }).catch(() => {});
+    setQualifying(false);
   };
 
-  const stopQualifying = () => { stopRef.current = true; };
+  const stopQualifying = async () => {
+    // Park any not-yet-started Queued leads back to Pending. A lead already
+    // Processing finishes; nothing new starts.
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    await supabase.from("leads").update({ status: "Pending" }).eq("user_id", user.id).eq("status", "Queued");
+    await load();
+  };
 
   const deleteLead = async (leadId: string) => {
     if (!confirm("Delete this lead and its recordings? This cannot be undone.")) return;
@@ -216,19 +197,19 @@ export default function CallsPage() {
           </p>
         </div>
         <div style={{ display: "flex", gap: 10 }}>
-          {pendingLeads.length > 0 && !qualifying && (
-            <button onClick={startQualifying} style={{
+          {pendingLeads.length > 0 && (
+            <button onClick={startQualifying} disabled={qualifying} style={{
               display: "inline-flex", alignItems: "center", gap: 7, padding: "9px 16px", borderRadius: 9,
               background: "linear-gradient(135deg, #059669, #047857)", color: "#fff", border: "none",
-              fontSize: 12.5, fontWeight: 800, cursor: "pointer", boxShadow: "0 4px 14px rgba(5,150,105,0.32)",
-            }}><Play size={14} /> Start qualifying ({pendingLeads.length})</button>
+              fontSize: 12.5, fontWeight: 800, cursor: qualifying ? "wait" : "pointer", boxShadow: "0 4px 14px rgba(5,150,105,0.32)", opacity: qualifying ? 0.7 : 1,
+            }}>{qualifying ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />} Start qualifying ({pendingLeads.length})</button>
           )}
-          {qualifying && (
+          {queuedLeads.length > 0 && (
             <button onClick={stopQualifying} style={{
               display: "inline-flex", alignItems: "center", gap: 7, padding: "9px 16px", borderRadius: 9,
               background: "#DC2626", color: "#fff", border: "none",
               fontSize: 12.5, fontWeight: 800, cursor: "pointer",
-            }}><StopCircle size={14} /> Stop ({qProgress.done}/{qProgress.total})</button>
+            }}><StopCircle size={14} /> Stop ({queuedLeads.length} queued)</button>
           )}
           <button onClick={() => setImporting(true)} style={{
             display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 14px", borderRadius: 9,
@@ -253,19 +234,16 @@ export default function CallsPage() {
         </div>
       </div>
 
-      {/* Sequential qualification progress */}
-      {qualifying && (
+      {/* Background qualification banner */}
+      {queuedLeads.length > 0 && (
         <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", borderRadius: 12, background: "#ECFDF5", border: "1px solid #059669", flexWrap: "wrap" }}>
           <Loader2 size={16} className="animate-spin" style={{ color: "#059669" }} />
           <span style={{ fontSize: 13, fontWeight: 800, color: "#047857" }}>
-            Qualifying {qProgress.done}/{qProgress.total}
+            Qualifying in the background · {queuedLeads.length} in queue
           </span>
-          <span style={{ fontSize: 12.5, color: "#065F46", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-            {qProgress.current ? `Now: ${qProgress.current}` : "Starting…"}
+          <span style={{ fontSize: 12.5, color: "#065F46" }}>
+            Processing one lead at a time — you can leave this page, it keeps running.
           </span>
-          <div style={{ flex: 1, minWidth: 120, height: 6, borderRadius: 999, background: "#A7F3D0", overflow: "hidden" }}>
-            <div style={{ width: `${qProgress.total ? (qProgress.done / qProgress.total) * 100 : 0}%`, height: "100%", background: "#059669", transition: "width 300ms" }} />
-          </div>
         </div>
       )}
 

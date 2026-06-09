@@ -34,11 +34,11 @@ export function ProcessingMonitor() {
       .from("leads")
       .select("id, extracted_address, agent_name, created_at, status")
       .eq("user_id", uid)
-      .in("status", ["Processing", "Pending"])
+      .in("status", ["Processing", "Queued"])
       .order("created_at", { ascending: true })
       .limit(200);
 
-    // Active (Processing) first, then the queued (Pending) ones in line order.
+    // Active (Processing) first, then the queued ones in line order.
     const rows = (data || []) as Array<{ id: string; extracted_address: string | null; agent_name: string | null; created_at: string | null; status: string }>;
     const next: Job[] = rows
       .map((d) => ({
@@ -46,7 +46,7 @@ export function ProcessingMonitor() {
         address: d.extracted_address || "Address pending…",
         agent: d.agent_name || null,
         since: d.created_at || null,
-        pending: String(d.status).toLowerCase() === "pending",
+        pending: String(d.status).toLowerCase() === "queued",
       }))
       .sort((a, b) => Number(a.pending) - Number(b.pending));
 
@@ -61,6 +61,19 @@ export function ProcessingMonitor() {
     }
     prevIds.current = nextIds;
     setJobs(next);
+
+    // Self-heal: leads are Queued (user pressed Start) but nothing is Processing
+    // → the background chain dropped. Re-nudge it. Only acts on Queued, so it
+    // never starts work the user didn't initiate.
+    const anyActive = next.some((j) => !j.pending);
+    const anyQueued = next.some((j) => j.pending);
+    if (anyQueued && !anyActive && uid) {
+      fetch("/api/leads/process-next", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: uid }),
+      }).catch(() => {});
+    }
   };
 
   useEffect(() => {
