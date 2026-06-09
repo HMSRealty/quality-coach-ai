@@ -104,7 +104,7 @@ export async function POST(req: Request): Promise<Response> {
           agent_name: b.agentName ?? null,
           extracted_address: address,
           asking_price: askingClean,
-          status: "Processing",
+          status: "Pending",
           metadata: mergedMeta,
         })
         .eq("id", match.id);

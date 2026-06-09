@@ -163,27 +163,24 @@ export default function SubmitLeadPage() {
     const leadId: string = subJson.leadId;
     const revived = subJson.mode === "revived";
 
-    // Upload recordings (private bucket) if any.
-    let audioUrls: string[] = [];
+    // Upload recordings (private bucket) if any — stored in-house so the queue
+    // can analyze them locally.
     if (files.length) {
       setPhase(`Uploading ${files.length} recording${files.length === 1 ? "" : "s"}…`);
       const fd = new FormData();
       files.forEach(f => fd.append("files", f));
-      const up = await fetch(`/api/leads/${leadId}/upload`, { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: fd });
-      const upJson = await up.json().catch(() => ({}));
-      if (up.ok && upJson.ok) audioUrls = upJson.urls || [];
+      await fetch(`/api/leads/${leadId}/upload`, { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: fd });
     }
 
-    setPhase("Running AI analysis…");
+    // Enqueue for ORDERED, one-at-a-time backend analysis (handles high volume
+    // safely — no direct AI call here). audioUrls/recordings are already attached.
+    setPhase("Queuing for analysis…");
     try {
-      await fetch("/api/leads/analyze", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ leadId, ...(audioUrls.length ? { audioUrls } : {}) }),
-      });
-    } catch { /* analyze is async-tolerant */ }
+      await fetch(`/api/leads/${leadId}/queue`, { method: "POST", headers: { "Content-Type": "application/json" } });
+    } catch { /* the worker + heartbeat will still pick it up */ }
 
     setSubmitting(false);
-    setResult({ kind: "ok", msg: revived ? "Revived a previously-disqualified lead and re-queued analysis." : "Lead submitted and sent for AI analysis." });
+    setResult({ kind: "ok", msg: revived ? "Revived a previously-disqualified lead — queued for analysis." : "Lead submitted — queued for AI analysis." });
     setForm(f => ({ ...f, address: "", parts: null, ownerName: "", phone: "", askingPrice: "", zillowLink: "", reason: "" }));
     setFiles([]);
     setTimeout(() => setResult(null), 6000);

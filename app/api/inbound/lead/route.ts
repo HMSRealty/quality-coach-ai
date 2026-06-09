@@ -120,7 +120,7 @@ export async function POST(req: Request): Promise<Response> {
       const mergedMeta = { ...(match.metadata as Record<string, unknown> || {}), ...metadata, revived_from: match.status };
       const { error: upErr } = await sb.from("leads").update({
         campaign_id: b.campaign_id, extracted_address: address, agent_name: b.seller_name ?? null,
-        status: "Processing", metadata: mergedMeta,
+        status: "Queued", metadata: mergedMeta,
       }).eq("id", match.id);
       if (upErr) return Response.json({ ok: false, error: upErr.message }, { status: 500 });
       leadId = match.id; mode = "revived";
@@ -128,7 +128,7 @@ export async function POST(req: Request): Promise<Response> {
       const { data: inserted, error } = await sb.from("leads").insert({
         user_id: userId, organization_id: keyRow.organization_id ?? null,
         campaign_id: b.campaign_id, agent_name: b.seller_name ?? null,
-        extracted_address: address, status: "Processing", metadata,
+        extracted_address: address, status: "Queued", metadata,
       }).select("id").single();
       if (error || !inserted) return Response.json({ ok: false, error: error?.message || "Insert failed" }, { status: 500 });
       leadId = inserted.id; mode = "new";
@@ -152,14 +152,13 @@ export async function POST(req: Request): Promise<Response> {
       }
     }
 
-    // ── Fire the SAME AI analysis pipeline as the manual form ──
+    // ── ENQUEUE for ordered, one-at-a-time backend analysis (high-volume safe) ──
+    // The recording is already stored in-house, so the worker analyzes locally.
     const origin = new URL(req.url).origin;
-    try {
-      await fetch(`${origin}/api/leads/analyze`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ leadId, ...(audioUrls.length ? { audioUrls } : {}) }),
-      });
-    } catch { /* lead stays Processing; can be re-run */ }
+    fetch(`${origin}/api/leads/process-next`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId }),
+    }).catch(() => { /* worker + heartbeat will still pick it up */ });
 
     // best-effort key usage stamp
     sb.from("api_keys").update({ last_used_at: new Date().toISOString() }).eq("id", keyRow.id).then(() => {});

@@ -251,35 +251,27 @@ export default function DynamicSubmitPage() {
       if (!insertRes.ok || !insertJson.ok) throw new Error(insertJson.error || "Submission failed");
       const lead = { id: insertJson.leadId as string };
 
-      // The recordings are sent straight to the analyzer below (multipart), which
-      // persists them to the PRIVATE call-recordings bucket — no public URL.
-      setStatusMsg(callFiles.length ? `Reviewing ${callFiles.length} recording${callFiles.length > 1 ? "s" : ""} & verifying the lead…` : "Verifying the lead…");
-
-      // Send EVERY audio directly to the analyzer (multipart "files[]") so the
-      // AI listens to all of them as one combined session.
-      let res: Response;
+      // High-volume safe: store recordings in-house, then ENQUEUE. The backend
+      // worker analyzes queued leads strictly one-at-a-time in order — a burst of
+      // simultaneous submissions never overloads the AI.
       if (callFiles.length) {
+        setStatusMsg(`Uploading ${callFiles.length} recording${callFiles.length > 1 ? "s" : ""}…`);
         const fd = new FormData();
+        fd.append("slug", slug);
         fd.append("leadId", lead.id);
         for (const f of callFiles) fd.append("files", f);
-        res = await fetch("/api/leads/analyze", { method: "POST", body: fd });
-      } else {
-        res = await fetch("/api/leads/analyze", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ leadId: lead.id }),
-        });
-      }
-      const json = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        // Analysis failed — surface the error, keep the form so they can retry
-        throw new Error(json.error || "Verification failed. Please try again.");
+        const up = await fetch("/api/public-form/upload", { method: "POST", body: fd });
+        const upJson = await up.json().catch(() => ({}));
+        if (!up.ok || !upJson.ok) throw new Error(upJson.error || "Recording upload failed. Please try again.");
       }
 
-      // Success — show the dedicated confirmation screen
+      setStatusMsg("Adding your lead to the queue…");
+      const qRes = await fetch(`/api/leads/${lead.id}/queue`, { method: "POST", headers: { "Content-Type": "application/json" } });
+      if (!qRes.ok) throw new Error("Could not queue the lead. Please try again.");
+
+      // Success — the lead is accepted and pending in the ordered queue.
       setStatusMsg(null);
-      setDoneStatus(json.status || "Submitted");
+      setDoneStatus("Submitted");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Submission failed");
       setStatusMsg(null);

@@ -142,7 +142,7 @@ export default function SubmitLeadPage() {
       agent_name: selectedCaller?.name || null,
       extracted_address: formData.property_address,
       asking_price: formData.asking_price ? parseFloat(formData.asking_price) : null,
-      status: "Processing",
+      status: "Pending",
       metadata: {
         date: formData.date,
         owner_name: formData.owner_name,
@@ -162,19 +162,11 @@ export default function SubmitLeadPage() {
       return;
     }
 
-    setSuccess("Submitted. Analyzing call...");
+    setSuccess("Submitted — queued for analysis.");
     try {
-      const res = await fetch("/api/leads/analyze", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ leadId: inserted.id }),
-      });
-      const json = await res.json().catch(() => ({}));
-      if (res.ok) setSuccess(`Done. Lead marked: ${json.status}`);
-      else setSuccess(`Submitted. Review failed: ${json.error || "unknown"} — lead remains in Processing.`);
-    } catch {
-      setSuccess("Submitted. Review request failed — will retry.");
-    }
+      // Enqueue for ordered, one-at-a-time backend analysis (high-volume safe).
+      await fetch(`/api/leads/${inserted.id}/queue`, { method: "POST", headers: { "Content-Type": "application/json" } });
+    } catch { /* worker + heartbeat will still pick it up */ }
 
     setForm({
       date: new Date().toISOString().split("T")[0],

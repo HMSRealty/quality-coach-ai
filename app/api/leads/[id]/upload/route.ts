@@ -87,10 +87,11 @@ export async function POST(
       return Response.json({ ok: false, error: "All uploads failed (is the call-recordings bucket created?)" }, { status: 500 });
     }
 
-    await sb.from("leads").update({
-      audio_size_bytes: totalSize,
-      status: "Processing",
-    }).eq("id", id);
+    // NOTE: we deliberately do NOT flip status here. The caller decides what
+    // happens next (the submit flow enqueues via /api/leads/[id]/queue; the
+    // lead-detail page fires analyze directly). Avoids a false "Processing" that
+    // would block the sequential queue.
+    await sb.from("leads").update({ audio_size_bytes: totalSize }).eq("id", id);
 
     return Response.json({ ok: true, urls: signedUrls });
   } catch (e) {

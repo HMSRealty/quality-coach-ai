@@ -132,7 +132,7 @@ export async function POST(req: Request): Promise<Response> {
         agent_name,
         extracted_address: lead.property_address || null,
         asking_price: askingNum != null && isFinite(askingNum) ? askingNum : null,
-        status: "Processing",
+        status: "Pending",
         metadata: {
           date: lead.date,
           owner_name: lead.owner_name,
