@@ -54,31 +54,63 @@ const toISO = (s: string): string | null => {
   const d = new Date(t); return isNaN(d.getTime()) ? null : d.toISOString().slice(0, 10);
 };
 
-// Smart parse of an uploaded hours sheet — detects name / payable-hours / rate /
-// from-to date columns by header keywords, regardless of column order.
-type HoursParse = { rows: { name: string; hours: number; rate: number | null }[]; from: string | null; to: string | null };
-function parseHoursSheet(text: string): HoursParse {
-  const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+// Smart parse of an uploaded sheet — a one-shot import that detects hours AND the
+// full pay roster (role, category, rate/salary, email, color, payment method/info,
+// from-to dates) by header keywords, in any column order. Quote-aware so payment
+// links with commas survive.
+type RosterRow = {
+  name: string; hours: number | null; rate: number | null; salary: number | null;
+  role: string | null; category: "caller" | "manager" | null;
+  email: string | null; color: string | null; method: string | null; info: string | null;
+};
+type RosterParse = { rows: RosterRow[]; from: string | null; to: string | null };
+function splitCsvLine(l: string): string[] {
+  const out: string[] = []; let cur = "", q = false;
+  for (let i = 0; i < l.length; i++) {
+    const c = l[i];
+    if (q) { if (c === '"') { if (l[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += c; }
+    else { if (c === '"') q = true; else if (c === ",") { out.push(cur); cur = ""; } else cur += c; }
+  }
+  out.push(cur); return out.map(x => x.trim());
+}
+function parseHoursSheet(text: string): RosterParse {
+  const lines = text.split(/\r?\n/).map(l => l.replace(/\r$/, "")).filter(l => l.trim());
   if (lines.length < 2) return { rows: [], from: null, to: null };
-  const split = (l: string) => l.split(",").map(c => c.replace(/^"|"$/g, "").trim());
-  const head = split(lines[0]).map(h => h.toLowerCase());
+  const head = splitCsvLine(lines[0]).map(h => h.toLowerCase());
   const find = (...keys: string[]) => head.findIndex(h => keys.some(k => h.includes(k)));
   const nameI = find("name", "agent", "employee");
   let hoursI = head.findIndex(h => h.includes("payable") && h.includes("hour"));
   if (hoursI < 0) hoursI = find("worked", "hours", "payable", "hrs");
-  const rateI = find("rate", "hourly");
+  const rateI = find("hourly", "rate");
+  const salaryI = find("monthly", "salary");
+  const roleI = find("role", "title", "position");
+  const catI = find("category", "type");
+  const emailI = find("email", "e-mail");
+  const colorI = find("color", "colour", "hex");
+  const methodI = find("payment method", "method", "pay method");
+  const infoI = find("payment info", "info", "handle", "wallet", "account");
   const fromI = find("from", "start", "period start");
   const toI = find("to", "end", "period end");
   let from: string | null = null, to: string | null = null;
-  const rows = lines.slice(1).map(split).map(c => {
-    if (fromI >= 0 && !from) from = toISO(c[fromI] || "");
-    if (toI >= 0 && !to) to = toISO(c[toI] || "");
+  const at = (c: string[], i: number) => i >= 0 ? (c[i] || "").trim() : "";
+  const rows = lines.slice(1).map(splitCsvLine).map(c => {
+    if (fromI >= 0 && !from) from = toISO(at(c, fromI));
+    if (toI >= 0 && !to) to = toISO(at(c, toI));
+    const catRaw = at(c, catI).toLowerCase();
+    const salary = salaryI >= 0 && at(c, salaryI) ? n(at(c, salaryI), 0) || null : null;
+    const category: "caller" | "manager" | null =
+      catRaw.includes("manager") || catRaw.includes("mgr") ? "manager"
+      : catRaw.includes("caller") || catRaw.includes("agent") ? "caller"
+      : salary && !at(c, rateI) ? "manager" : (catI >= 0 || salaryI >= 0 ? "caller" : null);
     return {
-      name: nameI >= 0 ? (c[nameI] || "") : "",
-      hours: hoursI >= 0 ? parsePayableHours(c[hoursI] || "") : 0,
-      rate: rateI >= 0 && c[rateI] ? n(c[rateI], 0) || null : null,
+      name: at(c, nameI),
+      hours: hoursI >= 0 && at(c, hoursI) ? parsePayableHours(at(c, hoursI)) : null,
+      rate: rateI >= 0 && at(c, rateI) ? n(at(c, rateI), 0) || null : null,
+      salary, role: at(c, roleI) || null, category,
+      email: at(c, emailI) || null, color: at(c, colorI) || null,
+      method: at(c, methodI) || null, info: at(c, infoI) || null,
     };
-  }).filter(r => r.name || r.hours);
+  }).filter(r => r.name || r.hours != null);
   return { rows, from, to };
 }
 
@@ -155,25 +187,39 @@ export function PayrollWorkbench() {
     if (adds.length) setPeople(ps => [...ps, ...adds]);
   };
 
-  // Spread agents + worked hours (and period dates) into the caller rows. Matches
-  // existing people by name; creates a caller for anyone new on the sheet.
-  const mergeHours = (parsed: { name: string; hours: number; rate: number | null }[]) => {
+  // Spread the roster (hours + every provided field) into the people rows. Matches
+  // existing people by name; creates a row for anyone new. Only overwrites a field
+  // when the sheet actually provides it, so manual edits aren't clobbered.
+  const mergeHours = (parsed: Partial<RosterRow>[]) => {
     setPeople(prev => {
       const out = [...prev];
       const idxByName = new Map(out.map((p, i) => [norm(p.name), i]));
       let pos = out.length;
       for (const r of parsed) {
-        const key = norm(r.name);
+        const key = norm(r.name || "");
+        const cat: "caller" | "manager" = (r.category as "caller" | "manager") || "caller";
         if (key && idxByName.has(key)) {
-          const i = idxByName.get(key)!;
-          out[i] = { ...out[i], extras: { ...out[i].extras, worked: Math.round(r.hours * 100) / 100 }, ...(r.rate ? { hourly_rate: r.rate } : {}), _dirty: true };
+          const i = idxByName.get(key)!; const p = out[i];
+          out[i] = {
+            ...p,
+            category: r.category || p.category,
+            role: r.role ?? p.role,
+            hourly_rate: r.rate ?? p.hourly_rate,
+            monthly_salary: r.salary ?? p.monthly_salary,
+            payment_method: r.method ?? p.payment_method,
+            payment_info: r.info ?? p.payment_info,
+            email: r.email ?? p.email,
+            color: r.color ?? p.color,
+            extras: r.hours != null ? { ...p.extras, worked: Math.round(r.hours * 100) / 100 } : p.extras,
+            _dirty: true,
+          };
         } else {
           out.push({
             id: `new-${Date.now()}-${pos}-${Math.random().toString(36).slice(2, 5)}`,
-            name: r.name.trim(), category: "caller", role: "RE Telemarketing Agent",
-            hourly_rate: r.rate ?? 3, monthly_salary: 0, payment_method: "Instapay",
-            payment_info: "", color: null, email: null,
-            extras: { worked: Math.round(r.hours * 100) / 100 }, position: pos++, _dirty: true, _new: true,
+            name: (r.name || "").trim(), category: cat, role: r.role ?? (cat === "manager" ? "Manager" : "RE Telemarketing Agent"),
+            hourly_rate: r.rate ?? (cat === "caller" ? 3 : 0), monthly_salary: r.salary ?? (cat === "manager" ? 12000 : 0),
+            payment_method: r.method ?? "Instapay", payment_info: r.info ?? "", color: r.color ?? null, email: r.email ?? null,
+            extras: r.hours != null ? { worked: Math.round(r.hours * 100) / 100 } : {}, position: pos++, _dirty: true, _new: true,
           });
           if (key) idxByName.set(key, out.length - 1);
         }
@@ -298,13 +344,19 @@ export function PayrollWorkbench() {
           <span style={{ width: 36, height: 36, borderRadius: 9, background: "rgba(5,150,105,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}><Users size={18} color={MONEY} /></span>
           <div>
             <h2 style={{ fontSize: 19, fontWeight: 900, color: NAVY }}>Payroll Workbench</h2>
-            <p style={{ fontSize: 12, color: SLATE }}>Upload your hours sheet — agents, worked hours &amp; the pay period auto-fill. Every number, date &amp; payment stays adjustable.</p>
+            <p style={{ fontSize: 12, color: SLATE }}>Upload one sheet — agents, hours, roles, rates/salaries, payment method &amp; info, and the pay period all auto-fill. Every field stays adjustable.</p>
           </div>
         </div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           <input ref={fileRef} type="file" accept=".csv" onChange={onHoursFile} style={{ display: "none" }} />
-          <button onClick={() => fileRef.current?.click()} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 9, background: SKY, color: "#fff", border: "none", fontSize: 12, fontWeight: 800, cursor: "pointer" }}><Upload size={13} /> Upload hours sheet</button>
+          <button onClick={() => fileRef.current?.click()} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 9, background: SKY, color: "#fff", border: "none", fontSize: 12, fontWeight: 800, cursor: "pointer" }}><Upload size={13} /> Upload sheet</button>
           <button onClick={syncDialer} className="btn-ghost" style={{ padding: "8px 12px", fontSize: 12 }}><Clock size={13} /> Sync dialer hours</button>
+          <button onClick={() => {
+            const csv = "Name,Role,Category,Monthly Salary,Hourly Rate,Payable Hours,Email,Color,Payment Method,Payment Info,From,To\n"
+              + '"Jane Doe","RE Telemarketing Agent","Caller","","3","177 Hours 50 Mins.","jane@x.com","#0EA5E9","Instapay","jane@instapay","2026-06-01","2026-06-22"\n'
+              + '"John Manager","Team Leader","Manager","18000","","","john@x.com","#059669","Payoneer","john@payoneer","2026-06-01","2026-06-22"';
+            const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); const a = document.createElement("a"); a.href = url; a.download = "payroll-roster-template.csv"; a.click(); URL.revokeObjectURL(url);
+          }} className="btn-ghost" style={{ padding: "8px 12px", fontSize: 12 }}><Download size={13} /> Template</button>
           <button onClick={() => setShowCfg(s => !s)} className="btn-ghost" style={{ padding: "8px 12px", fontSize: 12 }}><Settings2 size={13} /> {showCfg ? "Hide" : "Settings"}</button>
           <button onClick={() => loadProd()} className="btn-ghost" style={{ padding: "8px 12px", fontSize: 12 }}><RefreshCw size={13} /> Refresh leads</button>
           <button onClick={exportCSV} className="btn-ghost" style={{ padding: "8px 12px", fontSize: 12 }}><Download size={13} /> Export</button>
