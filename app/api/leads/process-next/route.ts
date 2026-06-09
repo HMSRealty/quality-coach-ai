@@ -78,15 +78,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true, raced: true });
     }
 
-    const driveLink = target.metadata && typeof target.metadata.source_audio_url === "string" ? target.metadata.source_audio_url : null;
-
-    // 4) Analyze this one (bounded by analyze's internal timeouts), then tick again.
+    // 4) INGEST the recording from Drive into our own storage (once), THEN analyze
+    //    purely in-house — analyze never touches Drive. Bounded by internal
+    //    timeouts. Finally, tick again for the next lead.
     const work = (async () => {
+      try {
+        await fetch(`${origin}/api/leads/${target.id}/ingest`, { method: "POST", headers: { "Content-Type": "application/json" } });
+      } catch { /* analyze will fall back to the Drive link if ingest failed */ }
       try {
         await fetch(`${origin}/api/leads/analyze`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ leadId: target.id, ...(driveLink ? { audioUrls: [driveLink] } : {}) }),
+          body: JSON.stringify({ leadId: target.id }),
         });
       } catch { /* analyze flips the lead to a final status itself; continue */ }
       try {

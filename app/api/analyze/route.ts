@@ -797,21 +797,19 @@ export async function POST(req: Request): Promise<Response> {
     const MAX_ANALYZE_FILES = 4;
     const MAX_ANALYZE_BYTES = 120 * 1024 * 1024; // ~120MB combined upload to the model
 
-    // Resolve audio inputs — many files (multipart) or many URLs (JSON) or single legacy URL.
+    // Resolve audio inputs. Priority:
+    //   1. Files posted directly (multipart) or explicit URLs (JSON).
+    //   2. IN-HOUSE recordings stored on the lead (ingested from Drive or uploaded).
+    //   3. LAST RESORT: a raw Drive/recording link on the lead.
+    // Once a recording has been ingested in-house, the AI runs entirely on our
+    // own storage and never touches Google Drive.
     let inputs: Array<{ bytes: ArrayBuffer; mime: string; size: number }> = [...directFiles];
-    // Also honor a call link stored on the lead (CSV import / inbound) so re-runs
-    // and imports that didn't pass audioUrls still pull the recording.
-    const storedAudioUrl = (lead.metadata as { source_audio_url?: string } | null)?.source_audio_url || null;
-    const urlList = [
-      ...audioUrls,
-      ...(audioUrl ? [audioUrl] : []),
-      ...(storedAudioUrl && !audioUrls.includes(storedAudioUrl) ? [storedAudioUrl] : []),
-      ...((!audioUrls.length && !audioUrl && !storedAudioUrl && lead.call_recording_url) ? [lead.call_recording_url] : []),
-    ];
-
-    // Re-run with no explicit audio + no stored transcript → pull this lead's
-    // own recordings from the private bucket (signed) so we can still analyze.
     const hasTranscriptAlready = typeof lead.transcript === "string" && lead.transcript.trim().length > 40;
+    const storedAudioUrl = (lead.metadata as { source_audio_url?: string } | null)?.source_audio_url || null;
+
+    let urlList: string[] = [...audioUrls, ...(audioUrl ? [audioUrl] : [])];
+
+    // No explicit input → prefer the in-house recording.
     if (directFiles.length === 0 && urlList.length === 0 && !hasTranscriptAlready) {
       const { data: recs } = await sa.from("call_uploads")
         .select("file_path, bucket, storage_url").eq("lead_id", lead.id)
@@ -823,6 +821,11 @@ export async function POST(req: Request): Promise<Response> {
         } else if (rec.storage_url) {
           urlList.push(rec.storage_url);
         }
+      }
+      // Still nothing in-house → fall back to the raw Drive/recording link.
+      if (urlList.length === 0) {
+        if (storedAudioUrl) urlList.push(storedAudioUrl);
+        else if (lead.call_recording_url) urlList.push(lead.call_recording_url);
       }
     }
 
