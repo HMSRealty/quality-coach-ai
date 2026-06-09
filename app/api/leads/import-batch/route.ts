@@ -1,14 +1,12 @@
-// Server-side lead batch import.
+// Server-side lead batch import — runs on Cloudflare Pages (Edge Runtime).
 // Client sends pre-mapped rows once; server creates every lead and fires
-// analyze calls as independent HTTP requests — they run as separate Vercel
-// function invocations and complete even if the user navigates away.
+// analyze calls as independent HTTP requests that complete even if the user
+// navigates away.
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 export const dynamic = "force-dynamic";
-// Allow up to 5 minutes for large batches (lead creation is the slow part).
-export const maxDuration = 300;
 
 interface ImportRow {
   cc: string;
@@ -89,8 +87,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Fire analyze for every lead that has a recording.
-    // These are independent HTTP requests — they run as separate Vercel function
-    // invocations and complete regardless of what the client does next.
+    // Each fetch is an independent Edge request that completes regardless of what the client does next.
     for (const { id, driveUrl } of leadIds) {
       fetch(`${origin}/api/leads/analyze`, {
         method: "POST",
