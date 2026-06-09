@@ -8,13 +8,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Loader2, ChevronUp, ChevronDown, CheckCircle2, Activity } from "lucide-react";
+import { Loader2, ChevronUp, ChevronDown, CheckCircle2, Activity, Clock } from "lucide-react";
 
 const SKY = "#0EA5E9";
 const SKY_600 = "#0284C7";
 const MONEY = "#059669";
 
-interface Job { id: string; address: string; agent: string | null; since: string | null; }
+interface Job { id: string; address: string; agent: string | null; since: string | null; pending: boolean; }
 
 export function ProcessingMonitor() {
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -34,16 +34,21 @@ export function ProcessingMonitor() {
       .from("leads")
       .select("id, extracted_address, agent_name, created_at, status")
       .eq("user_id", uid)
-      .eq("status", "Processing")
-      .order("created_at", { ascending: false })
-      .limit(50);
+      .in("status", ["Processing", "Pending"])
+      .order("created_at", { ascending: true })
+      .limit(200);
 
-    const next: Job[] = (data || []).map((d) => ({
-      id: d.id as string,
-      address: (d.extracted_address as string) || "Address pending…",
-      agent: (d.agent_name as string) || null,
-      since: (d.created_at as string) || null,
-    }));
+    // Active (Processing) first, then the queued (Pending) ones in line order.
+    const rows = (data || []) as Array<{ id: string; extracted_address: string | null; agent_name: string | null; created_at: string | null; status: string }>;
+    const next: Job[] = rows
+      .map((d) => ({
+        id: d.id,
+        address: d.extracted_address || "Address pending…",
+        agent: d.agent_name || null,
+        since: d.created_at || null,
+        pending: String(d.status).toLowerCase() === "pending",
+      }))
+      .sort((a, b) => Number(a.pending) - Number(b.pending));
 
     // Detect completions: ids that were processing last tick but aren't now.
     const nextIds = new Set(next.map((j) => j.id));
@@ -56,6 +61,18 @@ export function ProcessingMonitor() {
     }
     prevIds.current = nextIds;
     setJobs(next);
+
+    // Self-heal: if leads are queued (Pending) but nothing is Processing, the
+    // background chain may have been dropped — nudge the queue to resume.
+    const anyActive = next.some((j) => !j.pending);
+    const anyQueued = next.some((j) => j.pending);
+    if (anyQueued && !anyActive && uid) {
+      fetch("/api/leads/process-next", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: uid }),
+      }).catch(() => {});
+    }
   };
 
   useEffect(() => {
@@ -71,6 +88,8 @@ export function ProcessingMonitor() {
   }, []);
 
   const count = jobs.length;
+  const active = jobs.filter((j) => !j.pending).length;
+  const queued = jobs.filter((j) => j.pending).length;
   if (count === 0 && justDone === 0) return null;
 
   const ageLabel = (since: string | null) => {
@@ -90,15 +109,21 @@ export function ProcessingMonitor() {
         }}>
           <div style={{ padding: "11px 14px", borderBottom: "1px solid var(--border-1)", display: "flex", alignItems: "center", gap: 8 }}>
             <Activity size={15} color={SKY_600} />
-            <span style={{ fontSize: 12.5, fontWeight: 800, color: "#000" }}>Analyzing {count} lead{count === 1 ? "" : "s"}</span>
+            <span style={{ fontSize: 12.5, fontWeight: 800, color: "#000" }}>
+              {active} analyzing{queued > 0 ? ` · ${queued} queued` : ""}
+            </span>
           </div>
-          <div style={{ maxHeight: 280, overflowY: "auto" }}>
-            {jobs.map((j) => (
-              <div key={j.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderBottom: "1px solid var(--border-1)" }}>
-                <Loader2 size={14} className="animate-spin" style={{ color: SKY, flexShrink: 0 }} />
+          <div style={{ maxHeight: 300, overflowY: "auto" }}>
+            {jobs.map((j, i) => (
+              <div key={j.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderBottom: "1px solid var(--border-1)", opacity: j.pending ? 0.7 : 1 }}>
+                {j.pending
+                  ? <Clock size={14} style={{ color: "var(--text-3)", flexShrink: 0 }} />
+                  : <Loader2 size={14} className="animate-spin" style={{ color: SKY, flexShrink: 0 }} />}
                 <div style={{ minWidth: 0, flex: 1 }}>
                   <p style={{ fontSize: 12.5, fontWeight: 700, color: "#000", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{j.address}</p>
-                  <p style={{ fontSize: 11, color: "var(--text-3)" }}>{j.agent ? `${j.agent} · ` : ""}{ageLabel(j.since)}</p>
+                  <p style={{ fontSize: 11, color: "var(--text-3)" }}>
+                    {j.pending ? `Queued${typeof i === "number" ? ` · #${i + 1 - active}` : ""}` : `Analyzing${j.agent ? ` · ${j.agent}` : ""} · ${ageLabel(j.since)}`}
+                  </p>
                 </div>
               </div>
             ))}
@@ -121,7 +146,7 @@ export function ProcessingMonitor() {
         {count > 0 ? (
           <>
             <Loader2 size={15} className="animate-spin" />
-            {count} analyzing
+            {active} analyzing{queued > 0 ? ` · ${queued} queued` : ""}
             {open ? <ChevronDown size={15} /> : <ChevronUp size={15} />}
           </>
         ) : (

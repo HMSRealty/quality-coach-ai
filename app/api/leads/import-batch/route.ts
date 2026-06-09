@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
           agent_name: r.cc || r.owner || null,
           extracted_address: r.address || null,
           asking_price: askingNum && askingNum > 0 ? askingNum : null,
-          status: "Processing",
+          status: "Pending",
           metadata: {
             owner_name: r.owner || null,
             cc_name: r.cc || null,
@@ -90,44 +90,14 @@ export async function POST(req: NextRequest) {
     // whole batch at once — avoids rate-limit/overload and keeps each analysis
     // clean. This runs in the BACKGROUND (waitUntil) so the HTTP response below
     // returns immediately; the client can navigate away while the queue drains.
-    const CONCURRENCY = 2;          // analyze at most 2 leads at once
-    const PER_LEAD_TIMEOUT_MS = 180_000; // never let one lead block the queue forever
-
-    const analyzeOne = async (id: string, driveUrl: string) => {
-      const ctrl = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), PER_LEAD_TIMEOUT_MS);
-      try {
-        await fetch(`${origin}/api/leads/analyze`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ leadId: id, audioUrls: [driveUrl] }),
-          signal: ctrl.signal,
-        });
-      } catch { /* timed out or failed — analyze flips the lead to Error itself; move on */ }
-      finally { clearTimeout(timer); }
-    };
-
-    const drainQueue = async () => {
-      const queue = [...leadIds];
-      const worker = async () => {
-        for (;;) {
-          const next = queue.shift();
-          if (!next) return;
-          await analyzeOne(next.id, next.driveUrl);
-        }
-      };
-      // Run CONCURRENCY workers in parallel; each pulls the next lead when free.
-      await Promise.all(Array.from({ length: Math.min(CONCURRENCY, queue.length) }, worker));
-    };
-
-    try {
-      // Cloudflare Pages: keep the worker alive to finish the queue post-response.
-      const { getRequestContext } = await import("@cloudflare/next-on-pages");
-      getRequestContext().ctx.waitUntil(drainQueue());
-    } catch {
-      // Local/dev or non-CF runtime: just run it (don't block the response longer than needed).
-      void drainQueue();
-    }
+    // Leads are now "Pending". Kick the sequential queue ONCE — it processes the
+    // oldest pending lead, then chains to the next as each finishes (one at a
+    // time, no parallel hammering of the AI). Fire-and-forget; it's idempotent.
+    fetch(`${origin}/api/leads/process-next`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId }),
+    }).catch(() => {});
 
     return NextResponse.json({
       ok: true,
