@@ -8,7 +8,7 @@ import { supabase } from "@/lib/supabase";
 import {
   Calculator, FileText, Send, CheckCircle2, Loader2, AlertCircle,
   Handshake, Building2, Brain, HeartCrack, DollarSign, ArrowRight,
-  Plus, Trash2,
+  Plus, Trash2, Search, ExternalLink,
 } from "lucide-react";
 
 interface ManualComp { address: string; layout: string; sqft: string; status: string; value: string; }
@@ -87,6 +87,8 @@ export function AcquisitionsPanel({
   const [rehab, setRehab] = useState(defaultRehab || 0);
   const [fee, setFee] = useState(10000);
   const [comps, setComps] = useState<ManualComp[]>([emptyComp()]);
+  const [fetchingComps, setFetchingComps] = useState(false);
+  const [compsErr, setCompsErr] = useState("");
 
   const mao = useMemo(() => Math.max(0, arv * 0.70 - rehab - fee), [arv, rehab, fee]);
   const purchase = askingPrice || mao;
@@ -116,6 +118,34 @@ export function AcquisitionsPanel({
     setComps(cs => cs.map((c, idx) => idx === i ? { ...c, ...patch } : c));
   const addComp = () => setComps(cs => [...cs, emptyComp()]);
   const removeComp = (i: number) => setComps(cs => cs.filter((_, idx) => idx !== i));
+
+  const fetchZillowComps = async () => {
+    if (!address) return;
+    setFetchingComps(true); setCompsErr("");
+    try {
+      const res = await fetch(`/api/zillow?address=${encodeURIComponent(address)}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Zillow fetch failed");
+      const zComps: Array<{ address?: string; sqft?: number; beds?: number; baths?: number; price?: number; status?: string }> = data.comparables || [];
+      if (!zComps.length) { setCompsErr("No comparables returned from Zillow for this address."); setFetchingComps(false); return; }
+      const mapped: ManualComp[] = zComps.map(c => ({
+        address: c.address || "",
+        layout: [c.beds ? `${c.beds}bd` : "", c.baths ? `${c.baths}ba` : ""].filter(Boolean).join(" / "),
+        sqft: c.sqft ? String(c.sqft) : "",
+        status: c.status === "Active" ? "Active" : "Sold",
+        value: c.price ? String(c.price) : "",
+      }));
+      setComps(mapped);
+    } catch (e) {
+      setCompsErr(e instanceof Error ? e.message : "Failed to fetch from Zillow");
+    }
+    setFetchingComps(false);
+  };
+
+  const openGoogleSearch = () => {
+    const q = address ? `${address} comparable homes sold recently` : "real estate comparable sales";
+    window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`, "_blank", "noopener");
+  };
 
   const generateOfferPDF = () => {
     const today = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
@@ -173,11 +203,24 @@ export function AcquisitionsPanel({
               <p style={{ fontSize: 11, color: "var(--text-3)" }}>Enter comps manually — median value auto-populates ARV</p>
             </div>
           </div>
-          {medianValue > 0 && (
-            <span style={{ fontSize: 12, fontWeight: 800, color: MONEY, background: "color-mix(in srgb, #059669 12%, transparent)", padding: "4px 11px", borderRadius: 999 }}>
-              Median comp value: {money(medianValue)}
-            </span>
-          )}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            {medianValue > 0 && (
+              <span style={{ fontSize: 12, fontWeight: 800, color: MONEY, background: "color-mix(in srgb, #059669 12%, transparent)", padding: "4px 11px", borderRadius: 999 }}>
+                Median: {money(medianValue)}
+              </span>
+            )}
+            {address && (
+              <button onClick={fetchZillowComps} disabled={fetchingComps} title="Auto-fill comps from Zillow"
+                style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "5px 12px", borderRadius: 8, border: "1px solid #0EA5E933", background: "#F0F9FF", color: SKY_600, fontSize: 11.5, fontWeight: 800, cursor: fetchingComps ? "wait" : "pointer" }}>
+                {fetchingComps ? <Loader2 size={11} className="animate-spin" /> : <Search size={11} />}
+                {fetchingComps ? "Fetching…" : "Fetch from Zillow"}
+              </button>
+            )}
+            <button onClick={openGoogleSearch} title="Search Google for comps"
+              style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "5px 12px", borderRadius: 8, border: "1px solid var(--border-2)", background: "var(--surface-3)", color: "var(--text-2)", fontSize: 11.5, fontWeight: 800, cursor: "pointer" }}>
+              <ExternalLink size={11} /> Google Search
+            </button>
+          </div>
         </div>
 
         <div style={{ padding: 16, overflowX: "auto" }}>
@@ -223,9 +266,12 @@ export function AcquisitionsPanel({
               ))}
             </tbody>
           </table>
-          <button onClick={addComp} style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 10, padding: "7px 13px", borderRadius: 9, background: "#F8FAFC", border: "1px solid var(--border-2)", color: SKY_600, fontSize: 12.5, fontWeight: 800, cursor: "pointer" }}>
-            <Plus size={13} /> Add comp
-          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 10, flexWrap: "wrap" }}>
+            <button onClick={addComp} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 13px", borderRadius: 9, background: "#F8FAFC", border: "1px solid var(--border-2)", color: SKY_600, fontSize: 12.5, fontWeight: 800, cursor: "pointer" }}>
+              <Plus size={13} /> Add comp
+            </button>
+            {compsErr && <span style={{ fontSize: 12, color: "#DC2626", fontWeight: 600 }}>{compsErr}</span>}
+          </div>
         </div>
       </div>
 

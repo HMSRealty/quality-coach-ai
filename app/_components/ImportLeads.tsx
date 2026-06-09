@@ -31,29 +31,85 @@ function parseCsv(text: string): string[][] {
   return rows.filter(r => r.some(c => c.trim()));
 }
 
-const COLS: Record<string, string[]> = {
-  owner:     ["owner name", "owner", "seller name", "seller", "name"],
-  phone:     ["phone", "phone number", "contact", "number"],
-  address:   ["address", "property address", "property"],
-  asking:    ["asking price", "asking", "price"],
-  condition: ["condition", "property condition"],
-  closing:   ["closing", "closing timeline", "how soon", "timeline"],
-  reason:    ["reason", "reason for selling", "motivation", "notes"],
-  // Drive column: match by substring so "Call Drive Link", "Drive Link URL",
-  // "Recording URL", "Google Drive Link", etc. all resolve correctly.
-  drive:     ["drive", "recording", "audio", "call link"],
+// Keywords associated with each logical field (substring match on header).
+const HEADER_KW: Record<string, string[]> = {
+  owner:     ["owner", "seller", "name", "contact name", "lead name"],
+  phone:     ["phone", "mobile", "cell", "number", "tel", "contact"],
+  address:   ["address", "property", "location", "street"],
+  asking:    ["asking", "price", "amount", "offer", "list"],
+  condition: ["condition", "repair", "rehab", "status"],
+  closing:   ["closing", "timeline", "how soon", "when", "urgency"],
+  reason:    ["reason", "motivation", "why", "note", "comment", "selling"],
+  drive:     ["drive", "recording", "audio", "call", "link", "url", "media"],
 };
-function mapHeader(header: string[]) {
+
+// Content-pattern detectors — score a cell value for each field type.
+function scoreCell(val: string): Record<string, number> {
+  const v = val.trim();
+  if (!v) return {};
+  const scores: Record<string, number> = {};
+  // Drive: any http URL, especially drive.google.com
+  if (/^https?:\/\//i.test(v)) { scores.drive = v.includes("drive.google") ? 10 : 6; }
+  // Phone: 7-15 digits with common separators
+  if (/^\+?[\d\s\-().]{7,15}$/.test(v) && /\d{7,}/.test(v.replace(/\D/g, ""))) scores.phone = 8;
+  // Asking price: dollar amount
+  if (/^\$?[\d,]+(\.\d{1,2})?k?$/.test(v.replace(/\s/g, ""))) scores.asking = 6;
+  // Address: has digits + letters, no http
+  if (/\d/.test(v) && /[a-zA-Z]/.test(v) && !v.startsWith("http") && v.length > 8) scores.address = 4;
+  // Owner name: 2-4 words, only letters/spaces
+  if (/^[A-Za-z\s'-]{4,40}$/.test(v) && v.trim().split(/\s+/).length >= 2) scores.owner = 3;
+  return scores;
+}
+
+function mapHeader(header: string[], dataRows: string[][]): Record<string, number> {
   const h = header.map(x => x.trim().toLowerCase());
-  const idx: Record<string, number> = {};
-  for (const key of Object.keys(COLS)) {
-    if (key === "drive") {
-      // Substring match: first column whose header contains any keyword wins.
-      idx[key] = h.findIndex(col => COLS[key].some(kw => col.includes(kw)));
-    } else {
-      idx[key] = h.findIndex(col => COLS[key].includes(col));
+  const fields = Object.keys(HEADER_KW);
+
+  // Score each (field, column) pair by header keyword matches.
+  const headerScore: number[][] = fields.map(field =>
+    h.map(col => HEADER_KW[field].some(kw => col.includes(kw)) ? 5 : 0)
+  );
+
+  // Score each (field, column) pair by content of first 5 data rows.
+  const contentScore: number[][] = fields.map(() => Array(h.length).fill(0));
+  const sampleRows = dataRows.slice(0, 5);
+  for (const row of sampleRows) {
+    for (let c = 0; c < h.length; c++) {
+      const cell = row[c] || "";
+      const cs = scoreCell(cell);
+      fields.forEach((field, fi) => {
+        if (cs[field]) contentScore[fi][c] += cs[field];
+      });
     }
   }
+
+  // Combined score: header keyword match wins if strong; content breaks ties.
+  const combined: number[][] = fields.map((_, fi) =>
+    h.map((_, c) => headerScore[fi][c] * 3 + contentScore[fi][c])
+  );
+
+  // Greedy assignment: pick highest-score (field, column) pairs without reuse.
+  const assigned: Record<string, number> = {};
+  const usedCols = new Set<number>();
+  // Sort all (field, col, score) triples by score desc.
+  const triples: { fi: number; col: number; score: number }[] = [];
+  fields.forEach((_, fi) => {
+    h.forEach((_, col) => {
+      if (combined[fi][col] > 0) triples.push({ fi, col, score: combined[fi][col] });
+    });
+  });
+  triples.sort((a, b) => b.score - a.score);
+  for (const { fi, col } of triples) {
+    const field = fields[fi];
+    if (assigned[field] !== undefined) continue; // already assigned
+    if (usedCols.has(col)) continue;             // column taken
+    assigned[field] = col;
+    usedCols.add(col);
+  }
+
+  // Any unassigned field gets -1.
+  const idx: Record<string, number> = {};
+  for (const field of fields) idx[field] = assigned[field] ?? -1;
   return idx;
 }
 
@@ -80,8 +136,8 @@ export function ImportLeads({ onClose, onDone }: { onClose: () => void; onDone: 
     setErr(""); setFileName(f.name);
     const grid = parseCsv(await f.text());
     if (grid.length < 2) { setErr("CSV needs a header row + at least one lead."); return; }
-    const idx = mapHeader(grid[0]);
-    if (idx.address < 0 && idx.drive < 0) { setErr('CSV must include at least an "Address" column and a column containing "drive", "recording", or "audio" for the call link.'); return; }
+    const idx = mapHeader(grid[0], grid.slice(1));
+    if (idx.address < 0 && idx.drive < 0) { setErr("Could not detect an address or call-link column. Rename your headers or check that values contain addresses and URLs."); return; }
     const mapped = grid.slice(1).map(cells => {
       const get = (k: string) => (idx[k] >= 0 ? (cells[idx[k]] || "").trim() : "");
       return { owner: get("owner"), phone: get("phone"), address: get("address"), asking: get("asking"), condition: get("condition"), closing: get("closing"), reason: get("reason"), drive: get("drive") };
@@ -151,7 +207,7 @@ export function ImportLeads({ onClose, onDone }: { onClose: () => void; onDone: 
             <input type="file" accept=".csv" onChange={e => { const f = e.target.files?.[0]; if (f) onFile(f); }} style={{ display: "none" }} />
             <Upload size={28} color="#0284C7" style={{ margin: "0 auto 8px" }} />
             <p style={{ fontSize: 14, fontWeight: 800, color: "#000" }}>{fileName || "Click to choose a CSV"}</p>
-            <p style={{ fontSize: 12, color: "var(--text-3)", marginTop: 3 }}>Owner · Phone · Address · Asking · Condition · Closing · Reason · Call Drive Link</p>
+            <p style={{ fontSize: 12, color: "var(--text-3)", marginTop: 3 }}>Any column order — columns are auto-detected by name and content</p>
           </label>
 
           <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
@@ -176,7 +232,7 @@ export function ImportLeads({ onClose, onDone }: { onClose: () => void; onDone: 
               {busy ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />} Import &amp; Qualify
             </button>
           </div>
-          <p style={{ fontSize: 11, color: "var(--text-4)" }}>The call link must be a <strong>public</strong> Google Drive share link. The AI downloads it and qualifies the lead automatically.</p>
+          <p style={{ fontSize: 11, color: "var(--text-4)" }}>Columns are auto-detected by header name and cell content — no fixed order required. The call link should be a <strong>public</strong> Google Drive share link; the AI downloads it and qualifies the lead automatically.</p>
         </div>
       </motion.div>
     </div>

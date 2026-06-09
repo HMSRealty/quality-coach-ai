@@ -79,6 +79,8 @@ export default function LeadDetailPage() {
   const [reanalyzing, setReanalyzing] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [fetchingZillow, setFetchingZillow] = useState(false);
+  const [zillowErr, setZillowErr] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   // Imperative seek into the primary recording player (TCPA/compliance/transcript jumps).
   const seekRef = useRef<((sec: number) => void) | null>(null);
@@ -128,6 +130,28 @@ export default function LeadDetailPage() {
     });
     await load();
     setReanalyzing(false);
+  };
+
+  const fetchZillowData = async () => {
+    if (!lead?.extracted_address) return;
+    setFetchingZillow(true); setZillowErr("");
+    try {
+      const res = await fetch(`/api/zillow?address=${encodeURIComponent(lead.extracted_address)}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Zillow fetch failed");
+      const existing = (lead.metadata || {}) as Record<string, unknown>;
+      const merged = {
+        ...existing,
+        zillow_data: data,
+        zestimate: data.zestimate || existing.zestimate,
+        zillow_link: data.zillow_url || existing.zillow_link,
+      };
+      await supabase.from("leads").update({ metadata: merged }).eq("id", id);
+      await load();
+    } catch (e) {
+      setZillowErr(e instanceof Error ? e.message : "Zillow fetch failed");
+    }
+    setFetchingZillow(false);
   };
 
   const handleAudioUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -217,14 +241,25 @@ export default function LeadDetailPage() {
               </p>
             )}
           </div>
-          <div style={{
-            display: "inline-flex", alignItems: "center", gap: 8,
-            padding: "10px 18px", borderRadius: 999,
-            background: status.bg, color: status.color,
-            fontSize: 14, fontWeight: 800,
-            boxShadow: `0 8px 24px ${status.color}33`,
-          }}>
-            <StatusIcon size={16} /> {lead.status}
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+            <div style={{
+              display: "inline-flex", alignItems: "center", gap: 8,
+              padding: "10px 18px", borderRadius: 999,
+              background: status.bg, color: status.color,
+              fontSize: 14, fontWeight: 800,
+              boxShadow: `0 8px 24px ${status.color}33`,
+            }}>
+              <StatusIcon size={16} /> {lead.status}
+            </div>
+            {lead.extracted_address && (
+              <button onClick={fetchZillowData} disabled={fetchingZillow}
+                title="Fetch / refresh Zillow property data"
+                style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 16px", borderRadius: 999, border: "1px solid #0EA5E940", background: "#F0F9FF", color: "#0284C7", fontSize: 12.5, fontWeight: 800, cursor: fetchingZillow ? "wait" : "pointer" }}>
+                {fetchingZillow ? <Loader2 size={13} className="animate-spin" /> : <RefreshCw size={13} />}
+                {fetchingZillow ? "Fetching Zillow…" : "Refresh Zillow"}
+              </button>
+            )}
+            {zillowErr && <span style={{ fontSize: 12, color: "#DC2626", fontWeight: 600 }}>{zillowErr}</span>}
           </div>
         </div>
 
@@ -262,6 +297,8 @@ export default function LeadDetailPage() {
       {(() => {
         const m = (lead.metadata || {}) as Record<string, unknown>;
         const ms = (k: string) => { const v = m[k]; return v ? String(v) : ""; };
+        const zd = (m.zillow_data as Record<string, unknown> | undefined) || {};
+        const zestDisplay = zd.zestimate ? `$${Number(zd.zestimate).toLocaleString()}` : (ms("zestimate") ? `$${Number(ms("zestimate")).toLocaleString()}` : "—");
         const rows: Array<[string, string]> = [
           ["Campaign", lead.campaigns?.name || "—"],
           ["Date", ms("date") || new Date(lead.created_at).toLocaleDateString()],
@@ -269,11 +306,18 @@ export default function LeadDetailPage() {
           ["Owner Name", ms("owner_name") || "—"],
           ["Phone Number", ms("phone_number") || "—"],
           ["Address", lead.extracted_address || "—"],
-          ["Zestimate", ms("zestimate") || "—"],
+          ["Zestimate", zestDisplay],
           ["Asking Price", lead.asking_price ? `$${lead.asking_price.toLocaleString()}` : "—"],
           ["Reason for Selling", ms("reason") || "—"],
         ];
-        const zillow = ms("zillow_link");
+        // Spread Zillow property attributes if available.
+        const zillowAttrs: Array<[string, string]> = [];
+        if (zd.beds) zillowAttrs.push(["Beds", String(zd.beds)]);
+        if (zd.baths) zillowAttrs.push(["Baths", String(zd.baths)]);
+        if (zd.sqft) zillowAttrs.push(["Sq. Ft.", Number(zd.sqft).toLocaleString()]);
+        if (zd.yearBuilt) zillowAttrs.push(["Year Built", String(zd.yearBuilt)]);
+        if (zd.homeType) zillowAttrs.push(["Home Type", String(zd.homeType)]);
+        const zillow = ms("zillow_link") || (zd.zillow_url as string | undefined) || "";
         return (
           <Section icon={FileText} title="Lead Form" accent={NAVY}>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
@@ -289,6 +333,12 @@ export default function LeadDetailPage() {
                   <a href={zillow} target="_blank" rel="noreferrer" style={{ fontSize: 13, color: TEAL, fontWeight: 600, wordBreak: "break-all" }}>Open ↗</a>
                 </div>
               )}
+              {zillowAttrs.map(([label, value]) => (
+                <div key={label}>
+                  <p style={{ fontSize: 10, fontWeight: 700, color: SLATE, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 3 }}>{label}</p>
+                  <p style={{ fontSize: 13, color: "var(--text-1)", fontWeight: 600 }}>{value}</p>
+                </div>
+              ))}
             </div>
             {(() => {
               const extra = (m.additional_properties as Array<{ address?: string; zestimate?: string; asking_price?: string }> | undefined) || [];
