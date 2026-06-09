@@ -10,9 +10,10 @@
 // People + their per-person numbers live in agent_pay. Production (leads) is
 // auto-pulled for the selected dates but every figure can be overridden.
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Loader2, Plus, Trash2, Save, Users, Download, RefreshCw, Settings2 } from "lucide-react";
+import { Loader2, Plus, Trash2, Save, Users, Download, RefreshCw, Settings2, Upload, Clock } from "lucide-react";
+import { parsePayableHours } from "@/app/_components/DialerHoursCalculator";
 
 const SKY = "#0EA5E9", SKY600 = "#0284C7", MONEY = "#059669", NAVY = "#0F172A", SLATE = "#475569";
 const PAY_METHODS = ["Instapay", "Payoneer", "Vodafone Cash", "Orange Cash", "Etisalat Cash", "Axis Pay", "Bank Transfer", "Cash", "Other"];
@@ -47,6 +48,39 @@ type Prod = { qualified: number; total: number };
 const n = (v: unknown, d = 0) => { const x = Number(v); return isFinite(x) ? x : d; };
 const usd = (x: number) => `$${(Math.round(x * 100) / 100).toLocaleString()}`;
 const egp = (x: number) => `${Math.round(x).toLocaleString()} EGP`;
+const norm = (s: string) => (s || "").trim().toLowerCase().replace(/\s+/g, " ");
+const toISO = (s: string): string | null => {
+  const t = (s || "").trim(); if (!t) return null;
+  const d = new Date(t); return isNaN(d.getTime()) ? null : d.toISOString().slice(0, 10);
+};
+
+// Smart parse of an uploaded hours sheet — detects name / payable-hours / rate /
+// from-to date columns by header keywords, regardless of column order.
+type HoursParse = { rows: { name: string; hours: number; rate: number | null }[]; from: string | null; to: string | null };
+function parseHoursSheet(text: string): HoursParse {
+  const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  if (lines.length < 2) return { rows: [], from: null, to: null };
+  const split = (l: string) => l.split(",").map(c => c.replace(/^"|"$/g, "").trim());
+  const head = split(lines[0]).map(h => h.toLowerCase());
+  const find = (...keys: string[]) => head.findIndex(h => keys.some(k => h.includes(k)));
+  const nameI = find("name", "agent", "employee");
+  let hoursI = head.findIndex(h => h.includes("payable") && h.includes("hour"));
+  if (hoursI < 0) hoursI = find("worked", "hours", "payable", "hrs");
+  const rateI = find("rate", "hourly");
+  const fromI = find("from", "start", "period start");
+  const toI = find("to", "end", "period end");
+  let from: string | null = null, to: string | null = null;
+  const rows = lines.slice(1).map(split).map(c => {
+    if (fromI >= 0 && !from) from = toISO(c[fromI] || "");
+    if (toI >= 0 && !to) to = toISO(c[toI] || "");
+    return {
+      name: nameI >= 0 ? (c[nameI] || "") : "",
+      hours: hoursI >= 0 ? parsePayableHours(c[hoursI] || "") : 0,
+      rate: rateI >= 0 && c[rateI] ? n(c[rateI], 0) || null : null,
+    };
+  }).filter(r => r.name || r.hours);
+  return { rows, from, to };
+}
 
 export function PayrollWorkbench() {
   const [cfg, setCfg] = useState<Cfg>(DEFAULT_CFG);
@@ -119,6 +153,56 @@ export function PayrollWorkbench() {
         email: c.email, extras: {}, position: people.length + i, _dirty: true, _new: true });
     });
     if (adds.length) setPeople(ps => [...ps, ...adds]);
+  };
+
+  // Spread agents + worked hours (and period dates) into the caller rows. Matches
+  // existing people by name; creates a caller for anyone new on the sheet.
+  const mergeHours = (parsed: { name: string; hours: number; rate: number | null }[]) => {
+    setPeople(prev => {
+      const out = [...prev];
+      const idxByName = new Map(out.map((p, i) => [norm(p.name), i]));
+      let pos = out.length;
+      for (const r of parsed) {
+        const key = norm(r.name);
+        if (key && idxByName.has(key)) {
+          const i = idxByName.get(key)!;
+          out[i] = { ...out[i], extras: { ...out[i].extras, worked: Math.round(r.hours * 100) / 100 }, ...(r.rate ? { hourly_rate: r.rate } : {}), _dirty: true };
+        } else {
+          out.push({
+            id: `new-${Date.now()}-${pos}-${Math.random().toString(36).slice(2, 5)}`,
+            name: r.name.trim(), category: "caller", role: "RE Telemarketing Agent",
+            hourly_rate: r.rate ?? 3, monthly_salary: 0, payment_method: "Instapay",
+            payment_info: "", color: null, email: null,
+            extras: { worked: Math.round(r.hours * 100) / 100 }, position: pos++, _dirty: true, _new: true,
+          });
+          if (key) idxByName.set(key, out.length - 1);
+        }
+      }
+      return out;
+    });
+  };
+
+  const fileRef = useRef<HTMLInputElement>(null);
+  const onHoursFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0]; if (!f) return;
+    const { rows: parsed, from, to } = parseHoursSheet(await f.text());
+    if (!parsed.length) { alert('Could not read the sheet. It needs a Name column and a "Payable Hours" (or Worked/Hours) column.'); }
+    else {
+      mergeHours(parsed);
+      if (from || to) setCfg(c => ({ ...c, periodStart: from || c.periodStart, periodEnd: to || c.periodEnd }));
+    }
+    if (fileRef.current) fileRef.current.value = "";
+  };
+
+  // Pull worked hours from the saved Dialer Hours (uploaded in the calculator below).
+  const syncDialer = async () => {
+    const { data: { user } } = await supabase.auth.getUser(); if (!user) return;
+    const { data } = await supabase.from("dialer_hours").select("employee_name, payable_hours_raw, rate").eq("user_id", user.id);
+    const parsed = (data || []).map((d: { employee_name: string | null; payable_hours_raw: string | null; rate: number | null }) => ({
+      name: d.employee_name || "", hours: parsePayableHours(d.payable_hours_raw || ""), rate: d.rate != null ? Number(d.rate) : null,
+    })).filter(r => r.name || r.hours);
+    if (!parsed.length) { alert("No saved dialer hours found. Upload an hours sheet first."); return; }
+    mergeHours(parsed);
   };
 
   const save = async () => {
@@ -214,10 +298,13 @@ export function PayrollWorkbench() {
           <span style={{ width: 36, height: 36, borderRadius: 9, background: "rgba(5,150,105,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}><Users size={18} color={MONEY} /></span>
           <div>
             <h2 style={{ fontSize: 19, fontWeight: 900, color: NAVY }}>Payroll Workbench</h2>
-            <p style={{ fontSize: 12, color: SLATE }}>Every number, date &amp; payment is adjustable. Callers in USD · Managers in EGP.</p>
+            <p style={{ fontSize: 12, color: SLATE }}>Upload your hours sheet — agents, worked hours &amp; the pay period auto-fill. Every number, date &amp; payment stays adjustable.</p>
           </div>
         </div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <input ref={fileRef} type="file" accept=".csv" onChange={onHoursFile} style={{ display: "none" }} />
+          <button onClick={() => fileRef.current?.click()} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 9, background: SKY, color: "#fff", border: "none", fontSize: 12, fontWeight: 800, cursor: "pointer" }}><Upload size={13} /> Upload hours sheet</button>
+          <button onClick={syncDialer} className="btn-ghost" style={{ padding: "8px 12px", fontSize: 12 }}><Clock size={13} /> Sync dialer hours</button>
           <button onClick={() => setShowCfg(s => !s)} className="btn-ghost" style={{ padding: "8px 12px", fontSize: 12 }}><Settings2 size={13} /> {showCfg ? "Hide" : "Settings"}</button>
           <button onClick={() => loadProd()} className="btn-ghost" style={{ padding: "8px 12px", fontSize: 12 }}><RefreshCw size={13} /> Refresh leads</button>
           <button onClick={exportCSV} className="btn-ghost" style={{ padding: "8px 12px", fontSize: 12 }}><Download size={13} /> Export</button>
