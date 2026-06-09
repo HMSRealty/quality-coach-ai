@@ -140,11 +140,12 @@ export default function LeadDetailPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Zillow fetch failed");
       const existing = (lead.metadata || {}) as Record<string, unknown>;
+      const norm = data.normalized || {};
       const merged = {
         ...existing,
-        zillow_data: data,
-        zestimate: data.zestimate || existing.zestimate,
-        zillow_link: data.zillow_url || existing.zillow_link,
+        zillow_data: norm,
+        zestimate: norm.zestimate || existing.zestimate,
+        zillow_link: norm.zillow_url || existing.zillow_link,
       };
       await supabase.from("leads").update({ metadata: merged }).eq("id", id);
       await load();

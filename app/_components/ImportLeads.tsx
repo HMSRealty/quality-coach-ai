@@ -164,10 +164,10 @@ export function ImportLeads({ onClose, onDone }: { onClose: () => void; onDone: 
           status: "Processing",
           metadata: { owner_name: r.owner, phone_number: r.phone, reason: r.reason, condition: r.condition, closing: r.closing, source_audio_url: r.drive || null, submitted_via: "csv_import" },
         }).select("id").single();
-        if (lead?.id) {
+        if (lead?.id && r.drive) {
           fetch("/api/leads/analyze", {
             method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ leadId: lead.id, ...(r.drive ? { audioUrls: [r.drive] } : {}) }),
+            body: JSON.stringify({ leadId: lead.id, audioUrls: [r.drive] }),
           }).catch(() => {});
         }
       } catch { /* skip a bad row */ }

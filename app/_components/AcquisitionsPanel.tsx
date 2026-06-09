@@ -126,13 +126,13 @@ export function AcquisitionsPanel({
       const res = await fetch(`/api/zillow?address=${encodeURIComponent(address)}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Zillow fetch failed");
-      const zComps: Array<{ address?: string; sqft?: number; beds?: number; baths?: number; price?: number; status?: string }> = data.comparables || [];
+      const zComps: Array<{ address?: string; sqft?: number; price?: number }> = data.comparables || [];
       if (!zComps.length) { setCompsErr("No comparables returned from Zillow for this address."); setFetchingComps(false); return; }
       const mapped: ManualComp[] = zComps.map(c => ({
         address: c.address || "",
-        layout: [c.beds ? `${c.beds}bd` : "", c.baths ? `${c.baths}ba` : ""].filter(Boolean).join(" / "),
+        layout: "",
         sqft: c.sqft ? String(c.sqft) : "",
-        status: c.status === "Active" ? "Active" : "Sold",
+        status: "Sold",
         value: c.price ? String(c.price) : "",
       }));
       setComps(mapped);
