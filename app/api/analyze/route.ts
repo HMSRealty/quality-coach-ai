@@ -47,14 +47,28 @@ async function fetchAudioUrl(url: string, driveToken?: string | null): Promise<{
       }
     } catch { /* fall through to public attempt */ }
   }
-  let target = id ? `https://drive.google.com/uc?export=download&id=${id}` : url;
-  let resp = await fetch(target);
-  let ct = resp.headers.get("content-type") || "";
-  if (id && ct.includes("text/html")) {
-    const html = await resp.text();
-    const tok = html.match(/confirm=([0-9A-Za-z_-]+)/);
-    if (tok) { target = `${target}&confirm=${tok[1]}`; resp = await fetch(target); ct = resp.headers.get("content-type") || ""; }
+  // PUBLIC Drive ("anyone with the link"): use the usercontent download host,
+  // clearing the large-file confirm gate. If the response is still HTML, the
+  // file is NOT public — return null (don't push a login page as "audio").
+  if (id) {
+    let resp = await fetch(`https://drive.usercontent.google.com/download?id=${id}&export=download&confirm=t`);
+    let ct = resp.headers.get("content-type") || "";
+    if (ct.includes("text/html")) {
+      const html = await resp.text();
+      const tok = html.match(/name="confirm"\s+value="([^"]+)"/) || html.match(/confirm=([0-9A-Za-z_-]+)/);
+      const uuid = html.match(/name="uuid"\s+value="([^"]+)"/);
+      if (tok) {
+        resp = await fetch(`https://drive.usercontent.google.com/download?id=${id}&export=download&confirm=${tok[1]}${uuid ? `&uuid=${uuid[1]}` : ""}`);
+        ct = resp.headers.get("content-type") || "";
+      }
+    }
+    if (!resp.ok || ct.includes("text/html")) return null;
+    const bytes = await resp.arrayBuffer();
+    return { bytes, mime: ct.includes("audio") || ct.includes("video") || ct.includes("mp4") ? ct : "audio/mpeg" };
   }
+
+  const resp = await fetch(url);
+  const ct = resp.headers.get("content-type") || "";
   if (!resp.ok) return null;
   const bytes = await resp.arrayBuffer();
   const mime = ct.includes("audio") || ct.includes("video") || ct.includes("mp4") ? ct : "audio/mpeg";
@@ -749,7 +763,15 @@ export async function POST(req: Request): Promise<Response> {
 
     // Resolve audio inputs — many files (multipart) or many URLs (JSON) or single legacy URL.
     let inputs: Array<{ bytes: ArrayBuffer; mime: string; size: number }> = [...directFiles];
-    const urlList = [...audioUrls, ...(audioUrl ? [audioUrl] : []), ...((!audioUrls.length && !audioUrl && lead.call_recording_url) ? [lead.call_recording_url] : [])];
+    // Also honor a call link stored on the lead (CSV import / inbound) so re-runs
+    // and imports that didn't pass audioUrls still pull the recording.
+    const storedAudioUrl = (lead.metadata as { source_audio_url?: string } | null)?.source_audio_url || null;
+    const urlList = [
+      ...audioUrls,
+      ...(audioUrl ? [audioUrl] : []),
+      ...(storedAudioUrl && !audioUrls.includes(storedAudioUrl) ? [storedAudioUrl] : []),
+      ...((!audioUrls.length && !audioUrl && !storedAudioUrl && lead.call_recording_url) ? [lead.call_recording_url] : []),
+    ];
 
     // Re-run with no explicit audio + no stored transcript → pull this lead's
     // own recordings from the private bucket (signed) so we can still analyze.
@@ -793,10 +815,17 @@ export async function POST(req: Request): Promise<Response> {
     // Pillar 2). Otherwise flag for callback.
     const savedTranscript = typeof lead.transcript === "string" && lead.transcript.trim().length > 40 ? lead.transcript : null;
     if (inputs.length === 0 && !savedTranscript) {
+      // If a call link was provided but we couldn't download it, say why.
+      const linkButNoAudio = !!storedAudioUrl && driveFileId(storedAudioUrl);
+      const reason = linkButNoAudio
+        ? (driveToken
+            ? "Couldn't download the call recording from the Google Drive link. Check that the file exists and is shared with the connected Google account."
+            : "Couldn't download the call recording — the Google Drive link isn't public. Make it 'Anyone with the link', or connect Google Drive (Settings → Webhooks & Integrations) for private files, then re-run.")
+        : "No call recording attached — cannot verify. Upload the recording to run the review.";
       await sa.from("leads").update({
         status: "Call Back",
-        qualification_reason: "No call recording attached — cannot verify. Upload the recording to run the review.",
-        ai_status_reason: "Awaiting call recording",
+        qualification_reason: reason,
+        ai_status_reason: linkButNoAudio ? "Recording link unreachable" : "Awaiting call recording",
         ai_model: MODEL, ai_processed_at: new Date().toISOString(),
       }).eq("id", lead.id);
       return jsonRes({ ok: true, status: "Call Back", reason: "no_audio" });
