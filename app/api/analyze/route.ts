@@ -34,12 +34,21 @@ function driveFileId(u: string): string | null {
   const m = u.match(/drive\.google\.com\/file\/d\/([^/?#]+)/) || u.match(/[?&]id=([^&]+)/);
   return m ? m[1] : null;
 }
+// Every download is bounded so a slow/dead link can never hang the analyzer
+// (which would stall the import queue). 90s is plenty for a call recording.
+const DOWNLOAD_TIMEOUT_MS = 90_000;
+async function tfetch(input: string, init?: RequestInit): Promise<Response> {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), DOWNLOAD_TIMEOUT_MS);
+  try { return await fetch(input, { ...init, signal: ctrl.signal }); }
+  finally { clearTimeout(timer); }
+}
 async function fetchAudioUrl(url: string, driveToken?: string | null): Promise<{ bytes: ArrayBuffer; mime: string } | null> {
   const id = driveFileId(url);
   // PRIVATE Drive: if we have the owner's OAuth token, pull via the Drive API.
   if (id && driveToken) {
     try {
-      const r = await fetch(`https://www.googleapis.com/drive/v3/files/${id}?alt=media&supportsAllDrives=true`, { headers: { Authorization: `Bearer ${driveToken}` } });
+      const r = await tfetch(`https://www.googleapis.com/drive/v3/files/${id}?alt=media&supportsAllDrives=true`, { headers: { Authorization: `Bearer ${driveToken}` } });
       if (r.ok) {
         const bytes = await r.arrayBuffer();
         const ct = r.headers.get("content-type") || "";
@@ -51,28 +60,32 @@ async function fetchAudioUrl(url: string, driveToken?: string | null): Promise<{
   // clearing the large-file confirm gate. If the response is still HTML, the
   // file is NOT public — return null (don't push a login page as "audio").
   if (id) {
-    let resp = await fetch(`https://drive.usercontent.google.com/download?id=${id}&export=download&confirm=t`);
-    let ct = resp.headers.get("content-type") || "";
-    if (ct.includes("text/html")) {
-      const html = await resp.text();
-      const tok = html.match(/name="confirm"\s+value="([^"]+)"/) || html.match(/confirm=([0-9A-Za-z_-]+)/);
-      const uuid = html.match(/name="uuid"\s+value="([^"]+)"/);
-      if (tok) {
-        resp = await fetch(`https://drive.usercontent.google.com/download?id=${id}&export=download&confirm=${tok[1]}${uuid ? `&uuid=${uuid[1]}` : ""}`);
-        ct = resp.headers.get("content-type") || "";
+    try {
+      let resp = await tfetch(`https://drive.usercontent.google.com/download?id=${id}&export=download&confirm=t`);
+      let ct = resp.headers.get("content-type") || "";
+      if (ct.includes("text/html")) {
+        const html = await resp.text();
+        const tok = html.match(/name="confirm"\s+value="([^"]+)"/) || html.match(/confirm=([0-9A-Za-z_-]+)/);
+        const uuid = html.match(/name="uuid"\s+value="([^"]+)"/);
+        if (tok) {
+          resp = await tfetch(`https://drive.usercontent.google.com/download?id=${id}&export=download&confirm=${tok[1]}${uuid ? `&uuid=${uuid[1]}` : ""}`);
+          ct = resp.headers.get("content-type") || "";
+        }
       }
-    }
-    if (!resp.ok || ct.includes("text/html")) return null;
-    const bytes = await resp.arrayBuffer();
-    return { bytes, mime: ct.includes("audio") || ct.includes("video") || ct.includes("mp4") ? ct : "audio/mpeg" };
+      if (!resp.ok || ct.includes("text/html")) return null;
+      const bytes = await resp.arrayBuffer();
+      return { bytes, mime: ct.includes("audio") || ct.includes("video") || ct.includes("mp4") ? ct : "audio/mpeg" };
+    } catch { return null; }
   }
 
-  const resp = await fetch(url);
-  const ct = resp.headers.get("content-type") || "";
-  if (!resp.ok) return null;
-  const bytes = await resp.arrayBuffer();
-  const mime = ct.includes("audio") || ct.includes("video") || ct.includes("mp4") ? ct : "audio/mpeg";
-  return { bytes, mime };
+  try {
+    const resp = await tfetch(url);
+    const ct = resp.headers.get("content-type") || "";
+    if (!resp.ok) return null;
+    const bytes = await resp.arrayBuffer();
+    const mime = ct.includes("audio") || ct.includes("video") || ct.includes("mp4") ? ct : "audio/mpeg";
+    return { bytes, mime };
+  } catch { return null; }
 }
 
 // ── helpers (ported) ──

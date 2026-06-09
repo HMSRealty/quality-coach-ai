@@ -90,16 +90,34 @@ export async function POST(req: NextRequest) {
     // whole batch at once — avoids rate-limit/overload and keeps each analysis
     // clean. This runs in the BACKGROUND (waitUntil) so the HTTP response below
     // returns immediately; the client can navigate away while the queue drains.
+    const CONCURRENCY = 2;          // analyze at most 2 leads at once
+    const PER_LEAD_TIMEOUT_MS = 180_000; // never let one lead block the queue forever
+
+    const analyzeOne = async (id: string, driveUrl: string) => {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), PER_LEAD_TIMEOUT_MS);
+      try {
+        await fetch(`${origin}/api/leads/analyze`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ leadId: id, audioUrls: [driveUrl] }),
+          signal: ctrl.signal,
+        });
+      } catch { /* timed out or failed — analyze flips the lead to Error itself; move on */ }
+      finally { clearTimeout(timer); }
+    };
+
     const drainQueue = async () => {
-      for (const { id, driveUrl } of leadIds) {
-        try {
-          await fetch(`${origin}/api/leads/analyze`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ leadId: id, audioUrls: [driveUrl] }),
-          });
-        } catch { /* keep draining the rest of the queue */ }
-      }
+      const queue = [...leadIds];
+      const worker = async () => {
+        for (;;) {
+          const next = queue.shift();
+          if (!next) return;
+          await analyzeOne(next.id, next.driveUrl);
+        }
+      };
+      // Run CONCURRENCY workers in parallel; each pulls the next lead when free.
+      await Promise.all(Array.from({ length: Math.min(CONCURRENCY, queue.length) }, worker));
     };
 
     try {
