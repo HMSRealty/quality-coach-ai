@@ -10,6 +10,7 @@ import { Loader2, Wallet, Download, Calculator } from "lucide-react";
 import { DialerHoursCalculator } from "@/app/_components/DialerHoursCalculator";
 import { CompensationStructure } from "@/app/_components/CompensationStructure";
 import { SalaryCalculator } from "@/app/_components/SalaryCalculator";
+import { PayrollWorkbench } from "@/app/_components/PayrollWorkbench";
 
 const NAVY = T.text1;
 const SLATE = T.text2;
@@ -219,6 +220,9 @@ export default function PayrollPage() {
           </div>
         </div>
       )}
+
+      {/* Fully-customizable two-track payroll workbench (Callers USD / Managers EGP) */}
+      <PayrollWorkbench />
 
       {/* Manual salary calculator — hours, leads, KPIs */}
       <SalaryCalculator />
