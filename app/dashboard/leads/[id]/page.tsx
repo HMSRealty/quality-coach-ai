@@ -206,6 +206,8 @@ export default function LeadDetailPage() {
   const StatusIcon = status.icon;
   const segments = parseSegments(lead.transcript);
   const primarySrc = recordings[0]?.storage_url || lead.call_recording_url || null;
+  // Imported leads keep their recording as a Google Drive link in metadata.
+  const driveLink = (typeof lead.metadata?.source_audio_url === "string" && lead.metadata.source_audio_url) || null;
 
   return (
     <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", flexDirection: "column", gap: 22 }} className="animate-in">
@@ -550,6 +552,28 @@ export default function LeadDetailPage() {
           </div>
         ) : lead.call_recording_url ? (
           <GongPlayer src={lead.call_recording_url} downloadUrl={lead.call_recording_url} leadId={lead.id} segments={segments} registerSeek={(fn) => { seekRef.current = fn; }} title="Call Recording" />
+        ) : driveLink ? (
+          <div style={{
+            padding: 16, borderRadius: 10, background: "#F2F5F9",
+            border: "1px solid rgba(35,43,58,0.10)", display: "flex",
+            alignItems: "center", justifyContent: "space-between", gap: 14, flexWrap: "wrap",
+          }}>
+            {/* Imported lead — the recording lives on Google Drive. */}
+            <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+              <Phone size={18} color={NAVY} style={{ flexShrink: 0 }} />
+              <div style={{ minWidth: 0 }}>
+                <p style={{ fontSize: 13, fontWeight: 700, color: NAVY }}>Call recording on Google Drive</p>
+                <p style={{ fontSize: 11, color: SLATE, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 420 }}>{driveLink}</p>
+              </div>
+            </div>
+            <a href={driveLink} target="_blank" rel="noopener noreferrer" style={{
+              display: "inline-flex", alignItems: "center", gap: 7,
+              padding: "9px 16px", borderRadius: 9, background: TEAL,
+              color: "#fff", fontSize: 12, fontWeight: 700, textDecoration: "none", flexShrink: 0,
+            }}>
+              <Phone size={13} /> Open recording
+            </a>
+          </div>
         ) : (
           <div style={{
             padding: 20, borderRadius: 10,
