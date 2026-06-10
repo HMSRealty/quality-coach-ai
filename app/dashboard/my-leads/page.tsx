@@ -1,5 +1,7 @@
 "use client";
 
+export const runtime = "edge";
+
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { T } from "@/app/_components/tokens";

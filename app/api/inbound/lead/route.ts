@@ -106,6 +106,8 @@ export async function POST(req: Request): Promise<Response> {
     }
     // URL params override/fill gaps — lets the whole config live in the URL:
     //   /api/inbound/lead?key=...&campaign_id=...
+    // JSON payloads may send "campaign" (name) instead of "campaign_id" (UUID).
+    if (!b.campaign_id && (b as Record<string, unknown>).campaign) b.campaign_id = String((b as Record<string, unknown>).campaign);
     if (!b.campaign_id && url.searchParams.get("campaign_id")) b.campaign_id = url.searchParams.get("campaign_id")!;
     if (url.searchParams.get("test") === "true") b.test = true;
 
@@ -127,11 +129,19 @@ export async function POST(req: Request): Promise<Response> {
     if (!(b.phone || "").trim()) missing.push("phone");
     if (!(b.seller_name || "").trim()) missing.push("seller name");
 
-    // Validate the campaign id belongs to this user; otherwise treat as missing.
+    // Validate the campaign: try UUID match first, then name match (Readymode
+    // sends the campaign name, not a UUID).
     let campaignId: string | null = null;
     if (b.campaign_id) {
-      const { data: camp } = await sb.from("campaigns").select("id").eq("id", b.campaign_id).eq("user_id", userId).maybeSingle();
-      campaignId = camp?.id ?? null;
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(b.campaign_id);
+      if (isUuid) {
+        const { data: camp } = await sb.from("campaigns").select("id").eq("id", b.campaign_id).eq("user_id", userId).maybeSingle();
+        campaignId = camp?.id ?? null;
+      }
+      if (!campaignId) {
+        const { data: byName } = await sb.from("campaigns").select("id").ilike("name", b.campaign_id).eq("user_id", userId).maybeSingle();
+        campaignId = byName?.id ?? null;
+      }
       if (!campaignId && !missing.includes("campaign")) missing.push("campaign");
     }
 
