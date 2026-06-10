@@ -1,15 +1,11 @@
 "use client";
 
-// Payroll & Accounting — period production ledger.
-// Production points (Hot 1 · Warm 1 · Cold 0.5) × an editable bonus rate, with
-// per-agent target attainment. Read-only/estimating tool; no money is moved.
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { T } from "@/app/_components/tokens";
-import { Loader2, Wallet, Download, Calculator } from "lucide-react";
+import { Loader2, DollarSign, Download, Calculator, TrendingUp, Users, Clock } from "lucide-react";
 import { DialerHoursCalculator } from "@/app/_components/DialerHoursCalculator";
 import { CompensationStructure } from "@/app/_components/CompensationStructure";
-import { SalaryCalculator } from "@/app/_components/SalaryCalculator";
 import { PayrollWorkbench } from "@/app/_components/PayrollWorkbench";
 
 const NAVY = T.text1;
@@ -45,7 +41,8 @@ export default function PayrollPage() {
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [days, setDays] = useState(30);
-  const [rate, setRate] = useState(25); // bonus $ per production point
+  const [rate, setRate] = useState(25);
+  const [tab, setTab] = useState<"salaries" | "hours" | "workbench" | "bonuses">("workbench");
 
   const load = useCallback(async (d: number, r: number) => {
     setLoading(true);
@@ -122,116 +119,143 @@ export default function PayrollPage() {
   const th = { padding: "11px 14px", textAlign: "left" as const, fontSize: 10, fontWeight: 800, letterSpacing: "0.06em", color: "var(--text-3)", textTransform: "uppercase" as const, whiteSpace: "nowrap" as const };
   const td = { padding: "12px 14px", fontSize: 13, color: NAVY, whiteSpace: "nowrap" as const };
 
+  const TABS = [
+    { key: "workbench" as const, label: "Payroll", icon: DollarSign },
+    { key: "salaries" as const, label: "Role Salaries", icon: Users },
+    { key: "hours" as const, label: "Upload Hours", icon: Clock },
+    { key: "bonuses" as const, label: "Production Bonuses", icon: TrendingUp },
+  ];
+
   return (
     <div style={{ maxWidth: 1280, margin: "0 auto", display: "flex", flexDirection: "column", gap: 20 }} className="animate-in">
+      {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 14 }}>
         <div>
           <h1 style={{ fontSize: 28, fontWeight: 900, color: NAVY, letterSpacing: "-0.02em", display: "flex", alignItems: "center", gap: 10 }}>
-            <Wallet size={26} color={T.purple} /> Payroll &amp; Accounting
+            <DollarSign size={26} color="#059669" /> Compensation & Hours
           </h1>
           <p style={{ fontSize: 13, color: SLATE, marginTop: 4 }}>
-            Production-based bonus ledger. Last {days} days · EST. Estimates only — no payments are processed here.
+            Role salaries, hours tracking, payroll workbench, and production bonuses.
           </p>
         </div>
-        <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-          {RANGES.map((r) => (
-            <button key={r.key} onClick={() => setDays(r.days)} className={days === r.days ? "btn-brand" : "btn-ghost"} style={{ padding: "8px 16px", fontSize: 12 }}>
-              {r.label}
+      </div>
+
+      {/* Tab navigation */}
+      <div style={{ display: "flex", gap: 4, background: "var(--surface-3)", padding: 4, borderRadius: 12 }}>
+        {TABS.map(t => {
+          const active = tab === t.key;
+          return (
+            <button key={t.key} onClick={() => setTab(t.key)} style={{
+              display: "flex", alignItems: "center", gap: 7, padding: "10px 18px", borderRadius: 9,
+              border: "none", cursor: "pointer", fontSize: 13, fontWeight: active ? 800 : 500,
+              background: active ? "var(--surface-1)" : "transparent",
+              color: active ? NAVY : SLATE,
+              boxShadow: active ? "var(--shadow-sm)" : "none",
+              transition: "all 150ms ease",
+            }}>
+              <t.icon size={15} /> {t.label}
             </button>
-          ))}
-          <button onClick={exportCSV} className="btn-ghost" style={{ padding: "8px 14px", fontSize: 12 }}>
-            <Download size={13} /> Export
-          </button>
-        </div>
+          );
+        })}
       </div>
 
-      {/* Summary band + rate control */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14 }}>
-        <SummaryCard label="Total bonus (period)" value={money(totals.bonus)} accent="#10B981" />
-        <SummaryCard label="Production points" value={String(Math.round(totals.points * 10) / 10)} accent={T.purple as string} />
-        <SummaryCard label="Qualified / Calls" value={`${totals.qualified} / ${totals.total}`} accent="#0284C7" />
-        <div style={{ background: "var(--surface-1)", border: "1px solid var(--border-2)", borderRadius: 14, padding: "14px 16px", boxShadow: "var(--shadow-sm)" }}>
-          <p style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.06em", color: "var(--text-3)", textTransform: "uppercase", marginBottom: 8 }}>
-            <Calculator size={11} style={{ display: "inline", marginRight: 4 }} /> Bonus rate / point
-          </p>
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <span style={{ fontSize: 18, fontWeight: 900, color: NAVY }}>$</span>
-            <input type="number" min={0} step={1} value={rate}
-              onChange={e => setRate(Math.max(0, Number(e.target.value) || 0))}
-              style={{ width: 80, padding: "6px 10px", borderRadius: 8, border: "1px solid var(--border-2)", background: "var(--surface-3)", color: NAVY, fontSize: 16, fontWeight: 800, outline: "none" }} />
-          </div>
-        </div>
-      </div>
+      {/* Tab content */}
+      {tab === "salaries" && <CompensationStructure />}
 
-      {loading ? (
-        <div style={{ padding: 80, textAlign: "center" }}><Loader2 size={28} className="animate-spin" style={{ color: T.purple }} /></div>
-      ) : rows.length === 0 ? (
-        <div style={{ padding: 60, textAlign: "center", background: "var(--surface-1)", borderRadius: 18, border: "1px solid var(--border-2)" }}>
-          <Wallet size={36} color="#CBD5E1" style={{ margin: "0 auto 10px" }} />
-          <p style={{ fontSize: 14, color: SLATE }}>No production in this range yet.</p>
-        </div>
-      ) : (
-        <div style={{ background: "var(--surface-1)", border: "1px solid var(--border-2)", borderRadius: 16, overflow: "hidden", boxShadow: "var(--shadow-sm)" }}>
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 820 }}>
-              <thead>
-                <tr style={{ background: "var(--surface-3)" }}>
-                  <th style={th}>Agent</th>
-                  <th style={{ ...th, textAlign: "center" }}>Calls</th>
-                  <th style={{ ...th, textAlign: "center" }}>Hot</th>
-                  <th style={{ ...th, textAlign: "center" }}>Warm</th>
-                  <th style={{ ...th, textAlign: "center" }}>Cold</th>
-                  <th style={{ ...th, textAlign: "center" }}>Points</th>
-                  <th style={{ ...th, textAlign: "center" }}>Attainment</th>
-                  <th style={{ ...th, textAlign: "right" }}>Bonus</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((r) => (
-                  <tr key={r.name} style={{ borderTop: "1px solid var(--border-1)" }}>
-                    <td style={{ ...td, fontWeight: 700 }}>{r.name}</td>
-                    <td style={{ ...td, textAlign: "center", color: SLATE }}>{r.total}</td>
-                    <td style={{ ...td, textAlign: "center", color: "#DC2626", fontWeight: 700 }}>{r.hot}</td>
-                    <td style={{ ...td, textAlign: "center", color: "#EA580C", fontWeight: 700 }}>{r.warm}</td>
-                    <td style={{ ...td, textAlign: "center", color: "#0284C7", fontWeight: 700 }}>{r.cold}</td>
-                    <td style={{ ...td, textAlign: "center", fontWeight: 800 }}>{Math.round(r.points * 10) / 10}</td>
-                    <td style={{ ...td, textAlign: "center" }}>
-                      <span style={{
-                        padding: "2px 9px", borderRadius: 999, fontSize: 11, fontWeight: 800,
-                        background: r.pacePct >= 100 ? "rgba(16,185,129,0.12)" : r.pacePct >= 80 ? "var(--surface-3)" : "rgba(234,88,12,0.12)",
-                        color: r.pacePct >= 100 ? "#10B981" : r.pacePct >= 80 ? "var(--text-2)" : "#EA580C",
-                      }}>{r.pacePct}%</span>
-                    </td>
-                    <td style={{ ...td, textAlign: "right", fontWeight: 900, color: "#10B981" }}>{money(r.bonus)}</td>
-                  </tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr style={{ borderTop: "2px solid var(--border-2)", background: "var(--surface-3)" }}>
-                  <td style={{ ...td, fontWeight: 900 }}>Total</td>
-                  <td style={{ ...td, textAlign: "center", color: SLATE }}>{totals.total}</td>
-                  <td colSpan={3} />
-                  <td style={{ ...td, textAlign: "center", fontWeight: 900 }}>{Math.round(totals.points * 10) / 10}</td>
-                  <td />
-                  <td style={{ ...td, textAlign: "right", fontWeight: 900, color: "#10B981" }}>{money(totals.bonus)}</td>
-                </tr>
-              </tfoot>
-            </table>
+      {tab === "hours" && <DialerHoursCalculator />}
+
+      {tab === "workbench" && <PayrollWorkbench />}
+
+      {tab === "bonuses" && (
+        <>
+          {/* Summary band + rate control */}
+          <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+            {RANGES.map((r) => (
+              <button key={r.key} onClick={() => setDays(r.days)} className={days === r.days ? "btn-brand" : "btn-ghost"} style={{ padding: "8px 16px", fontSize: 12 }}>
+                {r.label}
+              </button>
+            ))}
+            <button onClick={exportCSV} className="btn-ghost" style={{ padding: "8px 14px", fontSize: 12 }}>
+              <Download size={13} /> Export
+            </button>
           </div>
-        </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14 }}>
+            <SummaryCard label="Total bonus (period)" value={money(totals.bonus)} accent="#10B981" />
+            <SummaryCard label="Production points" value={String(Math.round(totals.points * 10) / 10)} accent="#7C3AED" />
+            <SummaryCard label="Qualified / Calls" value={`${totals.qualified} / ${totals.total}`} accent="#0284C7" />
+            <div style={{ background: "var(--surface-1)", border: "1px solid var(--border-2)", borderRadius: 14, padding: "14px 16px", boxShadow: "var(--shadow-sm)" }}>
+              <p style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.06em", color: "var(--text-3)", textTransform: "uppercase", marginBottom: 8 }}>
+                <Calculator size={11} style={{ display: "inline", marginRight: 4 }} /> Bonus rate / point
+              </p>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <span style={{ fontSize: 18, fontWeight: 900, color: NAVY }}>$</span>
+                <input type="number" min={0} step={1} value={rate}
+                  onChange={e => setRate(Math.max(0, Number(e.target.value) || 0))}
+                  style={{ width: 80, padding: "6px 10px", borderRadius: 8, border: "1px solid var(--border-2)", background: "var(--surface-3)", color: NAVY, fontSize: 16, fontWeight: 800, outline: "none" }} />
+              </div>
+            </div>
+          </div>
+
+          {loading ? (
+            <div style={{ padding: 80, textAlign: "center" }}><Loader2 size={28} className="animate-spin" style={{ color: "#7C3AED" }} /></div>
+          ) : rows.length === 0 ? (
+            <div style={{ padding: 60, textAlign: "center", background: "var(--surface-1)", borderRadius: 18, border: "1px solid var(--border-2)" }}>
+              <TrendingUp size={36} color="#CBD5E1" style={{ margin: "0 auto 10px" }} />
+              <p style={{ fontSize: 14, color: SLATE }}>No production in this range yet.</p>
+            </div>
+          ) : (
+            <div style={{ background: "var(--surface-1)", border: "1px solid var(--border-2)", borderRadius: 16, overflow: "hidden", boxShadow: "var(--shadow-sm)" }}>
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 820 }}>
+                  <thead>
+                    <tr style={{ background: "var(--surface-3)" }}>
+                      <th style={th}>Agent</th>
+                      <th style={{ ...th, textAlign: "center" }}>Calls</th>
+                      <th style={{ ...th, textAlign: "center" }}>Hot</th>
+                      <th style={{ ...th, textAlign: "center" }}>Warm</th>
+                      <th style={{ ...th, textAlign: "center" }}>Cold</th>
+                      <th style={{ ...th, textAlign: "center" }}>Points</th>
+                      <th style={{ ...th, textAlign: "center" }}>Attainment</th>
+                      <th style={{ ...th, textAlign: "right" }}>Bonus</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rows.map((r) => (
+                      <tr key={r.name} style={{ borderTop: "1px solid var(--border-1)" }}>
+                        <td style={{ ...td, fontWeight: 700 }}>{r.name}</td>
+                        <td style={{ ...td, textAlign: "center", color: SLATE }}>{r.total}</td>
+                        <td style={{ ...td, textAlign: "center", color: "#DC2626", fontWeight: 700 }}>{r.hot}</td>
+                        <td style={{ ...td, textAlign: "center", color: "#EA580C", fontWeight: 700 }}>{r.warm}</td>
+                        <td style={{ ...td, textAlign: "center", color: "#0284C7", fontWeight: 700 }}>{r.cold}</td>
+                        <td style={{ ...td, textAlign: "center", fontWeight: 800 }}>{Math.round(r.points * 10) / 10}</td>
+                        <td style={{ ...td, textAlign: "center" }}>
+                          <span style={{
+                            padding: "2px 9px", borderRadius: 999, fontSize: 11, fontWeight: 800,
+                            background: r.pacePct >= 100 ? "rgba(16,185,129,0.12)" : r.pacePct >= 80 ? "var(--surface-3)" : "rgba(234,88,12,0.12)",
+                            color: r.pacePct >= 100 ? "#10B981" : r.pacePct >= 80 ? "var(--text-2)" : "#EA580C",
+                          }}>{r.pacePct}%</span>
+                        </td>
+                        <td style={{ ...td, textAlign: "right", fontWeight: 900, color: "#10B981" }}>{money(r.bonus)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr style={{ borderTop: "2px solid var(--border-2)", background: "var(--surface-3)" }}>
+                      <td style={{ ...td, fontWeight: 900 }}>Total</td>
+                      <td style={{ ...td, textAlign: "center", color: SLATE }}>{totals.total}</td>
+                      <td colSpan={3} />
+                      <td style={{ ...td, textAlign: "center", fontWeight: 900 }}>{Math.round(totals.points * 10) / 10}</td>
+                      <td />
+                      <td style={{ ...td, textAlign: "right", fontWeight: 900, color: "#10B981" }}>{money(totals.bonus)}</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          )}
+        </>
       )}
-
-      {/* Fully-customizable two-track payroll workbench (Callers USD / Managers EGP) */}
-      <PayrollWorkbench />
-
-      {/* Manual salary calculator — hours, leads, KPIs */}
-      <SalaryCalculator />
-
-      {/* Compensation base + KPI structure (the payment base ground) */}
-      <CompensationStructure />
-
-      {/* Dialer hours → pay */}
-      <DialerHoursCalculator />
     </div>
   );
 }

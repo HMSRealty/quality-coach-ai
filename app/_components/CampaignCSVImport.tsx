@@ -74,10 +74,12 @@ export function CampaignCSVImport({ onImported }: { onImported?: () => void }) {
         const { data: existing } = await supabase
           .from("campaigns").select("id").eq("user_id", user.id).eq("name", r.name).maybeSingle();
         if (existing) {
-          await supabase.from("campaigns").update({ rules: r.rules }).eq("id", existing.id);
+          const { error } = await supabase.from("campaigns").update({ custom_rules: r.rules }).eq("id", existing.id);
+          if (error) throw new Error(`Failed to update "${r.name}": ${error.message}`);
           updated++;
         } else {
-          await supabase.from("campaigns").insert({ user_id: user.id, name: r.name, rules: r.rules, is_active: true });
+          const { error } = await supabase.from("campaigns").insert({ user_id: user.id, name: r.name, custom_rules: r.rules, is_active: true });
+          if (error) throw new Error(`Failed to create "${r.name}": ${error.message}`);
           created++;
         }
       }
