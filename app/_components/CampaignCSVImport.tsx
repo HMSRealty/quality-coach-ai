@@ -37,8 +37,8 @@ function parseCSV(text: string): Array<{ name: string; target: string; rules: st
     .filter(r => r.some(v => v.trim() !== ""))
     .map(r => ({
       name: (r[0] || "").trim(),
-      target: (r[1] || "").trim(),                // NEW: column B = Target
-      rules: (r[2] || r[1] || "").trim(),          // column C (or B if no target col)
+      target: "",
+      rules: r.slice(1).map(s => s.trim()).filter(Boolean).join("\n"),
     }))
     .filter(r => r.name);
 }
@@ -49,7 +49,7 @@ export function CampaignCSVImport({ onImported }: { onImported?: () => void }) {
   const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
 
   const download = () => {
-    const csv = "Name,Target,Rules\nMotivated Sellers,25,Qualify if owner mentions price flexibility and timeline under 6 months\nAbsentee Owners,15,Disqualify if owner lives in property — only target absentee owners\n";
+    const csv = "Name,Rule 1,Rule 2,Rule 3\nMotivated Sellers,Qualify if owner mentions price flexibility,Timeline must be under 6 months,Must be willing to negotiate\nAbsentee Owners,Disqualify if owner lives in property,Only target absentee owners,Check tax records for mailing address\n";
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -71,16 +71,13 @@ export function CampaignCSVImport({ onImported }: { onImported?: () => void }) {
 
       let created = 0; let updated = 0;
       for (const r of rows) {
-        if (!r.target) { setMsg({ type: "err", text: `Row "${r.name}" is missing a Target — required.` }); return; }
-        const targetNum = Number(r.target);
-        if (!isFinite(targetNum)) { setMsg({ type: "err", text: `Row "${r.name}" has an invalid Target.` }); return; }
         const { data: existing } = await supabase
           .from("campaigns").select("id").eq("user_id", user.id).eq("name", r.name).maybeSingle();
         if (existing) {
-          await supabase.from("campaigns").update({ rules: r.rules, target: targetNum }).eq("id", existing.id);
+          await supabase.from("campaigns").update({ rules: r.rules }).eq("id", existing.id);
           updated++;
         } else {
-          await supabase.from("campaigns").insert({ user_id: user.id, name: r.name, rules: r.rules, target: targetNum, is_active: true });
+          await supabase.from("campaigns").insert({ user_id: user.id, name: r.name, rules: r.rules, is_active: true });
           created++;
         }
       }
@@ -103,7 +100,7 @@ export function CampaignCSVImport({ onImported }: { onImported?: () => void }) {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
         <div>
           <h3 style={{ fontSize: 14, fontWeight: 800, color: NAVY }}>Bulk Import Campaigns</h3>
-          <p style={{ fontSize: 12, color: SLATE, marginTop: 3 }}>Upload a CSV with two columns: Name, Rules.</p>
+          <p style={{ fontSize: 12, color: SLATE, marginTop: 3 }}>Upload a CSV — Col A: campaign name, all other columns: rules.</p>
         </div>
         <button onClick={download} style={{
           display: "inline-flex", alignItems: "center", gap: 6,
@@ -140,7 +137,7 @@ export function CampaignCSVImport({ onImported }: { onImported?: () => void }) {
         <p style={{ fontSize: 12, fontWeight: 600, color: NAVY }}>
           {busy ? "Importing..." : "Drop CSV or click to browse"}
         </p>
-        <p style={{ fontSize: 10, color: SLATE, marginTop: 3 }}>Col A: Name · Col B: Rules</p>
+        <p style={{ fontSize: 10, color: SLATE, marginTop: 3 }}>Col A: Name · Col B+: Rules (all columns after A)</p>
         <input ref={inputRef} type="file" accept=".csv" onChange={handleUpload} style={{ display: "none" }} />
       </div>
     </div>
