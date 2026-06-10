@@ -45,7 +45,7 @@ export default function SubmitLeadPage() {
 
   const [form, setForm] = useState({
     address: "", parts: null as AddressParts | null,
-    ownerName: "", phone: "", askingPrice: "", zillowLink: "", reason: "",
+    ownerName: "", phone: "", askingPrice: "", zillowLink: "", reason: "", driveLink: "",
     campaignId: "", callerId: "",
   });
   const [files, setFiles] = useState<File[]>([]);
@@ -134,6 +134,9 @@ export default function SubmitLeadPage() {
     const metadata: Record<string, unknown> = {
       ...(form.parts ? { addr_street: form.parts.street, addr_city: form.parts.city, addr_state: form.parts.state, addr_zip: form.parts.zip } : {}),
       ...(enriched || {}),
+      // Google Drive call link — the analyzer downloads it (public link) and
+      // qualifies from it, same as an uploaded file.
+      ...(form.driveLink.trim() ? { source_audio_url: form.driveLink.trim() } : {}),
     };
 
     const subRes = await fetch("/api/leads/submit", {
@@ -196,7 +199,7 @@ export default function SubmitLeadPage() {
 
     setSubmitting(false);
     setResult({ kind: "ok", msg: resultMsg });
-    setForm(f => ({ ...f, address: "", parts: null, ownerName: "", phone: "", askingPrice: "", zillowLink: "", reason: "" }));
+    setForm(f => ({ ...f, address: "", parts: null, ownerName: "", phone: "", askingPrice: "", zillowLink: "", reason: "", driveLink: "" }));
     setFiles([]);
     setTimeout(() => setResult(null), 6000);
   };
@@ -307,6 +310,15 @@ export default function SubmitLeadPage() {
                 </motion.div>
               ))}
             </AnimatePresence>
+
+            {/* OR: paste a Google Drive call link (shared with "anyone with the link") */}
+            <div style={{ marginTop: 10 }}>
+              <label style={{ ...labelStyle, fontSize: 11 }}>Or paste a Google Drive call link</label>
+              <input type="url" value={form.driveLink}
+                onChange={e => setForm(f => ({ ...f, driveLink: e.target.value }))}
+                placeholder="https://drive.google.com/file/d/…  (anyone with the link)"
+                style={fieldStyle} />
+            </div>
           </div>
 
           {/* Agent + Campaign */}

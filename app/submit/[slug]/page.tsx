@@ -98,6 +98,7 @@ export default function DynamicSubmitPage() {
     zillow_link: "",
     asking_price: "",
     reason: "",
+    call_link: "",
   });
 
   // Optional extra properties the caller can append with the (+) button
@@ -232,6 +233,7 @@ export default function DynamicSubmitPage() {
             zillow_link: formData.zillow_link || (auto?.zillow_url as string | undefined) || "",
             asking_price: formData.asking_price,
             reason: formData.reason,
+            call_link: formData.call_link || null,
             // Full property data + ARV auto-resolved on submit.
             zillow_data: auto,
             arv: autoArv?.estimatedArv ?? null,
@@ -264,7 +266,7 @@ export default function DynamicSubmitPage() {
         if (!up.ok || !upJson.ok) throw new Error(upJson.error || "Recording upload failed. Please try again.");
       }
 
-      setStatusMsg(callFiles.length ? "Reviewing your call…" : "Verifying the lead…");
+      setStatusMsg(callFiles.length || formData.call_link.trim() ? "Reviewing your call…" : "Verifying the lead…");
       // Synchronous AI review; on any hiccup, silently fall back to the ordered
       // queue so the submitter NEVER sees an error — the lead is still accepted.
       try {
@@ -292,7 +294,7 @@ export default function DynamicSubmitPage() {
       date: new Date().toISOString().split("T")[0],
       caller_id: "", campaign_id: "",
       owner_name: "", phone_number: "",
-      property_address: "", zestimate: "", zillow_link: "", asking_price: "", reason: "",
+      property_address: "", zestimate: "", zillow_link: "", asking_price: "", reason: "", call_link: "",
     });
     setExtraProps([]);
     setCallFiles([]);
@@ -495,6 +497,16 @@ export default function DynamicSubmitPage() {
               <input ref={fileInputRef} type="file" multiple accept="audio/*,video/mp4" onChange={handleFileSelect} style={{ display: "none" }} />
             </div>
           )}
+          {/* Google Drive call link — works whether uploads are enabled or not */}
+          <div style={{ marginBottom: 14 }}>
+            <input
+              type="url"
+              placeholder="Or paste a Google Drive call link (anyone with the link)"
+              value={formData.call_link}
+              onChange={e => setForm({ ...formData, call_link: e.target.value })}
+              style={inputStyle}
+            />
+          </div>
           {callFiles.length > 0 && (
             <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 18 }}>
               {callFiles.map((f, i) => (

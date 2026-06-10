@@ -40,3 +40,6 @@ alter table public.agent_pay enable row level security;
 drop policy if exists "agent_pay_own" on public.agent_pay;
 create policy "agent_pay_own" on public.agent_pay
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+cd cron-worker
+npx wrangler secret put CRON_SECRET     # paste the SAME value as step 1
+npx wrangler deploy

@@ -159,6 +159,27 @@ export default function LeadDetailPage() {
     setFetchingZillow(false);
   };
 
+  // Attach (or replace) a Google Drive call link on this lead, then re-qualify.
+  const [driveInput, setDriveInput] = useState("");
+  const [attachingDrive, setAttachingDrive] = useState(false);
+  const attachDriveLink = async () => {
+    const link = driveInput.trim();
+    if (!link || !lead) return;
+    setAttachingDrive(true);
+    const merged = { ...((lead.metadata || {}) as Record<string, unknown>), source_audio_url: link };
+    await supabase.from("leads").update({ metadata: merged }).eq("id", lead.id);
+    // Qualify right away from the link (public Drive links download in-house).
+    try {
+      await fetch("/api/leads/analyze", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ leadId: lead.id }),
+      });
+    } catch { /* analyze sets a final status itself */ }
+    setDriveInput("");
+    setAttachingDrive(false);
+    await load();
+  };
+
   const handleAudioUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (!files.length || !lead) return;
@@ -599,6 +620,47 @@ export default function LeadDetailPage() {
             }}>
               {uploading ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />}
               {uploading ? "Uploading & analyzing..." : "Upload Recordings (multiple OK)"}
+            </button>
+
+            {/* Or attach a public Google Drive call link */}
+            <div style={{ display: "flex", gap: 8, marginTop: 12, maxWidth: 560, marginLeft: "auto", marginRight: "auto" }}>
+              <input
+                type="url"
+                value={driveInput}
+                onChange={e => setDriveInput(e.target.value)}
+                placeholder="Or paste a Google Drive call link (anyone with the link)"
+                style={{ flex: 1, padding: "9px 12px", borderRadius: 9, border: "1px solid rgba(35,43,58,0.15)", background: "#fff", color: NAVY, fontSize: 12.5, outline: "none" }}
+              />
+              <button onClick={attachDriveLink} disabled={attachingDrive || !driveInput.trim()} style={{
+                display: "inline-flex", alignItems: "center", gap: 6,
+                padding: "9px 16px", borderRadius: 9,
+                background: driveInput.trim() ? "#0284C7" : "#94A3B8", color: "#fff", border: "none",
+                fontSize: 12, fontWeight: 700, cursor: attachingDrive ? "wait" : "pointer", whiteSpace: "nowrap",
+              }}>
+                {attachingDrive ? <Loader2 size={13} className="animate-spin" /> : <Phone size={13} />}
+                {attachingDrive ? "Qualifying…" : "Attach & qualify"}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Replace the Drive link on a lead that already has one */}
+        {driveLink && recordings.length === 0 && (
+          <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+            <input
+              type="url"
+              value={driveInput}
+              onChange={e => setDriveInput(e.target.value)}
+              placeholder="Replace the Google Drive link…"
+              style={{ flex: 1, padding: "8px 12px", borderRadius: 9, border: "1px solid rgba(35,43,58,0.12)", background: "#fff", color: NAVY, fontSize: 12, outline: "none" }}
+            />
+            <button onClick={attachDriveLink} disabled={attachingDrive || !driveInput.trim()} style={{
+              display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 9,
+              background: driveInput.trim() ? "#0284C7" : "#94A3B8", color: "#fff", border: "none",
+              fontSize: 12, fontWeight: 700, cursor: attachingDrive ? "wait" : "pointer", whiteSpace: "nowrap",
+            }}>
+              {attachingDrive ? <Loader2 size={13} className="animate-spin" /> : <Phone size={13} />}
+              {attachingDrive ? "Qualifying…" : "Update & re-qualify"}
             </button>
           </div>
         )}

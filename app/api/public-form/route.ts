@@ -93,6 +93,7 @@ type LeadBody = {
   arv?: number | null;
   arv_confidence?: number | null;
   additional_properties?: Array<Record<string, unknown>>;
+  call_link?: string | null;
 };
 
 export async function POST(req: Request): Promise<Response> {
@@ -144,6 +145,7 @@ export async function POST(req: Request): Promise<Response> {
           arv: lead.arv ?? null,
           arv_confidence: lead.arv_confidence ?? null,
           additional_properties: Array.isArray(lead.additional_properties) ? lead.additional_properties : [],
+          ...(lead.call_link && String(lead.call_link).trim() ? { source_audio_url: String(lead.call_link).trim() } : {}),
           submitted_via: "public_form",
         },
       })
