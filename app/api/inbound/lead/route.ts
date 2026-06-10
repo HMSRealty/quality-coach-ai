@@ -35,15 +35,48 @@ interface Body {
   seller_name?: string;
   campaign_id?: string;
   audio_url?: string;
+  phone?: string;
+  email?: string;
   test?: boolean;
+}
+
+// Readymode-style form post → our Body. Accepts lead[0][field] (and bare field)
+// names: firstName/lastName, phone, email, address/city/state/zip, plus custom
+// fields for the recording URL and campaign.
+function fromForm(form: FormData | URLSearchParams): Body {
+  const get = (...names: string[]): string => {
+    for (const n of names) {
+      for (const k of [`lead[0][${n}]`, n]) {
+        const v = form.get(k);
+        if (typeof v === "string" && v.trim()) return v.trim();
+      }
+    }
+    return "";
+  };
+  const street = get("address", "street", "property_address");
+  const city = get("city");
+  const state = get("state");
+  const zip = get("zip", "postal", "zipcode");
+  const address = [street, city, [state, zip].filter(Boolean).join(" ")].filter(Boolean).join(", ");
+  const name = [get("firstName", "first_name"), get("lastName", "last_name")].filter(Boolean).join(" ").trim() || get("seller_name", "owner_name", "name");
+  return {
+    address,
+    seller_name: name || undefined,
+    phone: get("phone", "phone_number") || undefined,
+    email: get("email") || undefined,
+    campaign_id: get("campaign_id", "campaign") || undefined,
+    audio_url: get("audio_url", "recording_url", "recording", "call_recording", "drive_link", "call_link") || undefined,
+  };
 }
 
 export async function POST(req: Request): Promise<Response> {
   try {
     const sb = service();
+    const url = new URL(req.url);
 
-    // ── AUTH: Bearer API key → sha-256 lookup ──
-    const token = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "").trim();
+    // ── AUTH: Bearer API key (header) OR ?key= in the URL (for dialers that
+    // can't set custom headers) → sha-256 lookup ──
+    const token = ((req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "") || url.searchParams.get("key") || "").trim();
     if (!token) return Response.json({ ok: false, error: "Missing API key" }, { status: 401 });
     const hash = await sha256hex(token);
     const { data: keyRow } = await sb
@@ -56,8 +89,23 @@ export async function POST(req: Request): Promise<Response> {
     }
     const userId: string = keyRow.user_id;
 
-    // ── Validate payload ──
-    const b = (await req.json().catch(() => ({}))) as Body;
+    // ── Parse payload: JSON, form-urlencoded, or multipart (Readymode posts forms) ──
+    const ct = (req.headers.get("content-type") || "").toLowerCase();
+    let b: Body;
+    if (ct.includes("application/json")) {
+      b = (await req.json().catch(() => ({}))) as Body;
+    } else if (ct.includes("multipart/form-data")) {
+      b = fromForm(await req.formData().catch(() => new FormData()));
+    } else {
+      // x-www-form-urlencoded (default for dialer webhooks) or unknown → try text.
+      const text = await req.text().catch(() => "");
+      try { b = JSON.parse(text) as Body; }
+      catch { b = fromForm(new URLSearchParams(text)); }
+    }
+    // URL params override/fill gaps — lets the whole config live in the URL:
+    //   /api/inbound/lead?key=...&campaign_id=...
+    if (!b.campaign_id && url.searchParams.get("campaign_id")) b.campaign_id = url.searchParams.get("campaign_id")!;
+    if (url.searchParams.get("test") === "true") b.test = true;
 
     // Connection test: verify auth + endpoint without creating a lead or
     // downloading audio. Triggered by { "test": true } from the UI button.
@@ -71,11 +119,14 @@ export async function POST(req: Request): Promise<Response> {
     if (!address) return Response.json({ ok: false, error: "address is required" }, { status: 400 });
     if (!b.campaign_id) return Response.json({ ok: false, error: "campaign_id is required" }, { status: 400 });
 
-    // ── Pull the audio first (so we never create an orphan lead) ──
+    // ── Pull the audio first (so we never create an orphan lead). Google Drive
+    // links are NOT pre-downloaded here — the queue's ingest step handles them
+    // (confirm-gate, in-house storage); we just keep the link on the lead.
+    const isDriveLink = /drive\.google\.com|drive\.usercontent\.google\.com/i.test(audioUrl);
     let audioBytes: ArrayBuffer | null = null;
     let audioType = "audio/mpeg";
     let audioExt = "mp3";
-    if (audioUrl) {
+    if (audioUrl && !isDriveLink) {
       const ar = await fetch(audioUrl).catch(() => null);
       if (!ar || !ar.ok) {
         return Response.json({ ok: false, error: `Could not download audio_url (${ar?.status ?? "network"})` }, { status: 422 });
@@ -92,6 +143,8 @@ export async function POST(req: Request): Promise<Response> {
     const metadata = {
       date: new Date().toISOString().split("T")[0],
       owner_name: b.seller_name ?? "",
+      phone_number: b.phone ?? "",
+      email: b.email ?? "",
       submitted_via: "inbound_api",
       source_audio_url: audioUrl || null,
     };
