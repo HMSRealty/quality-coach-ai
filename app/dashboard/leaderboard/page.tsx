@@ -4,7 +4,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { T } from "@/app/_components/tokens";
-import { Loader2, Trophy, Flame, Sun, Snowflake, TrendingUp } from "lucide-react";
+import { Loader2, Trophy, Flame, Sun, Snowflake, TrendingUp, Eye } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const NAVY = T.text1;
 const SLATE = T.text2;
@@ -22,7 +23,9 @@ const money = (n: number) => `$${Math.round(n).toLocaleString()}`;
 
 type Row = {
   name: string;
-  hot: number; warm: number; cold: number; qualified: number; total: number;
+  hot: number; warm: number; cold: number; callback: number; needscall: number;
+  disqualified: number; duplicate: number; error: number;
+  qualified: number; total: number;
   points: number; conversion: number;
   dailyTarget: number; dayCount: number; targetTotal: number;
   pacePct: number; bonus: number;
@@ -43,6 +46,7 @@ const MEDAL: Record<number, { color: string; label: string }> = {
 };
 
 export default function LeaderboardPage() {
+  const router = useRouter();
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [days, setDays] = useState(30);
@@ -77,7 +81,9 @@ export default function LeaderboardPage() {
     for (const l of (data || []) as LR[]) {
       const name = l.agent_name?.trim() || "Unassigned";
       const r = map.get(name) || {
-        name, hot: 0, warm: 0, cold: 0, qualified: 0, total: 0, points: 0, conversion: 0,
+        name, hot: 0, warm: 0, cold: 0, callback: 0, needscall: 0,
+        disqualified: 0, duplicate: 0, error: 0,
+        qualified: 0, total: 0, points: 0, conversion: 0,
         dailyTarget: targetByName.get(name) ?? 2,
         dayCount: 0, targetTotal: 0, pacePct: 0, bonus: 0,
       };
@@ -87,6 +93,11 @@ export default function LeaderboardPage() {
       if (s === "hot") r.hot++;
       else if (s === "warm") r.warm++;
       else if (s === "cold") r.cold++;
+      else if (s === "callback") r.callback++;
+      else if (s === "needscall") r.needscall++;
+      else if (s === "disqualified") r.disqualified++;
+      else if (s === "duplicate") r.duplicate++;
+      else if (s === "error") r.error++;
       r.points += pts;
       if (l.submission_date) {
         const set = activeDays.get(name) || new Set<string>();
@@ -171,7 +182,7 @@ export default function LeaderboardPage() {
       ) : (
         <div style={{ background: "var(--surface-1)", border: "1px solid var(--border-2)", borderRadius: 16, overflow: "hidden", boxShadow: "var(--shadow-sm)" }}>
           <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 800 }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 1100 }}>
               <thead>
                 <tr>
                   <th style={{ ...th, width: 52, textAlign: "center" }}>#</th>
@@ -179,7 +190,12 @@ export default function LeaderboardPage() {
                   <th style={{ ...th, textAlign: "center" }}>Hot</th>
                   <th style={{ ...th, textAlign: "center" }}>Warm</th>
                   <th style={{ ...th, textAlign: "center" }}>Cold</th>
-                  <th style={{ ...th, textAlign: "center" }}>Calls</th>
+                  <th style={{ ...th, textAlign: "center" }}>Call Back</th>
+                  <th style={{ ...th, textAlign: "center" }}>Needs Call</th>
+                  <th style={{ ...th, textAlign: "center" }}>DQ</th>
+                  <th style={{ ...th, textAlign: "center" }}>Dup</th>
+                  <th style={{ ...th, textAlign: "center" }}>Error</th>
+                  <th style={{ ...th, textAlign: "center" }}>Total</th>
                   <th style={{ ...th, textAlign: "center" }}>Conv.</th>
                   <th style={{ ...th, textAlign: "center" }}>Points</th>
                   <th style={{ ...th, textAlign: "center" }}>Pace</th>
@@ -214,6 +230,18 @@ export default function LeaderboardPage() {
                             {r.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase()}
                           </div>
                           <span style={{ color: NAVY, fontWeight: 700 }}>{r.name}</span>
+                          <button onClick={() => router.push(`/dashboard/agents/${encodeURIComponent(r.name)}`)}
+                            title="View agent"
+                            style={{
+                              display: "inline-flex", alignItems: "center", gap: 4,
+                              padding: "3px 8px", borderRadius: 6,
+                              background: "var(--surface-3)", border: "1px solid var(--border-2)",
+                              color: SLATE, fontSize: 10, fontWeight: 700, cursor: "pointer",
+                              opacity: 0.6, transition: "opacity 150ms",
+                            }}
+                            onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
+                            onMouseLeave={e => (e.currentTarget.style.opacity = "0.6")}
+                          ><Eye size={10} /> View</button>
                         </div>
                       </td>
                       {/* Counts */}
@@ -225,6 +253,21 @@ export default function LeaderboardPage() {
                       </td>
                       <td style={{ ...td, textAlign: "center" }}>
                         {r.cold > 0 ? <Badge count={r.cold} color="#0284C7" /> : <span style={{ color: "var(--text-4)" }}>—</span>}
+                      </td>
+                      <td style={{ ...td, textAlign: "center" }}>
+                        {r.callback > 0 ? <Badge count={r.callback} color="#92400E" /> : <span style={{ color: "var(--text-4)" }}>—</span>}
+                      </td>
+                      <td style={{ ...td, textAlign: "center" }}>
+                        {r.needscall > 0 ? <Badge count={r.needscall} color="#0EA5E9" /> : <span style={{ color: "var(--text-4)" }}>—</span>}
+                      </td>
+                      <td style={{ ...td, textAlign: "center" }}>
+                        {r.disqualified > 0 ? <Badge count={r.disqualified} color="#64748B" /> : <span style={{ color: "var(--text-4)" }}>—</span>}
+                      </td>
+                      <td style={{ ...td, textAlign: "center" }}>
+                        {r.duplicate > 0 ? <Badge count={r.duplicate} color="#7C3AED" /> : <span style={{ color: "var(--text-4)" }}>—</span>}
+                      </td>
+                      <td style={{ ...td, textAlign: "center" }}>
+                        {r.error > 0 ? <Badge count={r.error} color="#DC2626" /> : <span style={{ color: "var(--text-4)" }}>—</span>}
                       </td>
                       <td style={{ ...td, textAlign: "center", color: SLATE }}>{r.total}</td>
                       {/* Conversion */}

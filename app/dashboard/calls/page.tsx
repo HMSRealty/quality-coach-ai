@@ -20,7 +20,7 @@ interface Lead {
   campaigns?: { name: string } | null;
 }
 
-const STATUS_OPTS = ["All", "Pending", "Needs Call", "Hot", "Warm", "Cold", "Call Back", "Disqualified", "Duplicate", "Error"];
+const STATUS_OPTS = ["All", "Pending", "Queued", "Needs Call", "Hot", "Warm", "Cold", "Call Back", "Disqualified", "Duplicate", "Error"];
 
 function arvOf(l: Lead): number | null {
   const m = l.metadata as { arv?: number; zillow_data?: { zestimate?: number } } | null;
@@ -170,6 +170,15 @@ export default function CallsPage() {
     if (failed) { alert(`${failed} deletion(s) failed.`); load(); }
   };
 
+  const analyzeLead = async (leadId: string) => {
+    await fetch("/api/leads/analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ leadId }),
+    }).catch(() => {});
+    await load();
+  };
+
   const exportCSV = () => {
     const headers = ["Date", "Agent", "Address", "Status", "Campaign", "Price", "Reason"];
     const rows = filtered.map(l => [
@@ -295,7 +304,7 @@ export default function CallsPage() {
           <p style={{ fontSize: 14, fontWeight: 600 }}>No leads found.</p>
         </div>
       ) : (
-        <LeadsList leads={filtered.map(toItem)} newIds={newIds} onOpen={(id) => router.push(`/dashboard/leads/${id}`)} onDelete={deleteLead}
+        <LeadsList leads={filtered.map(toItem)} newIds={newIds} onOpen={(id) => router.push(`/dashboard/leads/${id}`)} onDelete={deleteLead} onAnalyze={analyzeLead}
           selectable={selectMode} selectedIds={selected} onToggleSelect={toggleSelect} />
       )}
 

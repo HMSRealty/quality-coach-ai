@@ -8,7 +8,7 @@
 //   • Token-driven so it works in light + dark mode.
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { MapPin, User, DollarSign, Trash2, Check } from "lucide-react";
+import { MapPin, User, DollarSign, Trash2, Check, Sparkles, Loader2 } from "lucide-react";
 
 export interface LeadItem {
   id: string;
@@ -50,9 +50,10 @@ function StatusPill({ status }: { status: string }) {
   );
 }
 
-function LeadCard({ lead, isNew, onOpen, onDelete, selectable, selected, onToggleSelect }: { lead: LeadItem; isNew: boolean; onOpen?: (id: string) => void; onDelete?: (id: string) => void; selectable?: boolean; selected?: boolean; onToggleSelect?: (id: string) => void }) {
+function LeadCard({ lead, isNew, onOpen, onDelete, onAnalyze, selectable, selected, onToggleSelect }: { lead: LeadItem; isNew: boolean; onOpen?: (id: string) => void; onDelete?: (id: string) => void; onAnalyze?: (id: string) => void; selectable?: boolean; selected?: boolean; onToggleSelect?: (id: string) => void }) {
   const [glow, setGlow] = useState(isNew);
   const [hover, setHover] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
   useEffect(() => {
     if (!isNew) return;
     const t = setTimeout(() => setGlow(false), 2000);
@@ -120,6 +121,22 @@ function LeadCard({ lead, isNew, onOpen, onDelete, selectable, selected, onToggl
           <p style={{ fontSize: 15, fontWeight: 800, color: "var(--text-1)" }}>{fmt(lead.arv)}</p>
         </div>
         <StatusPill status={lead.status} />
+        {onAnalyze && ["Needs Call", "Pending", "Error"].includes(lead.status) && (
+          <button
+            onClick={async (e) => { e.stopPropagation(); setAnalyzing(true); await onAnalyze(lead.id); setAnalyzing(false); }}
+            title="Run AI analysis"
+            style={{
+              display: "inline-flex", alignItems: "center", gap: 5,
+              padding: "5px 12px", borderRadius: 8,
+              background: analyzing ? "#94A3B8" : "linear-gradient(135deg, #059669, #047857)",
+              color: "#fff", border: "none", fontSize: 11, fontWeight: 800,
+              cursor: analyzing ? "wait" : "pointer", whiteSpace: "nowrap",
+            }}
+          >
+            {analyzing ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
+            {analyzing ? "Running…" : "Analyze"}
+          </button>
+        )}
         {onDelete && (
           <button
             onClick={(e) => { e.stopPropagation(); onDelete(lead.id); }}
@@ -136,7 +153,7 @@ function LeadCard({ lead, isNew, onOpen, onDelete, selectable, selected, onToggl
   );
 }
 
-export function LeadsList({ leads, newIds, onOpen, onDelete, selectable, selectedIds, onToggleSelect }: { leads: LeadItem[]; newIds?: Set<string>; onOpen?: (id: string) => void; onDelete?: (id: string) => void; selectable?: boolean; selectedIds?: Set<string>; onToggleSelect?: (id: string) => void }) {
+export function LeadsList({ leads, newIds, onOpen, onDelete, onAnalyze, selectable, selectedIds, onToggleSelect }: { leads: LeadItem[]; newIds?: Set<string>; onOpen?: (id: string) => void; onDelete?: (id: string) => void; onAnalyze?: (id: string) => void; selectable?: boolean; selectedIds?: Set<string>; onToggleSelect?: (id: string) => void }) {
   // Track which ids have appeared so only genuinely-new ones get the glow.
   const seen = useRef<Set<string>>(new Set());
   const [, force] = useState(0);
@@ -156,6 +173,7 @@ export function LeadsList({ leads, newIds, onOpen, onDelete, selectable, selecte
             isNew={!!newIds?.has(lead.id)}
             onOpen={onOpen}
             onDelete={onDelete}
+            onAnalyze={onAnalyze}
             selectable={selectable}
             selected={!!selectedIds?.has(lead.id)}
             onToggleSelect={onToggleSelect}

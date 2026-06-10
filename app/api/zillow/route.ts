@@ -219,7 +219,13 @@ function strictMatch(typed: string, got: ReturnType<typeof normalize>): AddressM
   const miss: string[] = [];
   if (t.num && g.num && t.num !== g.num) miss.push(`street # (${t.num} ≠ ${g.num})`);
   if (t.street && g.street && normStreet(t.street) !== normStreet(g.street)) miss.push(`street name (${t.street} ≠ ${g.street})`);
-  if (t.city && g.city && norm(t.city) !== norm(g.city)) miss.push(`city (${t.city} ≠ ${g.city})`);
+  const normCity = (c: string | undefined, st: string | undefined) => {
+    if (!c) return "";
+    let s = norm(c);
+    if (st) s = s.replace(new RegExp(`\\b${norm(st)}\\b`), "").trim();
+    return s;
+  };
+  if (t.city && g.city && normCity(t.city, t.state) !== normCity(g.city, g.state)) miss.push(`city (${t.city} ≠ ${g.city})`);
   if (t.state && g.state && t.state.toUpperCase() !== g.state.toUpperCase()) miss.push(`state (${t.state} ≠ ${g.state})`);
   if (t.zip && g.zip && t.zip !== g.zip) miss.push(`ZIP (${t.zip} ≠ ${g.zip})`);
   return { ok: miss.length === 0, mismatches: miss };
