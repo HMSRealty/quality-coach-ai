@@ -62,6 +62,7 @@ const STATUS_CONFIG: Record<string, { bg: string; color: string; icon: typeof Ch
   Cold:         { bg: "#F0F9FF", color: "#0284C7", icon: CheckCircle2 },
   Disqualified: { bg: "#F1F4F9", color: "#4B5563", icon: XCircle },
   "Call Back":  { bg: "#FFFBEB", color: "#92400E", icon: Phone },
+  "Needs Call": { bg: "#F0F9FF", color: "#0284C7", icon: Phone },
   Processing:   { bg: "#F1F4F9", color: "#4B5563", icon: Clock },
   Pending:      { bg: "#F5F7FA", color: "#64748B", icon: Clock },
   Queued:       { bg: "#EFF6FF", color: "#1D4ED8", icon: Clock },

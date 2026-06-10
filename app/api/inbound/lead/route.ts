@@ -27,7 +27,7 @@ async function sha256hex(s: string): Promise<string> {
   return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-const REVIVE = new Set(["disqualified", "error"]);
+const REVIVE = new Set(["disqualified", "error", "needs call"]);
 const norm = (s: string) => (s || "").trim().toLowerCase().replace(/[.,#]/g, "").replace(/\s+/g, " ");
 
 interface Body {

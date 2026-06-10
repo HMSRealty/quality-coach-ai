@@ -776,7 +776,7 @@ export async function POST(req: Request): Promise<Response> {
       // Non-blocking statuses: dead leads AND siblings still being processed
       // (so parallel imports of the same address don't flag each other, and a
       // stuck "Processing" row never blocks a fresh submission).
-      const NON_BLOCKING = new Set(["disqualified", "error", "duplicate", "processing"]);
+      const NON_BLOCKING = new Set(["disqualified", "error", "duplicate", "processing", "needs call"]);
       const { data: dups } = await sa.from("leads").select("id, status, created_at")
         .eq("user_id", lead.user_id).ilike("extracted_address", lead.extracted_address).neq("id", lead.id);
       // Only an EARLIER-created, live lead blocks — guarantees at most one of a
@@ -860,14 +860,16 @@ export async function POST(req: Request): Promise<Response> {
         ? (driveToken
             ? "Couldn't download the call recording from the Google Drive link. Check that the file exists and is shared with the connected Google account."
             : "Couldn't download the call recording — the Google Drive link isn't public. Make it 'Anyone with the link', or connect Google Drive (Settings → Webhooks & Integrations) for private files, then re-run.")
-        : "No call recording attached — cannot verify. Upload the recording to run the review.";
+        : "No call recording attached — cannot verify. Add the recording to run the review.";
+      // "Needs Call" = no recording exists yet (distinct from "Call Back", which
+      // means the AI reviewed a real call and a follow-up call is required).
       await sa.from("leads").update({
-        status: "Call Back",
+        status: "Needs Call",
         qualification_reason: reason,
         ai_status_reason: linkButNoAudio ? "Recording link unreachable" : "Awaiting call recording",
         ai_model: MODEL, ai_processed_at: new Date().toISOString(),
       }).eq("id", lead.id);
-      return jsonRes({ ok: true, status: "Call Back", reason: "no_audio" });
+      return jsonRes({ ok: true, status: "Needs Call", reason: "no_audio" });
     }
     const textOnly = inputs.length === 0 && !!savedTranscript;
 

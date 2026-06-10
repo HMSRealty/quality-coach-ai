@@ -24,6 +24,7 @@ const STATUS: Record<string, { bg: string; fg: string; glow: string }> = {
   Warm:         { bg: "rgba(234,88,12,0.12)",   fg: "#EA580C", glow: "rgba(234,88,12,0.5)" },
   Cold:         { bg: "rgba(2,132,199,0.12)",   fg: "#0284C7", glow: "rgba(2,132,199,0.5)" },
   "Call Back":  { bg: "rgba(146,64,14,0.12)",   fg: "#92400E", glow: "rgba(146,64,14,0.45)" },
+  "Needs Call": { bg: "rgba(14,165,233,0.12)",  fg: "#0284C7", glow: "rgba(14,165,233,0.45)" },
   Disqualified: { bg: "var(--surface-3)",       fg: "var(--text-3)", glow: "rgba(124,58,237,0.0)" },
   Duplicate:    { bg: "rgba(124,58,237,0.12)",  fg: "#7C3AED", glow: "rgba(124,58,237,0.5)" },
   Processing:   { bg: "var(--surface-3)",       fg: "var(--text-3)", glow: "rgba(124,58,237,0.0)" },

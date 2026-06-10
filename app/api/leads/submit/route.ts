@@ -24,7 +24,7 @@ function service() {
   return createClient(url, key, { auth: { persistSession: false } });
 }
 
-const REVIVE_STATUSES = new Set(["disqualified", "error"]);
+const REVIVE_STATUSES = new Set(["disqualified", "error", "needs call"]);
 const norm = (s: string) =>
   (s || "").trim().toLowerCase().replace(/[.,#]/g, "").replace(/\s+/g, " ");
 

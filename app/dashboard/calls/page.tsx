@@ -20,7 +20,7 @@ interface Lead {
   campaigns?: { name: string } | null;
 }
 
-const STATUS_OPTS = ["All", "Pending", "Hot", "Warm", "Cold", "Call Back", "Disqualified", "Duplicate", "Error"];
+const STATUS_OPTS = ["All", "Pending", "Needs Call", "Hot", "Warm", "Cold", "Call Back", "Disqualified", "Duplicate", "Error"];
 
 function arvOf(l: Lead): number | null {
   const m = l.metadata as { arv?: number; zillow_data?: { zestimate?: number } } | null;
