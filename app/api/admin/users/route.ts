@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
     const isManager = can(callerRole, "users.manage"); // owner/admin
 
     const body = await req.json();
-    const { email, password, plan_tier = "starter" } = body;
+    const { email, password, plan_tier = "starter", full_name } = body;
     if (!email || !password) {
       return NextResponse.json({ error: "email and password are required" }, { status: 400 });
     }
@@ -74,6 +74,7 @@ export async function POST(req: NextRequest) {
         id: created.user.id, email, role, plan_tier,
         can_receive_leads: true,
         parent_user_id,
+        ...(full_name ? { full_name } : {}),
       });
     }
     return NextResponse.json({ ok: true, user: created.user });

@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase";
 import { T } from "@/app/_components/tokens";
 import {
   Users2, Plus, Trash2, Loader2, Save, X, Mail, Phone, Search,
-  CheckCircle2, AlertCircle, Pencil,
+  CheckCircle2, AlertCircle, Pencil, UserPlus,
 } from "lucide-react";
 
 const NAVY = T.text1;
@@ -118,6 +118,38 @@ export default function AgentsPage() {
     setAgents(p => [data as Agent, ...p]);
     setNewAgent(blank); setAdding(false);
     showToast(true, "Agent added");
+  };
+
+  const [subUsers, setSubUsers] = useState<Set<string>>(new Set());
+  // Load existing sub-users to know which agents already have logins.
+  useEffect(() => {
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase.from("profiles")
+        .select("full_name")
+        .eq("parent_user_id", user.id)
+        .eq("role", "caller");
+      if (data) setSubUsers(new Set(data.map((p: { full_name: string | null }) => p.full_name || "").filter(Boolean)));
+    })();
+  }, []);
+
+  const createLogin = async (a: Agent) => {
+    if (!a.email) return showToast(false, "Agent needs an email address first — edit and add one.");
+    const password = prompt(`Create login for ${a.name}\n\nSet a temporary password (min 6 chars):`);
+    if (!password || password.length < 6) return showToast(false, "Password must be at least 6 characters.");
+    setBusyId(a.id);
+    const { data: { session } } = await supabase.auth.getSession();
+    const res = await fetch("/api/admin/users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${session?.access_token}` },
+      body: JSON.stringify({ email: a.email, password, role: "caller", plan_tier: "starter", full_name: a.name }),
+    });
+    const j = await res.json().catch(() => ({}));
+    setBusyId(null);
+    if (!res.ok || j.error) return showToast(false, j.error || "Failed to create login");
+    setSubUsers(prev => new Set(prev).add(a.name));
+    showToast(true, `Login created for ${a.name} (${a.email})`);
   };
 
   const filtered = agents.filter(a => {
@@ -293,6 +325,14 @@ export default function AgentsPage() {
                           </>
                         ) : (
                           <>
+                            {subUsers.has(a.name) ? (
+                              <span title="Has login" style={{ padding: "3px 8px", borderRadius: 999, fontSize: 10, fontWeight: 800, background: "#D1FAE5", color: "#065F46" }}>Has login</span>
+                            ) : (
+                              <button onClick={() => createLogin(a)} disabled={busyId === a.id} title="Create login for this agent"
+                                style={{ ...iconBtn, color: "#0284C7", borderColor: "#BAE6FD", gap: 4, fontSize: 11, fontWeight: 700, padding: "5px 10px" }}>
+                                <UserPlus size={12} /> Login
+                              </button>
+                            )}
                             <button onClick={() => startEdit(a)} title="Edit" style={iconBtn}><Pencil size={12} /></button>
                             <button onClick={() => remove(a)} disabled={busyId === a.id} title="Delete"
                               style={{ ...iconBtn, color: "#DC2626", borderColor: "#FBCFBE" }}>

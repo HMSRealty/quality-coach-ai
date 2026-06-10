@@ -149,6 +149,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [plan, setPlan]       = useState("free");
   const [initials, setInit]   = useState("?");
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isCaller, setIsCaller] = useState(false);
   const [actingAs, setActingAs] = useState<string | null>(null);
 
   useEffect(() => {
@@ -158,14 +159,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       if (!user) { window.location.href = "/"; return; }
       const e = user.email ?? "";
       setEmail(e); setInit(e.slice(0, 2).toUpperCase());
-      const { data } = await supabase.from("profiles").select("plan_tier,role,full_name").eq("id", user.id).maybeSingle();
+      const { data } = await supabase.from("profiles").select("plan_tier,role,full_name,parent_user_id").eq("id", user.id).maybeSingle();
       if (data) {
         setPlan(data.plan_tier ?? "free");
         setIsAdmin(data.role === "admin");
         if (data.full_name) setFullName(data.full_name as string);
+        const callerRole = data.role === "caller" || (data.role === "user" && data.parent_user_id);
+        setIsCaller(!!callerRole);
       }
     })();
   }, []);
+
+  useEffect(() => {
+    if (isCaller && pathname === "/dashboard") {
+      window.location.href = "/dashboard/my-leads";
+    }
+  }, [isCaller, pathname]);
 
   const logout = async () => { await supabase.auth.signOut(); window.location.href = "/"; };
   const planAccent = PLAN_ACCENT[plan] ?? "#94A3B8";
@@ -196,6 +205,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Grouped nav. Each href highlights only on its FIRST occurrence so
             shared routes (e.g. Settings) don't light up multiple rows. */}
         {(() => {
+          if (isCaller) {
+            const callerNav = [
+              { label: "My Dashboard", href: "/dashboard/my-leads", icon: LayoutDashboard },
+            ];
+            return (
+              <div style={{ padding: "16px 8px 4px" }}>
+                <SectionLabel>My Account</SectionLabel>
+                <nav style={{ display: "flex", flexDirection: "column", gap: 2, padding: "0 8px" }}>
+                  {callerNav.map(item => (
+                    <NavLink key={item.label} item={item} active={pathname === item.href} />
+                  ))}
+                </nav>
+              </div>
+            );
+          }
           const seen = new Set<string>();
           return NAV_GROUPS.map((group, gi) => (
             <div key={group.section} style={{ padding: gi === 0 ? "16px 8px 4px" : "4px 8px" }}>
