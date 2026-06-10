@@ -772,7 +772,7 @@ export async function POST(req: Request): Promise<Response> {
     // DUPLICATE (address) — SMART BYPASS: only block if another lead with the
     // same address is still ACTIVE. Dead leads (Disqualified / Error / Duplicate)
     // do NOT block a re-submission — the new one is allowed to be re-analyzed.
-    if (lead.extracted_address) {
+    if (lead.extracted_address && !/^address not available$/i.test(lead.extracted_address.trim())) {
       // Non-blocking statuses: dead leads AND siblings still being processed
       // (so parallel imports of the same address don't flag each other, and a
       // stuck "Processing" row never blocks a fresh submission).
