@@ -169,26 +169,15 @@ export default function LeadDetailPage() {
     setAttachingDrive(true);
     const merged = { ...((lead.metadata || {}) as Record<string, unknown>), source_audio_url: link };
     await supabase.from("leads").update({ metadata: merged }).eq("id", lead.id);
-    // Qualify right away from the link (public Drive links download in-house).
-    try {
-      await fetch("/api/leads/analyze", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ leadId: lead.id }),
-      });
-    } catch { /* analyze sets a final status itself */ }
     setDriveInput("");
     setAttachingDrive(false);
     await load();
   };
 
-  const handleAudioUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
+  const uploadFiles = async (files: File[]) => {
     if (!files.length || !lead) return;
     for (const f of files) if (f.size > 500 * 1024 * 1024) return alert("Each file must be under 500MB");
-
     setUploading(true);
-    // Upload through the server (service role) so it works even when the
-    // current user isn't the lead owner — storage RLS would otherwise block it.
     const { data: { session } } = await supabase.auth.getSession();
     const fd = new FormData();
     for (const f of files) fd.append("files", f);
@@ -203,15 +192,20 @@ export default function LeadDetailPage() {
       setUploading(false);
       return;
     }
-    // Single explicit upload → analyze this one lead right away.
-    const uploadedUrls: string[] = upJson.urls || [];
-    await fetch("/api/leads/analyze", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ leadId: lead.id, audioUrls: uploadedUrls }),
-    });
     await load();
     setUploading(false);
+  };
+
+  const handleAudioUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    uploadFiles(Array.from(e.target.files || []));
+  };
+
+  const [dragOver, setDragOver] = useState(false);
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith("audio/") || f.type.startsWith("video/") || f.name.match(/\.(mp3|wav|m4a|mp4|ogg|webm)$/i));
+    if (files.length) uploadFiles(files);
   };
 
   if (loading) return (
@@ -596,14 +590,20 @@ export default function LeadDetailPage() {
             </a>
           </div>
         ) : (
-          <div style={{
-            padding: 20, borderRadius: 10,
-            background: "#F2F5F9", border: "2px dashed rgba(35,43,58,0.10)",
-            textAlign: "center",
-          }}>
-            <Upload size={24} color={SLATE} style={{ margin: "0 auto 8px" }} />
-            <p style={{ fontSize: 12, color: SLATE, marginBottom: 10 }}>
-              No recording on file. Upload one to run the review.
+          <div
+            onDragOver={e => { e.preventDefault(); setDragOver(true); }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={handleDrop}
+            style={{
+              padding: 28, borderRadius: 10,
+              background: dragOver ? "#E0F2FE" : "#F2F5F9",
+              border: `2px dashed ${dragOver ? "#0284C7" : "rgba(35,43,58,0.10)"}`,
+              textAlign: "center", transition: "all 0.15s",
+            }}
+          >
+            <Upload size={24} color={dragOver ? "#0284C7" : SLATE} style={{ margin: "0 auto 8px" }} />
+            <p style={{ fontSize: 12, color: dragOver ? "#0284C7" : SLATE, marginBottom: 10 }}>
+              {dragOver ? "Drop recording here" : "Drag & drop a recording, or click to browse"}
             </p>
             <input
               ref={fileInputRef}
@@ -620,10 +620,9 @@ export default function LeadDetailPage() {
               fontSize: 12, fontWeight: 700, cursor: "pointer",
             }}>
               {uploading ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />}
-              {uploading ? "Uploading & analyzing..." : "Upload Recordings (multiple OK)"}
+              {uploading ? "Uploading..." : "Upload Recording"}
             </button>
 
-            {/* Or attach a public Google Drive call link */}
             <div style={{ display: "flex", gap: 8, marginTop: 12, maxWidth: 560, marginLeft: "auto", marginRight: "auto" }}>
               <input
                 type="url"
@@ -639,7 +638,7 @@ export default function LeadDetailPage() {
                 fontSize: 12, fontWeight: 700, cursor: attachingDrive ? "wait" : "pointer", whiteSpace: "nowrap",
               }}>
                 {attachingDrive ? <Loader2 size={13} className="animate-spin" /> : <Phone size={13} />}
-                {attachingDrive ? "Qualifying…" : "Attach & qualify"}
+                {attachingDrive ? "Saving…" : "Attach & save"}
               </button>
             </div>
           </div>
@@ -661,11 +660,25 @@ export default function LeadDetailPage() {
               fontSize: 12, fontWeight: 700, cursor: attachingDrive ? "wait" : "pointer", whiteSpace: "nowrap",
             }}>
               {attachingDrive ? <Loader2 size={13} className="animate-spin" /> : <Phone size={13} />}
-              {attachingDrive ? "Qualifying…" : "Update & re-qualify"}
+              {attachingDrive ? "Saving…" : "Update & save"}
             </button>
           </div>
         )}
       </Section>
+
+      {/* Run Analysis CTA — shown when a recording is attached but lead isn't analyzed */}
+      {(recordings.length > 0 || driveLink) && ["Needs Call", "Pending", "Error"].includes(lead.status) && (
+        <button onClick={reanalyze} disabled={reanalyzing} style={{
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+          width: "100%", padding: "14px 0", borderRadius: 12,
+          background: "linear-gradient(135deg, #059669, #047857)", color: "#fff",
+          border: "none", fontSize: 14, fontWeight: 800, cursor: reanalyzing ? "wait" : "pointer",
+          boxShadow: "0 6px 20px rgba(5,150,105,0.35)",
+        }}>
+          {reanalyzing ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+          {reanalyzing ? "Running Analysis..." : "Run AI Analysis"}
+        </button>
+      )}
 
       {/* Handoff brief / Deal calculator — read from metadata extracted by the AI */}
       {(() => {

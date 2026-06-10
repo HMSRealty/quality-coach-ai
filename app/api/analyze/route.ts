@@ -30,7 +30,7 @@ function geminiKey(): string {
 // POST to a Gemini endpoint with automatic retry on transient errors
 // (429 rate-limit, 500/502/503/504 overload). This eliminates most sporadic
 // "Error" statuses, which are almost always transient model overloads.
-async function geminiPost(url: string, body: unknown, tries = 2): Promise<Response> {
+async function geminiPost(url: string, body: unknown, tries = 3): Promise<Response> {
   let last: Response | null = null;
   for (let i = 0; i < tries; i++) {
     let res: Response;
