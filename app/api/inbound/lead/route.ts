@@ -37,6 +37,7 @@ interface Body {
   audio_url?: string;
   phone?: string;
   email?: string;
+  agent_name?: string;
   test?: boolean;
 }
 
@@ -66,6 +67,7 @@ function fromForm(form: FormData | URLSearchParams): Body {
     email: get("email") || undefined,
     campaign_id: get("campaign_id", "campaign") || undefined,
     audio_url: get("audio_url", "recording_url", "recording", "call_recording", "drive_link", "call_link") || undefined,
+    agent_name: get("agent_name", "agent", "caller_name", "caller") || undefined,
   };
 }
 
@@ -196,7 +198,7 @@ export async function POST(req: Request): Promise<Response> {
       }
       const mergedMeta = { ...(match.metadata as Record<string, unknown> || {}), ...metadata, revived_from: match.status };
       const { error: upErr } = await sb.from("leads").update({
-        campaign_id: campaignId, extracted_address: address, agent_name: (b.seller_name || "").trim() || null,
+        campaign_id: campaignId, extracted_address: address, agent_name: (b.agent_name || "").trim() || null,
         status: "Queued", metadata: mergedMeta,
       }).eq("id", match.id);
       if (upErr) return Response.json({ ok: false, error: upErr.message }, { status: 500 });
@@ -204,7 +206,7 @@ export async function POST(req: Request): Promise<Response> {
     } else {
       const { data: inserted, error } = await sb.from("leads").insert({
         user_id: userId, organization_id: keyRow.organization_id ?? null,
-        campaign_id: campaignId, agent_name: (b.seller_name || "").trim() || null,
+        campaign_id: campaignId, agent_name: (b.agent_name || "").trim() || null,
         extracted_address: address || "Address not available", status: "Queued", metadata,
       }).select("id").single();
       if (error || !inserted) return Response.json({ ok: false, error: error?.message || "Insert failed" }, { status: 500 });

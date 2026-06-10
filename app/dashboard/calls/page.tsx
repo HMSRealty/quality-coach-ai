@@ -38,6 +38,8 @@ export default function CallsPage() {
   const [statusFilter, setStatusFilter] = useState("All");
   const [campaignFilter, setCampaignFilter] = useState("All");
   const [campaigns, setCampaigns] = useState<string[]>([]);
+  const [agents, setAgents] = useState<string[]>([]);
+  const [agentFilter, setAgentFilter] = useState("All");
   const [newIds, setNewIds] = useState<Set<string>>(new Set());
   const seen = useRef<Set<string>>(new Set());
   const [selectMode, setSelectMode] = useState(false);
@@ -60,6 +62,7 @@ export default function CallsPage() {
     rows.forEach(r => seen.current.add(r.id)); // initial load isn't "new"
     setLeads(rows);
     setCampaigns(Array.from(new Set(rows.map(r => r.campaigns?.name).filter(Boolean) as string[])));
+    setAgents(Array.from(new Set(rows.map(r => r.agent_name).filter(Boolean) as string[])).sort());
     setLoading(false);
   }, []);
 
@@ -102,6 +105,7 @@ export default function CallsPage() {
   const filtered = leads.filter(l => {
     if (statusFilter !== "All" && l.status !== statusFilter) return false;
     if (campaignFilter !== "All" && l.campaigns?.name !== campaignFilter) return false;
+    if (agentFilter !== "All" && l.agent_name !== agentFilter) return false;
     if (search.trim()) {
       const q = search.toLowerCase();
       if (!(l.extracted_address || "").toLowerCase().includes(q) && !(l.agent_name || "").toLowerCase().includes(q)) return false;
@@ -274,6 +278,10 @@ export default function CallsPage() {
         <select value={campaignFilter} onChange={e => setCampaignFilter(e.target.value)} style={inputStyle}>
           <option value="All">All Campaigns</option>
           {campaigns.map(c => <option key={c} value={c}>{c}</option>)}
+        </select>
+        <select value={agentFilter} onChange={e => setAgentFilter(e.target.value)} style={inputStyle}>
+          <option value="All">All Agents</option>
+          {agents.map(a => <option key={a} value={a}>{a}</option>)}
         </select>
       </div>
 
