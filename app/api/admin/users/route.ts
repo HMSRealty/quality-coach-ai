@@ -50,8 +50,8 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
     const { email, password, plan_tier = "starter", full_name } = body;
-    if (!email || !password) {
-      return NextResponse.json({ error: "email and password are required" }, { status: 400 });
+    if (!email) {
+      return NextResponse.json({ error: "email is required" }, { status: 400 });
     }
 
     // Owners/admins may assign a role to the sub-users they create (parented to
@@ -64,9 +64,23 @@ export async function POST(req: NextRequest) {
       : caller.id;
 
     const sa = admin();
-    const { data: created, error } = await sa.auth.admin.createUser({
-      email, password, email_confirm: true,
-    });
+
+    // If a password is provided, create the user directly (legacy flow).
+    // Otherwise, send an invite email — the user clicks the link and sets
+    // their own password. Supabase handles the email automatically.
+    let created: { user: { id: string; email?: string } | null };
+    let error: { message: string } | null;
+
+    if (password) {
+      ({ data: created, error } = await sa.auth.admin.createUser({
+        email, password, email_confirm: true,
+      }));
+    } else {
+      ({ data: created, error } = await sa.auth.admin.inviteUserByEmail(email, {
+        redirectTo: `${new URL(req.url).origin}/dashboard/my-leads`,
+        data: { full_name: full_name || email },
+      }) as { data: { user: { id: string; email?: string } | null }; error: { message: string } | null });
+    }
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
 
     if (created.user) {
@@ -77,7 +91,7 @@ export async function POST(req: NextRequest) {
         ...(full_name ? { full_name } : {}),
       });
     }
-    return NextResponse.json({ ok: true, user: created.user });
+    return NextResponse.json({ ok: true, user: created.user, invited: !password });
   } catch (e) {
     return NextResponse.json({ error: e instanceof Error ? e.message : "Server error" }, { status: 500 });
   }

@@ -136,20 +136,19 @@ export default function AgentsPage() {
 
   const createLogin = async (a: Agent) => {
     if (!a.email) return showToast(false, "Agent needs an email address first — edit and add one.");
-    const password = prompt(`Create login for ${a.name}\n\nSet a temporary password (min 6 chars):`);
-    if (!password || password.length < 6) return showToast(false, "Password must be at least 6 characters.");
+    if (!confirm(`Send a welcome invite to ${a.name} at ${a.email}?\n\nThey'll receive an email to set their password and access their dashboard.`)) return;
     setBusyId(a.id);
     const { data: { session } } = await supabase.auth.getSession();
     const res = await fetch("/api/admin/users", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${session?.access_token}` },
-      body: JSON.stringify({ email: a.email, password, role: "caller", plan_tier: "starter", full_name: a.name }),
+      body: JSON.stringify({ email: a.email, role: "caller", plan_tier: "starter", full_name: a.name }),
     });
     const j = await res.json().catch(() => ({}));
     setBusyId(null);
-    if (!res.ok || j.error) return showToast(false, j.error || "Failed to create login");
+    if (!res.ok || j.error) return showToast(false, j.error || "Failed to send invite");
     setSubUsers(prev => new Set(prev).add(a.name));
-    showToast(true, `Login created for ${a.name} (${a.email})`);
+    showToast(true, `Invite sent to ${a.name} (${a.email})`);
   };
 
   const filtered = agents.filter(a => {
@@ -328,9 +327,9 @@ export default function AgentsPage() {
                             {subUsers.has(a.name) ? (
                               <span title="Has login" style={{ padding: "3px 8px", borderRadius: 999, fontSize: 10, fontWeight: 800, background: "#D1FAE5", color: "#065F46" }}>Has login</span>
                             ) : (
-                              <button onClick={() => createLogin(a)} disabled={busyId === a.id} title="Create login for this agent"
+                              <button onClick={() => createLogin(a)} disabled={busyId === a.id} title="Send invite email to this agent"
                                 style={{ ...iconBtn, color: "#0284C7", borderColor: "#BAE6FD", gap: 4, fontSize: 11, fontWeight: 700, padding: "5px 10px" }}>
-                                <UserPlus size={12} /> Login
+                                <UserPlus size={12} /> Invite
                               </button>
                             )}
                             <button onClick={() => startEdit(a)} title="Edit" style={iconBtn}><Pencil size={12} /></button>
