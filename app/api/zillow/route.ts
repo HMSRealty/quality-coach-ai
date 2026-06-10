@@ -163,8 +163,9 @@ function parseTyped(addr: string): { num?: string; street?: string; city?: strin
   // ZIP (5- or 9-digit)
   const zipM = cleaned.match(/\b(\d{5})(?:-\d{4})?\b/);
   const zip = zipM?.[1];
-  // State (two-letter)
-  const stateM = cleaned.match(/\b([A-Z]{2})\b(?=\s*\d{5}|\s*,|$)/i);
+  // State (two-letter) — anchor near the ZIP so "Dr" doesn't match before "WV"
+  const stateM = cleaned.match(/\b([A-Z]{2})\s*,?\s*\d{5}\b/i)
+    || cleaned.match(/,\s*([A-Z]{2})\s*$/i);
   const state = stateM?.[1]?.toUpperCase();
   // Split commas
   const parts = cleaned.split(",").map((s) => s.trim()).filter(Boolean);

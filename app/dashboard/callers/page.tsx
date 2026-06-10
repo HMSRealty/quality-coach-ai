@@ -135,14 +135,16 @@ export default function AgentsPage() {
   }, []);
 
   const createLogin = async (a: Agent) => {
-    if (!a.email) return showToast(false, "Agent needs an email address first — edit and add one.");
-    if (!confirm(`Send a welcome invite to ${a.name} at ${a.email}?\n\nThey'll receive an email to set their password and access their dashboard.`)) return;
+    const email = (a.email || "").trim().toLowerCase();
+    if (!email) return showToast(false, "Agent needs an email address first — edit and add one.");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showToast(false, `Invalid email format: "${a.email}". Edit the agent and fix it.`);
+    if (!confirm(`Send a welcome invite to ${a.name} at ${email}?\n\nThey'll receive an email to set their password and access their dashboard.`)) return;
     setBusyId(a.id);
     const { data: { session } } = await supabase.auth.getSession();
     const res = await fetch("/api/admin/users", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${session?.access_token}` },
-      body: JSON.stringify({ email: a.email, role: "caller", plan_tier: "starter", full_name: a.name }),
+      body: JSON.stringify({ email, role: "caller", plan_tier: "starter", full_name: a.name }),
     });
     const j = await res.json().catch(() => ({}));
     setBusyId(null);

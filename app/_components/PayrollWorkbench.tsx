@@ -300,9 +300,6 @@ export function PayrollWorkbench() {
     }
   };
 
-  const callers = people.filter(p => p.category === "caller");
-  const managers = people.filter(p => p.category === "manager");
-
   const totals = useMemo(() => {
     let usdT = 0, egpT = 0, spiffT = 0, mgrEgp = 0, netEgp = 0;
     for (const p of people) {
@@ -395,68 +392,73 @@ export function PayrollWorkbench() {
         <Stat label="Grand net payout (EGP)" value={egp(totals.netEgp)} accent={MONEY} />
       </div>
 
-      {/* CALLERS TRACK */}
-      <Section title={`Callers — USD (${callers.length})`} onAdd={() => addPerson("caller")} extra={
-        <button onClick={seedFromCallers} className="btn-ghost" style={{ padding: "6px 10px", fontSize: 11.5 }}>Import from agents</button>
+      {/* UNIFIED TEAM TABLE */}
+      <Section title={`Team (${people.length})`} onAdd={() => addPerson("caller")} extra={
+        <div style={{ display: "flex", gap: 6 }}>
+          <button onClick={seedFromCallers} className="btn-ghost" style={{ padding: "6px 10px", fontSize: 11.5 }}>Import agents</button>
+          <button onClick={() => addPerson("manager")} style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "6px 12px", borderRadius: 8, background: "#7C3AED", color: "#fff", border: "none", fontSize: 12, fontWeight: 700, cursor: "pointer" }}><Plus size={13} /> Manager</button>
+        </div>
       }>
-        <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 1180 }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 1200 }}>
           <thead><tr style={{ background: "var(--surface-3)" }}>
-            {["Name", "Rate/hr", "Worked hrs", "Base USD", "TGT", "ACT", "KPI %", "KPI USD", "Lead bon", "OT hrs", "OT USD", "Fri ×", "Referral EGP", "Total USD", "Method", "Info", ""].map((h, i) =>
-              <th key={i} style={{ ...th, textAlign: i >= 1 && i <= 13 ? "right" : "left" }}>{h}</th>)}
+            {["Name", "Type", "Rate/Salary", "Worked/Deduct", "Base", "TGT", "ACT/Qual", "KPI", "OT hrs", "OT", "Extras", "Net EGP", "Method", "Info", ""].map((h, i) =>
+              <th key={i} style={{ ...th, textAlign: i >= 2 && i <= 11 ? "right" : "left" }}>{h}</th>)}
           </tr></thead>
           <tbody>
-            {callers.map(p => { const c = calc(p); return (
+            {people.map(p => { const c = calc(p); const isCaller = p.category === "caller"; return (
               <tr key={p.id} style={{ borderTop: "1px solid var(--border-1)" }}>
                 <td style={td}><input value={p.name} onChange={e => patchPerson(p.id, { name: e.target.value })} placeholder="Name" style={{ ...inp, width: 150 }} /></td>
-                <td style={td}><input type="number" value={p.hourly_rate} onChange={e => patchPerson(p.id, { hourly_rate: n(e.target.value) })} style={numCell} /></td>
-                <td style={td}><input type="number" value={p.extras.worked ?? ""} onChange={e => patchExtra(p.id, "worked", n(e.target.value))} style={numCell} /></td>
-                <td style={{ ...td, textAlign: "right", color: SLATE }}>{usd(c.baseUsd || 0)}</td>
-                <td style={td}><input type="number" value={p.extras.tgt ?? ""} onChange={e => patchExtra(p.id, "tgt", n(e.target.value))} style={numCell} /></td>
-                <td style={{ ...td, textAlign: "right", fontWeight: 700 }}>{c.act}</td>
-                <td style={{ ...td, textAlign: "right", color: (c.attain || 0) >= cfg.kpiThreshold ? MONEY : "#DC2626" }}>{Math.round(c.attain || 0)}%</td>
-                <td style={{ ...td, textAlign: "right", color: SLATE }}>{usd(c.kpiUsd || 0)}</td>
-                <td style={{ ...td, textAlign: "right", color: SLATE }}>{usd(c.leadBonusUsd || 0)}</td>
-                <td style={td}><input type="number" value={p.extras.otHrs ?? ""} onChange={e => patchExtra(p.id, "otHrs", n(e.target.value))} style={numCell} /></td>
-                <td style={{ ...td, textAlign: "right", color: SLATE }}>{usd(c.otUsd || 0)}</td>
-                <td style={td}><input type="number" value={p.extras.fridayCount ?? ""} onChange={e => patchExtra(p.id, "fridayCount", n(e.target.value))} style={{ ...numCell, width: 52 }} /></td>
-                <td style={td}><input type="number" value={p.extras.referralEgp ?? ""} onChange={e => patchExtra(p.id, "referralEgp", n(e.target.value))} style={numCell} /></td>
-                <td style={{ ...td, textAlign: "right", fontWeight: 900, color: MONEY }}>{usd(c.totalUsd || 0)}</td>
-                <td style={td}><select value={p.payment_method || ""} onChange={e => patchPerson(p.id, { payment_method: e.target.value })} style={{ ...inp, width: 110 }}>{PAY_METHODS.map(m => <option key={m}>{m}</option>)}</select></td>
-                <td style={td}><input value={p.payment_info || ""} onChange={e => patchPerson(p.id, { payment_info: e.target.value })} placeholder="handle / phone" style={{ ...inp, width: 150 }} /></td>
+                <td style={td}>
+                  <select value={p.category} onChange={e => patchPerson(p.id, { category: e.target.value as "caller" | "manager" })} style={{ ...inp, width: 90 }}>
+                    <option value="caller">Caller</option>
+                    <option value="manager">Manager</option>
+                  </select>
+                </td>
+                <td style={td}>
+                  {isCaller
+                    ? <input type="number" value={p.hourly_rate} onChange={e => patchPerson(p.id, { hourly_rate: n(e.target.value) })} placeholder="$/hr" style={numCell} />
+                    : <input type="number" value={p.monthly_salary} onChange={e => patchPerson(p.id, { monthly_salary: n(e.target.value) })} placeholder="EGP/mo" style={{ ...numCell, width: 90 }} />}
+                </td>
+                <td style={td}>
+                  {isCaller
+                    ? <input type="number" value={p.extras.worked ?? ""} onChange={e => patchExtra(p.id, "worked", n(e.target.value))} placeholder="hrs" style={numCell} />
+                    : <input type="number" value={p.extras.deductedDays ?? ""} onChange={e => patchExtra(p.id, "deductedDays", n(e.target.value))} placeholder="days off" style={numCell} />}
+                </td>
+                <td style={{ ...td, textAlign: "right", color: SLATE }}>{isCaller ? usd(c.baseUsd || 0) : egp(c.baseEgp || 0)}</td>
+                <td style={td}>
+                  {isCaller
+                    ? <input type="number" value={p.extras.tgt ?? ""} onChange={e => patchExtra(p.id, "tgt", n(e.target.value))} style={numCell} />
+                    : <span style={{ fontSize: 11, color: SLATE }}>{cfg.mgrQualityTarget}%</span>}
+                </td>
+                <td style={{ ...td, textAlign: "right", fontWeight: 700 }}>
+                  {isCaller ? c.act : `${Math.round(c.quality || 0)}%`}
+                </td>
+                <td style={{ ...td, textAlign: "right", color: SLATE }}>
+                  {isCaller ? usd(c.kpiUsd || 0) : egp(c.kpiEgp || 0)}
+                </td>
+                <td style={td}><input type="number" value={p.extras.otHrs ?? ""} onChange={e => patchExtra(p.id, "otHrs", n(e.target.value))} style={{ ...numCell, width: 58 }} /></td>
+                <td style={{ ...td, textAlign: "right", color: SLATE }}>{isCaller ? usd(c.otUsd || 0) : egp(c.otEgp || 0)}</td>
+                <td style={td}>
+                  {isCaller ? (
+                    <div style={{ display: "flex", gap: 4 }}>
+                      <input type="number" value={p.extras.fridayCount ?? ""} onChange={e => patchExtra(p.id, "fridayCount", n(e.target.value))} placeholder="Fri" title="Friday count" style={{ ...numCell, width: 44 }} />
+                      <input type="number" value={p.extras.referralEgp ?? ""} onChange={e => patchExtra(p.id, "referralEgp", n(e.target.value))} placeholder="Ref" title="Referral EGP" style={{ ...numCell, width: 58 }} />
+                    </div>
+                  ) : <input type="number" value={p.extras.manualEgp ?? ""} onChange={e => patchExtra(p.id, "manualEgp", n(e.target.value))} placeholder="Adj" title="Manual adjustment EGP" style={{ ...numCell, width: 70 }} />}
+                </td>
+                <td style={{ ...td, textAlign: "right", fontWeight: 900, color: MONEY }}>{egp(c.finalEgp || 0)}</td>
+                <td style={td}><select value={p.payment_method || ""} onChange={e => patchPerson(p.id, { payment_method: e.target.value })} style={{ ...inp, width: 100 }}>{PAY_METHODS.map(m => <option key={m}>{m}</option>)}</select></td>
+                <td style={td}><input value={p.payment_info || ""} onChange={e => patchPerson(p.id, { payment_info: e.target.value })} placeholder="handle / phone" style={{ ...inp, width: 140 }} /></td>
                 <td style={td}><button onClick={() => removePerson(p.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#DC2626" }}><Trash2 size={14} /></button></td>
               </tr>
             ); })}
-            {callers.length === 0 && <tr><td colSpan={17} style={{ ...td, textAlign: "center", color: SLATE, padding: 18 }}>No callers yet — add one or import from your agents.</td></tr>}
+            {people.length === 0 && <tr><td colSpan={15} style={{ ...td, textAlign: "center", color: SLATE, padding: 18 }}>No team members yet — add callers or managers, or import from your agents.</td></tr>}
           </tbody>
-        </table>
-      </Section>
-
-      {/* MANAGERS TRACK */}
-      <Section title={`Managers — EGP (${managers.length})`} onAdd={() => addPerson("manager")}>
-        <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 980 }}>
-          <thead><tr style={{ background: "var(--surface-3)" }}>
-            {["Name", "Monthly EGP", "Deduct days", "Base EGP", "Quality %", "KPI EGP", "OT hrs", "OT EGP", "Total EGP", "Method", "Info", ""].map((h, i) =>
-              <th key={i} style={{ ...th, textAlign: i >= 1 && i <= 8 ? "right" : "left" }}>{h}</th>)}
-          </tr></thead>
-          <tbody>
-            {managers.map(p => { const c = calc(p); return (
-              <tr key={p.id} style={{ borderTop: "1px solid var(--border-1)" }}>
-                <td style={td}><input value={p.name} onChange={e => patchPerson(p.id, { name: e.target.value })} placeholder="Name" style={{ ...inp, width: 160 }} /></td>
-                <td style={td}><input type="number" value={p.monthly_salary} onChange={e => patchPerson(p.id, { monthly_salary: n(e.target.value) })} style={{ ...numCell, width: 90 }} /></td>
-                <td style={td}><input type="number" value={p.extras.deductedDays ?? ""} onChange={e => patchExtra(p.id, "deductedDays", n(e.target.value))} style={numCell} /></td>
-                <td style={{ ...td, textAlign: "right", color: SLATE }}>{egp(c.baseEgp || 0)}</td>
-                <td style={td}><input type="number" value={p.extras.qualityPct ?? ""} placeholder={String(Math.round(c.quality || 0))} onChange={e => patchExtra(p.id, "qualityPct", n(e.target.value))} style={numCell} /></td>
-                <td style={{ ...td, textAlign: "right", color: (c.quality || 0) >= cfg.mgrQualityTarget ? MONEY : SLATE }}>{egp(c.kpiEgp || 0)}</td>
-                <td style={td}><input type="number" value={p.extras.otHrs ?? ""} onChange={e => patchExtra(p.id, "otHrs", n(e.target.value))} style={numCell} /></td>
-                <td style={{ ...td, textAlign: "right", color: SLATE }}>{egp(c.otEgp || 0)}</td>
-                <td style={{ ...td, textAlign: "right", fontWeight: 900, color: "#7C3AED" }}>{egp(c.totalEgp || 0)}</td>
-                <td style={td}><select value={p.payment_method || ""} onChange={e => patchPerson(p.id, { payment_method: e.target.value })} style={{ ...inp, width: 110 }}>{PAY_METHODS.map(m => <option key={m}>{m}</option>)}</select></td>
-                <td style={td}><input value={p.payment_info || ""} onChange={e => patchPerson(p.id, { payment_info: e.target.value })} placeholder="handle / phone" style={{ ...inp, width: 150 }} /></td>
-                <td style={td}><button onClick={() => removePerson(p.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#DC2626" }}><Trash2 size={14} /></button></td>
-              </tr>
-            ); })}
-            {managers.length === 0 && <tr><td colSpan={12} style={{ ...td, textAlign: "center", color: SLATE, padding: 18 }}>No managers yet — add one.</td></tr>}
-          </tbody>
+          <tfoot><tr style={{ borderTop: "2px solid var(--border-2)", background: "var(--surface-3)" }}>
+            <td style={{ ...td, fontWeight: 900 }} colSpan={11}>Grand total</td>
+            <td style={{ ...td, textAlign: "right", fontWeight: 900, color: MONEY }}>{egp(totals.netEgp)}</td>
+            <td colSpan={3} />
+          </tr></tfoot>
         </table>
       </Section>
 

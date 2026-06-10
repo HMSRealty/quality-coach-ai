@@ -102,8 +102,12 @@
   /* ── Semantic ──────────────────────────────────────────────────────── */
   --emerald: #10B981; --emerald-lt: #34D399; --emerald-bg: #ECFDF5;
   --amber:   #F59E0B; --amber-bg: #FFFBEB;
-  --rose:    #E11D48; --rose-bg: #FFF1F2;
+  --rose:    #E11D48; --rose-bg: #FFF1F2; --rose-dim: rgba(225,29,72,0.08); --rose-lt: #FB7185;
   --sky:     #0284C7; --sky-bg: #F0F9FF;
+
+  /* ── Admin layout ──────────────────────────────────────────────────── */
+  --sidebar-w: 240px;
+  --topbar-h: 52px;
 
   /* ── Shadows ───────────────────────────────────────────────────────── */
   --shadow-sm: 0 1px 2px rgba(11,15,31,0.06);
