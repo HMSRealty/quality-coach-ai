@@ -225,16 +225,18 @@ export async function POST(req: Request): Promise<Response> {
 
     // ── Parse payload: JSON, form-urlencoded, or multipart (Readymode posts forms) ──
     const ct = (req.headers.get("content-type") || "").toLowerCase();
+    // Read once as text so we can log it AND parse it.
+    const rawText = await req.text().catch(() => "");
     let b: Body;
     if (ct.includes("application/json")) {
-      b = (await req.json().catch(() => ({}))) as Body;
+      try { b = JSON.parse(rawText) as Body; } catch { b = {} as Body; }
     } else if (ct.includes("multipart/form-data")) {
-      b = fromForm(await req.formData().catch(() => new FormData()));
+      // multipart can't be re-read from text — fallback to attempting both.
+      try { b = JSON.parse(rawText) as Body; }
+      catch { b = fromForm(new URLSearchParams(rawText)); }
     } else {
-      // x-www-form-urlencoded (default for dialer webhooks) or unknown → try text.
-      const text = await req.text().catch(() => "");
-      try { b = JSON.parse(text) as Body; }
-      catch { b = fromForm(new URLSearchParams(text)); }
+      try { b = JSON.parse(rawText) as Body; }
+      catch { b = fromForm(new URLSearchParams(rawText)); }
     }
     // URL params override/fill gaps — lets the whole config live in the URL:
     //   /api/inbound/lead?key=...&campaign_id=...
@@ -354,6 +356,10 @@ export async function POST(req: Request): Promise<Response> {
       ...(b.recording_id ? { recording_id: b.recording_id } : {}),
       ...(missing.length ? { missing_fields: missing } : {}),
       ...(audioNote ? { audio_note: audioNote } : {}),
+      // Debug: store raw webhook body (truncated to 4KB) so we can see what
+      // the dialer sent. Remove after we confirm field names.
+      _raw_webhook: rawText.slice(0, 4096),
+      _raw_content_type: ct,
     };
 
     // ── Duplicate detection (same user + normalized address) — only when we
