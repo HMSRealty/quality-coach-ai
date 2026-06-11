@@ -69,6 +69,14 @@ export default function AuthPage() {
           phone: phone.trim(),
           website: website.trim() || null,
         }).eq("id", data.user.id);
+        // Best-effort welcome email (no-op if RESEND_API_KEY not set).
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          fetch("/api/notify/welcome", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${session.access_token}` },
+          }).catch(() => {});
+        }
       }
       setMsg({ text: "Account created! Check your inbox to confirm.", ok: true });
     }

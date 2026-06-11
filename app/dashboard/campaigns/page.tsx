@@ -11,6 +11,7 @@ interface Campaign {
   id: string;
   name: string;
   custom_rules: string;
+  custom_persona: string | null;
   is_active: boolean;
   target: number | null;
   webhook_url: string | null;
@@ -254,16 +255,57 @@ export default function CampaignsPage() {
         }}>
           <p style={{
             fontSize: 10, fontWeight: 700, color: "var(--text-3)",
-            textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10,
+            textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6,
           }}>
             Qualification Rules
           </p>
+          <textarea
+            defaultValue={c.custom_rules || ""}
+            onBlur={async (e) => {
+              const v = e.target.value;
+              if (v === c.custom_rules) return;
+              const { error } = await supabase.from("campaigns").update({ custom_rules: v }).eq("id", c.id);
+              if (error) alert(error.message);
+              else setCampaigns(p => p.map(x => x.id === c.id ? { ...x, custom_rules: v } : x));
+            }}
+            placeholder="One rule per line. The AI applies these alongside the platform default rubric."
+            style={{
+              width: "100%", minHeight: 110, resize: "vertical",
+              padding: "10px 12px", borderRadius: 9, border: "1px solid var(--border-2)",
+              background: "var(--surface-1)", color: "var(--text-1)",
+              fontFamily: "var(--font-mono)", fontSize: 12.5, lineHeight: 1.55, outline: "none",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          />
+          <p style={{ fontSize: 10, color: "var(--text-4)", marginTop: 4, marginBottom: 14 }}>Saves on blur.</p>
+
           <p style={{
-            fontSize: 12, color: "var(--text-2)", lineHeight: 1.75,
-            fontFamily: "var(--font-mono)", whiteSpace: "pre-wrap",
+            fontSize: 10, fontWeight: 700, color: "var(--text-3)",
+            textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6,
+            display: "flex", alignItems: "center", gap: 6,
           }}>
-            {c.custom_rules}
+            Campaign Persona Override <span style={{ fontSize: 9, color: "var(--text-4)", fontWeight: 600, textTransform: "none", letterSpacing: 0 }}>(optional)</span>
           </p>
+          <textarea
+            defaultValue={c.custom_persona || ""}
+            onBlur={async (e) => {
+              const v = e.target.value.trim() || null;
+              if (v === (c.custom_persona || null)) return;
+              const { error } = await supabase.from("campaigns").update({ custom_persona: v }).eq("id", c.id);
+              if (error) alert(error.message);
+              else setCampaigns(p => p.map(x => x.id === c.id ? { ...x, custom_persona: v } : x));
+            }}
+            placeholder="Leave blank to use your org persona. Override here for a different AI role / tone / qualification framework on this campaign only."
+            style={{
+              width: "100%", minHeight: 110, resize: "vertical",
+              padding: "10px 12px", borderRadius: 9, border: "1px solid var(--border-2)",
+              background: c.custom_persona ? "var(--surface-1)" : "var(--surface-3)",
+              color: "var(--text-1)",
+              fontFamily: "var(--font-mono)", fontSize: 12.5, lineHeight: 1.55, outline: "none",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          />
+          <p style={{ fontSize: 10, color: "var(--text-4)", marginTop: 4 }}>Takes precedence over org persona for leads in this campaign.</p>
 
           {!isAssigned && (
             <div style={{ marginTop: 14, paddingTop: 12, borderTop: "1px solid var(--border-1)" }} onClick={(e) => e.stopPropagation()}>

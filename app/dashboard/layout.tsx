@@ -22,7 +22,7 @@ import {
   Send, Users2, Network,
   Flag, Power, UserCog, Eye, Search,
   Settings as SettingsIcon, Webhook, Wallet, Target, Trophy,
-  GitBranch, Flame,
+  GitBranch, Flame, Rocket,
 } from "lucide-react";
 
 // Corporate Command Center — navigation grouped by company department.
@@ -64,6 +64,7 @@ const NAV_GROUPS: { section: string; items: { label: string; href: string; icon:
   {
     section: "IT & Administration",
     items: [
+      { label: "Setup Wizard",            href: "/dashboard/onboarding",  icon: Rocket },
       { label: "Settings",                href: "/dashboard/settings",    icon: SettingsIcon },
       { label: "Webhooks & Integrations", href: "/dashboard/settings/api", icon: Webhook },
       { label: "Sub-Users",               href: "/dashboard/sub-users",   icon: UserCog },

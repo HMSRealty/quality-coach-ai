@@ -925,11 +925,17 @@ export async function POST(req: Request): Promise<Response> {
       }
     }
 
-    // Campaign rules
+    // Campaign rules + optional per-campaign persona override.
+    // We read both `custom_rules` (the column the UI saves to) and `rules`
+    // (the legacy column) so older campaigns keep working.
     let rules = "";
+    let campaignPersona: string | null = null;
     if (lead.campaign_id) {
-      const { data: c } = await sa.from("campaigns").select("rules").eq("id", lead.campaign_id).maybeSingle();
-      rules = c?.rules || "";
+      const { data: c } = await sa.from("campaigns")
+        .select("custom_rules, rules, custom_persona")
+        .eq("id", lead.campaign_id).maybeSingle();
+      rules = (c?.custom_rules as string) || (c?.rules as string) || "";
+      campaignPersona = (c?.custom_persona as string) || null;
     }
 
     // Org persona + Kill List overrides (Phase: admin-editable persona).
@@ -1035,8 +1041,10 @@ export async function POST(req: Request): Promise<Response> {
     };
 
     // Qualification — audio mode or cheap text re-grade from the saved transcript.
+    // Persona precedence: campaign override → org override → default.
+    const effectivePersona = (campaignPersona && campaignPersona.trim().length > 30) ? campaignPersona : orgPersona;
     const q = await runQualification(ups, rules, key, {
-      orgPersona, orgKillers, marketValue, propertyAddress: resolvedAddress,
+      orgPersona: effectivePersona, orgKillers, marketValue, propertyAddress: resolvedAddress,
       transcriptText: textOnly ? savedTranscript : null,
       submitted, marketData,
     });

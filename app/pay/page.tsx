@@ -89,6 +89,15 @@ function PayInner() {
         plan_tier: planKey,
       }).eq("id", user.id);
 
+      // Fire-and-forget receipt confirmation email (no-op if RESEND not set).
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        fetch("/api/notify/receipt", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        }).catch(() => {});
+      }
+
       setDone(true);
     } catch (e: unknown) {
       setErr(e instanceof Error ? e.message : "Submission failed.");

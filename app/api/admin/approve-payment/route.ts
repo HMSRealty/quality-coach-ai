@@ -84,6 +84,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invoice update failed: " + invoiceError.message }, { status: 400 });
     }
 
+    // 3. Send activation email (best-effort — never blocks approval).
+    try {
+      const { data: target } = await admin.from("profiles").select("email, full_name").eq("id", userId).maybeSingle();
+      if (target?.email) {
+        const { sendEmail, approvedEmail } = await import("@/lib/email");
+        const { subject, html } = approvedEmail((target.full_name as string) || "", planTier);
+        await sendEmail({ to: target.email as string, subject, html });
+      }
+    } catch { /* email failure never blocks activation */ }
+
     return NextResponse.json({
       success: true,
       message: `User ${userId} activated on ${planTier} plan with ${limit} monthly analyses.`,
