@@ -925,7 +925,22 @@ export async function POST(req: Request): Promise<Response> {
       } catch { /* columns absent pre-migration */ }
     }
 
-    const key = geminiKey();
+    // Resolve a Gemini API key: prefer the user's first active key from the
+    // gemini_api_keys pool, falling back to GEMINI_API_KEY env. The "best"
+    // key in the pool is the one with the fewest consecutive errors that's
+    // still active. Errors auto-disable a key after 5 in a row.
+    let key: string;
+    let usedKeyId: string | null = null;
+    try {
+      const { loadGeminiKeys } = await import("@/lib/gemini-keys");
+      const pool = await loadGeminiKeys(sa, lead.user_id);
+      if (pool.length === 0) throw new Error("no_keys");
+      key = pool[0].key;
+      usedKeyId = pool[0].id === "_env" ? null : pool[0].id;
+    } catch {
+      key = geminiKey();
+    }
+    void usedKeyId;  // currently unused; reserved for post-call success/error logging hooks
 
     // ── ZILLOW = DATA ONLY ── Ensure we have the property facts + comparables.
     // Use what was stored at submit; if missing (e.g. inbound-API leads), pull it

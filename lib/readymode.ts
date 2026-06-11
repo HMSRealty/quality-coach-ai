@@ -18,38 +18,51 @@ export function normalizeHost(subdomain: string): string {
   return s;
 }
 
+// Load the first active Readymode connection for a user (legacy "give me one"
+// path used by the inbound webhook for general recording fetches).
 export async function loadReadymodeCreds(
   sb: SupabaseClient,
   userId: string,
 ): Promise<ReadymodeCreds | null> {
-  // 1) per-tenant from the database
+  const all = await loadAllReadymodeCreds(sb, userId);
+  return all[0] || null;
+}
+
+// Load ALL active Readymode connections for a user, ordered by position.
+// Used by find-recording so we can try each dialer in turn (a phone number
+// may have a recording on one dialer but not another).
+export async function loadAllReadymodeCreds(
+  sb: SupabaseClient,
+  userId: string,
+): Promise<ReadymodeCreds[]> {
   const { data } = await sb
     .from("readymode_connections")
-    .select("subdomain, username, password_enc")
+    .select("subdomain, username, password_enc, is_active, position")
     .eq("user_id", userId)
-    .maybeSingle();
+    .eq("is_active", true)
+    .order("position", { ascending: true });
 
-  if (data?.subdomain && data?.username && data?.password_enc) {
+  const out: ReadymodeCreds[] = [];
+  for (const row of (data || [])) {
+    if (!row.subdomain || !row.username || !row.password_enc) continue;
     try {
-      const password = await decryptSecret(data.password_enc as string);
-      return {
-        subdomain: data.subdomain as string,
-        username: data.username as string,
+      const password = await decryptSecret(row.password_enc as string);
+      out.push({
+        subdomain: row.subdomain as string,
+        username: row.username as string,
         password,
         source: "tenant",
-      };
-    } catch {
-      // fall through to env fallback if decryption fails
+      });
+    } catch { /* skip bad ciphertext */ }
+  }
+
+  if (out.length === 0) {
+    const sub = process.env.READYMODE_SUBDOMAIN;
+    const user = process.env.READYMODE_USERNAME;
+    const pass = process.env.READYMODE_PASSWORD;
+    if (sub && user && pass) {
+      out.push({ subdomain: sub, username: user, password: pass, source: "env" });
     }
   }
-
-  // 2) env fallback (preserves the single-tenant HMS deployment)
-  const sub = process.env.READYMODE_SUBDOMAIN;
-  const user = process.env.READYMODE_USERNAME;
-  const pass = process.env.READYMODE_PASSWORD;
-  if (sub && user && pass) {
-    return { subdomain: sub, username: user, password: pass, source: "env" };
-  }
-
-  return null;
+  return out;
 }

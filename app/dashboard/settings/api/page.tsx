@@ -11,6 +11,7 @@ import {
   Send, CheckCircle2, XCircle,
 } from "lucide-react";
 import { ReadymodeConnectionCard } from "@/app/_components/ReadymodeConnectionCard";
+import { GeminiKeysCard } from "@/app/_components/GeminiKeysCard";
 
 const SKY = "#0EA5E9";
 const SKY_600 = "#0284C7";
@@ -341,8 +342,11 @@ export default function ApiIntegrationsPage() {
         </div>
       </div>
 
-      {/* Per-tenant Readymode admin connection — required for recording fetch */}
+      {/* Per-tenant Readymode admin connections (multiple dialers supported) */}
       <ReadymodeConnectionCard />
+
+      {/* Gemini API key rotation pool */}
+      <GeminiKeysCard />
 
       {/* Test webhook */}
       <div style={card}>

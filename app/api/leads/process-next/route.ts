@@ -12,6 +12,7 @@
 //   POST  { userId }
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { tickThrottle } from "@/lib/throttle";
 
 export const runtime = "edge";
 export const dynamic = "force-dynamic";
@@ -41,7 +42,18 @@ export async function POST(req: NextRequest) {
     const sb = service();
     const origin = req.nextUrl.origin;
 
-    // 0) WATCHDOG — release leads stuck in Processing (hung analyze / dropped chain).
+    // 0a) THROTTLE — global run/pause cycle (default 4.5 min run, 2 min pause).
+    // Skips processing entirely during the paused window so Gemini doesn't see
+    // bursty traffic. The phase auto-advances on each tick via the RPC.
+    const throttle = await tickThrottle(sb);
+    if (throttle.phase === "paused") {
+      return NextResponse.json({
+        ok: true, throttled: true, phase: "paused",
+        seconds_left: throttle.seconds_left_in_phase,
+      });
+    }
+
+    // 0b) WATCHDOG — release leads stuck in Processing (hung analyze / dropped chain).
     const staleCut = new Date(Date.now() - STALE_MS).toISOString();
     await sb.from("leads").update({ status: "Queued" })
       .eq("user_id", userId).eq("status", "Processing").lt("updated_at", staleCut);
