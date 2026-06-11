@@ -74,39 +74,94 @@ function buildReadymodeRecordingUrl(subdomain: string, recordingId: string | num
 // Note: each call performs a fresh login. Could be cached in Supabase to avoid
 // the round trip, but the login is fast (~200ms) and edge functions are
 // stateless so per-request login is the simplest correct path.
+// Pull "name=value" cookies from a Response's Set-Cookie headers and merge
+// them into an existing cookie jar (overwriting same-named cookies).
+function mergeSetCookies(jar: Record<string, string>, r: Response): void {
+  const setCookies = (r.headers as unknown as { getSetCookie?: () => string[] }).getSetCookie?.() || [];
+  for (const sc of setCookies) {
+    const first = sc.split(";")[0];
+    if (!first || !first.includes("=")) continue;
+    const eq = first.indexOf("=");
+    const name = first.slice(0, eq).trim();
+    const value = first.slice(eq + 1).trim();
+    if (name) jar[name] = value;
+  }
+}
+
+function jarToHeader(jar: Record<string, string>): string {
+  return Object.entries(jar).map(([k, v]) => `${k}=${v}`).join("; ");
+}
+
+const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36";
+
 async function readymodeLogin(subdomain: string): Promise<{ cookies: string; status: number; debug?: string }> {
   const user = process.env.READYMODE_USERNAME || "heggo";
   const pass = process.env.READYMODE_PASSWORD || "heggo";
   const host = readymodeHost(subdomain);
   const loginUrl = `https://${host}/login_new/`;
 
-  // Readymode's login form uses these field names based on the public login
-  // page DOM. The auth POST sets a PHPSESSID cookie on success.
+  const jar: Record<string, string> = {};
+  const debug: string[] = [];
+
+  // Step 1 — GET the login page to harvest the initial PHPSESSID + scrape any
+  // CSRF token / hidden form fields.
+  const getResp = await fetch(loginUrl, {
+    method: "GET",
+    headers: {
+      "User-Agent": UA,
+      "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    },
+    redirect: "follow",
+  }).catch((e) => ({ ok: false, status: 0, headers: new Headers(), text: () => Promise.resolve(""), _err: String(e) } as unknown as Response));
+  mergeSetCookies(jar, getResp as Response);
+  const html = await (getResp as Response).text().catch(() => "");
+  debug.push(`get_status=${(getResp as Response).status} get_cookies=${Object.keys(jar).join(",")}`);
+
+  // Look for hidden inputs in the login form (CSRF token, etc.)
+  const hidden: Record<string, string> = {};
+  const inputRe = /<input[^>]+type=["']?hidden["']?[^>]*>/gi;
+  const matches = html.match(inputRe) || [];
+  for (const inp of matches) {
+    const nameM = inp.match(/name=["']([^"']+)["']/i);
+    const valueM = inp.match(/value=["']([^"']*)["']/i);
+    if (nameM) hidden[nameM[1]] = valueM ? valueM[1] : "";
+  }
+  if (Object.keys(hidden).length) debug.push(`hidden_fields=${Object.keys(hidden).join(",")}`);
+
+  // Step 2 — POST credentials using the session cookies from step 1.
   const body = new URLSearchParams({
+    ...hidden,
     username: user,
     password: pass,
     Submit: "Sign in",
   });
 
-  const r = await fetch(loginUrl, {
+  const postResp = await fetch(loginUrl, {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
-      "User-Agent": "Mozilla/5.0 (compatible; RealTrack-Recording-Fetcher)",
+      "User-Agent": UA,
+      "Cookie": jarToHeader(jar),
+      "Referer": loginUrl,
+      "Origin": `https://${host}`,
     },
     body: body.toString(),
     redirect: "manual",
   }).catch((e) => ({ ok: false, status: 0, headers: new Headers(), _err: String(e) } as unknown as Response));
+  mergeSetCookies(jar, postResp as Response);
+  debug.push(`post_status=${(postResp as Response).status}`);
 
-  // Pull all Set-Cookie headers — Workers runtime exposes getSetCookie().
-  const headers = (r as Response).headers;
-  const setCookies = (headers as unknown as { getSetCookie?: () => string[] }).getSetCookie?.() || [];
-  const cookieParts: string[] = [];
-  for (const sc of setCookies) {
-    const first = sc.split(";")[0];
-    if (first && first.includes("=")) cookieParts.push(first.trim());
-  }
-  return { cookies: cookieParts.join("; "), status: (r as Response).status, debug: setCookies.join(" || ") };
+  // A successful login typically responds with a 302 redirect to the dashboard.
+  // If we get 200 back, Readymode re-rendered the login form — credentials
+  // didn't authenticate.
+  const location = (postResp as Response).headers.get("location");
+  if (location) debug.push(`location=${location.slice(0, 100)}`);
+
+  return {
+    cookies: jarToHeader(jar),
+    status: (postResp as Response).status,
+    debug: debug.join(" | "),
+  };
 }
 
 // Readymode-style form post → our Body. Accepts lead[0][field] (and bare field)
@@ -247,8 +302,9 @@ export async function POST(req: Request): Promise<Response> {
       const sub = process.env.READYMODE_SUBDOMAIN || "hmsrealty";
       const host = readymodeHost(sub);
       const headers: Record<string, string> = {
-        "User-Agent": "Mozilla/5.0 (compatible; RealTrack-Recording-Fetcher)",
+        "User-Agent": UA,
         "Referer": `https://${host}/`,
+        "Accept": "audio/mpeg,audio/*;q=0.9,*/*;q=0.8",
       };
       if (/readymode\.com/i.test(audioUrl)) {
         const login = await readymodeLogin(sub);
