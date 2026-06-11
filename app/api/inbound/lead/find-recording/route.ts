@@ -104,7 +104,7 @@ export async function POST(req: Request): Promise<Response> {
     const token = ((req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "") || url.searchParams.get("key") || "").trim();
     if (!token) return Response.json({ ok: false, error: "Missing API key" }, { status: 401 });
 
-    const body = await req.json().catch(() => ({})) as { phone?: string; lead_id?: string };
+    const body = await req.json().catch(() => ({})) as { phone?: string; lead_id?: string; _bypass_user_id?: string };
     const phoneRaw = (body.phone || "").trim();
     const leadId = (body.lead_id || "").trim();
     if (!phoneRaw && !leadId) return Response.json({ ok: false, error: "phone or lead_id required" }, { status: 400 });
@@ -113,9 +113,20 @@ export async function POST(req: Request): Promise<Response> {
     const supaKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
     const sb = createClient(supaUrl, supaKey, { auth: { persistSession: false } });
 
-    const hash = await sha256hex(token);
-    const { data: keyRow } = await sb.from("api_keys").select("user_id, organization_id, revoked").eq("key_hash", hash).maybeSingle();
-    if (!keyRow || keyRow.revoked) return Response.json({ ok: false, error: "Invalid API key" }, { status: 401 });
+    // Auth: either a user API key, or "cron:CRON_SECRET" with _bypass_user_id
+    // set in the body. The cron path is used by /api/cron/fetch-recordings.
+    let keyRow: { user_id: string; organization_id: string | null } | null = null;
+    const cronSecret = (process.env.CRON_SECRET || "").trim();
+    if (cronSecret && token === `cron:${cronSecret}` && body._bypass_user_id) {
+      // Pull the user's org for storage bucket path.
+      const { data: prof } = await sb.from("profiles").select("organization_id").eq("id", body._bypass_user_id).maybeSingle();
+      keyRow = { user_id: body._bypass_user_id, organization_id: (prof?.organization_id as string) ?? null };
+    } else {
+      const hash = await sha256hex(token);
+      const { data: kr } = await sb.from("api_keys").select("user_id, organization_id, revoked").eq("key_hash", hash).maybeSingle();
+      if (!kr || kr.revoked) return Response.json({ ok: false, error: "Invalid API key" }, { status: 401 });
+      keyRow = { user_id: kr.user_id, organization_id: kr.organization_id };
+    }
 
     // Resolve target lead (by lead_id if given, else find latest with matching phone)
     let lead: { id: string; metadata: Record<string, unknown> | null } | null = null;
