@@ -8,7 +8,7 @@ import { startImpersonation } from "@/lib/impersonation";
 import { T } from "@/app/_components/tokens";
 import {
   Users, Search, RefreshCw, Loader2, Eye, Trash2, CheckCircle2, AlertCircle,
-  Crown, ArrowUpDown, BarChart3, FolderCog, Mail,
+  Crown, ArrowUpDown, BarChart3, FolderCog, Mail, ShieldCheck, Clock,
 } from "lucide-react";
 
 const NAVY = T.text1;
@@ -28,6 +28,7 @@ interface Profile {
   created_at?: string;
   lead_count?: number;
   campaign_count?: number;
+  is_approved?: boolean;
 }
 
 type SortKey = "email" | "plan" | "leads" | "campaigns" | "usage" | "created";
@@ -117,6 +118,16 @@ export default function AdminProfilesPage() {
     setBusyId(id);
     try { await startImpersonation(id); }
     catch (e) { showToast(false, e instanceof Error ? e.message : "Could not act as user"); setBusyId(null); }
+  };
+
+  const toggleApproved = async (p: Profile) => {
+    const next = !(p.is_approved ?? true);
+    setBusyId(p.id);
+    const { error } = await supabase.from("profiles").update({ is_approved: next }).eq("id", p.id);
+    setBusyId(null);
+    if (error) return showToast(false, error.message);
+    setProfiles((prev) => prev.map((x) => x.id === p.id ? { ...x, is_approved: next } : x));
+    showToast(true, next ? `Approved ${p.email}` : `Approval revoked for ${p.email}`);
   };
 
   const deleteProfile = async (p: Profile) => {
@@ -245,6 +256,15 @@ export default function AdminProfilesPage() {
                             <p style={{ fontSize: 13, fontWeight: 700, color: NAVY, display: "flex", alignItems: "center", gap: 6 }}>
                               {p.full_name || p.email}
                               {!p.parent_user_id && <Crown size={11} color={T.teal} />}
+                              {!p.parent_user_id && p.is_approved === false && (
+                                <span style={{
+                                  fontSize: 9, fontWeight: 800, padding: "2px 6px", borderRadius: 999,
+                                  background: "#FEF3C7", color: "#92400E",
+                                  display: "inline-flex", alignItems: "center", gap: 3,
+                                }}>
+                                  <Clock size={9} /> PENDING
+                                </span>
+                              )}
                               {p.is_active ? null : <span style={{ fontSize: 9, color: "#DC2626", fontWeight: 700 }}>● inactive</span>}
                             </p>
                             {p.full_name && (
@@ -286,6 +306,18 @@ export default function AdminProfilesPage() {
                       </td>
                       <td style={{ padding: "10px 16px", textAlign: "right" }}>
                         <div style={{ display: "inline-flex", gap: 6 }}>
+                          {!p.parent_user_id && (
+                            <button onClick={() => toggleApproved(p)} disabled={busyId === p.id}
+                              title={p.is_approved === false ? "Approve this user" : "Revoke approval"}
+                              style={{
+                                ...iconBtn,
+                                color: p.is_approved === false ? "#059669" : "#92400E",
+                                borderColor: p.is_approved === false ? "#A7F3D0" : "#FCD34D",
+                                background: p.is_approved === false ? "#ECFDF5" : "#FEF3C7",
+                              }}>
+                              {busyId === p.id ? <Loader2 size={12} className="animate-spin" /> : <ShieldCheck size={12} />}
+                            </button>
+                          )}
                           <button onClick={() => actAs(p.id)} disabled={busyId === p.id} title="Act as this user"
                             style={iconBtn}>
                             {busyId === p.id ? <Loader2 size={12} className="animate-spin" /> : <Eye size={12} />}

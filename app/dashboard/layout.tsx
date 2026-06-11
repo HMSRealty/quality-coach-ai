@@ -159,13 +159,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       if (!user) { window.location.href = "/"; return; }
       const e = user.email ?? "";
       setEmail(e); setInit(e.slice(0, 2).toUpperCase());
-      const { data } = await supabase.from("profiles").select("plan_tier,role,full_name,parent_user_id").eq("id", user.id).maybeSingle();
+      const { data } = await supabase.from("profiles").select("plan_tier,role,full_name,parent_user_id,is_approved").eq("id", user.id).maybeSingle();
       if (data) {
         setPlan(data.plan_tier ?? "free");
         setIsAdmin(data.role === "admin");
         if (data.full_name) setFullName(data.full_name as string);
         const callerRole = data.role === "caller" || (data.role === "user" && data.parent_user_id);
         setIsCaller(!!callerRole);
+        // Approval gate: top-level signups (no parent) need admin approval
+        // before they can use the dashboard. Admins are always allowed.
+        const onPendingPage = window.location.pathname === "/dashboard/pending";
+        if (data.is_approved === false && !data.parent_user_id && data.role !== "admin" && !onPendingPage) {
+          window.location.href = "/dashboard/pending";
+          return;
+        }
       }
     })();
   }, []);
