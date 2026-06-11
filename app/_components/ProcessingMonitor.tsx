@@ -8,7 +8,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Loader2, ChevronUp, ChevronDown, CheckCircle2, Activity, Clock } from "lucide-react";
+import { Loader2, ChevronUp, ChevronDown, CheckCircle2, Activity, Clock, X, StopCircle } from "lucide-react";
 
 const SKY = "#0EA5E9";
 const SKY_600 = "#0284C7";
@@ -94,6 +94,28 @@ export function ProcessingMonitor() {
   const queued = jobs.filter((j) => j.pending).length;
   if (count === 0 && justDone === 0) return null;
 
+  // Cancel an individual job: flip the lead's status to "Error" with a
+  // cancellation note so it drops out of the queue.
+  const cancelJob = async (leadId: string) => {
+    const uid = uidRef.current;
+    if (!uid) return;
+    // Optimistically remove from local state for snappier UI.
+    setJobs((p) => p.filter((j) => j.id !== leadId));
+    const { data: row } = await supabase.from("leads").select("metadata").eq("id", leadId).maybeSingle();
+    const meta = { ...(row?.metadata as Record<string, unknown> || {}), cancelled_at: new Date().toISOString() };
+    await supabase.from("leads").update({ status: "Error", metadata: meta }).eq("id", leadId).eq("user_id", uid);
+  };
+
+  // Cancel everything currently in the monitor.
+  const cancelAll = async () => {
+    if (!confirm(`Cancel all ${count} ${count === 1 ? "job" : "jobs"}? They'll be marked as Error and can be re-analyzed later from the Call Library.`)) return;
+    const uid = uidRef.current;
+    if (!uid) return;
+    const ids = jobs.map((j) => j.id);
+    setJobs([]);
+    await supabase.from("leads").update({ status: "Error" }).in("id", ids).eq("user_id", uid);
+  };
+
   const ageLabel = (since: string | null) => {
     if (!since) return "";
     const s = Math.max(0, Math.round((Date.now() - new Date(since).getTime()) / 1000));
@@ -111,9 +133,23 @@ export function ProcessingMonitor() {
         }}>
           <div style={{ padding: "11px 14px", borderBottom: "1px solid var(--border-1)", display: "flex", alignItems: "center", gap: 8 }}>
             <Activity size={15} color={SKY_600} />
-            <span style={{ fontSize: 12.5, fontWeight: 800, color: "#000" }}>
+            <span style={{ fontSize: 12.5, fontWeight: 800, color: "#000", flex: 1 }}>
               {active} analyzing{queued > 0 ? ` · ${queued} queued` : ""}
             </span>
+            {count > 0 && (
+              <button
+                onClick={(e) => { e.stopPropagation(); cancelAll(); }}
+                title="Cancel all jobs"
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: 4,
+                  padding: "4px 9px", borderRadius: 7,
+                  background: "#FEF2F2", border: "1px solid #FECACA",
+                  color: "#DC2626", fontSize: 11, fontWeight: 700, cursor: "pointer",
+                }}
+              >
+                <StopCircle size={12} /> Cancel all
+              </button>
+            )}
           </div>
           <div style={{ maxHeight: 300, overflowY: "auto" }}>
             {jobs.map((j, i) => (
@@ -127,6 +163,20 @@ export function ProcessingMonitor() {
                     {j.pending ? `Queued${typeof i === "number" ? ` · #${i + 1 - active}` : ""}` : `Analyzing${j.agent ? ` · ${j.agent}` : ""} · ${ageLabel(j.since)}`}
                   </p>
                 </div>
+                <button
+                  onClick={(e) => { e.stopPropagation(); cancelJob(j.id); }}
+                  title="Cancel this job"
+                  style={{
+                    flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center",
+                    width: 26, height: 26, borderRadius: 6,
+                    background: "transparent", border: "1px solid var(--border-2)",
+                    color: "var(--text-3)", cursor: "pointer",
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = "#FEF2F2"; e.currentTarget.style.borderColor = "#FECACA"; e.currentTarget.style.color = "#DC2626"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.borderColor = "var(--border-2)"; e.currentTarget.style.color = "var(--text-3)"; }}
+                >
+                  <X size={13} />
+                </button>
               </div>
             ))}
           </div>
