@@ -59,6 +59,48 @@ function buildReadymodeRecordingUrl(subdomain: string, recordingId: string | num
   return `https://${host}/File%20types/data/callrec/db/${last}/${mid}/${id}_hq.mp3?force_dl=1`;
 }
 
+// Server-side login to Readymode. POSTs the admin credentials to the dialer's
+// login endpoint and harvests the Set-Cookie headers from the response. Those
+// cookies authorize subsequent recording fetches as that user.
+//
+// Note: each call performs a fresh login. Could be cached in Supabase to avoid
+// the round trip, but the login is fast (~200ms) and edge functions are
+// stateless so per-request login is the simplest correct path.
+async function readymodeLogin(subdomain: string): Promise<{ cookies: string; status: number; debug?: string }> {
+  const user = process.env.READYMODE_USERNAME || "heggo";
+  const pass = process.env.READYMODE_PASSWORD || "heggo";
+  const host = subdomain.replace(/^https?:\/\//, "").replace(/\/$/, "");
+  const loginUrl = `https://${host}/login_new/`;
+
+  // Readymode's login form uses these field names based on the public login
+  // page DOM. The auth POST sets a PHPSESSID cookie on success.
+  const body = new URLSearchParams({
+    username: user,
+    password: pass,
+    Submit: "Sign in",
+  });
+
+  const r = await fetch(loginUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "User-Agent": "Mozilla/5.0 (compatible; RealTrack-Recording-Fetcher)",
+    },
+    body: body.toString(),
+    redirect: "manual",
+  }).catch((e) => ({ ok: false, status: 0, headers: new Headers(), _err: String(e) } as unknown as Response));
+
+  // Pull all Set-Cookie headers — Workers runtime exposes getSetCookie().
+  const headers = (r as Response).headers;
+  const setCookies = (headers as unknown as { getSetCookie?: () => string[] }).getSetCookie?.() || [];
+  const cookieParts: string[] = [];
+  for (const sc of setCookies) {
+    const first = sc.split(";")[0];
+    if (first && first.includes("=")) cookieParts.push(first.trim());
+  }
+  return { cookies: cookieParts.join("; "), status: (r as Response).status, debug: setCookies.join(" || ") };
+}
+
 // Readymode-style form post → our Body. Accepts lead[0][field] (and bare field)
 // names: firstName/lastName, phone, email, address/city/state/zip, plus custom
 // fields for the recording URL and campaign.
@@ -190,26 +232,43 @@ export async function POST(req: Request): Promise<Response> {
     let audioType = "audio/mpeg";
     let audioExt = "mp3";
     let audioNote: string | null = null;
+    let loginDebug: { status: number; cookieCount: number; sample?: string } | null = null;
     if (audioUrl && !isDriveLink) {
-      // Readymode recordings may require a Referer header matching the dialer
-      // subdomain to allow direct downloads.
+      // Readymode recordings are session-protected — log in server-side first
+      // and forward the harvested cookies on the recording fetch.
       const sub = process.env.READYMODE_SUBDOMAIN || "hmsrealty";
-      const headers: Record<string, string> = {};
+      const host = sub.replace(/^https?:\/\//, "").replace(/\/$/, "");
+      const headers: Record<string, string> = {
+        "User-Agent": "Mozilla/5.0 (compatible; RealTrack-Recording-Fetcher)",
+        "Referer": `https://${host}/`,
+      };
       if (/readymode\.com/i.test(audioUrl)) {
-        headers["Referer"] = `https://${sub.replace(/^https?:\/\//, "").replace(/\/$/, "")}/`;
+        const login = await readymodeLogin(sub);
+        loginDebug = { status: login.status, cookieCount: login.cookies.split(";").filter(Boolean).length, sample: login.debug?.slice(0, 200) };
+        if (login.cookies) headers["Cookie"] = login.cookies;
       }
-      const ar = await fetch(audioUrl, { headers }).catch(() => null);
+      const ar = await fetch(audioUrl, { headers, redirect: "follow" }).catch(() => null);
       if (!ar || !ar.ok) {
         audioNote = `Recording link unreachable (${ar?.status ?? "network"})`;
       } else {
-        const bytes = await ar.arrayBuffer();
-        if (bytes.byteLength > 500 * 1024 * 1024) {
-          audioNote = "Recording exceeds 500MB — not stored";
+        // Detect login-redirect: if the response is HTML/text, our session
+        // cookies didn't authenticate and Readymode served the login page.
+        const ct = (ar.headers.get("content-type") || "").toLowerCase();
+        if (ct.includes("text/html") || ct.includes("text/plain")) {
+          audioNote = `Recording link served login page (auth cookies rejected). Verify READYMODE_USERNAME/PASSWORD.`;
         } else {
-          audioBytes = bytes;
-          audioType = ar.headers.get("content-type") || audioType;
-          const m = audioUrl.split("?")[0].match(/\.(mp3|wav|m4a|mp4)$/i);
-          if (m) audioExt = m[1].toLowerCase();
+          const bytes = await ar.arrayBuffer();
+          if (bytes.byteLength > 500 * 1024 * 1024) {
+            audioNote = "Recording exceeds 500MB — not stored";
+          } else if (bytes.byteLength < 1024) {
+            // Tiny payload — almost certainly an error page, not audio.
+            audioNote = `Recording fetch returned only ${bytes.byteLength} bytes (likely an error page).`;
+          } else {
+            audioBytes = bytes;
+            audioType = ct || audioType;
+            const m = audioUrl.split("?")[0].match(/\.(mp3|wav|m4a|mp4)$/i);
+            if (m) audioExt = m[1].toLowerCase();
+          }
         }
       }
     }
@@ -323,6 +382,9 @@ export async function POST(req: Request): Promise<Response> {
         env_subdomain: process.env.READYMODE_SUBDOMAIN || null,
         attempted_url: audioUrl || null,
         downloaded_bytes: audioBytes ? (audioBytes as ArrayBuffer).byteLength : 0,
+        login_status: loginDebug?.status ?? null,
+        login_cookie_count: loginDebug?.cookieCount ?? null,
+        login_cookie_sample: loginDebug?.sample ?? null,
       },
     });
   } catch (e) {
