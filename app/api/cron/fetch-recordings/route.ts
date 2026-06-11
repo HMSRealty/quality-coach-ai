@@ -45,7 +45,20 @@ export async function POST(req: Request): Promise<Response> {
   const leadIds = leads.map((l) => l.id);
   const { data: ups } = await sb.from("call_uploads").select("lead_id").in("lead_id", leadIds);
   const withAudio = new Set((ups || []).map((u: { lead_id: string }) => u.lead_id));
-  const targets = leads.filter((l) => !withAudio.has(l.id) && (l.metadata as Record<string, unknown> | null)?.submitted_via === "inbound_api");
+
+  // Filter to users who have opted into auto-fetch. Anyone with the toggle
+  // off (or no Readymode connection) is skipped silently — their leads
+  // remain in "Needs Call" until they manually upload audio.
+  const userIds = [...new Set(leads.map((l) => l.user_id as string))];
+  const { data: profs } = await sb.from("profiles")
+    .select("id, auto_fetch_recordings").in("id", userIds);
+  const optedIn = new Set((profs || []).filter((p) => p.auto_fetch_recordings === true).map((p) => p.id as string));
+
+  const targets = leads.filter((l) =>
+    !withAudio.has(l.id)
+    && optedIn.has(l.user_id as string)
+    && (l.metadata as Record<string, unknown> | null)?.submitted_via === "inbound_api"
+  );
 
   const origin = new URL(req.url).origin;
   const results: Array<{ lead_id: string; phone: string; ok: boolean; attached: boolean; recording_id?: string; error?: string }> = [];

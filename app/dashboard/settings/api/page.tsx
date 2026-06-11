@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { ReadymodeConnectionCard } from "@/app/_components/ReadymodeConnectionCard";
 import { GeminiKeysCard } from "@/app/_components/GeminiKeysCard";
+import { AutoFetchToggle } from "@/app/_components/AutoFetchToggle";
 
 const SKY = "#0EA5E9";
 const SKY_600 = "#0284C7";
@@ -341,6 +342,9 @@ export default function ApiIntegrationsPage() {
           </div>
         </div>
       </div>
+
+      {/* Toggle auto-fetch of Readymode recordings */}
+      <AutoFetchToggle />
 
       {/* Per-tenant Readymode admin connections (multiple dialers supported) */}
       <ReadymodeConnectionCard />
