@@ -34,11 +34,29 @@ interface Body {
   address?: string;
   seller_name?: string;
   campaign_id?: string;
+  campaign_name?: string;
   audio_url?: string;
   phone?: string;
   email?: string;
   agent_name?: string;
+  disposition?: string;
+  recording_id?: string;
   test?: boolean;
+}
+
+// Build the Readymode recording URL from a numeric recording id + subdomain.
+// Pattern (from HMSRealty example): /File types/data/callrec/db/{id%100}/
+// {(id/100)%100}/{id}_hq.mp3?force_dl=1 — the two path segments are the
+// last-2-digits and the digits-before-that, both zero-padded to width 2.
+function buildReadymodeRecordingUrl(subdomain: string, recordingId: string | number): string | null {
+  const id = String(recordingId).replace(/[^\d]/g, "");
+  if (!id) return null;
+  const n = Number(id);
+  if (!isFinite(n) || n <= 0) return null;
+  const last = String(n % 100).padStart(2, "0");
+  const mid = String(Math.floor(n / 100) % 100).padStart(2, "0");
+  const host = subdomain.replace(/^https?:\/\//, "").replace(/\/$/, "");
+  return `https://${host}/File%20types/data/callrec/db/${last}/${mid}/${id}_hq.mp3?force_dl=1`;
 }
 
 // Readymode-style form post → our Body. Accepts lead[0][field] (and bare field)
@@ -65,9 +83,12 @@ function fromForm(form: FormData | URLSearchParams): Body {
     seller_name: name || undefined,
     phone: get("phone", "phone_number") || undefined,
     email: get("email") || undefined,
-    campaign_id: get("campaign_id", "campaign") || undefined,
+    campaign_id: get("campaign_id") || undefined,
+    campaign_name: get("campaign", "campaign_name") || undefined,
     audio_url: get("audio_url", "recording_url", "recordingUrl", "call_recording", "call_recording_url", "callRecording", "recording", "drive_link", "call_link") || undefined,
     agent_name: get("agent_name", "agentName", "agent", "caller_name", "callerName", "caller", "user", "userName") || undefined,
+    disposition: get("disposition", "call_result", "callResult", "result", "status") || undefined,
+    recording_id: get("recording_id", "recordingId", "connection_id", "connectionId") || undefined,
   };
 }
 
@@ -106,10 +127,22 @@ export async function POST(req: Request): Promise<Response> {
     }
     // URL params override/fill gaps — lets the whole config live in the URL:
     //   /api/inbound/lead?key=...&campaign_id=...
-    // JSON payloads may send "campaign" (name) instead of "campaign_id" (UUID).
-    if (!b.campaign_id && (b as Record<string, unknown>).campaign) b.campaign_id = String((b as Record<string, unknown>).campaign);
+    // JSON payloads send "campaign" (name) AND/OR "campaign_id" (UUID).
+    const bMap = b as Record<string, unknown>;
+    if (!b.campaign_name && bMap.campaign) b.campaign_name = String(bMap.campaign);
     if (!b.campaign_id && url.searchParams.get("campaign_id")) b.campaign_id = url.searchParams.get("campaign_id")!;
+    if (!b.disposition && url.searchParams.get("disposition")) b.disposition = url.searchParams.get("disposition")!;
     if (url.searchParams.get("test") === "true") b.test = true;
+
+    // ── Build recording URL from recording_id if provided (no direct URL).
+    // Subdomain comes from the env var READYMODE_SUBDOMAIN (e.g. "hmsrealty").
+    if (!b.audio_url && b.recording_id) {
+      const sub = process.env.READYMODE_SUBDOMAIN;
+      if (sub) {
+        const built = buildReadymodeRecordingUrl(sub, b.recording_id);
+        if (built) b.audio_url = built;
+      }
+    }
 
     // Connection test: verify auth + endpoint without creating a lead or
     // downloading audio. Triggered by { "test": true } from the UI button.
@@ -129,8 +162,8 @@ export async function POST(req: Request): Promise<Response> {
     if (!(b.phone || "").trim()) missing.push("phone");
     if (!(b.seller_name || "").trim()) missing.push("seller name");
 
-    // Validate the campaign: try UUID match first, then name match (Readymode
-    // sends the campaign name, not a UUID).
+    // Validate the campaign: try UUID match first, then name match. Readymode
+    // sends BOTH campaign_id (its own UUID, useless to us) and campaign (name).
     let campaignId: string | null = null;
     if (b.campaign_id) {
       const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(b.campaign_id);
@@ -138,12 +171,17 @@ export async function POST(req: Request): Promise<Response> {
         const { data: camp } = await sb.from("campaigns").select("id").eq("id", b.campaign_id).eq("user_id", userId).maybeSingle();
         campaignId = camp?.id ?? null;
       }
-      if (!campaignId) {
-        const { data: byName } = await sb.from("campaigns").select("id").ilike("name", b.campaign_id).eq("user_id", userId).maybeSingle();
-        campaignId = byName?.id ?? null;
-      }
-      if (!campaignId && !missing.includes("campaign")) missing.push("campaign");
     }
+    // Fallback: name match. Try the explicit campaign_name first, then
+    // campaign_id-as-name (some dialers only send one field).
+    if (!campaignId) {
+      const candidates = [b.campaign_name, b.campaign_id].filter(Boolean) as string[];
+      for (const name of candidates) {
+        const { data: byName } = await sb.from("campaigns").select("id").ilike("name", name).eq("user_id", userId).maybeSingle();
+        if (byName?.id) { campaignId = byName.id; break; }
+      }
+    }
+    if (!campaignId && (b.campaign_id || b.campaign_name) && !missing.includes("campaign")) missing.push("campaign");
 
     // ── Pull the audio (best-effort — a bad link does NOT reject the lead; it
     // just arrives without audio and is flagged). Google Drive links are NOT
@@ -154,7 +192,14 @@ export async function POST(req: Request): Promise<Response> {
     let audioExt = "mp3";
     let audioNote: string | null = null;
     if (audioUrl && !isDriveLink) {
-      const ar = await fetch(audioUrl).catch(() => null);
+      // Readymode recordings may require a Referer header matching the dialer
+      // subdomain to allow direct downloads.
+      const sub = process.env.READYMODE_SUBDOMAIN;
+      const headers: Record<string, string> = {};
+      if (sub && /readymode\.com/i.test(audioUrl)) {
+        headers["Referer"] = `https://${sub.replace(/^https?:\/\//, "").replace(/\/$/, "")}/`;
+      }
+      const ar = await fetch(audioUrl, { headers }).catch(() => null);
       if (!ar || !ar.ok) {
         audioNote = `Recording link unreachable (${ar?.status ?? "network"})`;
       } else {
@@ -177,6 +222,8 @@ export async function POST(req: Request): Promise<Response> {
       email: b.email ?? "",
       submitted_via: "inbound_api",
       source_audio_url: audioUrl || null,
+      ...(b.disposition ? { disposition: b.disposition } : {}),
+      ...(b.recording_id ? { recording_id: b.recording_id } : {}),
       ...(missing.length ? { missing_fields: missing } : {}),
       ...(audioNote ? { audio_note: audioNote } : {}),
     };
