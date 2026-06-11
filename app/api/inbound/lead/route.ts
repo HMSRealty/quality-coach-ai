@@ -317,6 +317,14 @@ export async function POST(req: Request): Promise<Response> {
       ok: true, leadId, mode, audio: audioUrls.length > 0 || isDriveLink,
       ...(missing.length ? { missing } : {}),
       ...(audioNote ? { audio_note: audioNote } : {}),
+      // Debug — surface what we tried to do with the recording.
+      debug_recording: {
+        received_recording_id: b.recording_id || null,
+        received_audio_url: b.audio_url || null,
+        env_subdomain: process.env.READYMODE_SUBDOMAIN || null,
+        attempted_url: audioUrl || null,
+        downloaded_bytes: audioBytes ? (audioBytes as ArrayBuffer).byteLength : 0,
+      },
     });
   } catch (e) {
     return Response.json({ ok: false, error: e instanceof Error ? e.message : "Server error" }, { status: 500 });
