@@ -10,6 +10,7 @@ import {
   KeyRound, Loader2, Copy, Check, Plus, Trash2, Webhook, Terminal, ShieldCheck, AlertTriangle,
   Send, CheckCircle2, XCircle,
 } from "lucide-react";
+import { ReadymodeConnectionCard } from "@/app/_components/ReadymodeConnectionCard";
 
 const SKY = "#0EA5E9";
 const SKY_600 = "#0284C7";
@@ -339,6 +340,9 @@ export default function ApiIntegrationsPage() {
           </div>
         </div>
       </div>
+
+      {/* Per-tenant Readymode admin connection — required for recording fetch */}
+      <ReadymodeConnectionCard />
 
       {/* Test webhook */}
       <div style={card}>

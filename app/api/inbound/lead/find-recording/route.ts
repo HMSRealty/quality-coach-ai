@@ -4,6 +4,7 @@
 // doesn't exist yet. This endpoint is meant to be called by a cron worker
 // (or manually) some minutes later, once the call has happened.
 import { createClient } from "@supabase/supabase-js";
+import { loadReadymodeCreds, normalizeHost } from "@/lib/readymode";
 
 export const runtime = "edge";
 export const dynamic = "force-dynamic";
@@ -31,9 +32,7 @@ function jarToHeader(jar: Record<string, string>): string {
 }
 
 function readymodeHost(sub: string): string {
-  let s = (sub || "").trim().replace(/^https?:\/\//, "").replace(/\/$/, "");
-  if (!s.includes(".")) s = `${s}.readymode.com`;
-  return s;
+  return normalizeHost(sub);
 }
 
 function buildRecordingUrl(host: string, id: string): string {
@@ -140,12 +139,14 @@ export async function POST(req: Request): Promise<Response> {
     const cleanPhone = phone.replace(/\D/g, "");
     if (cleanPhone.length < 10) return Response.json({ ok: false, error: "Need a 10-digit phone number" }, { status: 400 });
 
-    const host = readymodeHost(process.env.READYMODE_SUBDOMAIN || "hmsrealty");
-    const user = process.env.READYMODE_USERNAME || "heggo";
-    const pass = process.env.READYMODE_PASSWORD || "heggo";
+    const creds = await loadReadymodeCreds(sb, keyRow.user_id);
+    if (!creds) {
+      return Response.json({ ok: false, error: "No Readymode connection configured for this user. Set one up at /dashboard/settings/api." }, { status: 400 });
+    }
+    const host = readymodeHost(creds.subdomain);
 
     // Login + fetch research page
-    const jar = await loginReadymode(host, user, pass);
+    const jar = await loginReadymode(host, creds.username, creds.password);
     const cookie = jarToHeader(jar);
     // The research page uses a POST form (the GET returns just the empty
     // form). POST the phone number to get the results table.

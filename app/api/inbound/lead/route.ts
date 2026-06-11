@@ -11,6 +11,7 @@
 // Smart duplicate bypass: a same-address lead previously Disqualified/Error is
 // revived and re-analyzed; any other existing status returns 409.
 import { createClient } from "@supabase/supabase-js";
+import { loadReadymodeCreds } from "@/lib/readymode";
 
 export const runtime = "edge";
 export const dynamic = "force-dynamic";
@@ -94,9 +95,7 @@ function jarToHeader(jar: Record<string, string>): string {
 
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36";
 
-async function readymodeLogin(subdomain: string): Promise<{ cookies: string; status: number; debug?: string }> {
-  const user = process.env.READYMODE_USERNAME || "heggo";
-  const pass = process.env.READYMODE_PASSWORD || "heggo";
+async function readymodeLogin(subdomain: string, user: string, pass: string): Promise<{ cookies: string; status: number; debug?: string }> {
   const host = readymodeHost(subdomain);
   const loginPageUrl = `https://${host}/login_new/?then=/`;
 
@@ -248,10 +247,10 @@ export async function POST(req: Request): Promise<Response> {
     if (url.searchParams.get("test") === "true") b.test = true;
 
     // ── Build recording URL from recording_id if provided (no direct URL).
-    // Subdomain comes from the env var READYMODE_SUBDOMAIN, falling back to
-    // "hmsrealty" so we always have a default for HMS's deployment.
+    // Subdomain comes from per-tenant readymode_connections; falls back to env.
     if (!b.audio_url && b.recording_id) {
-      const sub = process.env.READYMODE_SUBDOMAIN || "hmsrealty";
+      const creds = await loadReadymodeCreds(sb, userId);
+      const sub = creds?.subdomain || "hmsrealty";
       const built = buildReadymodeRecordingUrl(sub, b.recording_id);
       if (built) b.audio_url = built;
     }
@@ -306,16 +305,19 @@ export async function POST(req: Request): Promise<Response> {
     let loginDebug: { status: number; cookieCount: number; sample?: string } | null = null;
     if (audioUrl && !isDriveLink) {
       // Readymode recordings are session-protected — log in server-side first
-      // and forward the harvested cookies on the recording fetch.
-      const sub = process.env.READYMODE_SUBDOMAIN || "hmsrealty";
+      // and forward the harvested cookies on the recording fetch. Use per-
+      // tenant credentials from readymode_connections (env fallback for the
+      // legacy single-tenant deployment).
+      const creds = await loadReadymodeCreds(sb, userId);
+      const sub = creds?.subdomain || "hmsrealty";
       const host = readymodeHost(sub);
       const headers: Record<string, string> = {
         "User-Agent": UA,
         "Referer": `https://${host}/`,
         "Accept": "audio/mpeg,audio/*;q=0.9,*/*;q=0.8",
       };
-      if (/readymode\.com/i.test(audioUrl)) {
-        const login = await readymodeLogin(sub);
+      if (/readymode\.com/i.test(audioUrl) && creds) {
+        const login = await readymodeLogin(sub, creds.username, creds.password);
         loginDebug = { status: login.status, cookieCount: login.cookies.split(";").filter(Boolean).length, sample: login.debug?.slice(0, 200) };
         if (login.cookies) headers["Cookie"] = login.cookies;
       }
