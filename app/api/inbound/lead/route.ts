@@ -48,6 +48,15 @@ interface Body {
 // Pattern (from HMSRealty example): /File types/data/callrec/db/{id%100}/
 // {(id/100)%100}/{id}_hq.mp3?force_dl=1 — the two path segments are the
 // last-2-digits and the digits-before-that, both zero-padded to width 2.
+// Normalize a Readymode subdomain to its full host. Accepts "hmsrealty",
+// "hmsrealty.readymode.com", or "https://hmsrealty.readymode.com" — always
+// returns "hmsrealty.readymode.com".
+function readymodeHost(subdomain: string): string {
+  let s = (subdomain || "").trim().replace(/^https?:\/\//, "").replace(/\/$/, "");
+  if (!s.includes(".")) s = `${s}.readymode.com`;
+  return s;
+}
+
 function buildReadymodeRecordingUrl(subdomain: string, recordingId: string | number): string | null {
   const id = String(recordingId).replace(/[^\d]/g, "");
   if (!id) return null;
@@ -55,8 +64,7 @@ function buildReadymodeRecordingUrl(subdomain: string, recordingId: string | num
   if (!isFinite(n) || n <= 0) return null;
   const last = String(n % 100).padStart(2, "0");
   const mid = String(Math.floor(n / 100) % 100).padStart(2, "0");
-  const host = subdomain.replace(/^https?:\/\//, "").replace(/\/$/, "");
-  return `https://${host}/File%20types/data/callrec/db/${last}/${mid}/${id}_hq.mp3?force_dl=1`;
+  return `https://${readymodeHost(subdomain)}/File%20types/data/callrec/db/${last}/${mid}/${id}_hq.mp3?force_dl=1`;
 }
 
 // Server-side login to Readymode. POSTs the admin credentials to the dialer's
@@ -69,7 +77,7 @@ function buildReadymodeRecordingUrl(subdomain: string, recordingId: string | num
 async function readymodeLogin(subdomain: string): Promise<{ cookies: string; status: number; debug?: string }> {
   const user = process.env.READYMODE_USERNAME || "heggo";
   const pass = process.env.READYMODE_PASSWORD || "heggo";
-  const host = subdomain.replace(/^https?:\/\//, "").replace(/\/$/, "");
+  const host = readymodeHost(subdomain);
   const loginUrl = `https://${host}/login_new/`;
 
   // Readymode's login form uses these field names based on the public login
@@ -237,7 +245,7 @@ export async function POST(req: Request): Promise<Response> {
       // Readymode recordings are session-protected — log in server-side first
       // and forward the harvested cookies on the recording fetch.
       const sub = process.env.READYMODE_SUBDOMAIN || "hmsrealty";
-      const host = sub.replace(/^https?:\/\//, "").replace(/\/$/, "");
+      const host = readymodeHost(sub);
       const headers: Record<string, string> = {
         "User-Agent": "Mozilla/5.0 (compatible; RealTrack-Recording-Fetcher)",
         "Referer": `https://${host}/`,
