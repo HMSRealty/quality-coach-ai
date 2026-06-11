@@ -1,230 +1,271 @@
 "use client";
 
-export const dynamic = "force-dynamic";
-
-import { useState } from "react";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
-import { Eye, EyeOff, Loader2, ArrowRight, Home } from "lucide-react";
+import { useState, useEffect } from "react";
+import {
+  ArrowRight, Check, Phone, BarChart3, Sparkles, ShieldCheck, Cookie, Lock,
+  Flame, Sun, Snowflake, Headphones, Bot, Calculator, Search, Trophy,
+  Columns3, FileText, Star,
+} from "lucide-react";
 import { T } from "@/app/_components/tokens";
+import { supabase } from "@/lib/supabase";
 
-const RED   = "#2F6BFF";
-const RED_L = "#FBEEE8";
+const GRAD = "linear-gradient(135deg, #F2266F 0%, #7C3AED 100%)";
 
-type Tab = "signin" | "signup";
-
-function HSMLogo() {
+function RealTrackLogo({ light = false }: { light?: boolean }) {
+  const stroke = light ? "#fff" : "#0B0F1F";
+  const stroke2 = light ? "rgba(255,255,255,0.55)" : "rgba(11,15,31,0.5)";
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-      <svg width="52" height="32" viewBox="0 0 40 24" fill="none">
-        <path d="M2 22 L20 4 L38 22" stroke={T.navy} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-        <path d="M8 22 L20 11 L32 22" stroke="#2F6BFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.9"/>
+    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+      <svg width={34} height={22} viewBox="0 0 40 24" fill="none">
+        <path d="M2 22 L20 4 L38 22" stroke={stroke} strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M8 22 L20 11 L32 22" stroke={stroke2} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
-      <span style={{ fontSize: 13, fontWeight: 800, letterSpacing: "0.12em", color: T.navy, lineHeight: 1 }}>
-        REALTRACK
-      </span>
+      <span style={{ fontSize: 18, fontWeight: 800, letterSpacing: "0.04em", color: light ? "#fff" : "#0B0F1F" }}>RealTrack</span>
     </div>
   );
 }
 
-export default function AuthPage() {
-  const [tab, setTab]           = useState<Tab>("signin");
-  const [email, setEmail]       = useState("");
-  const [password, setPassword] = useState("");
-  const [showPw, setShowPw]     = useState(false);
-  const [loading, setLoading]   = useState(false);
-  const [msg, setMsg]           = useState<{ text: string; ok: boolean } | null>(null);
-  // Signup-only fields (Phase 4 §1 onboarding):
-  const [fullName, setFullName] = useState("");
-  const [username, setUsername] = useState("");
-  const [phone, setPhone]       = useState("");
-  const [website, setWebsite]   = useState("");
+const FEATURES = [
+  { icon: Bot, title: "AI call qualification", body: "Every recording graded against your custom persona and Kill List — Hot, Warm, Cold, or disqualified, with the exact reason." },
+  { icon: Calculator, title: "Instant MAO & ARV", body: "Live Zillow value + AI-estimated repairs auto-calculate your Maximum Allowable Offer and a one-click offer PDF." },
+  { icon: Headphones, title: "Gong-style call player", body: "Waveform scrubbing, speed control, highlight reels, and secure signed-URL playback for every recording." },
+  { icon: Columns3, title: "AI Handoff Brief", body: "A 3-bullet intel dossier — seller personality, pain point, bottom-line price — so closers skip the full re-listen." },
+  { icon: Trophy, title: "Competitive leaderboard", body: "Target pacing, glowing Hot/Warm/Cold pills, and live bonus estimates keep the floor pushing." },
+  { icon: Search, title: "Omni-search (⌘K)", body: "Find any lead by address, phone, agent, or words spoken inside the AI transcript — instantly." },
+];
 
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setMsg(null);
-    if (tab === "signin") {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) setMsg({ text: error.message, ok: false });
-      else window.location.href = "/dashboard";
-    } else {
-      // Required onboarding fields.
-      if (!fullName.trim() || !username.trim() || !phone.trim()) {
-        setMsg({ text: "Full name, username and phone are required.", ok: false });
-        setLoading(false); return;
-      }
-      // Anyone can sign up — access is gated by billing, not email domain.
-      const { data, error } = await supabase.auth.signUp({
-        email, password,
-        options: { data: { full_name: fullName.trim(), username: username.trim().toLowerCase(), phone: phone.trim(), website: website.trim() } },
-      });
-      if (error) { setMsg({ text: error.message, ok: false }); setLoading(false); return; }
-      // Persist the onboarding fields onto profiles (the auth metadata above is a
-      // backup; profiles is what the app reads).
-      if (data.user) {
-        await supabase.from("profiles").update({
-          full_name: fullName.trim(),
-          username: username.trim().toLowerCase(),
-          phone: phone.trim(),
-          website: website.trim() || null,
-        }).eq("id", data.user.id);
-        // Best-effort welcome email (no-op if RESEND_API_KEY not set).
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-          fetch("/api/notify/welcome", {
-            method: "POST",
-            headers: { Authorization: `Bearer ${session.access_token}` },
-          }).catch(() => {});
-        }
-      }
-      setMsg({ text: "Account created! Check your inbox to confirm.", ok: true });
-    }
-    setLoading(false);
-  };
+const STEPS = [
+  { n: "01", title: "Submit the lead", body: "Callers log the owner + address. Property data and ARV are fetched automatically." },
+  { n: "02", title: "AI reviews the call", body: "Gemini listens to every recording, qualifies the lead, and writes coaching feedback." },
+  { n: "03", title: "Close & coach", body: "Acquisitions get a handoff brief; managers see objections and pace across the floor." },
+];
 
-  const inputBase: React.CSSProperties = {
-    width: "100%", padding: "11px 14px",
-    background: T.surface3, border: "1.5px solid #E5E7EB",
-    borderRadius: 10, fontSize: 14, color: T.navy,
-    outline: "none",
-  };
+const PLANS = [
+  { name: "Starter", price: "$49", tag: "Solo wholesalers", feats: ["100 analyses/mo", "1 workspace", "Call player + ARV", "CSV import"], accent: "#34D399" },
+  { name: "Professional", price: "$149", tag: "Growing teams", feats: ["500 analyses/mo", "Unlimited campaigns", "Teams & roles", "Leaderboard + pacing", "Webhook export"], accent: "#F2266F", featured: true },
+  { name: "Enterprise", price: "Custom", tag: "Call floors", feats: ["Unlimited analyses", "Multi-tenant + RBAC", "Custom AI persona", "SOC2 / audit logs", "Dedicated manager"], accent: "#A78BFA" },
+];
+
+const BADGES = [
+  { icon: ShieldCheck, label: "SOC 2 Type II" },
+  { icon: Cookie, label: "GDPR Ready" },
+  { icon: Lock, label: "AES-256 + TLS 1.3" },
+];
+
+export default function LandingPage() {
+  const [scrolled, setScrolled] = useState(false);
+  // Logged-in users skip the marketing page and go straight to their dashboard.
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) window.location.href = "/dashboard";
+    });
+  }, []);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 16);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
-    <div style={{
-      minHeight: "100vh", background: T.surface3,
-      display: "flex", alignItems: "center", justifyContent: "center",
-      padding: 24,
-    }}>
-      {/* Card */}
-      <div className="animate-scale" style={{
-        width: "100%", maxWidth: 420,
-        background: T.surface1, border: "1.5px solid #E5E7EB",
-        borderRadius: 20, padding: "36px 32px",
-        boxShadow: "0 8px 32px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06)",
+    <div style={{ background: "var(--canvas)", minHeight: "100vh", color: "var(--text-1)", overflowX: "clip" }}>
+      {/* ── NAV ── */}
+      <nav style={{
+        position: "fixed", top: 0, left: 0, right: 0, zIndex: 50,
+        background: scrolled ? "color-mix(in srgb, var(--surface-1) 80%, transparent)" : "transparent",
+        backdropFilter: scrolled ? "saturate(180%) blur(18px)" : "none",
+        borderBottom: scrolled ? "1px solid var(--border-2)" : "1px solid transparent",
+        transition: "all 380ms cubic-bezier(0.16,1,0.30,1)",
       }}>
-        {/* Logo */}
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 28 }}>
-          <HSMLogo />
-          <p style={{ fontSize: 13, color: T.slate2, marginTop: 10, fontWeight: 500 }}>
-            Performance &amp; Coaching Suite
+        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "16px 28px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <Link href="/" style={{ textDecoration: "none" }}><RealTrackLogo /></Link>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <a href="#features" style={navLink}>Features</a>
+            <a href="#how" style={navLink}>How it works</a>
+            <a href="#pricing" style={navLink}>Pricing</a>
+            <Link href="/login" style={navLink}>Sign in</Link>
+            <Link href="/login" className="btn-brand" style={{ padding: "9px 18px" }}>Get started <ArrowRight size={14} /></Link>
+          </div>
+        </div>
+      </nav>
+
+      {/* ── HERO (midnight) ── */}
+      <header style={{
+        position: "relative", overflow: "hidden",
+        background: "linear-gradient(180deg, #0B0F1F 0%, #0D1228 60%, #11162A 100%)",
+        color: "#fff", padding: "150px 28px 110px",
+      }}>
+        {/* glow orbs */}
+        <div style={{ position: "absolute", top: -120, left: "12%", width: 480, height: 480, borderRadius: "50%", background: "radial-gradient(circle, rgba(242,38,111,0.30), transparent 70%)", filter: "blur(20px)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", bottom: -160, right: "8%", width: 520, height: 520, borderRadius: "50%", background: "radial-gradient(circle, rgba(124,58,237,0.28), transparent 70%)", filter: "blur(20px)", pointerEvents: "none" }} />
+
+        <div style={{ maxWidth: 980, margin: "0 auto", textAlign: "center", position: "relative" }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "6px 14px", borderRadius: 999, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.14)", fontSize: 12, fontWeight: 700, letterSpacing: "0.04em" }}>
+            <Sparkles size={13} color="#FF4F92" /> AI revenue intelligence for real-estate wholesalers
+          </span>
+          <h1 style={{ fontSize: "clamp(40px, 6vw, 68px)", fontWeight: 900, lineHeight: 1.04, letterSpacing: "-0.03em", margin: "22px 0 0" }}>
+            Turn every cold call<br />into a <span style={{ background: GRAD, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>closeable deal.</span>
+          </h1>
+          <p style={{ fontSize: 18, lineHeight: 1.6, color: "rgba(255,255,255,0.72)", maxWidth: 640, margin: "22px auto 0" }}>
+            RealTrack listens to your calls, qualifies leads against the Zillow value, calculates the offer,
+            and coaches your floor — so acquisitions only ever touch deals worth closing.
           </p>
+          <div style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 32, flexWrap: "wrap" }}>
+            <Link href="/login" className="btn-brand" style={{ padding: "14px 26px", fontSize: 15 }}>Start free <ArrowRight size={16} /></Link>
+            <a href="#how" style={{ ...heroGhost }}>See how it works</a>
+          </div>
+          {/* trust row */}
+          <div style={{ display: "flex", gap: 20, justifyContent: "center", marginTop: 30, flexWrap: "wrap", opacity: 0.8 }}>
+            {BADGES.map((b) => { const I = b.icon; return (
+              <span key={b.label} style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12, color: "rgba(255,255,255,0.7)" }}><I size={13} color="#FF4F92" /> {b.label}</span>
+            ); })}
+          </div>
         </div>
 
-        {/* Tab switcher */}
-        <div style={{
-          display: "flex", background: "#F3F4F6",
-          border: "1px solid #E5E7EB",
-          borderRadius: 12, padding: 4, marginBottom: 26, gap: 4,
-        }}>
-          {(["signin", "signup"] as Tab[]).map(t => (
-            <button key={t} onClick={() => { setTab(t); setMsg(null); }} style={{
-              flex: 1, padding: "9px 12px",
-              borderRadius: 9, border: "none", cursor: "pointer",
-              fontSize: 13, fontWeight: 600,
-              background: tab === t ? "#FFFFFF" : "transparent",
-              color: tab === t ? T.navy : T.slate2,
-              boxShadow: tab === t ? "0 1px 4px rgba(0,0,0,0.08)" : "none",
-              transition: "all 140ms ease",
-            }}>
-              {t === "signin" ? "Sign In" : "Sign Up"}
-            </button>
+        {/* floating verdict mock */}
+        <div className="reveal" style={{ maxWidth: 880, margin: "56px auto 0", position: "relative" }}>
+          <div className="glass-dark" style={{ borderRadius: 20, padding: 18, boxShadow: "0 40px 90px rgba(0,0,0,0.5)" }}>
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+              {[
+                { icon: Flame, label: "Hot", val: "$182k", sub: "≤70% of $265k", c: "#F2266F" },
+                { icon: Sun, label: "Warm", val: "$228k", sub: "motivated · 86%", c: "#F59E0B" },
+                { icon: Snowflake, label: "Cold", val: "$0", sub: "price fishing", c: "#0284C7" },
+                { icon: BarChart3, label: "Qual rate", val: "61%", sub: "this week", c: "#34D399" },
+              ].map((k) => { const I = k.icon; return (
+                <div key={k.label} style={{ flex: "1 1 160px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 14, padding: 16 }}>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 11, fontWeight: 800, letterSpacing: "0.04em", color: k.c, textTransform: "uppercase" }}><I size={12} /> {k.label}</span>
+                  <p style={{ fontSize: 26, fontWeight: 900, marginTop: 8, color: "#fff" }}>{k.val}</p>
+                  <p style={{ fontSize: 11, color: "rgba(255,255,255,0.55)", marginTop: 2 }}>{k.sub}</p>
+                </div>
+              ); })}
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* ── LOGOS / stat band ── */}
+      <section style={{ background: "var(--surface-1)", borderBottom: "1px solid var(--border-1)" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "34px 28px", display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))", gap: 20, textAlign: "center" }}>
+          {[["3.2x", "more deals surfaced"], ["–40%", "time per lead"], ["100%", "calls QA'd"], ["<2s", "to a verdict"]].map(([v, l]) => (
+            <div key={l}>
+              <p style={{ fontSize: 30, fontWeight: 900, background: GRAD, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>{v}</p>
+              <p style={{ fontSize: 13, color: "var(--text-2)", marginTop: 2 }}>{l}</p>
+            </div>
           ))}
         </div>
+      </section>
 
-        <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          {tab === "signup" && (
-            <>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 6 }}>Full name</label>
-                  <input type="text" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Jane Doe" required style={inputBase} />
-                </div>
-                <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 6 }}>Username</label>
-                  <input type="text" value={username} onChange={e => setUsername(e.target.value)} placeholder="jane" required style={inputBase} />
-                </div>
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 6 }}>Phone</label>
-                  <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+1 (305) 555-0199" required style={inputBase} />
-                </div>
-                <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 6 }}>Website</label>
-                  <input type="url" value={website} onChange={e => setWebsite(e.target.value)} placeholder="https://…" style={inputBase} />
-                </div>
-              </div>
-            </>
-          )}
-          <div>
-            <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 7, letterSpacing: "0.02em" }}>
-              Email address
-            </label>
-            <input
-              type="email" value={email} onChange={e => setEmail(e.target.value)}
-              placeholder="you@example.com" required style={inputBase}
-            />
-          </div>
-          <div>
-            <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 7, letterSpacing: "0.02em" }}>
-              Password
-            </label>
-            <div style={{ position: "relative" }}>
-              <input
-                type={showPw ? "text" : "password"} value={password}
-                onChange={e => setPassword(e.target.value)}
-                placeholder="••••••••" required minLength={6}
-                style={{ ...inputBase, paddingRight: 44 }}
-              />
-              <button type="button" onClick={() => setShowPw(!showPw)} style={{
-                position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)",
-                background: "none", border: "none", cursor: "pointer", color: T.text3,
-                display: "flex", padding: 0, transition: "color 120ms",
-              }}
-              onMouseEnter={e => e.currentTarget.style.color = T.slate}
-              onMouseLeave={e => e.currentTarget.style.color = T.text3}
-              >
-                {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
+      {/* ── FEATURES ── */}
+      <section id="features" style={{ maxWidth: 1160, margin: "0 auto", padding: "90px 28px 30px" }}>
+        <div className="reveal" style={{ textAlign: "center", marginBottom: 48 }}>
+          <p style={pill}>The platform</p>
+          <h2 style={h2}>Everything an acquisitions floor needs</h2>
+          <p style={lead}>From the first dial to the signed contract — qualified, calculated, and coached by AI.</p>
+        </div>
+        <div className="reveal" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(320px,1fr))", gap: 18 }}>
+          {FEATURES.map((f) => { const I = f.icon; return (
+            <div key={f.title} style={card}
+              onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.borderColor = "var(--border-brand)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.borderColor = "var(--border-2)"; }}>
+              <span style={{ width: 44, height: 44, borderRadius: 12, background: GRAD, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 10px 24px rgba(242,38,111,0.30)" }}>
+                <I size={20} color="#fff" />
+              </span>
+              <h3 style={{ fontSize: 17, fontWeight: 800, marginTop: 16, color: "var(--text-1)" }}>{f.title}</h3>
+              <p style={{ fontSize: 14, color: "var(--text-2)", lineHeight: 1.6, marginTop: 8 }}>{f.body}</p>
             </div>
-          </div>
+          ); })}
+        </div>
+      </section>
 
-          {msg && (
-            <div style={{
-              padding: "10px 14px", borderRadius: 9, fontSize: 13,
-              background: msg.ok ? "#ECFDF5" : "#FBEEE8",
-              border: `1px solid ${msg.ok ? "#A7F3D0" : "#E7B8A6"}`,
-              color: msg.ok ? "#065F46" : RED,
-            }}>
-              {msg.text}
+      {/* ── HOW IT WORKS ── */}
+      <section id="how" style={{ maxWidth: 1100, margin: "0 auto", padding: "80px 28px" }}>
+        <div className="reveal" style={{ textAlign: "center", marginBottom: 48 }}>
+          <p style={pill}>How it works</p>
+          <h2 style={h2}>Live in minutes, not months</h2>
+        </div>
+        <div className="reveal" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 18 }}>
+          {STEPS.map((s) => (
+            <div key={s.n} style={{ ...card, position: "relative" }}>
+              <span style={{ fontSize: 44, fontWeight: 900, letterSpacing: "-0.03em", background: GRAD, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", opacity: 0.9 }}>{s.n}</span>
+              <h3 style={{ fontSize: 18, fontWeight: 800, marginTop: 8, color: "var(--text-1)" }}>{s.title}</h3>
+              <p style={{ fontSize: 14, color: "var(--text-2)", lineHeight: 1.6, marginTop: 8 }}>{s.body}</p>
             </div>
-          )}
+          ))}
+        </div>
+      </section>
 
-          <button type="submit" disabled={loading} style={{
-            width: "100%", padding: "12px",
-            background: loading ? "#F3F4F6" : RED,
-            color: loading ? T.text3 : "#fff",
-            border: "none", borderRadius: 10,
-            fontSize: 14, fontWeight: 700, cursor: loading ? "not-allowed" : "pointer",
-            display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-            boxShadow: loading ? "none" : `0 2px 10px ${RED}35`,
-            transition: "all 130ms ease",
-            marginTop: 4,
-          }}
-          onMouseEnter={e => { if (!loading) { e.currentTarget.style.background = "#1E50D8"; e.currentTarget.style.transform = "translateY(-1px)"; } }}
-          onMouseLeave={e => { if (!loading) { e.currentTarget.style.background = RED; e.currentTarget.style.transform = "translateY(0)"; } }}
-          >
-            {loading ? <><Loader2 size={15} className="animate-spin" /> Please wait...</> : <>{tab === "signin" ? "Sign In" : "Create Account"} <ArrowRight size={15} /></>}
-          </button>
-        </form>
+      {/* ── PRICING ── */}
+      <section id="pricing" style={{ background: "var(--surface-1)", borderTop: "1px solid var(--border-1)", borderBottom: "1px solid var(--border-1)" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "84px 28px" }}>
+          <div className="reveal" style={{ textAlign: "center", marginBottom: 48 }}>
+            <p style={pill}>Pricing</p>
+            <h2 style={h2}>Plans that scale with your floor</h2>
+          </div>
+          <div className="reveal" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 18, alignItems: "stretch" }}>
+            {PLANS.map((p) => (
+              <div key={p.name} style={{
+                background: p.featured ? "linear-gradient(180deg,#0B0F1F,#1A2140)" : "var(--surface-1)",
+                color: p.featured ? "#fff" : "var(--text-1)",
+                border: p.featured ? "1px solid rgba(242,38,111,0.4)" : "1px solid var(--border-2)",
+                borderRadius: 20, padding: 26, position: "relative",
+                boxShadow: p.featured ? "0 24px 60px rgba(242,38,111,0.22)" : "var(--shadow-md)",
+                display: "flex", flexDirection: "column",
+              }}>
+                {p.featured && <span style={{ position: "absolute", top: 16, right: 16, padding: "3px 10px", borderRadius: 999, background: GRAD, fontSize: 10, fontWeight: 800, letterSpacing: "0.06em" }}>POPULAR</span>}
+                <p style={{ fontSize: 13, fontWeight: 700, color: p.accent, textTransform: "uppercase", letterSpacing: "0.06em" }}>{p.name}</p>
+                <p style={{ fontSize: 12, opacity: 0.7, marginTop: 2 }}>{p.tag}</p>
+                <p style={{ fontSize: 40, fontWeight: 900, marginTop: 14, letterSpacing: "-0.02em" }}>{p.price}<span style={{ fontSize: 14, fontWeight: 600, opacity: 0.6 }}>{p.price !== "Custom" ? "/mo" : ""}</span></p>
+                <ul style={{ listStyle: "none", padding: 0, margin: "18px 0 22px", display: "flex", flexDirection: "column", gap: 10, flex: 1 }}>
+                  {p.feats.map((f) => (
+                    <li key={f} style={{ display: "flex", gap: 9, fontSize: 13.5, alignItems: "center" }}>
+                      <Check size={15} color={p.accent} /> {f}
+                    </li>
+                  ))}
+                </ul>
+                <Link href="/login" className={p.featured ? "btn-brand" : "btn-ghost"} style={{ justifyContent: "center", padding: "12px" }}>
+                  {p.price === "Custom" ? "Talk to sales" : "Start free"}
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-        <p style={{ textAlign: "center", fontSize: 12, color: T.text3, marginTop: 22 }}>
-          <Link href="/landing" style={{ color: RED, fontWeight: 600 }}>
-            View platform overview →
-          </Link>
-        </p>
-      </div>
+      {/* ── CTA ── */}
+      <section style={{ maxWidth: 1000, margin: "0 auto", padding: "90px 28px" }}>
+        <div className="reveal" style={{
+          borderRadius: 28, padding: "56px 40px", textAlign: "center",
+          background: "linear-gradient(135deg,#0B0F1F,#1A2140)", color: "#fff",
+          border: "1px solid rgba(242,38,111,0.3)", position: "relative", overflow: "hidden",
+        }}>
+          <div style={{ position: "absolute", top: -100, right: -60, width: 360, height: 360, borderRadius: "50%", background: "radial-gradient(circle, rgba(242,38,111,0.35), transparent 70%)", filter: "blur(10px)" }} />
+          <h2 style={{ fontSize: "clamp(28px,4vw,42px)", fontWeight: 900, letterSpacing: "-0.02em", position: "relative" }}>Stop guessing which leads to chase.</h2>
+          <p style={{ fontSize: 16, color: "rgba(255,255,255,0.72)", maxWidth: 540, margin: "14px auto 0", position: "relative" }}>
+            Join the floors closing more with less effort. Set up your workspace in under 5 minutes.
+          </p>
+          <Link href="/login" className="btn-brand" style={{ marginTop: 28, padding: "14px 28px", fontSize: 15, position: "relative" }}>Get started free <ArrowRight size={16} /></Link>
+        </div>
+      </section>
+
+      {/* ── FOOTER ── */}
+      <footer style={{ background: "#0B0F1F", color: "rgba(255,255,255,0.6)", padding: "40px 28px" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", flexWrap: "wrap", gap: 20, alignItems: "center", justifyContent: "space-between" }}>
+          <RealTrackLogo light />
+          <div style={{ display: "flex", gap: 18, flexWrap: "wrap", fontSize: 12 }}>
+            {BADGES.map((b) => { const I = b.icon; return (
+              <span key={b.label} style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><I size={13} color="#FF4F92" /> {b.label}</span>
+            ); })}
+          </div>
+          <p style={{ fontSize: 12 }}>© {new Date().getFullYear()} RealTrack. All rights reserved.</p>
+        </div>
+      </footer>
     </div>
   );
 }
+
+const navLink: React.CSSProperties = { fontSize: 13.5, fontWeight: 600, color: "var(--text-2)", textDecoration: "none", padding: "8px 12px" };
+const heroGhost: React.CSSProperties = { display: "inline-flex", alignItems: "center", gap: 8, padding: "14px 24px", borderRadius: 999, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.16)", color: "#fff", fontSize: 15, fontWeight: 700, textDecoration: "none" };
+const pill: React.CSSProperties = { display: "inline-block", padding: "5px 12px", borderRadius: 999, background: "var(--magenta-dim)", color: "var(--magenta)", fontSize: 12, fontWeight: 800, letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 14 };
+const h2: React.CSSProperties = { fontSize: "clamp(28px,4vw,40px)", fontWeight: 900, letterSpacing: "-0.025em", color: "var(--text-1)" };
+const lead: React.CSSProperties = { fontSize: 16, color: "var(--text-2)", maxWidth: 560, margin: "12px auto 0", lineHeight: 1.6 };
+const card: React.CSSProperties = { background: "var(--surface-1)", border: "1px solid var(--border-2)", borderRadius: 18, padding: 24, boxShadow: "var(--shadow-sm)", transition: "all 220ms cubic-bezier(0.16,1,0.30,1)" };

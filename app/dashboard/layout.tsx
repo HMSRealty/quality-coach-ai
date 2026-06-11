@@ -15,6 +15,7 @@ import { HelpButton } from "@/app/_components/HelpButton";
 import { OmniSearch } from "@/app/_components/OmniSearch";
 import { NotificationBell } from "@/app/_components/NotificationBell";
 import { ProcessingMonitor } from "@/app/_components/ProcessingMonitor";
+import { OnboardingTour } from "@/app/_components/OnboardingTour";
 import { T } from "@/app/_components/tokens";
 import {
   LayoutDashboard, PhoneCall, FolderCog, Zap,
@@ -409,6 +410,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </main>
       <OmniSearch />
       <ProcessingMonitor />
+      <OnboardingTour />
     </div>
   );
 }

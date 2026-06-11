@@ -40,6 +40,10 @@ export async function sendEmail({ to, subject, html, text }: SendArgs): Promise<
 
 // ── Pre-baked templates ────────────────────────────────────────────────────
 
+// The public URL for links in emails. Set NEXT_PUBLIC_APP_URL to your
+// custom domain (e.g. "https://app.realtrack.com") once DNS is pointed.
+const APP_URL = (process.env.NEXT_PUBLIC_APP_URL || "${APP_URL}").replace(/\/$/, "");
+
 const BASE_STYLE = `
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   max-width: 540px; margin: 0 auto; padding: 32px 24px;
@@ -60,7 +64,7 @@ export function welcomeEmail(name: string): { subject: string; html: string } {
       <p style="font-size:14px;line-height:1.6;color:#475569">
         Your RealTrack account has been created. To unlock your dashboard, choose a plan and submit your bank transfer receipt.
       </p>
-      <a href="https://quality-coach-ai.pages.dev/pay" style="${BUTTON}">View Plans & Pay →</a>
+      <a href="${APP_URL}/pay" style="${BUTTON}">View Plans & Pay →</a>
       <p style="font-size:12px;color:#94A3B8;margin-top:24px">
         Reply to this email if you have any questions.
       </p>
@@ -97,7 +101,7 @@ export function approvedEmail(name: string, planTier: string): { subject: string
       <p style="font-size:14px;line-height:1.6;color:#475569">
         Next: complete the 3-step setup wizard to get leads flowing.
       </p>
-      <a href="https://quality-coach-ai.pages.dev/dashboard/onboarding" style="${BUTTON}">Open Setup Wizard →</a>
+      <a href="${APP_URL}/dashboard/onboarding" style="${BUTTON}">Open Setup Wizard →</a>
       <p style="font-size:12px;color:#94A3B8;margin-top:24px">
         Questions? Reply to this email.
       </p>
