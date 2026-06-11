@@ -314,13 +314,29 @@ export default function ApiIntegrationsPage() {
         )}
       </div>
 
-      {/* Webhook URL */}
+      {/* Webhook URL — used for BOTH lead push and disposition postback */}
       <div style={card}>
         <p style={{ fontSize: 15, fontWeight: 800, color: "#000", display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 4 }}><Webhook size={16} color={SKY_600} /> Inbound Webhook URL</p>
-        <p style={{ fontSize: 12.5, color: "var(--text-2)", marginBottom: 12 }}>Point your dialer&apos;s webhook to this endpoint and send the API key as a Bearer token.</p>
+        <p style={{ fontSize: 12.5, color: "var(--text-2)", marginBottom: 12 }}>Point your dialer&apos;s webhook to this endpoint and send the API key as a Bearer token. The same URL handles initial lead push <strong>and</strong> the disposition postback that attaches the call recording.</p>
         <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
           <code style={{ flex: 1, padding: "12px 14px", borderRadius: 10, background: "#F8FAFC", border: `1px solid ${SKY}`, fontFamily: "var(--font-mono)", fontSize: 13, color: SKY_600, fontWeight: 700, overflowX: "auto", whiteSpace: "nowrap" }}>{webhookUrl}</code>
           <CopyBtn text={webhookUrl} label="Copy URL" />
+        </div>
+
+        {/* Two-step flow explainer */}
+        <div style={{ marginTop: 14, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 10 }}>
+          <div style={{ padding: "12px 14px", borderRadius: 10, background: "#F0F9FF", border: "1px solid #BAE6FD" }}>
+            <p style={{ fontSize: 12, fontWeight: 800, color: "#0C4A6E", marginBottom: 6 }}>1 · Lead Push (Readymode → RealTrack)</p>
+            <p style={{ fontSize: 11.5, color: "#0C4A6E", lineHeight: 1.55 }}>
+              When the dialer loads/posts a new lead, send: <code style={{ background: "#fff", padding: "1px 5px", borderRadius: 4 }}>address</code>, <code style={{ background: "#fff", padding: "1px 5px", borderRadius: 4 }}>city</code>, <code style={{ background: "#fff", padding: "1px 5px", borderRadius: 4 }}>state</code>, <code style={{ background: "#fff", padding: "1px 5px", borderRadius: 4 }}>zip</code>, <code style={{ background: "#fff", padding: "1px 5px", borderRadius: 4 }}>firstName</code>, <code style={{ background: "#fff", padding: "1px 5px", borderRadius: 4 }}>lastName</code>, <code style={{ background: "#fff", padding: "1px 5px", borderRadius: 4 }}>phone</code>, <code style={{ background: "#fff", padding: "1px 5px", borderRadius: 4 }}>campaign</code>, <code style={{ background: "#fff", padding: "1px 5px", borderRadius: 4 }}>agent_name</code>.
+            </p>
+          </div>
+          <div style={{ padding: "12px 14px", borderRadius: 10, background: "#FEFCE8", border: "1px solid #FDE68A" }}>
+            <p style={{ fontSize: 12, fontWeight: 800, color: "#854D0E", marginBottom: 6 }}>2 · Disposition Postback (after call)</p>
+            <p style={{ fontSize: 11.5, color: "#854D0E", lineHeight: 1.55 }}>
+              When the caller dispositions the call in the dialer, post again to the <strong>same URL</strong> with the same address plus the recording: <code style={{ background: "#fff", padding: "1px 5px", borderRadius: 4 }}>recording_url</code> (or <code style={{ background: "#fff", padding: "1px 5px", borderRadius: 4 }}>call_recording_url</code>). We&apos;ll match it to the existing lead, attach the audio, and re-analyze automatically.
+            </p>
+          </div>
         </div>
       </div>
 
