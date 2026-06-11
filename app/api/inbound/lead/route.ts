@@ -195,11 +195,24 @@ export async function POST(req: Request): Promise<Response> {
     }
 
     let leadId: string;
-    let mode: "new" | "revived";
+    let mode: "new" | "revived" | "recording_attached";
 
     if (match) {
       const prev = (match.status || "").toLowerCase();
-      if (!REVIVE.has(prev)) {
+      const incomingHasAudio = !!(audioBytes || (audioUrl && isDriveLink));
+
+      // Check if existing lead already has a recording attached.
+      const { count: existingAudioCount } = await sb
+        .from("call_uploads")
+        .select("id", { count: "exact", head: true })
+        .eq("lead_id", match.id);
+      const existingHasAudio = (existingAudioCount || 0) > 0;
+
+      // Disposition-postback path: existing lead has no recording yet, the
+      // incoming post brings one → attach it + re-analyze regardless of status.
+      const isDispositionPostback = incomingHasAudio && !existingHasAudio;
+
+      if (!REVIVE.has(prev) && !isDispositionPostback) {
         return Response.json(
           { ok: false, duplicate: true, leadId: match.id, status: match.status,
             error: `Address already exists (status: ${match.status}).` },
@@ -208,11 +221,12 @@ export async function POST(req: Request): Promise<Response> {
       }
       const mergedMeta = { ...(match.metadata as Record<string, unknown> || {}), ...metadata, revived_from: match.status };
       const { error: upErr } = await sb.from("leads").update({
-        campaign_id: campaignId, extracted_address: address, agent_name: (b.agent_name || "").trim() || null,
+        campaign_id: campaignId, extracted_address: address,
+        agent_name: (b.agent_name || "").trim() || null,
         status: "Queued", metadata: mergedMeta,
       }).eq("id", match.id);
       if (upErr) return Response.json({ ok: false, error: upErr.message }, { status: 500 });
-      leadId = match.id; mode = "revived";
+      leadId = match.id; mode = isDispositionPostback ? "recording_attached" : "revived";
     } else {
       const { data: inserted, error } = await sb.from("leads").insert({
         user_id: userId, organization_id: keyRow.organization_id ?? null,
