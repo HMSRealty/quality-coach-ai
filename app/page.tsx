@@ -27,17 +27,6 @@ function HSMLogo() {
   );
 }
 
-// Reject obvious free-mail providers when "Business email" is required.
-const FREE_MAIL = new Set([
-  "gmail.com","googlemail.com","outlook.com","hotmail.com","live.com","msn.com",
-  "yahoo.com","yahoo.co.uk","yahoo.co.in","ymail.com","icloud.com","me.com",
-  "aol.com","proton.me","protonmail.com","mail.com","gmx.com","yandex.com","zoho.com",
-]);
-const isBusinessEmail = (e: string) => {
-  const d = (e.split("@")[1] || "").toLowerCase();
-  return !!d && !FREE_MAIL.has(d);
-};
-
 export default function AuthPage() {
   const [tab, setTab]           = useState<Tab>("signin");
   const [email, setEmail]       = useState("");
@@ -65,12 +54,7 @@ export default function AuthPage() {
         setMsg({ text: "Full name, username and phone are required.", ok: false });
         setLoading(false); return;
       }
-      // Business email required for new TOP-LEVEL signups (sub-users created by an
-      // owner use a separate flow, so they're not blocked here).
-      if (!isBusinessEmail(email)) {
-        setMsg({ text: "Please use a business email (no Gmail / Yahoo / Outlook).", ok: false });
-        setLoading(false); return;
-      }
+      // Anyone can sign up — access is gated by billing, not email domain.
       const { data, error } = await supabase.auth.signUp({
         email, password,
         options: { data: { full_name: fullName.trim(), username: username.trim().toLowerCase(), phone: phone.trim(), website: website.trim() } },
@@ -167,17 +151,12 @@ export default function AuthPage() {
           )}
           <div>
             <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 7, letterSpacing: "0.02em" }}>
-              {tab === "signup" ? "Business email" : "Email address"}
+              Email address
             </label>
             <input
               type="email" value={email} onChange={e => setEmail(e.target.value)}
-              placeholder={tab === "signup" ? "you@yourcompany.com" : "you@company.com"} required style={inputBase}
+              placeholder="you@example.com" required style={inputBase}
             />
-            {tab === "signup" && (
-              <p style={{ fontSize: 10, color: T.text3, marginTop: 4 }}>
-                Use your company email. Sub-users you create later can use any address.
-              </p>
-            )}
           </div>
           <div>
             <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 7, letterSpacing: "0.02em" }}>
