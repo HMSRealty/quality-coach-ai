@@ -135,13 +135,12 @@ export async function POST(req: Request): Promise<Response> {
     if (url.searchParams.get("test") === "true") b.test = true;
 
     // ── Build recording URL from recording_id if provided (no direct URL).
-    // Subdomain comes from the env var READYMODE_SUBDOMAIN (e.g. "hmsrealty").
+    // Subdomain comes from the env var READYMODE_SUBDOMAIN, falling back to
+    // "hmsrealty" so we always have a default for HMS's deployment.
     if (!b.audio_url && b.recording_id) {
-      const sub = process.env.READYMODE_SUBDOMAIN;
-      if (sub) {
-        const built = buildReadymodeRecordingUrl(sub, b.recording_id);
-        if (built) b.audio_url = built;
-      }
+      const sub = process.env.READYMODE_SUBDOMAIN || "hmsrealty";
+      const built = buildReadymodeRecordingUrl(sub, b.recording_id);
+      if (built) b.audio_url = built;
     }
 
     // Connection test: verify auth + endpoint without creating a lead or
@@ -194,9 +193,9 @@ export async function POST(req: Request): Promise<Response> {
     if (audioUrl && !isDriveLink) {
       // Readymode recordings may require a Referer header matching the dialer
       // subdomain to allow direct downloads.
-      const sub = process.env.READYMODE_SUBDOMAIN;
+      const sub = process.env.READYMODE_SUBDOMAIN || "hmsrealty";
       const headers: Record<string, string> = {};
-      if (sub && /readymode\.com/i.test(audioUrl)) {
+      if (/readymode\.com/i.test(audioUrl)) {
         headers["Referer"] = `https://${sub.replace(/^https?:\/\//, "").replace(/\/$/, "")}/`;
       }
       const ar = await fetch(audioUrl, { headers }).catch(() => null);
