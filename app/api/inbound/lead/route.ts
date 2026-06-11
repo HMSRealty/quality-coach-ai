@@ -98,18 +98,21 @@ async function readymodeLogin(subdomain: string): Promise<{ cookies: string; sta
   const user = process.env.READYMODE_USERNAME || "heggo";
   const pass = process.env.READYMODE_PASSWORD || "heggo";
   const host = readymodeHost(subdomain);
-  const loginUrl = `https://${host}/login_new/`;
+  const loginPageUrl = `https://${host}/login_new/?then=/`;
 
   const jar: Record<string, string> = {};
   const debug: string[] = [];
 
-  // Step 1 — GET the login page to harvest the initial PHPSESSID + scrape any
-  // CSRF token / hidden form fields.
-  const getResp = await fetch(loginUrl, {
+  // Step 1 — GET the login page to harvest PHPSESSID/seH cookies + any hidden
+  // form fields (station id, signed-payload "sp", etc.) emitted by Readymode's
+  // login page so we can replay them in the POST.
+  const getResp = await fetch(loginPageUrl, {
     method: "GET",
     headers: {
       "User-Agent": UA,
       "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      "Accept-Language": "en-US,en;q=0.9",
+      "Upgrade-Insecure-Requests": "1",
     },
     redirect: "follow",
   }).catch((e) => ({ ok: false, status: 0, headers: new Headers(), text: () => Promise.resolve(""), _err: String(e) } as unknown as Response));
@@ -117,45 +120,48 @@ async function readymodeLogin(subdomain: string): Promise<{ cookies: string; sta
   const html = await (getResp as Response).text().catch(() => "");
   debug.push(`get_status=${(getResp as Response).status} get_cookies=${Object.keys(jar).join(",")}`);
 
-  // Look for hidden inputs in the login form (CSRF token, etc.)
-  const hidden: Record<string, string> = {};
-  const inputRe = /<input[^>]+type=["']?hidden["']?[^>]*>/gi;
-  const matches = html.match(inputRe) || [];
-  for (const inp of matches) {
-    const nameM = inp.match(/name=["']([^"']+)["']/i);
-    const valueM = inp.match(/value=["']([^"']*)["']/i);
-    if (nameM) hidden[nameM[1]] = valueM ? valueM[1] : "";
-  }
-  if (Object.keys(hidden).length) debug.push(`hidden_fields=${Object.keys(hidden).join(",")}`);
+  // Scrape any station/sp values that Readymode injects into the login page.
+  // These come from JS in real browsers; in our case we read them from the
+  // initial HTML if exposed.
+  const findValue = (re: RegExp) => { const m = html.match(re); return m ? m[1] : ""; };
+  const stationId = findValue(/set_st['"]?\s*[:=]\s*['"]?(\d+)/i) || jar["stationId"] || "";
+  const sp = findValue(/set_sp['"]?\s*[:=]\s*['"]?([0-9a-f]+)/i) || jar["sp"] || "";
 
-  // Step 2 — POST credentials using the session cookies from step 1.
-  const body = new URLSearchParams({
-    ...hidden,
-    username: user,
-    password: pass,
-    Submit: "Sign in",
-  });
+  // Step 2 — POST credentials matching Readymode's actual form spec:
+  //   login_account / login_password (NOT username/password)
+  //   plus then=/, use_phone_module=auto, autoequals=WebRTC, login_as_admin=""
+  const formData = new URLSearchParams();
+  formData.set("autoequals", "WebRTC");
+  formData.set("user_tz", "America/New_York");
+  if (stationId) formData.set("set_st", stationId);
+  if (sp) formData.set("set_sp", sp);
+  formData.set("use_phone_module", "auto");
+  formData.set("then", "/");
+  formData.set("login_account", user);
+  formData.set("login_password", pass);
+  formData.set("login_as_admin", "");
+  formData.set("logout_other_sessions", "on");
 
-  const postResp = await fetch(loginUrl, {
+  const postResp = await fetch(loginPageUrl, {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
       "User-Agent": UA,
+      "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      "Accept-Language": "en-US,en;q=0.9",
       "Cookie": jarToHeader(jar),
-      "Referer": loginUrl,
+      "Referer": loginPageUrl,
       "Origin": `https://${host}`,
+      "Upgrade-Insecure-Requests": "1",
     },
-    body: body.toString(),
+    body: formData.toString(),
     redirect: "manual",
   }).catch((e) => ({ ok: false, status: 0, headers: new Headers(), _err: String(e) } as unknown as Response));
   mergeSetCookies(jar, postResp as Response);
-  debug.push(`post_status=${(postResp as Response).status}`);
+  debug.push(`post_status=${(postResp as Response).status} st=${stationId || "(none)"} sp=${sp ? "yes" : "no"}`);
 
-  // A successful login typically responds with a 302 redirect to the dashboard.
-  // If we get 200 back, Readymode re-rendered the login form — credentials
-  // didn't authenticate.
   const location = (postResp as Response).headers.get("location");
-  if (location) debug.push(`location=${location.slice(0, 100)}`);
+  if (location) debug.push(`location=${location.slice(0, 80)}`);
 
   return {
     cookies: jarToHeader(jar),
