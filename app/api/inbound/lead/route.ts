@@ -66,8 +66,8 @@ function fromForm(form: FormData | URLSearchParams): Body {
     phone: get("phone", "phone_number") || undefined,
     email: get("email") || undefined,
     campaign_id: get("campaign_id", "campaign") || undefined,
-    audio_url: get("audio_url", "recording_url", "recording", "call_recording", "drive_link", "call_link") || undefined,
-    agent_name: get("agent_name", "agent", "caller_name", "caller") || undefined,
+    audio_url: get("audio_url", "recording_url", "recordingUrl", "call_recording", "call_recording_url", "callRecording", "recording", "drive_link", "call_link") || undefined,
+    agent_name: get("agent_name", "agentName", "agent", "caller_name", "callerName", "caller", "user", "userName") || undefined,
   };
 }
 
