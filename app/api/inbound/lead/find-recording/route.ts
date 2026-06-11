@@ -71,19 +71,30 @@ async function loginReadymode(host: string, user: string, pass: string): Promise
   return jar;
 }
 
-// Pull recording IDs from the Research Calls HTML. The page links each
-// recording via either the full path /File types/data/callrec/db/.../{id}_hq.mp3
-// or by displayed id (#38543). We collect every unique numeric id.
-function extractRecordingIds(html: string): string[] {
+// Pull recording IDs from the Research Calls HTML. Try several patterns
+// because the response may render the link, an embedded audio player, or
+// just the recording ID with a download icon.
+function extractRecordingIds(html: string): { ids: string[]; matchedBy: Record<string, number> } {
   const ids = new Set<string>();
-  const reUrl = /callrec\/db\/\d{2}\/\d{2}\/(\d{3,8})_hq\.mp3/gi;
-  let m: RegExpExecArray | null;
-  while ((m = reUrl.exec(html)) !== null) ids.add(m[1]);
-  // Fallback: anchors that link to /File types/data/callrec... where the id
-  // is rendered as "#NNNNN" next to the download icon.
-  const reHash = /#(\d{4,7})\b/g;
-  while ((m = reHash.exec(html)) !== null) ids.add(m[1]);
-  return [...ids];
+  const matchedBy: Record<string, number> = {};
+  const patterns: Array<{ name: string; re: RegExp }> = [
+    { name: "callrec_hq", re: /callrec[^"'<>\s]*?(\d{3,8})_hq\.mp3/gi },
+    { name: "callrec_loose", re: /callrec[^"'<>\s]*?(\d{4,8})/gi },
+    { name: "recId_attr", re: /\brecId[\s=:'"]*?(\d{4,8})/gi },
+    { name: "recording_attr", re: /\brecording[_-]?id[\s=:'"]*?(\d{4,8})/gi },
+    { name: "hash_id", re: /#(\d{4,7})\b/g },
+    { name: "download_link", re: /download[^"'<>\s]*?(\d{4,8})/gi },
+  ];
+  for (const { name, re } of patterns) {
+    let m: RegExpExecArray | null;
+    let count = 0;
+    while ((m = re.exec(html)) !== null) {
+      ids.add(m[1]);
+      count++;
+    }
+    if (count) matchedBy[name] = count;
+  }
+  return { ids: [...ids], matchedBy };
 }
 
 // Public API
@@ -131,9 +142,18 @@ export async function POST(req: Request): Promise<Response> {
       redirect: "follow",
     });
     const html = await rr.text();
-    const ids = extractRecordingIds(html);
+    const { ids, matchedBy } = extractRecordingIds(html);
     if (ids.length === 0) {
-      return Response.json({ ok: false, error: "No recordings found for phone", phone: cleanPhone, html_status: rr.status, sample: html.slice(0, 600) });
+      // Surface a larger sample so we can iterate on the regex if needed.
+      // Try to find the "Connection logs" section since that's where the
+      // recording rows live in the screenshot.
+      const connIdx = html.toLowerCase().indexOf("connection log");
+      const slice = connIdx >= 0 ? html.slice(connIdx, connIdx + 4000) : html.slice(0, 4000);
+      return Response.json({
+        ok: false, error: "No recordings found for phone",
+        phone: cleanPhone, html_status: rr.status, html_length: html.length,
+        connection_logs_idx: connIdx, sample: slice,
+      });
     }
 
     // Pick the most recent recording: highest numeric id (recording IDs are
@@ -200,6 +220,7 @@ export async function POST(req: Request): Promise<Response> {
       ok: true,
       phone: cleanPhone,
       recording_ids_found: ids,
+      matched_by: matchedBy,
       newest_recording_id: String(newest),
       audio_url: audioUrl,
       audio_bytes: bytes.byteLength,
