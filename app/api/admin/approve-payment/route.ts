@@ -57,11 +57,13 @@ export async function POST(request: Request) {
     const limit = PLAN_LIMITS[planTier] ?? 100;
     const admin = getAdminSupabase();
 
-    // 1. Activate user profile
+    // 1. Activate user profile — flip is_approved so the dashboard gate
+    // opens, set the plan tier + monthly limit, and mark the invoice paid.
     const { error: profileError } = await admin
       .from("profiles")
       .update({
         is_active: true,
+        is_approved: true,
         plan_tier: planTier,
         payment_status: "paid",
         monthly_lead_limit: limit,
