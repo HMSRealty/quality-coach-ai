@@ -42,12 +42,6 @@ export async function POST(req: NextRequest) {
     const body = await req.json() as { label?: string; key?: string };
     const key = (body.key || "").trim();
     if (!key) return NextResponse.json({ ok: false, error: "key is required" }, { status: 400 });
-    // Permissive shape check — Google has multiple key formats (legacy "AIza…",
-    // newer prefixes like "AQ…"). Just require a sensible length of URL-safe
-    // characters so we catch obvious typos without rejecting valid keys.
-    if (!/^[A-Za-z0-9_-]{20,200}$/.test(key)) {
-      return NextResponse.json({ ok: false, error: "Key looks invalid — should be 20+ URL-safe characters with no spaces" }, { status: 400 });
-    }
 
     const sb = admin();
     const key_enc = await encryptSecret(key);
