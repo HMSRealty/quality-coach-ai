@@ -12,8 +12,23 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Loader2, Plus, Trash2, Save, Users, Download, RefreshCw, Settings2, Upload, Clock } from "lucide-react";
+import { Loader2, Plus, Trash2, Save, Users, Download, RefreshCw, Settings2, Upload, Clock, Lock } from "lucide-react";
 import { parsePayableHours } from "@/app/_components/DialerHoursCalculator";
+import { computeHourly, SHIFT_HOURS } from "@/app/_components/CompensationStructure";
+
+// Role rates pulled live from comp_titles (the Role Salaries page). The
+// workbench reads these and shows them as locked — to change hourly, edit
+// Role Salaries.
+type RoleRate = {
+  title: string;
+  base_salary: number;
+  currency: "USD" | "EGP";
+  shift_type: "full_time" | "part_time";
+  working_days: number;
+  hourly: number;
+  kpi_bonus: number;
+  target_leads: number;
+};
 
 const SKY = "#0EA5E9", SKY600 = "#0284C7", MONEY = "#059669", NAVY = "#0F172A", SLATE = "#475569";
 const PAY_METHODS = ["Instapay", "Payoneer", "Vodafone Cash", "Orange Cash", "Etisalat Cash", "Axis Pay", "Bank Transfer", "Cash", "Other"];
@@ -118,6 +133,7 @@ export function PayrollWorkbench() {
   const [cfg, setCfg] = useState<Cfg>(DEFAULT_CFG);
   const [people, setPeople] = useState<Person[]>([]);
   const [prod, setProd] = useState<Record<string, Prod>>({});
+  const [roleRates, setRoleRates] = useState<Record<string, RoleRate>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showCfg, setShowCfg] = useState(true);
@@ -126,15 +142,42 @@ export function PayrollWorkbench() {
     setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setLoading(false); return; }
-    const [{ data: ps }, { data: ap }] = await Promise.all([
+    const [{ data: ps }, { data: ap }, { data: rt }] = await Promise.all([
       supabase.from("payroll_settings").select("config").eq("user_id", user.id).maybeSingle(),
       supabase.from("agent_pay").select("*").eq("user_id", user.id).order("position", { ascending: true }),
+      supabase.from("comp_titles").select("title, base_salary, basis").eq("user_id", user.id),
     ]);
     if (ps?.config) setCfg({ ...DEFAULT_CFG, ...(ps.config as Partial<Cfg>) });
     setPeople(((ap || []) as Person[]).map(p => ({ ...p, extras: (p.extras || {}) as Extras })));
+
+    // Build the role rate map keyed by lowercased title.
+    const map: Record<string, RoleRate> = {};
+    (rt || []).forEach((r: { title: string | null; base_salary: number | null; basis: string | null }) => {
+      const title = (r.title || "").trim(); if (!title) return;
+      const basisObj = (() => { try { return JSON.parse(r.basis || ""); } catch { return null; } })() || {};
+      const basic = Number(r.base_salary) || 0;
+      const shift_type: "full_time" | "part_time" = basisObj.shift_type === "part_time" ? "part_time" : "full_time";
+      const working_days = Number(basisObj.working_days) || 22;
+      const currency: "USD" | "EGP" = basisObj.currency === "EGP" ? "EGP" : "USD";
+      map[title.toLowerCase()] = {
+        title, base_salary: basic, currency, shift_type, working_days,
+        hourly: computeHourly(basic, working_days, shift_type),
+        kpi_bonus: Number(basisObj.kpi_bonus) || 0,
+        target_leads: Number(basisObj.target_leads) || 0,
+      };
+    });
+    setRoleRates(map);
     setLoading(false);
   }, []);
   useEffect(() => { load(); }, [load]);
+
+  // Look up role rate by person's role field (case-insensitive). Falls back to
+  // 0 if the role doesn't exist in the Role Salaries page.
+  const rateFor = useCallback((person: Person): RoleRate | null => {
+    const role = (person.role || "").trim().toLowerCase();
+    if (!role) return null;
+    return roleRates[role] || null;
+  }, [roleRates]);
 
   // Pull production for the selected dates.
   const loadProd = useCallback(async () => {
@@ -270,34 +313,45 @@ export function PayrollWorkbench() {
     await load();
   };
 
-  // ── Derived pay per person ──
+  // ── Derived pay per person — all rates pulled from Role Salaries ──
   const calc = (p: Person) => {
     const e = p.extras || {};
+    const rate = rateFor(p);
+    const role = rate; // alias for clarity
     const pr = prod[p.name.trim()] || { qualified: 0, total: 0 };
-    if (p.category === "caller") {
-      const worked = n(e.worked);
-      const baseUsd = worked * n(p.hourly_rate);
-      const tgt = n(e.tgt) || 0;
-      const act = pr.qualified;
-      const attain = tgt > 0 ? (act / tgt) * 100 : 0;
-      const span = Math.max(1, 100 - cfg.kpiThreshold);
-      const kpiUsd = attain <= cfg.kpiThreshold ? 0 : Math.min(cfg.kpiFullPayUsd, cfg.kpiFullPayUsd * (attain - cfg.kpiThreshold) / span);
-      const leadBonusUsd = act * cfg.leadBonusUsd;
-      const otUsd = n(e.otHrs) * n(p.hourly_rate) * cfg.otMultiplier;
-      const totalUsd = baseUsd + kpiUsd + leadBonusUsd + otUsd + n(e.manualUsd);
-      const spiffEgp = n(e.fridayCount) * cfg.fridaySpiffEgp + n(e.referralEgp) + n(e.manualEgp);
-      const finalEgp = totalUsd * cfg.usdEgp + spiffEgp;
-      return { worked, baseUsd, tgt, act, attain, kpiUsd, leadBonusUsd, otUsd, totalUsd, spiffEgp, finalEgp, totalEgp: 0 };
-    } else {
-      const deducted = n(e.deductedDays);
-      const baseEgp = cfg.businessDays > 0 ? n(p.monthly_salary) * Math.max(0, cfg.businessDays - deducted) / cfg.businessDays : 0;
-      const quality = e.qualityPct != null ? n(e.qualityPct) : (pr.total > 0 ? (pr.qualified / pr.total) * 100 : 0);
-      const kpiEgp = quality >= cfg.mgrQualityTarget ? cfg.mgrKpiBonusEgp : 0;
-      const mgrHourly = cfg.businessDays * cfg.sessionHrs > 0 ? n(p.monthly_salary) / (cfg.businessDays * cfg.sessionHrs) : 0;
-      const otEgp = n(e.otHrs) * mgrHourly * cfg.otMultiplier;
-      const totalEgp = baseEgp + kpiEgp + otEgp + n(e.manualEgp);
-      return { baseEgp, deducted, quality, kpiEgp, otEgp, totalEgp, finalEgp: totalEgp, totalUsd: 0, spiffEgp: 0 };
+    const worked = n(e.worked);
+    const otHrs = n(e.otHrs);
+    const act = pr.qualified;
+    const manualKpi = n(e.manualUsd); // reused as the manual KPI bonus field
+
+    // No role found → just show zeros so user knows to set up Role Salaries.
+    if (!role) {
+      return {
+        worked, baseUsd: 0, baseEgp: 0, hourly: 0, currency: "USD" as const,
+        act, kpiBonus: manualKpi, otPay: 0, totalNative: 0, totalEgp: 0,
+        finalEgp: 0, totalUsd: 0, spiffEgp: 0, missingRole: true,
+      };
     }
+
+    const hourly = role.hourly;
+    const basePay = worked * hourly;
+    const otPay = otHrs * hourly * cfg.otMultiplier;
+    const kpiBonus = manualKpi || role.kpi_bonus;
+    const totalNative = basePay + otPay + kpiBonus;
+
+    // Convert to EGP for the unified totals view.
+    const totalEgp = role.currency === "USD" ? totalNative * cfg.usdEgp : totalNative;
+    const spiffEgp = n(e.fridayCount) * cfg.fridaySpiffEgp + n(e.referralEgp) + n(e.manualEgp);
+    const finalEgp = totalEgp + spiffEgp;
+
+    return {
+      worked, hourly, currency: role.currency, act, basePay, otPay, kpiBonus,
+      totalNative, totalEgp, finalEgp, spiffEgp, missingRole: false,
+      // Compatibility shims for existing tfoot/export references:
+      baseUsd: role.currency === "USD" ? basePay : 0,
+      baseEgp: role.currency === "EGP" ? basePay : 0,
+      totalUsd: role.currency === "USD" ? totalNative : 0,
+    };
   };
 
   const totals = useMemo(() => {
@@ -392,70 +446,68 @@ export function PayrollWorkbench() {
         <Stat label="Grand net payout (EGP)" value={egp(totals.netEgp)} accent={MONEY} />
       </div>
 
-      {/* UNIFIED TEAM TABLE */}
+      {/* UNIFIED TEAM TABLE — only Name, Role, Hours, KPI, Payment fields editable.
+          Hourly rate is pulled from Role Salaries and shown locked. */}
       <Section title={`Team (${people.length})`} onAdd={() => addPerson("caller")} extra={
-        <div style={{ display: "flex", gap: 6 }}>
-          <button onClick={seedFromCallers} className="btn-ghost" style={{ padding: "6px 10px", fontSize: 11.5 }}>Import agents</button>
-          <button onClick={() => addPerson("manager")} style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "6px 12px", borderRadius: 8, background: "#7C3AED", color: "#fff", border: "none", fontSize: 12, fontWeight: 700, cursor: "pointer" }}><Plus size={13} /> Manager</button>
-        </div>
+        <button onClick={seedFromCallers} className="btn-ghost" style={{ padding: "6px 10px", fontSize: 11.5 }}>Import agents</button>
       }>
-        <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 1200 }}>
+        {Object.keys(roleRates).length === 0 && (
+          <div style={{ padding: "12px 14px", margin: "10px 14px", borderRadius: 8, background: "#FEF3C7", border: "1px solid #FCD34D", color: "#92400E", fontSize: 12.5, fontWeight: 600 }}>
+            No roles defined yet. Go to <strong>Role Salaries</strong> and set up at least one role (e.g. Caller, Team Leader) so hourly rates can be computed.
+          </div>
+        )}
+        <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 1100 }}>
           <thead><tr style={{ background: "var(--surface-3)" }}>
-            {["Name", "Type", "Rate/Salary", "Worked/Deduct", "Base", "TGT", "ACT/Qual", "KPI", "OT hrs", "OT", "Extras", "Net EGP", "Method", "Info", ""].map((h, i) =>
-              <th key={i} style={{ ...th, textAlign: i >= 2 && i <= 11 ? "right" : "left" }}>{h}</th>)}
+            {["Name", "Role", "Hourly", "Worked hrs", "OT hrs", "Base", "KPI bonus", "OT pay", "Total", "Net EGP", "Method", "Info", ""].map((h, i) =>
+              <th key={i} style={{ ...th, textAlign: i >= 2 && i <= 9 ? "right" : "left" }}>{h}</th>)}
           </tr></thead>
           <tbody>
-            {people.map(p => { const c = calc(p); const isCaller = p.category === "caller"; return (
+            {people.map(p => { const c = calc(p); const rate = rateFor(p); const cur = rate?.currency || "USD"; const fmt = (v: number) => cur === "USD" ? usd(v) : egp(v); return (
               <tr key={p.id} style={{ borderTop: "1px solid var(--border-1)" }}>
-                <td style={td}><input value={p.name} onChange={e => patchPerson(p.id, { name: e.target.value })} placeholder="Name" style={{ ...inp, width: 150 }} /></td>
+                <td style={td}><input value={p.name} onChange={e => patchPerson(p.id, { name: e.target.value })} placeholder="Name" style={{ ...inp, width: 160 }} /></td>
                 <td style={td}>
-                  <select value={p.category} onChange={e => patchPerson(p.id, { category: e.target.value as "caller" | "manager" })} style={{ ...inp, width: 90 }}>
-                    <option value="caller">Caller</option>
-                    <option value="manager">Manager</option>
+                  <select value={p.role || ""}
+                    onChange={e => {
+                      const newRole = e.target.value;
+                      const r = roleRates[newRole.toLowerCase()];
+                      // Auto-classify: managers based on monthly EGP salary, callers on hourly.
+                      patchPerson(p.id, {
+                        role: newRole || null,
+                        category: r && r.currency === "EGP" ? "manager" : "caller",
+                      });
+                    }}
+                    style={{ ...inp, width: 160 }}>
+                    <option value="">— select role —</option>
+                    {Object.values(roleRates).map(r => <option key={r.title} value={r.title}>{r.title}</option>)}
                   </select>
                 </td>
+                <td style={{ ...td, textAlign: "right", color: rate ? NAVY : "#DC2626" }} title={rate ? `Locked — edit in Role Salaries (Basic ${rate.base_salary} / ${rate.working_days}d / ${SHIFT_HOURS[rate.shift_type]}h)` : "Set a role to compute hourly"}>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                    <Lock size={10} color={SLATE} /> {rate ? fmt(rate.hourly) : "—"}
+                  </span>
+                </td>
+                <td style={td}><input type="number" value={p.extras.worked ?? ""} onChange={e => patchExtra(p.id, "worked", n(e.target.value))} placeholder="hrs" style={numCell} /></td>
+                <td style={td}><input type="number" value={p.extras.otHrs ?? ""} onChange={e => patchExtra(p.id, "otHrs", n(e.target.value))} placeholder="hrs" style={numCell} /></td>
+                <td style={{ ...td, textAlign: "right", color: SLATE }}>{fmt(c.basePay || 0)}</td>
                 <td style={td}>
-                  {isCaller
-                    ? <input type="number" value={p.hourly_rate} onChange={e => patchPerson(p.id, { hourly_rate: n(e.target.value) })} placeholder="$/hr" style={numCell} />
-                    : <input type="number" value={p.monthly_salary} onChange={e => patchPerson(p.id, { monthly_salary: n(e.target.value) })} placeholder="EGP/mo" style={{ ...numCell, width: 90 }} />}
+                  <input type="number" value={p.extras.manualUsd ?? ""}
+                    onChange={e => patchExtra(p.id, "manualUsd", n(e.target.value))}
+                    placeholder={rate ? String(Math.round(rate.kpi_bonus)) : "—"}
+                    title="Manual KPI bonus override (leave blank to use role default)"
+                    style={numCell} />
                 </td>
-                <td style={td}>
-                  {isCaller
-                    ? <input type="number" value={p.extras.worked ?? ""} onChange={e => patchExtra(p.id, "worked", n(e.target.value))} placeholder="hrs" style={numCell} />
-                    : <input type="number" value={p.extras.deductedDays ?? ""} onChange={e => patchExtra(p.id, "deductedDays", n(e.target.value))} placeholder="days off" style={numCell} />}
-                </td>
-                <td style={{ ...td, textAlign: "right", color: SLATE }}>{isCaller ? usd(c.baseUsd || 0) : egp(c.baseEgp || 0)}</td>
-                <td style={td}>
-                  {isCaller
-                    ? <input type="number" value={p.extras.tgt ?? ""} onChange={e => patchExtra(p.id, "tgt", n(e.target.value))} style={numCell} />
-                    : <span style={{ fontSize: 11, color: SLATE }}>{cfg.mgrQualityTarget}%</span>}
-                </td>
-                <td style={{ ...td, textAlign: "right", fontWeight: 700 }}>
-                  {isCaller ? c.act : `${Math.round(c.quality || 0)}%`}
-                </td>
-                <td style={{ ...td, textAlign: "right", color: SLATE }}>
-                  {isCaller ? usd(c.kpiUsd || 0) : egp(c.kpiEgp || 0)}
-                </td>
-                <td style={td}><input type="number" value={p.extras.otHrs ?? ""} onChange={e => patchExtra(p.id, "otHrs", n(e.target.value))} style={{ ...numCell, width: 58 }} /></td>
-                <td style={{ ...td, textAlign: "right", color: SLATE }}>{isCaller ? usd(c.otUsd || 0) : egp(c.otEgp || 0)}</td>
-                <td style={td}>
-                  {isCaller ? (
-                    <div style={{ display: "flex", gap: 4 }}>
-                      <input type="number" value={p.extras.fridayCount ?? ""} onChange={e => patchExtra(p.id, "fridayCount", n(e.target.value))} placeholder="Fri" title="Friday count" style={{ ...numCell, width: 44 }} />
-                      <input type="number" value={p.extras.referralEgp ?? ""} onChange={e => patchExtra(p.id, "referralEgp", n(e.target.value))} placeholder="Ref" title="Referral EGP" style={{ ...numCell, width: 58 }} />
-                    </div>
-                  ) : <input type="number" value={p.extras.manualEgp ?? ""} onChange={e => patchExtra(p.id, "manualEgp", n(e.target.value))} placeholder="Adj" title="Manual adjustment EGP" style={{ ...numCell, width: 70 }} />}
-                </td>
+                <td style={{ ...td, textAlign: "right", color: SLATE }}>{fmt(c.otPay || 0)}</td>
+                <td style={{ ...td, textAlign: "right", fontWeight: 800, color: NAVY }}>{fmt(c.totalNative || 0)}</td>
                 <td style={{ ...td, textAlign: "right", fontWeight: 900, color: MONEY }}>{egp(c.finalEgp || 0)}</td>
-                <td style={td}><select value={p.payment_method || ""} onChange={e => patchPerson(p.id, { payment_method: e.target.value })} style={{ ...inp, width: 100 }}>{PAY_METHODS.map(m => <option key={m}>{m}</option>)}</select></td>
+                <td style={td}><select value={p.payment_method || ""} onChange={e => patchPerson(p.id, { payment_method: e.target.value })} style={{ ...inp, width: 110 }}>{PAY_METHODS.map(m => <option key={m}>{m}</option>)}</select></td>
                 <td style={td}><input value={p.payment_info || ""} onChange={e => patchPerson(p.id, { payment_info: e.target.value })} placeholder="handle / phone" style={{ ...inp, width: 140 }} /></td>
                 <td style={td}><button onClick={() => removePerson(p.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#DC2626" }}><Trash2 size={14} /></button></td>
               </tr>
             ); })}
-            {people.length === 0 && <tr><td colSpan={15} style={{ ...td, textAlign: "center", color: SLATE, padding: 18 }}>No team members yet — add callers or managers, or import from your agents.</td></tr>}
+            {people.length === 0 && <tr><td colSpan={13} style={{ ...td, textAlign: "center", color: SLATE, padding: 18 }}>No team members yet — add a user or import from your agents.</td></tr>}
           </tbody>
           <tfoot><tr style={{ borderTop: "2px solid var(--border-2)", background: "var(--surface-3)" }}>
-            <td style={{ ...td, fontWeight: 900 }} colSpan={11}>Grand total</td>
+            <td style={{ ...td, fontWeight: 900 }} colSpan={9}>Grand total</td>
             <td style={{ ...td, textAlign: "right", fontWeight: 900, color: MONEY }}>{egp(totals.netEgp)}</td>
             <td colSpan={3} />
           </tr></tfoot>
