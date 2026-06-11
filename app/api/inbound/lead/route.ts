@@ -222,6 +222,30 @@ export async function POST(req: Request): Promise<Response> {
     }
     const userId: string = keyRow.user_id;
 
+    // ── Rate limit per API key (200 posts/min default). Protects against
+    // runaway dialer loops blowing through the analysis budget.
+    try {
+      const { checkRateLimit } = await import("@/lib/ratelimit");
+      const rl = await checkRateLimit(sb, keyRow.id);
+      if (!rl.allowed) {
+        return new Response(JSON.stringify({
+          ok: false,
+          error: "Rate limit exceeded",
+          used: rl.used,
+          limit: rl.limit,
+          retry_after_seconds: rl.reset_in_seconds,
+        }), {
+          status: 429,
+          headers: {
+            "Content-Type": "application/json",
+            "Retry-After": String(rl.reset_in_seconds),
+            "X-RateLimit-Limit": String(rl.limit),
+            "X-RateLimit-Remaining": String(Math.max(0, rl.limit - rl.used)),
+          },
+        });
+      }
+    } catch { /* table missing → fail open */ }
+
     // ── Parse payload: JSON, form-urlencoded, or multipart (Readymode posts forms) ──
     const ct = (req.headers.get("content-type") || "").toLowerCase();
     // Read once as text so we can log it AND parse it.
@@ -466,6 +490,10 @@ export async function POST(req: Request): Promise<Response> {
       },
     });
   } catch (e) {
+    try {
+      const { reportError } = await import("@/lib/sentry");
+      await reportError(e, { route: "/api/inbound/lead" });
+    } catch { /* never break on sentry failure */ }
     return Response.json({ ok: false, error: e instanceof Error ? e.message : "Server error" }, { status: 500 });
   }
 }

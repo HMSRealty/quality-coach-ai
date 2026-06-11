@@ -55,6 +55,14 @@ export async function GET(): Promise<Response> {
     detail: process.env.READYMODE_ENC_KEY ? undefined : "READYMODE_ENC_KEY not set (per-tenant Readymode creds disabled)",
   });
 
+  // 5) Sentry DSN present (informational — not required for service health)
+  checks.push({
+    name: "sentry_dsn",
+    ok: true,   // never fail the overall check on this
+    ms: 0,
+    detail: process.env.SENTRY_DSN ? undefined : "SENTRY_DSN not set (errors not reported)",
+  });
+
   const allOk = checks.every((c) => c.ok);
   return Response.json({
     ok: allOk,

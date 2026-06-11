@@ -769,6 +769,28 @@ export async function POST(req: Request): Promise<Response> {
     const { data: lead, error: leadErr } = await sa.from("leads").select("*").eq("id", leadId).single();
     if (leadErr || !lead) return jsonRes({ error: "Lead not found" }, 404);
 
+    // ── Cost cap — block analysis when the user has hit their monthly limit.
+    // Lead stays in "Queued" so it can be processed next cycle once the cap
+    // resets / they upgrade.
+    try {
+      const { checkUsage, bumpUsage } = await import("@/lib/usage");
+      const usage = await checkUsage(sa, lead.user_id);
+      if (!usage.allowed) {
+        await sa.from("leads").update({
+          status: "Queued",
+          rejection_reason: usage.reason || "Monthly AI analysis cap reached",
+        }).eq("id", lead.id);
+        return jsonRes({ ok: false, capped: true, reason: usage.reason, count: usage.count, cap: usage.cap }, 429);
+      }
+      // Tick the counter NOW so concurrent invocations see the bump. If the
+      // pipeline errors mid-flight that one analysis still counts toward the
+      // cap — preferable to under-counting and over-charging the user.
+      await bumpUsage(sa, lead.user_id);
+    } catch (e) {
+      // Usage table may not exist on older deployments — degrade gracefully.
+      console.warn("Cost cap check failed (non-fatal):", e instanceof Error ? e.message : e);
+    }
+
     // DUPLICATE (address) — SMART BYPASS: only block if another lead with the
     // same address is still ACTIVE. Dead leads (Disqualified / Error / Duplicate)
     // do NOT block a re-submission — the new one is allowed to be re-analyzed.
@@ -1204,6 +1226,10 @@ export async function POST(req: Request): Promise<Response> {
         }).eq("id", leadIdOuter);
       } catch { /* best-effort */ }
     }
+    try {
+      const { reportError } = await import("@/lib/sentry");
+      await reportError(e, { route: "/api/analyze", leadId: leadIdOuter });
+    } catch { /* never break on sentry failure */ }
     return jsonRes({ error: e instanceof Error ? e.message : "Server error" }, 500);
   }
 }
