@@ -136,9 +136,20 @@ export async function POST(req: Request): Promise<Response> {
     // Login + fetch research page
     const jar = await loginReadymode(host, user, pass);
     const cookie = jarToHeader(jar);
-    const researchUrl = `https://${host}/CCS%20Reports/research/results.json?phone=${cleanPhone}`;
+    // The research page uses a POST form (the GET returns just the empty
+    // form). POST the phone number to get the results table.
+    const researchUrl = `https://${host}/CCS%20Reports/research/results.json`;
     const rr = await fetch(researchUrl, {
-      headers: { "User-Agent": UA, "Cookie": cookie, "Referer": `https://${host}/`, "Accept": "text/html,*/*" },
+      method: "POST",
+      headers: {
+        "User-Agent": UA,
+        "Cookie": cookie,
+        "Referer": `https://${host}/`,
+        "Accept": "text/html,*/*",
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Origin": `https://${host}`,
+      },
+      body: new URLSearchParams({ phone: cleanPhone }).toString(),
       redirect: "follow",
     });
     const html = await rr.text();
