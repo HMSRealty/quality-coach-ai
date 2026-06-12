@@ -42,8 +42,8 @@ const STEPS = [
 ];
 
 const PLANS = [
-  { name: "Starter", price: "$49", tag: "Solo wholesalers", feats: ["100 analyses/mo", "1 workspace", "Call player + ARV", "CSV import"], accent: "#34D399" },
-  { name: "Professional", price: "$149", tag: "Growing teams", feats: ["500 analyses/mo", "Unlimited campaigns", "Teams & roles", "Leaderboard + pacing", "Webhook export"], accent: "#F2266F", featured: true },
+  { name: "Starter", price: "$350", tag: "Solo wholesalers", feats: ["500 analyses/mo", "1 workspace", "Call player + ARV", "CSV import", "Email support"], accent: "#34D399" },
+  { name: "Professional", price: "$750", tag: "Growing teams", feats: ["2,000 analyses/mo", "Unlimited campaigns", "Teams & roles", "Leaderboard + pacing", "Webhook export", "Priority support"], accent: "#F2266F", featured: true },
   { name: "Enterprise", price: "Custom", tag: "Call floors", feats: ["Unlimited analyses", "Multi-tenant + RBAC", "Custom AI persona", "SOC2 / audit logs", "Dedicated manager"], accent: "#A78BFA" },
 ];
 
@@ -83,6 +83,7 @@ export default function LandingPage() {
             <a href="#features" style={navLink}>Features</a>
             <a href="#how" style={navLink}>How it works</a>
             <a href="#pricing" style={navLink}>Pricing</a>
+            <Link href="/tutorial" style={navLink}>Tutorial</Link>
             <Link href="/login" style={navLink}>Sign in</Link>
             <Link href="/login" className="btn-brand" style={{ padding: "9px 18px" }}>Get started <ArrowRight size={14} /></Link>
           </div>
@@ -258,6 +259,10 @@ export default function LandingPage() {
           </div>
           <div style={{ fontSize: 12, display: "flex", gap: 14, alignItems: "center", flexWrap: "wrap" }}>
             <a href="mailto:info@realtrack.app" style={{ color: "rgba(255,255,255,0.85)", textDecoration: "none" }}>info@realtrack.app</a>
+            <Link href="/tutorial" style={{ color: "rgba(255,255,255,0.65)", textDecoration: "none" }}>Tutorial</Link>
+            <Link href="/terms" style={{ color: "rgba(255,255,255,0.65)", textDecoration: "none" }}>Terms</Link>
+            <Link href="/privacy" style={{ color: "rgba(255,255,255,0.65)", textDecoration: "none" }}>Privacy</Link>
+            <Link href="/refund" style={{ color: "rgba(255,255,255,0.65)", textDecoration: "none" }}>Refund</Link>
             <span style={{ opacity: 0.4 }}>·</span>
             <span>© {new Date().getFullYear()} RealTrack. All rights reserved.</span>
           </div>

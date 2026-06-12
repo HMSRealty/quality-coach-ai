@@ -29,9 +29,9 @@ interface Profile {
 
 const PLAN_DETAILS: Record<string, { name: string; price: string; color: string; analyses: string; features: string[] }> = {
   free:         { name: "Free",         price: "$0/mo",    color: "var(--text-3)",    analyses: "10",        features: ["10 analyses/month", "1 campaign", "Basic scoring"] },
-  starter:      { name: "Starter",      price: "$49/mo",   color: "var(--emerald)",   analyses: "100",       features: ["100 analyses/month", "3 campaigns", "Gemini 2.5 Flash", "CSV export"] },
-  professional: { name: "Professional", price: "$149/mo",  color: "var(--brand-400)", analyses: "500",       features: ["500 analyses/month", "Unlimited campaigns", "Gemini 2.5 Pro", "Compliance trails", "Re-analyze"] },
-  enterprise:   { name: "Enterprise",   price: "$499/mo",  color: "var(--violet)",    analyses: "Unlimited", features: ["Unlimited analyses", "Multi-tenant", "Custom API key", "White-label", "SLA", "Dedicated manager"] },
+  starter:      { name: "Starter",      price: "$350/mo",    color: "var(--emerald)",   analyses: "500",       features: ["500 analyses/month", "3 campaigns", "Gemini 2.5 Flash", "CSV export"] },
+  professional: { name: "Professional", price: "$750/mo",    color: "var(--brand-400)", analyses: "2,000",     features: ["2,000 analyses/month", "Unlimited campaigns", "Gemini 2.5 Pro", "Compliance trails", "Re-analyze"] },
+  enterprise:   { name: "Enterprise",   price: "$1,500/mo",  color: "var(--violet)",    analyses: "Unlimited", features: ["Unlimited analyses", "Multi-tenant", "Custom API key", "White-label", "SLA", "Dedicated manager"] },
 };
 
 export default function ProfilePage() {

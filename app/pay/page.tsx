@@ -9,9 +9,9 @@ import { Check, Copy, UploadCloud, FileCheck2, AlertCircle, Loader2, ArrowLeft }
 import { supabase } from "@/lib/supabase";
 
 const PLANS: Record<string, { name: string; price: string; analyses: string; campaigns: string }> = {
-  starter:      { name: "Starter",      price: "$49/mo",  analyses: "100 / month",   campaigns: "3 campaigns" },
-  professional: { name: "Professional", price: "$149/mo", analyses: "500 / month",   campaigns: "Unlimited campaigns" },
-  enterprise:   { name: "Enterprise",   price: "$499/mo", analyses: "Unlimited",     campaigns: "Multi-tenant + white-label" },
+  starter:      { name: "Starter",      price: "$350/mo",  analyses: "500 / month",     campaigns: "3 campaigns" },
+  professional: { name: "Professional", price: "$750/mo",  analyses: "2,000 / month",   campaigns: "Unlimited campaigns" },
+  enterprise:   { name: "Enterprise",   price: "$1,500/mo", analyses: "Unlimited",      campaigns: "Multi-tenant + white-label" },
 };
 
 const BANK = {

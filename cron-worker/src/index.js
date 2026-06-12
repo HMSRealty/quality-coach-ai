@@ -21,20 +21,24 @@ export default {
   async scheduled(event, env, ctx) {
     const secret = env.CRON_SECRET || "";
     const fetchRecsUrl = env.DRAIN_URL ? env.DRAIN_URL.replace("/api/cron/drain", "/api/cron/fetch-recordings") : null;
+    const scanErrorsUrl = env.DRAIN_URL ? env.DRAIN_URL.replace("/api/cron/drain", "/api/cron/scan-errors") : null;
     ctx.waitUntil(Promise.all([
       ping(env.DRAIN_URL, secret),
       ping(fetchRecsUrl, secret),
+      ping(scanErrorsUrl, secret),
     ]));
   },
 
-  // Manual trigger for testing: GET the worker URL to run both jobs on demand.
+  // Manual trigger for testing: GET the worker URL to run all jobs on demand.
   async fetch(req, env, ctx) {
     const secret = env.CRON_SECRET || "";
     const fetchRecsUrl = env.DRAIN_URL ? env.DRAIN_URL.replace("/api/cron/drain", "/api/cron/fetch-recordings") : null;
-    const [drainR, recsR] = await Promise.all([
+    const scanErrorsUrl = env.DRAIN_URL ? env.DRAIN_URL.replace("/api/cron/drain", "/api/cron/scan-errors") : null;
+    const [drainR, recsR, errR] = await Promise.all([
       ping(env.DRAIN_URL, secret),
       ping(fetchRecsUrl, secret),
+      ping(scanErrorsUrl, secret),
     ]);
-    return new Response(`drain → ${drainR?.status ?? "fail"}, fetch-recordings → ${recsR?.status ?? "fail"}`, { status: 200 });
+    return new Response(`drain → ${drainR?.status ?? "fail"}, fetch-recordings → ${recsR?.status ?? "fail"}, scan-errors → ${errR?.status ?? "fail"}`, { status: 200 });
   },
 };

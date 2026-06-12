@@ -41,8 +41,8 @@ const STEPS = [
 ];
 
 const PLANS = [
-  { name: "Starter", price: "$49", tag: "Solo wholesalers", feats: ["100 analyses/mo", "1 workspace", "Call player + ARV", "CSV import"], accent: "#34D399" },
-  { name: "Professional", price: "$149", tag: "Growing teams", feats: ["500 analyses/mo", "Unlimited campaigns", "Teams & roles", "Leaderboard + pacing", "Webhook export"], accent: "#F2266F", featured: true },
+  { name: "Starter", price: "$350", tag: "Solo wholesalers", feats: ["500 analyses/mo", "1 workspace", "Call player + ARV", "CSV import", "Email support"], accent: "#34D399" },
+  { name: "Professional", price: "$750", tag: "Growing teams", feats: ["2,000 analyses/mo", "Unlimited campaigns", "Teams & roles", "Leaderboard + pacing", "Webhook export", "Priority support"], accent: "#F2266F", featured: true },
   { name: "Enterprise", price: "Custom", tag: "Call floors", feats: ["Unlimited analyses", "Multi-tenant + RBAC", "Custom AI persona", "SOC2 / audit logs", "Dedicated manager"], accent: "#A78BFA" },
 ];
 

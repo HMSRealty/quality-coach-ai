@@ -6,9 +6,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 const PLAN_CAPS: Record<string, number | null> = {
-  starter:    100,
-  pro:        1000,
-  enterprise: null,    // unlimited
+  starter:      500,
+  professional: 2000,
+  pro:          2000,   // legacy alias
+  enterprise:   null,   // unlimited
 };
 
 // Estimated USD per analysis. Adjust as Gemini pricing changes.
