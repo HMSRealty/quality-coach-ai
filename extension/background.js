@@ -2,7 +2,7 @@
 // POSTs it to RealTrack's inbound webhook. Runs in the extension's own
 // origin so CORS isn't an issue.
 
-const DEFAULT_WEBHOOK = "https://quality-coach-ai.pages.dev/api/inbound/lead";
+const DEFAULT_WEBHOOK = "https://realtrack.app/api/inbound/lead";
 
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   if (msg && msg.type === "SEND_LEAD") {

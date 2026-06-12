@@ -140,7 +140,7 @@ export default function PendingApproval() {
         </div>
 
         <p style={{ fontSize: 11, color: SLATE, marginTop: 22 }}>
-          Need help? Email <a href="mailto:moe@winnerhouses.com" style={{ color: "#0284C7", fontWeight: 700 }}>moe@winnerhouses.com</a>
+          Need help? Email <a href="mailto:info@realtrack.app" style={{ color: "#0284C7", fontWeight: 700 }}>info@realtrack.app</a>
         </p>
       </div>
     </div>

@@ -256,7 +256,11 @@ export default function LandingPage() {
               <span key={b.label} style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><I size={13} color="#FF4F92" /> {b.label}</span>
             ); })}
           </div>
-          <p style={{ fontSize: 12 }}>© {new Date().getFullYear()} RealTrack. All rights reserved.</p>
+          <div style={{ fontSize: 12, display: "flex", gap: 14, alignItems: "center", flexWrap: "wrap" }}>
+            <a href="mailto:info@realtrack.app" style={{ color: "rgba(255,255,255,0.85)", textDecoration: "none" }}>info@realtrack.app</a>
+            <span style={{ opacity: 0.4 }}>·</span>
+            <span>© {new Date().getFullYear()} RealTrack. All rights reserved.</span>
+          </div>
         </div>
       </footer>
     </div>

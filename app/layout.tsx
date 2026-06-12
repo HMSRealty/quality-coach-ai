@@ -26,7 +26,7 @@ const spaceGrotesk = Space_Grotesk({
   display: "swap",
 });
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://realtrack.com";
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://realtrack.app";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

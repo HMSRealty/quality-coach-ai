@@ -15,7 +15,7 @@ interface SendArgs {
 
 export async function sendEmail({ to, subject, html, text }: SendArgs): Promise<boolean> {
   const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.RESEND_FROM || "RealTrack <noreply@realtrack.app>";
+  const from = process.env.RESEND_FROM || "RealTrack <info@realtrack.app>";
   if (!apiKey || !to) return false;
   try {
     const r = await fetch(ENDPOINT, {

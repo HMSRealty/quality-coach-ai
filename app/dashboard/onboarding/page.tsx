@@ -164,7 +164,7 @@ export default function OnboardingPage() {
         </Link>
       ) : (
         <p style={{ textAlign: "center", fontSize: 11.5, color: SLATE, marginTop: 4 }}>
-          Need help? Email <a href="mailto:moe@winnerhouses.com" style={{ color: SKY_600, fontWeight: 700 }}>moe@winnerhouses.com</a>
+          Need help? Email <a href="mailto:info@realtrack.app" style={{ color: SKY_600, fontWeight: 700 }}>info@realtrack.app</a>
         </p>
       )}
     </div>
