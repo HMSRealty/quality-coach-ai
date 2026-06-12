@@ -2,9 +2,79 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/lib/supabase";
-import { Search, RotateCcw, Loader2, PhoneCall, Download, CheckSquare, Trash2, Play, StopCircle } from "lucide-react";
+import { Search, RotateCcw, Loader2, PhoneCall, Download, CheckSquare, Trash2, Play, StopCircle, Webhook, Copy, Check, ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { LeadsList, type LeadItem } from "@/app/_components/LeadsList";
+
+// Big friendly empty state — gives a first-time user exactly one obvious
+// next action. Three paths: get an API key, send a webhook, or just go to
+// the setup wizard.
+function EmptyCallLibrary({ hasFilter }: { hasFilter: boolean }) {
+  const [copied, setCopied] = useState(false);
+  const sample = "https://realtrack.app/api/inbound/lead?key=YOUR_API_KEY";
+  if (hasFilter) {
+    return (
+      <div style={{ padding: 70, textAlign: "center", background: "#fff", borderRadius: 16, border: "1px solid var(--border-2)" }}>
+        <Search size={28} style={{ margin: "0 auto 14px", opacity: 0.35, color: "var(--text-3)" }} />
+        <p style={{ fontSize: 14, fontWeight: 700, color: "var(--text-1)" }}>No leads match your filters</p>
+        <p style={{ fontSize: 12.5, color: "var(--text-3)", marginTop: 6 }}>Try clearing the search or filter selections above.</p>
+      </div>
+    );
+  }
+  return (
+    <div style={{
+      padding: "44px 28px", background: "#fff", borderRadius: 18,
+      border: "1px solid var(--border-2)", textAlign: "center",
+      boxShadow: "var(--shadow-sm)",
+    }}>
+      <div style={{
+        width: 64, height: 64, borderRadius: 16,
+        background: "linear-gradient(135deg, #0EA5E9, #0284C7)",
+        margin: "0 auto 18px",
+        display: "flex", alignItems: "center", justifyContent: "center",
+      }}>
+        <PhoneCall size={28} color="#fff" />
+      </div>
+      <h2 style={{ fontSize: 22, fontWeight: 900, color: "var(--text-1)" }}>Your Call Library is empty</h2>
+      <p style={{ fontSize: 14, color: "var(--text-3)", marginTop: 8, marginBottom: 24, lineHeight: 1.6, maxWidth: 480, marginLeft: "auto", marginRight: "auto" }}>
+        Send a lead from your dialer or webhook to this URL, or run the setup wizard for a step-by-step walkthrough.
+      </p>
+      <div style={{
+        display: "inline-flex", alignItems: "center", gap: 8,
+        padding: "10px 14px", background: "#F8FAFC",
+        border: "1px solid var(--border-2)", borderRadius: 11,
+        marginBottom: 22, maxWidth: "100%",
+      }}>
+        <Webhook size={14} color="#0284C7" />
+        <code style={{ fontSize: 12, fontFamily: "var(--font-mono)", color: "var(--text-1)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{sample}</code>
+        <button onClick={() => { navigator.clipboard.writeText(sample); setCopied(true); setTimeout(() => setCopied(false), 1500); }}
+          title="Copy URL"
+          style={{ background: "none", border: "none", cursor: "pointer", padding: 4, color: copied ? "#059669" : "var(--text-3)" }}>
+          {copied ? <Check size={14} /> : <Copy size={14} />}
+        </button>
+      </div>
+      <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+        <Link href="/dashboard/onboarding" style={{
+          padding: "11px 20px", borderRadius: 10,
+          background: "linear-gradient(135deg, #0EA5E9, #0284C7)", color: "#fff",
+          fontSize: 13, fontWeight: 800, textDecoration: "none",
+          display: "inline-flex", alignItems: "center", gap: 6,
+        }}>
+          Open setup wizard <ArrowRight size={13} />
+        </Link>
+        <Link href="/dashboard/settings/api" style={{
+          padding: "11px 20px", borderRadius: 10,
+          background: "#fff", color: "var(--text-1)",
+          border: "1px solid var(--border-2)",
+          fontSize: 13, fontWeight: 700, textDecoration: "none",
+        }}>
+          Get your API key
+        </Link>
+      </div>
+    </div>
+  );
+}
 
 interface Lead {
   id: string;
@@ -299,10 +369,7 @@ export default function CallsPage() {
           <Loader2 size={24} className="animate-spin" style={{ color: "var(--brand-purple)", margin: "0 auto" }} />
         </div>
       ) : filtered.length === 0 ? (
-        <div style={{ padding: 60, textAlign: "center", color: "var(--text-2)", background: "var(--surface-1)", border: "1px solid var(--border-2)", borderRadius: 14 }}>
-          <PhoneCall size={32} style={{ margin: "0 auto 12px", opacity: 0.4 }} />
-          <p style={{ fontSize: 14, fontWeight: 600 }}>No leads found.</p>
-        </div>
+        <EmptyCallLibrary hasFilter={!!search || statusFilter !== "All" || campaignFilter !== "All" || agentFilter !== "All"} />
       ) : (
         <LeadsList leads={filtered.map(toItem)} newIds={newIds} onOpen={(id) => router.push(`/dashboard/leads/${id}`)} onDelete={deleteLead} onAnalyze={analyzeLead}
           selectable={selectMode} selectedIds={selected} onToggleSelect={toggleSelect} />

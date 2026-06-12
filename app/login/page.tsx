@@ -78,7 +78,10 @@ export default function AuthPage() {
           }).catch(() => {});
         }
       }
-      setMsg({ text: "Account created! Check your inbox to confirm.", ok: true });
+      setMsg({ text: "Account created! Taking you to plans...", ok: true });
+      // Smooth handoff: send the new user straight to the payment page so
+      // they keep momentum. They can still confirm their email later.
+      setTimeout(() => { window.location.href = "/pay"; }, 800);
     }
     setLoading(false);
   };

@@ -15,6 +15,7 @@ import { Card } from "@/app/_components/Card";
 import { LeadDetailModal } from "@/app/_components/LeadDetailModal";
 import { LeadsList } from "@/app/_components/LeadsList";
 import { PageHeader } from "@/app/_components/PageHeader";
+import { SetupBanner } from "@/app/_components/SetupBanner";
 import { T } from "@/app/_components/tokens";
 import {
   TrendingUp, TrendingDown, PhoneCall, CheckCircle2, XCircle,
@@ -267,6 +268,8 @@ export default function DashboardPage() {
 
   return (
     <div style={{ maxWidth: 1280, margin: "0 auto", display: "flex", flexDirection: "column", gap: 26 }} className="animate-in">
+
+      <SetupBanner />
 
       {/* ── HERO ─────────────────────────────────────────────────────── */}
       <section style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
