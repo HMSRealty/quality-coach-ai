@@ -16,4 +16,4 @@ compatibility_date = "2024-11-01"
 crons = ["* * * * *"]   # every minute
 
 [vars]
-DRAIN_URL = "https://quality-coach-ai.pages.dev/api/cron/drain"
+DRAIN_URL = "https://realtrack.app/api/cron/drain"

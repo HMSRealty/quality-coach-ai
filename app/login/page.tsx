@@ -13,7 +13,7 @@ const RED_L = "#FBEEE8";
 
 type Tab = "signin" | "signup";
 
-function HSMLogo() {
+function RealTrackLogo() {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
       <svg width="52" height="32" viewBox="0 0 40 24" fill="none">
@@ -105,7 +105,7 @@ export default function AuthPage() {
       }}>
         {/* Logo */}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 28 }}>
-          <HSMLogo />
+          <RealTrackLogo />
           <p style={{ fontSize: 13, color: T.slate2, marginTop: 10, fontWeight: 500 }}>
             Performance &amp; Coaching Suite
           </p>

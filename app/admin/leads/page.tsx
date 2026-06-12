@@ -151,7 +151,7 @@ export default function AdminLeadsPage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `hms-leads-export-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `realtrack-leads-export-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };

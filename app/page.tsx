@@ -117,9 +117,8 @@ const PLANS = [
 const FAQS = [
   { q: "How long does activation take?", a: "Sign up → upload your payment receipt → we activate within 1–4 business hours. From there, you're sending leads in under 15 minutes." },
   { q: "Do I need a Readymode dialer?", a: "No. RealTrack works with any source that can POST to our webhook — Readymode, BatchDialer, Aircall, Five9, even Zapier. Recordings can be uploaded manually if you prefer." },
-  { q: "What if I hit the analysis cap?", a: "You can upgrade in one click, or add your own Gemini API key for unlimited overflow (we rotate through it automatically when our quota is full)." },
-  { q: "Is there a free trial?", a: "We don't offer a trial, but we do offer a 14-day money-back guarantee. Not satisfied in the first two weeks? Full refund, no questions." },
-  { q: "Can I cancel anytime?", a: "Yes. Cancel via email, no penalties. You keep access for the remainder of the billing cycle." },
+  { q: "How is the AI qualifying calls?", a: "Every call is graded against The Four Pillars — Asking Price, Condition, Closing timeline, and Reason — plus four non-negotiable rules (not listed, not under contract, asking below Zillow, residential or vacant lot). Everything beyond that is fully editable per client and per campaign." },
+  { q: "Can I cancel anytime?", a: "Yes. Email us anytime to cancel. You keep full access until the end of your current billing period, and you won't be charged on your renewal date." },
 ];
 
 const INTEGRATIONS = [
@@ -507,12 +506,6 @@ export default function LandingPage() {
               <a href="#pricing" style={{ display: "block", color: "rgba(255,255,255,0.65)", textDecoration: "none", fontSize: 13.5, marginBottom: 8 }}>Pricing</a>
               <Link href="/tutorial" style={{ display: "block", color: "rgba(255,255,255,0.65)", textDecoration: "none", fontSize: 13.5, marginBottom: 8 }}>Tutorial</Link>
               <Link href="/login" style={{ display: "block", color: "rgba(255,255,255,0.65)", textDecoration: "none", fontSize: 13.5 }}>Sign in</Link>
-            </div>
-            <div>
-              <p style={{ fontSize: 11, fontWeight: 800, color: "#fff", letterSpacing: "0.08em", marginBottom: 14 }}>LEGAL</p>
-              <Link href="/terms" style={{ display: "block", color: "rgba(255,255,255,0.65)", textDecoration: "none", fontSize: 13.5, marginBottom: 8 }}>Terms of Service</Link>
-              <Link href="/privacy" style={{ display: "block", color: "rgba(255,255,255,0.65)", textDecoration: "none", fontSize: 13.5, marginBottom: 8 }}>Privacy Policy</Link>
-              <Link href="/refund" style={{ display: "block", color: "rgba(255,255,255,0.65)", textDecoration: "none", fontSize: 13.5 }}>Refund Policy</Link>
             </div>
             <div>
               <p style={{ fontSize: 11, fontWeight: 800, color: "#fff", letterSpacing: "0.08em", marginBottom: 14 }}>CONTACT</p>

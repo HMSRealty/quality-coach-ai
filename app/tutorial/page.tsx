@@ -52,16 +52,8 @@ const FAQS = [
     a: "No. RealTrack works with any source that can POST to our webhook — Readymode, BatchDialer, Aircall, Five9, even a Zapier hookup. Recordings can be attached via URL or uploaded manually.",
   },
   {
-    q: "What if my Gemini API key hits a rate limit?",
-    a: "Add multiple keys to your rotation pool under Settings → API. The system rotates automatically when one fails. Keys with 5 consecutive errors auto-disable until you re-enable them.",
-  },
-  {
     q: "How is the AI qualifying calls?",
-    a: "Each campaign has its own rules. The AI also follows the org-level Persona at Dashboard → Persona — a customizable system prompt that defines the AI's role, scoring framework, and a Kill List of automatic disqualifiers. You can override the persona per-campaign too.",
-  },
-  {
-    q: "How accurate is the ARV / MAO?",
-    a: "ARV pulls from Zillow Zestimate data and nearby comparables. MAO uses your configurable formula (default: 70% ARV minus estimated repairs). Treat them as starting points — always verify with your own analysis before making an offer.",
+    a: "Every call is evaluated against The Four Pillars: Asking Price, Condition, Closing timeline, and Reason for selling. Plus non-negotiable rules: not listed with a realtor, not under contract, asking below Zillow, and residential or vacant lot only. The rest of the persona is fully editable under Dashboard → Persona, and you can override it per campaign.",
   },
   {
     q: "What happens if a call has no recording?",
@@ -74,6 +66,10 @@ const FAQS = [
   {
     q: "Can I add sub-users / team members?",
     a: "Yes. Go to Floor Agents → Add Agent to register a caller, then click Invite to send them a login. Sub-users see only their own dashboard (their leads, their hours, their stats).",
+  },
+  {
+    q: "How do I cancel my subscription?",
+    a: "Email info@realtrack.app any time. We'll confirm within 24 hours. You keep full access until the end of your current billing period — there will be no further charges on your renewal date.",
   },
 ];
 
@@ -213,10 +209,7 @@ export default function TutorialPage() {
       </section>
 
       <footer style={{ background: "#0B0F1F", color: "rgba(255,255,255,0.6)", padding: "30px 28px", textAlign: "center", fontSize: 12 }}>
-        <a href="mailto:info@realtrack.app" style={{ color: "rgba(255,255,255,0.85)", textDecoration: "none", marginRight: 14 }}>info@realtrack.app</a>
-        <Link href="/terms" style={{ color: "rgba(255,255,255,0.65)", textDecoration: "none", marginRight: 14 }}>Terms</Link>
-        <Link href="/privacy" style={{ color: "rgba(255,255,255,0.65)", textDecoration: "none", marginRight: 14 }}>Privacy</Link>
-        <Link href="/refund" style={{ color: "rgba(255,255,255,0.65)", textDecoration: "none" }}>Refund</Link>
+        <a href="mailto:info@realtrack.app" style={{ color: "rgba(255,255,255,0.85)", textDecoration: "none" }}>info@realtrack.app</a>
         <div style={{ marginTop: 6 }}>© {new Date().getFullYear()} RealTrack.</div>
       </footer>
     </div>

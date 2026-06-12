@@ -35,8 +35,8 @@ export const metadata: Metadata = {
     template: "%s · RealTrack",
   },
   description:
-    "RealTrack listens to your cold calls, qualifies leads against live market data, computes ARV & MAO, and routes deals to acquisitions — the operating system for real-estate call centers.",
-  keywords: ["real estate wholesaling", "cold calling QA", "call analytics", "ARV calculator", "MAO calculator", "acquisitions CRM", "lead intake"],
+    "RealTrack listens to your cold calls, qualifies every lead against The Four Pillars, and routes Hot leads to acquisitions — the operating system for real-estate call centers.",
+  keywords: ["real estate wholesaling", "cold calling QA", "call analytics", "acquisitions CRM", "lead intake", "AI call qualification"],
   applicationName: "RealTrack",
   alternates: { canonical: "/" },
   openGraph: {
