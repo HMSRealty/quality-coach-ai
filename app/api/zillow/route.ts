@@ -36,7 +36,8 @@ async function addrHash(addr: string): Promise<string> {
   const digest = await crypto.subtle.digest("SHA-256", bytes);
   return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
-interface CachedPayload { normalized: ReturnType<typeof normalize>; comparables: Array<{ price: number; sqft?: number; address?: string }> }
+interface Comp { price: number; sqft?: number; address?: string; zip?: string; beds?: number; baths?: number; sqft_delta_pct?: number }
+interface CachedPayload { normalized: ReturnType<typeof normalize>; comparables: Comp[]; comp_confidence?: "high" | "medium" | "low" | "none" }
 async function cacheGet(hash: string): Promise<CachedPayload | null> {
   const sb = cacheClient(); if (!sb) return null;
   try {
@@ -232,36 +233,101 @@ function strictMatch(typed: string, got: ReturnType<typeof normalize>): AddressM
   return { ok: miss.length === 0, mismatches: miss };
 }
 
-// ── Comparables fetch (best-effort) ──────────────────────────────────────────
-// Private-zillow doesn't return comps from /byurl. We approximate by pulling a
-// handful of recent listings in the SAME zip via autocomplete, then byurl each.
-// Capped to 5 calls so we don't run up the bill.
+// ── Comparables fetch with strict filtering ─────────────────────────────────
+// The previous version dumped 5 random ZIP-area properties into the result
+// regardless of size or type. The AI then computed an ARV from numbers that
+// had nothing to do with the subject.
+//
+// New version:
+//   1. Pulls candidates by ZIP AND by city (more relevant matches).
+//   2. Filters to:
+//        - Has both price/zestimate AND sqft.
+//        - Same ZIP or same city.
+//        - sqft within ±30% of subject (skip if subject has no sqft).
+//        - Reasonable price (>$10k, <$10M).
+//        - Not the subject property itself.
+//   3. Sorts by sqft-similarity, takes top 4.
+//   4. Returns a confidence label so downstream code can decide whether
+//      to trust the ARV estimate.
 async function fetchComps(
-  zip: string | undefined,
-  subject: { sqft?: number; lat?: number; lng?: number; zpid?: string | number },
+  subject: { sqft?: number; zip?: string; city?: string; state?: string; zpid?: string | number },
   key: string,
-): Promise<Array<{ price: number; sqft?: number; address?: string }>> {
-  if (!zip) return [];
+): Promise<{ comps: Comp[]; confidence: "high" | "medium" | "low" | "none" }> {
+  if (!subject.sqft || subject.sqft < 200) {
+    // Without a subject sqft we can't reasonably filter — better to return
+    // no comps than misleading ones.
+    return { comps: [], confidence: "none" };
+  }
+
   try {
-    const ac = await call(HOST_DATA, `/autocomplete?query=${encodeURIComponent(zip)}`, key);
-    const results = ((ac.data as { results?: Array<Record<string, unknown>> })?.results) || [];
-    const candidates = results
-      .map((r) => (r.metaData as { zpid?: string | number } | undefined)?.zpid)
-      .filter((z): z is string | number => !!z && String(z) !== String(subject.zpid))
-      .slice(0, 5);
-    const comps: Array<{ price: number; sqft?: number; address?: string }> = [];
+    // Two queries: ZIP for tight-neighborhood matches, City for broader
+    // city-wide matches. Dedupe by ZPID afterward.
+    const queries: string[] = [];
+    if (subject.zip) queries.push(subject.zip);
+    if (subject.city && subject.state) queries.push(`${subject.city} ${subject.state}`);
+    if (queries.length === 0) return { comps: [], confidence: "none" };
+
+    const zpids = new Set<string>();
+    for (const q of queries) {
+      try {
+        const ac = await call(HOST_DATA, `/autocomplete?query=${encodeURIComponent(q)}`, key);
+        const results = ((ac.data as { results?: Array<Record<string, unknown>> })?.results) || [];
+        for (const r of results) {
+          const z = (r.metaData as { zpid?: string | number } | undefined)?.zpid;
+          if (z && String(z) !== String(subject.zpid)) zpids.add(String(z));
+        }
+      } catch { /* skip */ }
+      if (zpids.size >= 12) break;       // enough candidates, stop billing
+    }
+
+    if (zpids.size === 0) return { comps: [], confidence: "none" };
+
+    const candidates = [...zpids].slice(0, 10);
+    const raw: Comp[] = [];
     for (const z of candidates) {
       try {
         const detailUrl = `https://www.zillow.com/homedetails/${z}_zpid/`;
         const r = await call(HOST_DATA, `/byurl?url=${encodeURIComponent(detailUrl)}`, key);
         if (!r.ok) continue;
         const n = normalize(r.data);
-        if (n.price && n.sqft) comps.push({ price: n.price, sqft: n.sqft, address: n.address });
-        else if (n.zestimate && n.sqft) comps.push({ price: n.zestimate, sqft: n.sqft, address: n.address });
-      } catch { /* skip individual failures */ }
+        const price = n.price || n.zestimate;
+        if (!price || !n.sqft) continue;
+        if (price < 10_000 || price > 10_000_000) continue;
+        raw.push({
+          price,
+          sqft: n.sqft,
+          address: n.address,
+          beds: n.beds,
+          baths: n.baths,
+          zip: parseTyped(n.address || "").zip,
+        });
+      } catch { /* skip */ }
     }
-    return comps;
-  } catch { return []; }
+
+    // Filter: same ZIP OR same city, AND sqft within ±30% of subject.
+    const subjectCity = (subject.city || "").trim().toLowerCase();
+    const filtered = raw.filter((c) => {
+      if (!c.sqft) return false;
+      const delta = Math.abs(c.sqft - subject.sqft!) / subject.sqft!;
+      if (delta > 0.30) return false;
+      if (subject.zip && c.zip === subject.zip) return true;
+      const compCity = (parseTyped(c.address || "").city || "").trim().toLowerCase();
+      if (subjectCity && compCity && compCity === subjectCity) return true;
+      return false;
+    }).map((c) => ({
+      ...c,
+      sqft_delta_pct: Math.round((Math.abs(c.sqft! - subject.sqft!) / subject.sqft!) * 100),
+    })).sort((a, b) => (a.sqft_delta_pct ?? 99) - (b.sqft_delta_pct ?? 99));
+
+    const final = filtered.slice(0, 4);
+
+    let confidence: "high" | "medium" | "low" | "none" = "none";
+    if (final.length >= 3 && final.every((c) => (c.sqft_delta_pct ?? 99) <= 15)) confidence = "high";
+    else if (final.length >= 3) confidence = "medium";
+    else if (final.length >= 1) confidence = "low";
+
+    return { comps: final, confidence };
+  } catch { return { comps: [], confidence: "none" }; }
 }
 
 export async function GET(req: Request): Promise<Response> {
@@ -300,7 +366,7 @@ export async function GET(req: Request): Promise<Response> {
     if (!debug) {
       const cached = await cacheGet(hash);
       if (cached?.normalized && hasData(cached.normalized)) {
-        return json({ ok: true, source: "cache", match: true, normalized: cached.normalized, comparables: cached.comparables || [] });
+        return json({ ok: true, source: "cache", match: true, normalized: cached.normalized, comparables: cached.comparables || [], comp_confidence: cached.comp_confidence || "none" });
       }
     }
 
@@ -347,13 +413,19 @@ export async function GET(req: Request): Promise<Response> {
     }
 
     // STEP 3 — fetch nearby comps for ARV (best-effort, capped).
-    const typedZip = parseTyped(address).zip;
-    const comparables = await fetchComps(typedZip, { sqft: chosen.n.sqft, zpid: chosen.n.zpid }, key);
+    const typed = parseTyped(address);
+    const { comps: comparables, confidence: comp_confidence } = await fetchComps({
+      sqft: chosen.n.sqft,
+      zip: typed.zip,
+      city: typed.city,
+      state: typed.state,
+      zpid: chosen.n.zpid,
+    }, key);
 
     // Persist to the shared cache for 30 days.
-    await cacheSet(hash, { normalized: chosen.n, comparables });
+    await cacheSet(hash, { normalized: chosen.n, comparables, comp_confidence });
 
-    return finish(chosen.n, address, "address->zpid->byurl", debug ? chosen.raw : undefined, attempts, comparables);
+    return finish(chosen.n, address, "address->zpid->byurl", debug ? chosen.raw : undefined, attempts, comparables, comp_confidence);
   } catch (e) {
     return json({ ok: false, error: e instanceof Error ? e.message : "Server error" }, 500);
   }
@@ -365,7 +437,8 @@ function finish(
   source: string,
   raw: unknown | undefined,
   attempts: Array<{ via: string; url: string; status: number }>,
-  comparables: Array<{ price: number; sqft?: number; address?: string }> = [],
+  comparables: Comp[] = [],
+  comp_confidence: "high" | "medium" | "low" | "none" = "none",
 ): Response {
   return json({
     ok: true,
@@ -373,6 +446,7 @@ function finish(
     match: true,
     normalized: { ...n, address: n.address || typedAddress },
     comparables,
+    comp_confidence,
     ...(raw !== undefined ? { raw, attempts } : {}),
   });
 }
