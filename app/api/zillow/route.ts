@@ -132,6 +132,18 @@ function normalize(data: unknown) {
   const image = field(p, ["imgsrc", "image"]) ||
     (Array.isArray(photos) && photos[0] && typeof photos[0] === "object" ? (photos[0] as AnyObj).url : undefined);
 
+  // Listing status — separate from homeType so we can reject rentals later.
+  // Zillow returns one of: FOR_SALE, RECENTLY_SOLD, FOR_RENT, PENDING, OFF_MARKET, etc.
+  const listingStatus = String(
+    field(p, ["statustype", "homestatus", "listingstatus", "marketingstatussimplifiedcd"]) || ""
+  ).toUpperCase();
+
+  // Rent flag — true if listing is for rent (rental listing prices are not comparable to sale prices)
+  const rentSignals = [listingStatus, String(field(p, ["price"]) || "")].join(" ").toUpperCase();
+  const isRental = /\bRENT|FOR_RENT|RENTAL\b/.test(rentSignals)
+    || /\$[0-9,]+\s*\/\s*MO/.test(String(field(p, ["price"]) || ""))
+    || (field(p, ["rentzestimate"]) != null && !field(p, ["zestimate"]) && !field(p, ["price"]));
+
   return {
     address: address || undefined,
     zestimate: num(field(p, ["zestimate", "zestimatevalue"])),
@@ -139,7 +151,9 @@ function normalize(data: unknown) {
     beds: num(field(p, ["bedrooms", "beds"])),
     baths: num(field(p, ["bathrooms", "baths"])),
     sqft: num(field(p, ["area(sqft)", "livingarea", "livingareavalue", "area", "sqft"])),
-    homeType: (field(p, ["hometype", "propertytype", "statustype"]) as string) || undefined,
+    homeType: (field(p, ["hometype", "propertytype"]) as string) || undefined,
+    listingStatus: listingStatus || undefined,
+    isRental,
     yearBuilt: num(field(p, ["yearbuilt"])),
     zillow_url: zUrl || undefined,
     image: (image as string) || undefined,
@@ -290,9 +304,20 @@ async function fetchComps(
         const r = await call(HOST_DATA, `/byurl?url=${encodeURIComponent(detailUrl)}`, key);
         if (!r.ok) continue;
         const n = normalize(r.data);
+        // Hard reject rentals — rental list prices are monthly rents, not
+        // comparable to sale prices, and they were polluting the ARV math.
+        if (n.isRental) continue;
+        const status = (n.listingStatus || "").toUpperCase();
+        if (/RENT/.test(status)) continue;
+        // Only trust "SOLD" or "FOR_SALE" status for ARV math; if status is
+        // missing we still keep it as a fallback comp.
         const price = n.price || n.zestimate;
         if (!price || !n.sqft) continue;
-        if (price < 10_000 || price > 10_000_000) continue;
+        // Sanity check on price-per-sqft. Rentals slipping through usually
+        // show ridiculous PPSF (under $10 or over $5000). Real sale comps
+        // sit between $20 and $1500 PPSF nationwide.
+        const ppsf = price / n.sqft;
+        if (ppsf < 20 || ppsf > 2000) continue;
         raw.push({
           price,
           sqft: n.sqft,
@@ -305,8 +330,10 @@ async function fetchComps(
     }
 
     // Filter: same ZIP OR same city, AND sqft within ±30% of subject.
+    // Then also reject any remaining comps whose PPSF is more than 2x off
+    // the median of accepted comps — another rental-leak safety net.
     const subjectCity = (subject.city || "").trim().toLowerCase();
-    const filtered = raw.filter((c) => {
+    const sameArea = raw.filter((c) => {
       if (!c.sqft) return false;
       const delta = Math.abs(c.sqft - subject.sqft!) / subject.sqft!;
       if (delta > 0.30) return false;
@@ -314,6 +341,16 @@ async function fetchComps(
       const compCity = (parseTyped(c.address || "").city || "").trim().toLowerCase();
       if (subjectCity && compCity && compCity === subjectCity) return true;
       return false;
+    });
+
+    // Outlier rejection by PPSF — anything more than 2x away from the median
+    // is likely a rental that slipped past the earlier filter.
+    const ppsfs = sameArea.map((c) => (c.price / (c.sqft || 1))).sort((a, b) => a - b);
+    const medPpsf = ppsfs.length > 0 ? ppsfs[Math.floor(ppsfs.length / 2)] : 0;
+    const filtered = sameArea.filter((c) => {
+      if (!medPpsf) return true;
+      const ppsf = c.price / (c.sqft || 1);
+      return ppsf >= medPpsf / 2 && ppsf <= medPpsf * 2;
     }).map((c) => ({
       ...c,
       sqft_delta_pct: Math.round((Math.abs(c.sqft! - subject.sqft!) / subject.sqft!) * 100),
