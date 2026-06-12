@@ -1,12 +1,12 @@
 "use client";
 
-// Manage a pool of Gemini API keys per user. Multiple keys reduce risk
-// of hitting rate limits — the analyzer rotates through them and disables
-// any key with 5 consecutive errors.
+// Manage a pool of Zillow / RapidAPI keys per user. Get keys at
+// rapidapi.com/apimaker/api/zillow-com1 (or similar). Multiple keys give you
+// rotation when one hits a rate limit.
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Key, Plus, Trash2, Loader2, CheckCircle2, XCircle, Sparkles, Eye, EyeOff, AlertTriangle, Play, Pause } from "lucide-react";
+import { Key, Plus, Trash2, Loader2, CheckCircle2, XCircle, Home, Eye, EyeOff, AlertTriangle, Play, Pause } from "lucide-react";
 
 const NAVY = "#0F172A";
 const SLATE = "#475569";
@@ -24,7 +24,7 @@ interface KeyRow {
   consecutive_errors: number;
 }
 
-export function GeminiKeysCard() {
+export function ZillowKeysCard() {
   const [keys, setKeys] = useState<KeyRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
@@ -38,7 +38,7 @@ export function GeminiKeysCard() {
     setLoading(true);
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) { setLoading(false); return; }
-    const r = await fetch("/api/gemini/keys", { headers: { Authorization: `Bearer ${session.access_token}` } });
+    const r = await fetch("/api/zillow/keys", { headers: { Authorization: `Bearer ${session.access_token}` } });
     const j = await r.json().catch(() => ({}));
     setKeys((j.keys || []) as KeyRow[]);
     setLoading(false);
@@ -46,10 +46,10 @@ export function GeminiKeysCard() {
   useEffect(() => { load(); }, []);
 
   const add = async () => {
-    if (!keyValue.trim()) { setMsg({ type: "err", text: "Paste a Gemini API key." }); return; }
+    if (!keyValue.trim()) { setMsg({ type: "err", text: "Paste a RapidAPI / Zillow key." }); return; }
     setBusy(true); setMsg(null);
     const { data: { session } } = await supabase.auth.getSession();
-    const r = await fetch("/api/gemini/keys", {
+    const r = await fetch("/api/zillow/keys", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${session?.access_token}` },
       body: JSON.stringify({ label: label.trim() || null, key: keyValue.trim() }),
@@ -64,7 +64,7 @@ export function GeminiKeysCard() {
 
   const toggle = async (k: KeyRow) => {
     const { data: { session } } = await supabase.auth.getSession();
-    await fetch(`/api/gemini/keys?id=${k.id}`, {
+    await fetch(`/api/zillow/keys?id=${k.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${session?.access_token}` },
       body: JSON.stringify({ is_active: !k.is_active, reset_errors: !k.is_active }),
@@ -75,7 +75,7 @@ export function GeminiKeysCard() {
   const remove = async (k: KeyRow) => {
     if (!confirm(`Remove ${k.label || "this key"} from the rotation?`)) return;
     const { data: { session } } = await supabase.auth.getSession();
-    await fetch(`/api/gemini/keys?id=${k.id}`, {
+    await fetch(`/api/zillow/keys?id=${k.id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${session?.access_token}` },
     });
@@ -87,9 +87,9 @@ export function GeminiKeysCard() {
 
   return (
     <div style={card}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6, flexWrap: "wrap", gap: 8 }}>
         <p style={{ fontSize: 15, fontWeight: 800, color: "#000", display: "inline-flex", alignItems: "center", gap: 8 }}>
-          <Sparkles size={16} color={SKY_600} /> Gemini API Key Pool
+          <Home size={16} color={SKY_600} /> Zillow / Property Data
         </p>
         <button onClick={() => setAdding(a => !a)} style={{
           display: "inline-flex", alignItems: "center", gap: 5,
@@ -101,14 +101,14 @@ export function GeminiKeysCard() {
         </button>
       </div>
       <p style={{ fontSize: 12.5, color: "var(--text-2)", marginBottom: 14 }}>
-        Add as many Gemini keys as you have. The analyzer rotates through them automatically — when one hits rate limits, the next takes over. Keys with 5 consecutive errors auto-disable. Get keys at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer" style={{ color: SKY_600 }}>aistudio.google.com/apikey</a>.
+        Used for property value (Zestimate), ARV calculation, and nearby comparables. Get a key at <a href="https://rapidapi.com" target="_blank" rel="noreferrer" style={{ color: SKY_600 }}>rapidapi.com</a> and subscribe to the &quot;Private Zillow&quot; API. Add multiple keys to rotate when one hits a limit.
       </p>
 
       {adding && (
         <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr auto", gap: 9, marginBottom: 14, alignItems: "end" }}>
           <input value={label} onChange={e => setLabel(e.target.value)} placeholder="Label (optional)" style={{ ...inp, fontFamily: "inherit" }} />
           <div style={{ position: "relative" }}>
-            <input value={keyValue} onChange={e => setKeyValue(e.target.value)} type={showKey ? "text" : "password"} placeholder="AIzaSy..." style={{ ...inp, paddingRight: 38 }} />
+            <input value={keyValue} onChange={e => setKeyValue(e.target.value)} type={showKey ? "text" : "password"} placeholder="RapidAPI key" style={{ ...inp, paddingRight: 38 }} />
             <button type="button" onClick={() => setShowKey(s => !s)}
               style={{ position: "absolute", right: 7, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "var(--text-3)", cursor: "pointer", padding: 4 }}>
               {showKey ? <EyeOff size={14} /> : <Eye size={14} />}
@@ -149,12 +149,13 @@ export function GeminiKeysCard() {
                 background: k.is_active ? "#F8FAFC" : "#FEF2F2",
                 border: `1px solid ${k.is_active ? "var(--border-1)" : "#FECACA"}`,
                 opacity: k.is_active ? 1 : 0.7,
+                flexWrap: "wrap",
               }}>
                 <Key size={14} color={ok ? MONEY : k.is_active ? "#92400E" : "#DC2626"} />
-                <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ flex: 1, minWidth: 140 }}>
                   <p style={{ fontSize: 13, fontWeight: 700, color: NAVY }}>
                     {k.label || "(unlabeled)"}
-                    {!k.is_active && <span style={{ fontSize: 9, color: "#DC2626", fontWeight: 800, marginLeft: 8 }}>● DISABLED</span>}
+                    {!k.is_active && <span style={{ fontSize: 9, color: "#DC2626", fontWeight: 800, marginLeft: 8 }}>● PAUSED</span>}
                   </p>
                   <p style={{ fontSize: 11, color: SLATE, marginTop: 1 }}>
                     {k.last_used_at ? `Last used ${new Date(k.last_used_at).toLocaleString()}` : "Not yet used"}

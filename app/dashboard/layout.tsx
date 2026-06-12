@@ -25,7 +25,7 @@ import {
   Send, Users2, Network,
   Flag, Power, UserCog, Eye, Search,
   Settings as SettingsIcon, Webhook, Wallet, Target, Trophy, Palette,
-  GitBranch, Flame, Rocket,
+  GitBranch, Flame, Rocket, Menu, X,
 } from "lucide-react";
 
 // Corporate Command Center — navigation grouped by company department.
@@ -69,7 +69,7 @@ const NAV_GROUPS: { section: string; items: { label: string; href: string; icon:
     items: [
       { label: "Setup Wizard",            href: "/dashboard/onboarding",  icon: Rocket },
       { label: "Settings",                href: "/dashboard/settings",    icon: SettingsIcon },
-      { label: "Webhooks & Integrations", href: "/dashboard/settings/api", icon: Webhook },
+      { label: "Integrations",            href: "/dashboard/integrations",      icon: Webhook },
       { label: "Branding",                href: "/dashboard/settings/branding", icon: Palette },
       { label: "Sub-Users",               href: "/dashboard/sub-users",   icon: UserCog },
       { label: "Permissions",             href: "/dashboard/permissions", icon: Power },
@@ -162,6 +162,10 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isCaller, setIsCaller] = useState(false);
   const [actingAs, setActingAs] = useState<string | null>(null);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
+  // Close the mobile drawer whenever the route changes.
+  useEffect(() => { setMobileNavOpen(false); }, [pathname]);
 
   useEffect(() => {
     setActingAs(impersonationTarget());
@@ -201,10 +205,32 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
   return (
     // Indestructible native-scroll SaaS shell. No Lenis here — the sidebar and
     // main content each own a real CSS scroll container.
-    <div className="flex h-screen w-full overflow-hidden" style={{ background: "var(--canvas)", color: "var(--text-1)" }}>
+    <div className="rt-shell" style={{ background: "var(--canvas)", color: "var(--text-1)" }}>
+
+      {/* Mobile top bar — only visible on small screens. Tap menu to open the
+          sidebar drawer; tap the backdrop to close. */}
+      <div className="rt-mobile-bar">
+        <button onClick={() => setMobileNavOpen((o) => !o)} aria-label="Open menu" style={{
+          background: "none", border: "none", padding: 6, cursor: "pointer", color: "#0F172A",
+        }}>
+          {mobileNavOpen ? <X size={22} /> : <Menu size={22} />}
+        </button>
+        <Link href="/dashboard" style={{ textDecoration: "none" }}>
+          <RealTrackMark size={22} />
+        </Link>
+        <div style={{ width: 32 }} />
+      </div>
+
+      {/* Backdrop (mobile only, when drawer is open) */}
+      {mobileNavOpen && (
+        <div
+          onClick={() => setMobileNavOpen(false)}
+          className="rt-mobile-backdrop"
+        />
+      )}
 
       {/* ───────── SIDEBAR — white, sky indicators, native scroll ───────── */}
-      <aside className="h-full overflow-y-auto border-r flex-shrink-0" style={{
+      <aside className={`rt-sidebar ${mobileNavOpen ? "rt-sidebar-open" : ""}`} style={{
         width: 256,
         background: "#FFFFFF",
         borderRight: "1px solid var(--border-2)",

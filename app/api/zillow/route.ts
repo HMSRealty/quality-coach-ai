@@ -369,10 +369,23 @@ async function fetchComps(
 
 export async function GET(req: Request): Promise<Response> {
   try {
-    const key = process.env.RAPIDAPI_KEY;
-    if (!key) return json({ ok: false, error: "Missing RAPIDAPI_KEY env var" }, 500);
-
     const url     = new URL(req.url);
+    // Per-tenant Zillow key — pass ?user_id=... from internal callers
+    // (the analyze route does this). Falls back to RAPIDAPI_KEY env var.
+    let key = process.env.RAPIDAPI_KEY || "";
+    const userIdParam = url.searchParams.get("user_id");
+    if (userIdParam) {
+      try {
+        const { loadZillowKeys } = await import("@/lib/zillow-keys");
+        const sb = cacheClient();
+        if (sb) {
+          const pool = await loadZillowKeys(sb, userIdParam);
+          if (pool.length > 0) key = pool[0].key;
+        }
+      } catch { /* fall back to env */ }
+    }
+    if (!key) return json({ ok: false, error: "No Zillow API key configured. Add one at /dashboard/integrations." }, 500);
+
     const address = (url.searchParams.get("address") || url.searchParams.get("q") || "").trim();
     const zUrl    = (url.searchParams.get("url") || "").trim();
     const exact   = url.searchParams.get("path");

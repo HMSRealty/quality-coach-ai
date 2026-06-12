@@ -993,7 +993,7 @@ export async function POST(req: Request): Promise<Response> {
     if (((!zillowData || !zillowData.zestimate) || comparables.length === 0) && lead.extracted_address) {
       try {
         const origin = new URL(req.url).origin;
-        const zr = await fetch(`${origin}/api/zillow?address=${encodeURIComponent(lead.extracted_address)}`);
+        const zr = await fetch(`${origin}/api/zillow?address=${encodeURIComponent(lead.extracted_address)}&user_id=${encodeURIComponent(lead.user_id)}`);
         const zj = await zr.json().catch(() => ({}));
         if (zr.ok && zj.ok && zj.normalized) {
           zillowData = zj.normalized;
@@ -1086,7 +1086,7 @@ export async function POST(req: Request): Promise<Response> {
       corrPatch.address_corrected_from = lead.extracted_address || null;
       try {
         const origin = new URL(req.url).origin;
-        const zr = await fetch(`${origin}/api/zillow?address=${encodeURIComponent(callAddr)}`);
+        const zr = await fetch(`${origin}/api/zillow?address=${encodeURIComponent(callAddr)}&user_id=${encodeURIComponent(lead.user_id)}`);
         const zj = await zr.json().catch(() => ({}));
         if (zr.ok && zj.ok && zj.normalized) {
           const normalized = zj.normalized as { zestimate?: number };

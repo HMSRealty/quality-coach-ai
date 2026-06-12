@@ -209,9 +209,9 @@ export function ReadymodeConnectionCard() {
                     {c.subdomain}.readymode.com · {c.username}
                   </p>
                 </div>
-                <button onClick={() => toggle(c)} title={c.is_active ? "Disable" : "Re-enable"}
-                  style={{ padding: "5px 10px", borderRadius: 7, border: "1px solid var(--border-2)", background: "#fff", color: NAVY, fontSize: 11.5, fontWeight: 700, cursor: "pointer" }}>
-                  {c.is_active ? "Disable" : "Re-enable"}
+                <button onClick={() => toggle(c)} title={c.is_active ? "Pause" : "Resume"}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "5px 10px", borderRadius: 7, border: "1px solid var(--border-2)", background: "#fff", color: NAVY, fontSize: 11.5, fontWeight: 700, cursor: "pointer" }}>
+                  {c.is_active ? "Pause" : "Resume"}
                 </button>
                 <button onClick={() => remove(c)} title="Remove"
                   style={{ background: "none", border: "none", cursor: "pointer", color: "#DC2626", padding: 4 }}>

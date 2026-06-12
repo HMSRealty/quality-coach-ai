@@ -383,6 +383,81 @@ input.pac-target-input.gm-err-autocomplete {
   .ci-grid { grid-template-columns: 1fr !important; }
 }
 
+/* ─── Dashboard shell + mobile sidebar drawer ──────────────────────────── */
+.rt-shell {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+}
+.rt-sidebar {
+  height: 100%;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+/* Top bar visible on mobile only */
+.rt-mobile-bar {
+  display: none;
+}
+.rt-mobile-backdrop {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .rt-shell {
+    flex-direction: column;
+    padding-top: 56px;       /* room for the fixed top bar */
+  }
+  .rt-mobile-bar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 56px;
+    padding: 0 14px;
+    background: #fff;
+    border-bottom: 1px solid var(--border-2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 60;
+    box-shadow: var(--shadow-sm);
+  }
+  .rt-sidebar {
+    position: fixed;
+    top: 56px; bottom: 0; left: 0;
+    transform: translateX(-110%);
+    transition: transform 220ms cubic-bezier(0.16, 1, 0.30, 1);
+    z-index: 55;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+  }
+  .rt-sidebar-open {
+    transform: translateX(0);
+  }
+  .rt-mobile-backdrop {
+    display: block;
+    position: fixed;
+    inset: 56px 0 0 0;
+    background: rgba(15,23,42,0.40);
+    z-index: 50;
+    animation: fadeIn 150ms ease;
+  }
+  /* The main scroll container next to the sidebar should take the full
+     viewport on mobile. */
+  .rt-shell > .flex-1,
+  .rt-shell main,
+  .rt-shell .ds-main {
+    width: 100% !important;
+    padding: 14px !important;
+  }
+  /* Floating help button should sit higher on mobile to clear the iOS home indicator */
+  #realtrack-help-btn { bottom: 14px; }
+  /* Compact card padding everywhere */
+  .rt-shell .card-pad-24 { padding: 16px !important; }
+  /* Horizontal-scroll tables stay readable */
+  table { display: block; overflow-x: auto; white-space: nowrap; }
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
 /* Modal entrance animation — used by Portal-rendered dialogs */
 @keyframes modalIn {
   from { opacity: 0; transform: scale(0.96) translateY(6px); }
