@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/lib/supabase";
-import { Search, RotateCcw, Loader2, PhoneCall, Download, CheckSquare, Trash2, Play, StopCircle, Webhook, Copy, Check, ArrowRight } from "lucide-react";
+import { Search, RotateCcw, Loader2, PhoneCall, Download, CheckSquare, Trash2, Play, StopCircle, Webhook, Copy, Check, ArrowRight, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { LeadsList, type LeadItem } from "@/app/_components/LeadsList";
@@ -226,6 +226,32 @@ export default function CallsPage() {
 
   const toggleSelect = (id: string) => setSelected(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
 
+  // Re-run AI analysis on every selected lead. Fires the analyze endpoint
+  // in parallel (capped) so the queue runs through fast.
+  const bulkAnalyze = async () => {
+    const ids = [...selected];
+    if (!ids.length) return;
+    setBulkBusy(true);
+    const CONCURRENCY = 4;
+    let i = 0;
+    const runOne = async (id: string) => {
+      await fetch("/api/leads/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ leadId: id }),
+      }).catch(() => {});
+    };
+    const workers = Array.from({ length: Math.min(CONCURRENCY, ids.length) }, async () => {
+      while (i < ids.length) {
+        const idx = i++;
+        await runOne(ids[idx]);
+      }
+    });
+    await Promise.all(workers);
+    setSelected(new Set()); setSelectMode(false); setBulkBusy(false);
+    await load();
+  };
+
   const bulkDelete = async () => {
     const ids = [...selected];
     if (!ids.length) return;
@@ -332,6 +358,13 @@ export default function CallsPage() {
             {selected.size === filtered.length ? "Clear all" : "Select all"}
           </button>
           <div style={{ flex: 1 }} />
+          <button onClick={bulkAnalyze} disabled={!selected.size || bulkBusy} style={{
+            display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 9,
+            background: selected.size ? "linear-gradient(135deg,#0EA5E9,#0284C7)" : "#BAE6FD", color: "#fff", border: "none",
+            fontSize: 12.5, fontWeight: 800, cursor: selected.size ? "pointer" : "not-allowed",
+          }}>
+            {bulkBusy ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />} Analyze selected
+          </button>
           <button onClick={bulkDelete} disabled={!selected.size || bulkBusy} style={{
             display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 9,
             background: selected.size ? "#DC2626" : "#FCA5A5", color: "#fff", border: "none",

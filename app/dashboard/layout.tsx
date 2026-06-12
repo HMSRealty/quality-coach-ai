@@ -25,7 +25,7 @@ import {
   Send, Users2, Network,
   Flag, Power, UserCog, Eye, Search,
   Settings as SettingsIcon, Webhook, Wallet, Target, Trophy, Palette,
-  GitBranch, Flame, Rocket, Menu, X,
+  GitBranch, Flame, Rocket, Menu, X, UserSearch,
 } from "lucide-react";
 
 // Corporate Command Center — navigation grouped by company department.
@@ -51,6 +51,7 @@ const NAV_GROUPS: { section: string; items: { label: string; href: string; icon:
     items: [
       { label: "Hot Leads Alert", href: "/dashboard/deals",        icon: Flame },
       { label: "Cash Buyers",     href: "/dashboard/dispositions", icon: Users2 },
+      { label: "PropyTrace",      href: "/dashboard/propytrace",   icon: UserSearch },
     ],
   },
   {
