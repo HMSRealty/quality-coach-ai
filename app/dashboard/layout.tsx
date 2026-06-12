@@ -17,13 +17,14 @@ import { NotificationBell } from "@/app/_components/NotificationBell";
 import { ProcessingMonitor } from "@/app/_components/ProcessingMonitor";
 import { OnboardingTour } from "@/app/_components/OnboardingTour";
 import { QuickHelp } from "@/app/_components/QuickHelp";
+import { BrandProvider, useBrand } from "@/app/_components/BrandContext";
 import { T } from "@/app/_components/tokens";
 import {
   LayoutDashboard, PhoneCall, FolderCog, Zap,
   UserCircle, LogOut, ChevronRight, Shield,
   Send, Users2, Network,
   Flag, Power, UserCog, Eye, Search,
-  Settings as SettingsIcon, Webhook, Wallet, Target, Trophy,
+  Settings as SettingsIcon, Webhook, Wallet, Target, Trophy, Palette,
   GitBranch, Flame, Rocket,
 } from "lucide-react";
 
@@ -69,6 +70,7 @@ const NAV_GROUPS: { section: string; items: { label: string; href: string; icon:
       { label: "Setup Wizard",            href: "/dashboard/onboarding",  icon: Rocket },
       { label: "Settings",                href: "/dashboard/settings",    icon: SettingsIcon },
       { label: "Webhooks & Integrations", href: "/dashboard/settings/api", icon: Webhook },
+      { label: "Branding",                href: "/dashboard/settings/branding", icon: Palette },
       { label: "Sub-Users",               href: "/dashboard/sub-users",   icon: UserCog },
       { label: "Permissions",             href: "/dashboard/permissions", icon: Power },
     ],
@@ -82,21 +84,23 @@ const PLAN_ACCENT: Record<string, string> = {
   free: "#94A3B8", starter: "#0EA5E9", professional: "#0284C7", enterprise: "#0369A1",
 };
 
-// RealTrack mark — flat roof chevron (thick black outer, thin green inner) +
-// pure-black "REALTRACK" wordmark. No gradient/holographic effects.
+// Workspace mark — uses tenant branding when set, RealTrack default otherwise.
 function RealTrackMark({ size = 28 }: { size?: number }) {
+  const brand = useBrand();
+  if (brand.isCustom && brand.logoUrl) {
+    return <img src={brand.logoUrl} alt={brand.name} style={{ height: size * 0.85, maxWidth: 200, objectFit: "contain" }} />;
+  }
+  const accent = brand.isCustom ? brand.color : "#059669";
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
       <svg width={size * 1.25} height={size * 0.8} viewBox="0 0 40 24" fill="none">
-        {/* Thick black outer roof chevron */}
         <path d="M3 21 L20 5 L37 21" stroke="#000000" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"/>
-        {/* Thin vibrant green inner roof line */}
-        <path d="M10 21 L20 12 L30 21" stroke="#059669" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M10 21 L20 12 L30 21" stroke={accent} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
       <span style={{
         fontSize: 16, fontWeight: 900, color: "#000000",
         letterSpacing: "0.08em", lineHeight: 1, fontFamily: "var(--font-sans)",
-      }}>REALTRACK</span>
+      }}>{brand.isCustom ? brand.name.toUpperCase() : "REALTRACK"}</span>
     </div>
   );
 }
@@ -146,6 +150,10 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 }
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  return <BrandProvider><DashboardLayoutInner>{children}</DashboardLayoutInner></BrandProvider>;
+}
+
+function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [email, setEmail]     = useState("");
   const [fullName, setFullName] = useState("");
