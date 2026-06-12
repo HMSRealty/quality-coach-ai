@@ -237,18 +237,23 @@ export default function LandingPage() {
 
       {/* ── SOCIAL PROOF STRIP ── */}
       <section style={{ padding: "30px 28px", background: "#fff", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", justifyContent: "space-around", flexWrap: "wrap", gap: 30 }}>
-          {[
-            { v: "$182k", l: "average deal value" },
-            { v: "61%", l: "lead qualification rate" },
-            { v: "3.2x", l: "more deals surfaced" },
-            { v: "<60s", l: "from call to qualified" },
-          ].map((s, i) => (
-            <div key={i} style={{ textAlign: "center" }}>
-              <p style={{ fontSize: 28, fontWeight: 900, background: `linear-gradient(135deg, ${SKY}, ${SKY_600})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{s.v}</p>
-              <p style={{ fontSize: 12, color: MUTED, fontWeight: 600 }}>{s.l}</p>
-            </div>
-          ))}
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+          <p style={{ textAlign: "center", fontSize: 12, fontWeight: 700, color: MUTED, letterSpacing: "0.10em", textTransform: "uppercase", marginBottom: 18 }}>
+            Trusted by real estate teams like <strong style={{ color: NAVY }}>HMS Realty</strong>
+          </p>
+          <div style={{ display: "flex", justifyContent: "space-around", flexWrap: "wrap", gap: 30 }}>
+            {[
+              { v: "$182k", l: "average deal value" },
+              { v: "61%", l: "lead qualification rate" },
+              { v: "3.2x", l: "more deals surfaced" },
+              { v: "<60s", l: "from call to qualified" },
+            ].map((s, i) => (
+              <div key={i} style={{ textAlign: "center" }}>
+                <p style={{ fontSize: 28, fontWeight: 900, background: `linear-gradient(135deg, ${SKY}, ${SKY_600})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{s.v}</p>
+                <p style={{ fontSize: 12, color: MUTED, fontWeight: 600 }}>{s.l}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
