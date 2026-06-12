@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
     const user = await getCaller(req);
     const sb = admin();
     const { data } = await sb.from("gemini_api_keys")
-      .select("id, label, is_active, last_used_at, last_error_at, last_error, consecutive_errors, position")
+      .select("id, label, is_active, last_used_at, last_error_at, last_error, consecutive_errors, position, assigned_user_id")
       .eq("user_id", user.id)
       .order("position", { ascending: true });
     return NextResponse.json({ ok: true, keys: data || [] });
@@ -36,17 +36,26 @@ export async function GET(req: NextRequest) {
   }
 }
 
+// Only the workspace owner and admins can write the key pool. Regular users
+// just see "Integrated ✓" — they never touch the key values.
+async function assertManager(sb: ReturnType<typeof admin>, userId: string) {
+  const { data } = await sb.from("profiles").select("role, parent_user_id").eq("id", userId).maybeSingle();
+  const role = (data?.role as string) || "user";
+  const isManager = role === "admin" || role === "owner" || (role === "user" && !data?.parent_user_id);
+  if (!isManager) throw new Error("Forbidden — only owners and admins can manage integrations");
+}
+
 export async function POST(req: NextRequest) {
   try {
     const user = await getCaller(req);
-    const body = await req.json() as { label?: string; key?: string };
+    const sb = admin();
+    await assertManager(sb, user.id);
+    const body = await req.json() as { label?: string; key?: string; assigned_user_id?: string | null };
     const key = (body.key || "").trim();
     if (!key) return NextResponse.json({ ok: false, error: "key is required" }, { status: 400 });
 
-    const sb = admin();
     const key_enc = await encryptSecret(key);
 
-    // Position = highest current + 1 so new keys go to the back.
     const { data: maxRow } = await sb.from("gemini_api_keys")
       .select("position").eq("user_id", user.id).order("position", { ascending: false }).limit(1).maybeSingle();
     const position = ((maxRow?.position as number) ?? -1) + 1;
@@ -58,6 +67,7 @@ export async function POST(req: NextRequest) {
       user_id: user.id, organization_id: orgId,
       label: (body.label || "").trim() || null,
       key_enc, position,
+      assigned_user_id: body.assigned_user_id || null,
     });
     if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
     return NextResponse.json({ ok: true });
@@ -69,15 +79,17 @@ export async function POST(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   try {
     const user = await getCaller(req);
+    const sb = admin();
+    await assertManager(sb, user.id);
     const url = new URL(req.url);
     const id = url.searchParams.get("id");
     if (!id) return NextResponse.json({ ok: false, error: "id required" }, { status: 400 });
-    const body = await req.json() as { is_active?: boolean; reset_errors?: boolean; label?: string };
+    const body = await req.json() as { is_active?: boolean; reset_errors?: boolean; label?: string; assigned_user_id?: string | null };
     const update: Record<string, unknown> = {};
     if (typeof body.is_active === "boolean") update.is_active = body.is_active;
     if (body.reset_errors) { update.consecutive_errors = 0; update.last_error = null; }
     if (typeof body.label === "string") update.label = body.label.trim() || null;
-    const sb = admin();
+    if ("assigned_user_id" in body) update.assigned_user_id = body.assigned_user_id || null;
     await sb.from("gemini_api_keys").update(update).eq("id", id).eq("user_id", user.id);
     return NextResponse.json({ ok: true });
   } catch (e) {
@@ -88,10 +100,11 @@ export async function PATCH(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   try {
     const user = await getCaller(req);
+    const sb = admin();
+    await assertManager(sb, user.id);
     const url = new URL(req.url);
     const id = url.searchParams.get("id");
     if (!id) return NextResponse.json({ ok: false, error: "id required" }, { status: 400 });
-    const sb = admin();
     await sb.from("gemini_api_keys").delete().eq("id", id).eq("user_id", user.id);
     return NextResponse.json({ ok: true });
   } catch (e) {

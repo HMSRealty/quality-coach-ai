@@ -8,7 +8,7 @@ export const runtime = "edge";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
-import { Plug, Lock, Loader2, Webhook, Sparkles, Home, Link as LinkIcon, AlertTriangle } from "lucide-react";
+import { Plug, Lock, Loader2, Webhook, Sparkles, Home, Link as LinkIcon, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { GeminiKeysCard } from "@/app/_components/GeminiKeysCard";
 import { ZillowKeysCard } from "@/app/_components/ZillowKeysCard";
 import { ReadymodeConnectionCard } from "@/app/_components/ReadymodeConnectionCard";
@@ -87,19 +87,7 @@ export default function IntegrationsPage() {
     </div>
   );
 
-  if (authorized === false) return (
-    <div style={{ maxWidth: 480, margin: "0 auto", padding: 60, textAlign: "center", background: "#fff", borderRadius: 16, border: "1px solid var(--border-2)", marginTop: 80 }}>
-      <Lock size={36} color="#DC2626" style={{ margin: "0 auto 16px" }} />
-      <h2 style={{ fontSize: 18, fontWeight: 900, color: NAVY, marginBottom: 8 }}>Integrations are owner-only</h2>
-      <p style={{ fontSize: 13.5, color: SLATE, lineHeight: 1.6 }}>
-        Only the workspace owner and admins they assign can manage API keys, AI providers, and dialer connections.
-        Contact your workspace owner to request access.
-      </p>
-      <Link href="/dashboard" style={{ display: "inline-block", marginTop: 18, padding: "10px 20px", borderRadius: 9, background: "var(--surface-3)", color: NAVY, fontSize: 13, fontWeight: 700, textDecoration: "none", border: "1px solid var(--border-2)" }}>
-        Back to dashboard
-      </Link>
-    </div>
-  );
+  if (authorized === false) return <ReadOnlyIntegrationsView />;
 
   const webhookUrl = `${origin}/api/inbound/lead`;
   const activeKey = keys.find((k) => !k.revoked);
@@ -199,6 +187,81 @@ export default function IntegrationsPage() {
       {/* DIALER CONNECTIONS */}
       <ReadymodeConnectionCard />
 
+    </div>
+  );
+}
+
+// Read-only view for end-users. Calls a tiny status endpoint to learn which
+// providers their assigned keys cover — never sees the keys themselves.
+function ReadOnlyIntegrationsView() {
+  const [status, setStatus] = useState<{ gemini: number; zillow: number; readymode: number } | null>(null);
+  useEffect(() => {
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      const r = await fetch("/api/integrations/status", { headers: { Authorization: `Bearer ${session?.access_token}` } });
+      const j = await r.json().catch(() => ({}));
+      setStatus({ gemini: j.gemini || 0, zillow: j.zillow || 0, readymode: j.readymode || 0 });
+    })();
+  }, []);
+
+  const rows: { name: string; count: number; desc: string }[] = [
+    { name: "AI provider (Gemini)", count: status?.gemini ?? 0, desc: "Powers call analysis and qualification." },
+    { name: "Zillow / Property data", count: status?.zillow ?? 0, desc: "Pulls Zestimate, comps, and ARV." },
+    { name: "Readymode dialer", count: status?.readymode ?? 0, desc: "Fetches your call recordings." },
+  ];
+
+  return (
+    <div style={{ maxWidth: 720, margin: "0 auto", display: "flex", flexDirection: "column", gap: 16 }}>
+      <div>
+        <h1 style={{ fontSize: 26, fontWeight: 900, color: NAVY, letterSpacing: "-0.02em", display: "flex", alignItems: "center", gap: 10 }}>
+          <Plug size={24} color={SKY_600} /> Your Integrations
+        </h1>
+        <p style={{ fontSize: 13.5, color: SLATE, marginTop: 4 }}>
+          RealTrack&apos;s admin team manages your API keys. You don&apos;t need to do anything &mdash; here&apos;s what&apos;s active on your account.
+        </p>
+      </div>
+
+      {!status ? (
+        <div style={{ padding: 60, textAlign: "center" }}>
+          <Loader2 size={24} className="animate-spin" style={{ color: SKY_600 }} />
+        </div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {rows.map(r => {
+            const integrated = r.count > 0;
+            return (
+              <div key={r.name} style={{
+                background: "#fff", border: `1px solid ${integrated ? "#A7F3D0" : "var(--border-2)"}`,
+                borderRadius: 12, padding: 18,
+                display: "flex", alignItems: "center", gap: 14,
+              }}>
+                {integrated
+                  ? <CheckCircle2 size={22} color="#059669" />
+                  : <AlertTriangle size={22} color="#92400E" />}
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: 14, fontWeight: 800, color: NAVY }}>{r.name}</p>
+                  <p style={{ fontSize: 12.5, color: SLATE, marginTop: 2 }}>{r.desc}</p>
+                </div>
+                <span style={{
+                  fontSize: 11.5, fontWeight: 800,
+                  padding: "5px 11px", borderRadius: 999,
+                  background: integrated ? "#ECFDF5" : "#FEF3C7",
+                  color: integrated ? "#047857" : "#92400E",
+                }}>
+                  {integrated ? `Integrated · ${r.count} active` : "Not set up yet"}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      <div style={{
+        background: "#F8FAFC", border: "1px solid var(--border-1)",
+        borderRadius: 12, padding: 16, fontSize: 12.5, color: SLATE, lineHeight: 1.6,
+      }}>
+        Missing an integration? Email <a href="mailto:info@realtrack.app" style={{ color: SKY_600, fontWeight: 700 }}>info@realtrack.app</a> and we&apos;ll wire it up for you.
+      </div>
     </div>
   );
 }

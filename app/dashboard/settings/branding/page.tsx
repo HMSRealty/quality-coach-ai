@@ -59,30 +59,46 @@ export default function BrandingPage() {
 
   const removeLogo = () => setBrandLogoUrl(null);
 
+  // Save through the server route so the write isn't silently RLS-blocked.
+  const persist = async (payload: { brand_name?: string | null; brand_logo_url?: string | null; brand_color?: string | null }) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    const r = await fetch("/api/branding/save", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${session?.access_token}` },
+      body: JSON.stringify(payload),
+    });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok || !j.ok) throw new Error(j.error || "Save failed");
+  };
+
   const save = async () => {
     if (!orgId) return;
     setSaving(true);
-    const { error } = await supabase.from("organizations").update({
-      brand_name: brandName.trim() || null,
-      brand_logo_url: brandLogoUrl,
-      brand_color: brandColor,
-    }).eq("id", orgId);
-    setSaving(false);
-    if (error) { alert(error.message); return; }
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
-    // Reload so the BrandProvider picks up new values.
-    setTimeout(() => window.location.reload(), 600);
+    try {
+      await persist({
+        brand_name: brandName.trim() || null,
+        brand_logo_url: brandLogoUrl,
+        brand_color: brandColor,
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+      setTimeout(() => window.location.reload(), 600);
+    } catch (e: any) {
+      alert(e?.message || "Save failed");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const reset = async () => {
     if (!confirm("Reset all branding to RealTrack defaults?")) return;
     if (!orgId) return;
-    await supabase.from("organizations").update({
-      brand_name: null,
-      brand_logo_url: null,
-      brand_color: null,
-    }).eq("id", orgId);
+    try {
+      await persist({ brand_name: null, brand_logo_url: null, brand_color: null });
+    } catch (e: any) {
+      alert(e?.message || "Reset failed");
+      return;
+    }
     setBrandName("");
     setBrandLogoUrl(null);
     setBrandColor("#0284C7");

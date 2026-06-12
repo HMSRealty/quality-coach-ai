@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
     const user = await assertManager(req);
     const sb = admin();
     const { data } = await sb.from("zillow_api_keys")
-      .select("id, label, is_active, last_used_at, last_error_at, last_error, consecutive_errors, position")
+      .select("id, label, is_active, last_used_at, last_error_at, last_error, consecutive_errors, position, assigned_user_id")
       .eq("user_id", user.id)
       .order("position", { ascending: true });
     return NextResponse.json({ ok: true, keys: data || [] });
@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const user = await assertManager(req);
-    const body = await req.json() as { label?: string; key?: string };
+    const body = await req.json() as { label?: string; key?: string; assigned_user_id?: string | null };
     const key = (body.key || "").trim();
     if (!key) return NextResponse.json({ ok: false, error: "key is required" }, { status: 400 });
 
@@ -68,6 +68,7 @@ export async function POST(req: NextRequest) {
       user_id: user.id, organization_id: orgId,
       label: (body.label || "").trim() || null,
       key_enc, position,
+      assigned_user_id: body.assigned_user_id || null,
     });
     if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
     return NextResponse.json({ ok: true });
@@ -82,11 +83,12 @@ export async function PATCH(req: NextRequest) {
     const url = new URL(req.url);
     const id = url.searchParams.get("id");
     if (!id) return NextResponse.json({ ok: false, error: "id required" }, { status: 400 });
-    const body = await req.json() as { is_active?: boolean; reset_errors?: boolean; label?: string };
+    const body = await req.json() as { is_active?: boolean; reset_errors?: boolean; label?: string; assigned_user_id?: string | null };
     const update: Record<string, unknown> = {};
     if (typeof body.is_active === "boolean") update.is_active = body.is_active;
     if (body.reset_errors) { update.consecutive_errors = 0; update.last_error = null; }
     if (typeof body.label === "string") update.label = body.label.trim() || null;
+    if ("assigned_user_id" in body) update.assigned_user_id = body.assigned_user_id || null;
     const sb = admin();
     await sb.from("zillow_api_keys").update(update).eq("id", id).eq("user_id", user.id);
     return NextResponse.json({ ok: true });

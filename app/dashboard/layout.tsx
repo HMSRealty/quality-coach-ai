@@ -306,7 +306,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
         {/* Upgrade card */}
         {plan === "free" && (
           <div style={{ padding: "0 14px 12px" }}>
-            <Link href="/landing#pricing" style={{
+            <a href="mailto:info@realtrack.app?subject=Upgrade%20my%20RealTrack%20plan" style={{
               display: "block", padding: "14px 16px", borderRadius: 16,
               background: T.gradPrimary, color: "#fff",
               textDecoration: "none",
@@ -318,9 +318,9 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
             >
               <p style={{ fontSize: 12, fontWeight: 800, marginBottom: 4 }}>Upgrade your plan</p>
               <p style={{ fontSize: 11, opacity: 0.85, display: "flex", alignItems: "center", gap: 3 }}>
-                Unlock unlimited analyses <ChevronRight size={11} />
+                Contact us to get started <ChevronRight size={11} />
               </p>
-            </Link>
+            </a>
           </div>
         )}
 

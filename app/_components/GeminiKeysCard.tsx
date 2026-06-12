@@ -22,15 +22,19 @@ interface KeyRow {
   last_error_at: string | null;
   last_error: string | null;
   consecutive_errors: number;
+  assigned_user_id: string | null;
 }
+interface UserOption { id: string; email: string | null; full_name: string | null; }
 
 export function GeminiKeysCard() {
   const [keys, setKeys] = useState<KeyRow[]>([]);
+  const [users, setUsers] = useState<UserOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
   const [busy, setBusy] = useState(false);
   const [label, setLabel] = useState("");
   const [keyValue, setKeyValue] = useState("");
+  const [assignTo, setAssignTo] = useState("");
   const [showKey, setShowKey] = useState(false);
   const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
 
@@ -38,12 +42,24 @@ export function GeminiKeysCard() {
     setLoading(true);
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) { setLoading(false); return; }
-    const r = await fetch("/api/gemini/keys", { headers: { Authorization: `Bearer ${session.access_token}` } });
+    const auth = { Authorization: `Bearer ${session.access_token}` };
+    const [r, ur] = await Promise.all([
+      fetch("/api/gemini/keys", { headers: auth }),
+      fetch("/api/users/list", { headers: auth }),
+    ]);
     const j = await r.json().catch(() => ({}));
+    const uj = await ur.json().catch(() => ({}));
     setKeys((j.keys || []) as KeyRow[]);
+    setUsers((uj.users || []) as UserOption[]);
     setLoading(false);
   };
   useEffect(() => { load(); }, []);
+
+  const userLabel = (id: string | null) => {
+    if (!id) return "Unassigned (pool)";
+    const u = users.find(x => x.id === id);
+    return u ? (u.full_name || u.email || id.slice(0, 8)) : id.slice(0, 8);
+  };
 
   const add = async () => {
     if (!keyValue.trim()) { setMsg({ type: "err", text: "Paste a Gemini API key." }); return; }
@@ -52,13 +68,23 @@ export function GeminiKeysCard() {
     const r = await fetch("/api/gemini/keys", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${session?.access_token}` },
-      body: JSON.stringify({ label: label.trim() || null, key: keyValue.trim() }),
+      body: JSON.stringify({ label: label.trim() || null, key: keyValue.trim(), assigned_user_id: assignTo || null }),
     });
     const j = await r.json().catch(() => ({}));
     setBusy(false);
     if (!r.ok || !j.ok) { setMsg({ type: "err", text: j.error || "Add failed" }); return; }
     setMsg({ type: "ok", text: "Key added to rotation." });
-    setLabel(""); setKeyValue(""); setAdding(false);
+    setLabel(""); setKeyValue(""); setAssignTo(""); setAdding(false);
+    await load();
+  };
+
+  const reassign = async (k: KeyRow, newUserId: string) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    await fetch(`/api/gemini/keys?id=${k.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${session?.access_token}` },
+      body: JSON.stringify({ assigned_user_id: newUserId || null }),
+    });
     await load();
   };
 
@@ -105,7 +131,7 @@ export function GeminiKeysCard() {
       </p>
 
       {adding && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr auto", gap: 9, marginBottom: 14, alignItems: "end" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr 1fr auto", gap: 9, marginBottom: 14, alignItems: "end" }}>
           <input value={label} onChange={e => setLabel(e.target.value)} placeholder="Label (optional)" style={{ ...inp, fontFamily: "inherit" }} />
           <div style={{ position: "relative" }}>
             <input value={keyValue} onChange={e => setKeyValue(e.target.value)} type={showKey ? "text" : "password"} placeholder="AIzaSy..." style={{ ...inp, paddingRight: 38 }} />
@@ -114,6 +140,11 @@ export function GeminiKeysCard() {
               {showKey ? <EyeOff size={14} /> : <Eye size={14} />}
             </button>
           </div>
+          <select value={assignTo} onChange={e => setAssignTo(e.target.value)}
+            style={{ ...inp, fontFamily: "inherit" }} title="Assign to user">
+            <option value="">Unassigned (pool)</option>
+            {users.map(u => <option key={u.id} value={u.id}>{u.full_name || u.email || u.id.slice(0, 8)}</option>)}
+          </select>
           <button onClick={add} disabled={busy} style={{
             display: "inline-flex", alignItems: "center", gap: 5,
             padding: "9px 16px", borderRadius: 9, border: "none",
@@ -157,15 +188,21 @@ export function GeminiKeysCard() {
                     {!k.is_active && <span style={{ fontSize: 9, color: "#DC2626", fontWeight: 800, marginLeft: 8 }}>● DISABLED</span>}
                   </p>
                   <p style={{ fontSize: 11, color: SLATE, marginTop: 1 }}>
-                    {k.last_used_at ? `Last used ${new Date(k.last_used_at).toLocaleString()}` : "Not yet used"}
+                    Assigned to <strong style={{ color: NAVY }}>{userLabel(k.assigned_user_id)}</strong>
+                    {k.last_used_at && <span> · used {new Date(k.last_used_at).toLocaleDateString()}</span>}
                     {k.consecutive_errors > 0 && (
                       <span style={{ color: "#92400E", fontWeight: 700, marginLeft: 8 }}>
                         <AlertTriangle size={10} style={{ display: "inline", marginRight: 3 }} />
-                        {k.consecutive_errors} consecutive errors
+                        {k.consecutive_errors} errors
                       </span>
                     )}
                   </p>
                 </div>
+                <select value={k.assigned_user_id || ""} onChange={e => reassign(k, e.target.value)}
+                  title="Reassign" style={{ padding: "4px 8px", borderRadius: 7, border: "1px solid var(--border-2)", background: "#fff", color: NAVY, fontSize: 11, maxWidth: 140 }}>
+                  <option value="">Unassigned</option>
+                  {users.map(u => <option key={u.id} value={u.id}>{u.full_name || u.email || u.id.slice(0, 8)}</option>)}
+                </select>
                 <button onClick={() => toggle(k)} title={k.is_active ? "Pause" : "Resume"}
                   style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "5px 10px", borderRadius: 7, border: "1px solid var(--border-2)", background: "#fff", color: NAVY, fontSize: 11.5, fontWeight: 700, cursor: "pointer" }}>
                   {k.is_active ? <><Pause size={11} /> Pause</> : <><Play size={11} /> Resume</>}

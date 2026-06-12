@@ -123,14 +123,14 @@ export default function PropyTracePage() {
             }}>
               <ExternalLink size={13} /> Open PropyTrace.app
             </a>
-            <Link href="/pay" style={{
+            <a href="mailto:info@realtrack.app?subject=Upgrade%20for%20PropyTrace%20access" style={{
               display: "inline-flex", alignItems: "center", gap: 6,
               padding: "10px 16px", borderRadius: 9, textDecoration: "none",
               background: "#fff", color: "#854D0E", border: "1px solid #FDE68A",
               fontSize: 13, fontWeight: 700,
             }}>
-              Upgrade your RealTrack plan
-            </Link>
+              Contact us to upgrade
+            </a>
           </div>
         </div>
       )}

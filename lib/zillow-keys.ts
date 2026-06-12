@@ -17,15 +17,27 @@ export async function loadZillowKeys(
   sb: SupabaseClient,
   userId: string,
 ): Promise<ZillowKey[]> {
-  const { data } = await sb
+  const assigned = await sb
     .from("zillow_api_keys")
     .select("id, label, key_enc")
-    .eq("user_id", userId)
+    .eq("assigned_user_id", userId)
     .eq("is_active", true)
     .order("position", { ascending: true });
 
+  let rows = assigned.data || [];
+  if (rows.length === 0) {
+    const legacy = await sb
+      .from("zillow_api_keys")
+      .select("id, label, key_enc")
+      .eq("user_id", userId)
+      .is("assigned_user_id", null)
+      .eq("is_active", true)
+      .order("position", { ascending: true });
+    rows = legacy.data || [];
+  }
+
   const out: ZillowKey[] = [];
-  for (const row of (data || [])) {
+  for (const row of rows) {
     try {
       const key = await decryptSecret(row.key_enc as string);
       out.push({ id: row.id as string, key, label: (row.label as string) || null, source: "tenant" });

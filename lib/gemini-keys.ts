@@ -18,15 +18,31 @@ export async function loadGeminiKeys(
   sb: SupabaseClient,
   userId: string,
 ): Promise<GeminiKey[]> {
-  const { data } = await sb
+  // New model: keys are added by the RealTrack owner and assigned to a user.
+  // First look for keys explicitly assigned to this user; if none, fall back
+  // to the legacy "user added their own key" rows so existing tenants keep
+  // working.
+  const assigned = await sb
     .from("gemini_api_keys")
     .select("id, label, key_enc")
-    .eq("user_id", userId)
+    .eq("assigned_user_id", userId)
     .eq("is_active", true)
     .order("position", { ascending: true });
 
+  let rows = assigned.data || [];
+  if (rows.length === 0) {
+    const legacy = await sb
+      .from("gemini_api_keys")
+      .select("id, label, key_enc")
+      .eq("user_id", userId)
+      .is("assigned_user_id", null)
+      .eq("is_active", true)
+      .order("position", { ascending: true });
+    rows = legacy.data || [];
+  }
+
   const out: GeminiKey[] = [];
-  for (const row of (data || [])) {
+  for (const row of rows) {
     try {
       const key = await decryptSecret(row.key_enc as string);
       out.push({
