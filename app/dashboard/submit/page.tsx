@@ -14,9 +14,11 @@ import {
 } from "lucide-react";
 import { AddressAutocomplete, type AddressParts } from "@/app/_components/AddressAutocomplete";
 
-const SKY = "#0EA5E9";
-const SKY_600 = "#0284C7";
-const MONEY = "#059669";
+// Closer's Office. SKY/SKY_600 var names retained so the existing inline
+// styles keep working — the values shift to money-green + deeper money.
+const SKY = "#16A34A";
+const SKY_600 = "#15803D";
+const MONEY = "#15803D";
 const SPRING = { type: "spring", stiffness: 460, damping: 32, mass: 0.7 } as const;
 
 interface Campaign { id: string; name: string; }
@@ -232,7 +234,7 @@ export default function SubmitLeadPage() {
     <div style={{ maxWidth: 760, margin: "0 auto", display: "flex", flexDirection: "column", gap: 18 }} className="animate-in">
       <div>
         <h1 style={{ fontSize: 24, fontWeight: 900, color: "#000", letterSpacing: "-0.02em" }}>Submit a Lead</h1>
-        <p style={{ fontSize: 13, color: "var(--text-2)", marginTop: 4 }}>Enter the property, attach call recordings, and let the AI qualify it.</p>
+        <p style={{ fontSize: 13, color: "var(--text-2)", marginTop: 4 }}>Drop the property, attach the call. The floor gets the verdict back in seconds.</p>
       </div>
 
       {/* Result banner */}
@@ -262,7 +264,7 @@ export default function SubmitLeadPage() {
               onSelect={(parts) => setForm(f => ({ ...f, address: parts.formatted, parts }))}
               placeholder="Start typing an address — Google will autocomplete"
               required
-              style={{ ...fieldStyle, padding: "16px 16px", fontSize: 16, fontWeight: 600, borderColor: SKY, boxShadow: "0 0 0 3px rgba(14,165,233,0.08)" }}
+              style={{ ...fieldStyle, padding: "16px 16px", fontSize: 16, fontWeight: 600, borderColor: SKY, boxShadow: "0 0 0 3px rgba(22,163,74,0.10)" }}
             />
             {form.parts && (form.parts.city || form.parts.state) && (
               <p style={{ fontSize: 11, color: "var(--text-3)", marginTop: 6 }}>
@@ -279,7 +281,7 @@ export default function SubmitLeadPage() {
               onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
               onDragLeave={() => setDragOver(false)}
               onDrop={(e) => { e.preventDefault(); setDragOver(false); if (e.dataTransfer.files) addFiles(e.dataTransfer.files); }}
-              animate={{ borderColor: dragOver ? SKY : "rgba(14,165,233,0.35)", backgroundColor: dragOver ? "rgba(14,165,233,0.06)" : "#F8FAFC" }}
+              animate={{ borderColor: dragOver ? SKY : "rgba(22,163,74,0.35)", backgroundColor: dragOver ? "rgba(22,163,74,0.08)" : "#FAF7EE" }}
               transition={{ duration: 0.15 }}
               style={{
                 border: "2px dashed", borderRadius: 14, padding: "30px 20px", textAlign: "center", cursor: "pointer",
@@ -297,7 +299,7 @@ export default function SubmitLeadPage() {
               {files.map((f, i) => (
                 <motion.div key={f.name + f.size} layout initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} transition={SPRING}
                   style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", marginTop: 8, borderRadius: 10, background: "#F8FAFC", border: "1px solid var(--border-2)" }}>
-                  <span style={{ width: 30, height: 30, borderRadius: 8, background: "rgba(14,165,233,0.12)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <span style={{ width: 30, height: 30, borderRadius: 8, background: "rgba(22,163,74,0.14)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                     <Music size={14} color={SKY_600} />
                   </span>
                   <div style={{ flex: 1, minWidth: 0 }}>
@@ -358,12 +360,12 @@ export default function SubmitLeadPage() {
           {/* Submit button — framer-motion loading state */}
           <motion.button type="submit" disabled={submitting}
             whileHover={submitting ? undefined : { scale: 1.01 }} whileTap={submitting ? undefined : { scale: 0.99 }}
-            animate={{ background: submitting ? "#7DD3FC" : "linear-gradient(135deg, #0EA5E9, #0284C7)" }}
+            animate={{ background: submitting ? "#86EFAC" : "linear-gradient(135deg, #16A34A, #15803D)" }}
             style={{
               width: "100%", padding: "16px 24px", borderRadius: 12, border: "none",
               color: "#fff", fontSize: 15, fontWeight: 800, cursor: submitting ? "wait" : "pointer",
               display: "flex", alignItems: "center", justifyContent: "center", gap: 9,
-              boxShadow: "0 12px 28px rgba(14,165,233,0.40)", marginTop: 4, overflow: "hidden",
+              boxShadow: "0 12px 28px rgba(22,163,74,0.40)", marginTop: 4, overflow: "hidden",
             }}>
             <AnimatePresence mode="wait" initial={false}>
               {submitting ? (
@@ -372,7 +374,7 @@ export default function SubmitLeadPage() {
                 </motion.span>
               ) : (
                 <motion.span key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ display: "inline-flex", alignItems: "center", gap: 9 }}>
-                  <Send size={17} /> Submit &amp; Analyze Lead
+                  <Send size={17} /> Submit &amp; Grade
                 </motion.span>
               )}
             </AnimatePresence>
