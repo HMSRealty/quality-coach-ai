@@ -8,16 +8,17 @@ import {
 } from "recharts";
 import { Users, Loader2, TrendingUp, Target, Phone, AlertCircle } from "lucide-react";
 
-// Clean Enterprise light palette (was a dark theme — unreadable on the white app).
-const BG = "#F8FAFC";       // page canvas
+// Closer's Office. Names kept (TEAL/GOLD) so the file's chart code stays
+// unchanged — only values flip to money-green + cream surfaces.
+const BG = "#FAF7EE";       // cream canvas
 const PANEL = "#FFFFFF";    // card
-const PANEL_2 = "#F1F5F9";  // subtle row
-const TEAL = "#0EA5E9";     // sky accent
-const TEAL_DIM = "rgba(14,165,233,0.12)";
-const TXT = "#0F172A";      // slate-900 text
+const PANEL_2 = "#F5F0E1";  // cream-100 subtle row
+const TEAL = "#16A34A";     // money primary
+const TEAL_DIM = "rgba(22,163,74,0.14)";
+const TXT = "#0B0B0B";      // jet ink
 const MUTED = "#64748B";    // slate-500 secondary
-const GOLD = "#059669";     // money green (was pale yellow — invisible on white)
-const ROSE = "#DC2626";     // red
+const GOLD = "#15803D";     // deeper money
+const ROSE = "#DC2626";     // red — kept for warnings/losses
 
 interface Caller { id: string; name: string; team_id: string | null; aggregate_stats: Record<string, unknown> | null; }
 interface Lead { id: string; status: string; caller_id: string | null; created_at: string; ai_coaching_points: string[] | null; }
@@ -131,9 +132,9 @@ export default function TeamLeaderPage() {
       <div style={{ maxWidth: 1400, margin: "0 auto", display: "flex", flexDirection: "column", gap: 22 }}>
         <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 14 }}>
           <div>
-            <h1 style={{ fontSize: 24, fontWeight: 900, color: TXT, letterSpacing: "-0.02em" }}>Team Leader Dashboard</h1>
+            <h1 style={{ fontSize: 24, fontWeight: 900, color: TXT, letterSpacing: "-0.02em" }}>Team Leader</h1>
             <p style={{ fontSize: 13, color: MUTED, marginTop: 4 }}>
-              {selectedTeam === "all" ? "All teams aggregated" : `Team: ${teams.find(t => t.id === selectedTeam)?.name || ""}`} · {visibleCallers.length} callers · {totalLeads} leads processed
+              {selectedTeam === "all" ? "All teams aggregated" : `Team: ${teams.find(t => t.id === selectedTeam)?.name || ""}`} · {visibleCallers.length} on the floor · {totalLeads} calls graded
             </p>
           </div>
           <div style={{ display: "flex", gap: 12, alignItems: "flex-end", flexWrap: "wrap" }}>
