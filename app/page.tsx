@@ -12,21 +12,26 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
-const SKY = "#0EA5E9";
-const SKY_600 = "#0284C7";
-const NAVY = "#0B0F1F";
+// Closer's Office palette. SKY/NAVY var names kept so downstream code keeps
+// working unchanged — only the values shift to money-green + jet.
+const SKY = "#16A34A";       // money-600 (primary accent)
+const SKY_600 = "#15803D";   // money-700 (pressed / deeper)
+const NAVY = "#0B0B0B";      // jet ink
 const SLATE = "#475569";
 const MUTED = "#64748B";
+const CREAM = "#FAF7EE";
+const MONEY_LT = "#22C55E";  // money-500 for hover/highlight accents
 
 function RealTrackLogo({ light = false, size = 1 }: { light?: boolean; size?: number }) {
-  const stroke = light ? "#fff" : NAVY;
+  const ink = light ? "#fff" : NAVY;
+  const accent = SKY;
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-      <svg width={34 * size} height={22 * size} viewBox="0 0 40 24" fill="none">
-        <path d="M2 22 L20 4 L38 22" stroke={stroke} strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
-        <path d="M8 22 L20 11 L32 22" stroke={light ? "rgba(255,255,255,0.55)" : SKY_600} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <svg width={36 * size} height={24 * size} viewBox="0 0 42 28" fill="none">
+        <path d="M4 17 L13 25 L37 4" stroke={ink} strokeWidth="4.2" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M4 17 L13 25 L37 4" stroke={accent} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
-      <span style={{ fontSize: 18 * size, fontWeight: 800, letterSpacing: "0.04em", color: light ? "#fff" : NAVY }}>RealTrack</span>
+      <span style={{ fontSize: 18 * size, fontWeight: 900, letterSpacing: "0.06em", color: light ? "#fff" : NAVY }}>REALTRACK</span>
     </div>
   );
 }
@@ -59,8 +64,8 @@ function HeroMockup() {
         {[
           { addr: "2762 Downing St, Jacksonville FL", agent: "Sarah Smith", arv: "$148k", status: "Hot", color: "#DC2626", bg: "rgba(220,38,38,0.10)" },
           { addr: "931 Grant Blvd, Lehigh Acres FL", agent: "Mike Chen", arv: "$215k", status: "Warm", color: "#EA580C", bg: "rgba(234,88,12,0.12)" },
-          { addr: "300 Pelican Ave, Sebring FL", agent: "Jess Lopez", arv: "$92k", status: "Cold", color: "#0284C7", bg: "rgba(2,132,199,0.12)" },
-          { addr: "7 Estill Dr, Charleston WV", agent: "Sarah Smith", arv: "—", status: "Analyzing", color: "#7C3AED", bg: "rgba(124,58,237,0.10)" },
+          { addr: "300 Pelican Ave, Sebring FL", agent: "Jess Lopez", arv: "$92k", status: "Cold", color: "#475569", bg: "rgba(71,85,105,0.10)" },
+          { addr: "7 Estill Dr, Charleston WV", agent: "Sarah Smith", arv: "—", status: "Analyzing", color: "#0B0B0B", bg: "rgba(11,11,11,0.08)" },
         ].map((row, i) => (
           <div key={i} style={{
             display: "flex", alignItems: "center", gap: 10,
@@ -84,22 +89,24 @@ function HeroMockup() {
   );
 }
 
+// Closer's Office: vary the green shades + jet so each card feels distinct
+// without leaving brand. Money is the loudest color on the page.
 const FEATURES = [
-  { icon: Bot, color: "#0EA5E9", title: "AI call qualification", body: "Gemini grades every recording against your custom rubric. Hot, Warm, Cold, or Disqualified — with the exact reason and timestamps." },
-  { icon: Calculator, color: "#10B981", title: "Instant MAO & ARV", body: "Live Zillow value plus AI-estimated repairs auto-calculate your Maximum Allowable Offer." },
-  { icon: Headphones, color: "#F59E0B", title: "Built-in call player", body: "Waveform scrubbing, speed control, highlight clips, secure signed-URL playback. No more downloads." },
-  { icon: Columns3, color: "#8B5CF6", title: "Handoff brief", body: "A 3-bullet dossier on every Hot lead — personality, pain point, bottom-line price — so closers skip the listen." },
-  { icon: Trophy, color: "#EC4899", title: "Live leaderboard", body: "Per-agent target pacing, Hot/Warm/Cold counts, and live bonus estimates keep the floor pushing." },
-  { icon: Search, color: "#06B6D4", title: "Omni-search (⌘K)", body: "Find any lead by address, phone, agent, campaign — or words spoken inside the transcript." },
-  { icon: Webhook, color: "#3B82F6", title: "Webhook-first ingestion", body: "Connect any dialer or CRM with a single POST. Readymode, BatchDialer, custom — anything works." },
-  { icon: BarChart3, color: "#14B8A6", title: "Manager analytics", body: "Daily targets, attainment %, qualified-rate trends. Spot the floor's bottleneck before stand-up." },
-  { icon: Users2, color: "#F97316", title: "Team-aware permissions", body: "Owners, managers, QA, trainers, and callers — each role sees only what they need to see." },
+  { icon: Bot, color: "#16A34A", title: "AI call qualification", body: "Gemini grades every recording against your custom rubric. Hot, Warm, Cold, or Disqualified — with the exact reason and timestamps." },
+  { icon: Calculator, color: "#15803D", title: "Instant MAO & ARV", body: "Live Zillow value plus AI-estimated repairs auto-calculate your Maximum Allowable Offer." },
+  { icon: Headphones, color: "#22C55E", title: "Built-in call player", body: "Waveform scrubbing, speed control, highlight clips, secure signed-URL playback. No more downloads." },
+  { icon: Columns3, color: "#166534", title: "Handoff brief", body: "A 3-bullet dossier on every Hot lead — personality, pain point, bottom-line price — so closers skip the listen." },
+  { icon: Trophy, color: "#16A34A", title: "Live leaderboard", body: "Per-agent target pacing, Hot/Warm/Cold counts, and live bonus estimates keep the floor pushing." },
+  { icon: Search, color: "#0B0B0B", title: "Omni-search (⌘K)", body: "Find any lead by address, phone, agent, campaign — or words spoken inside the transcript." },
+  { icon: Webhook, color: "#15803D", title: "Webhook-first ingestion", body: "Connect any dialer or CRM with a single POST. Readymode, BatchDialer, custom — anything works." },
+  { icon: BarChart3, color: "#22C55E", title: "Manager analytics", body: "Daily targets, attainment %, qualified-rate trends. Spot the floor's bottleneck before stand-up." },
+  { icon: Users2, color: "#0B0B0B", title: "Team-aware permissions", body: "Owners, managers, QA, trainers, and callers — each role sees only what they need to see." },
 ];
 
 const WORKFLOW = [
-  { step: "01", icon: Phone, title: "Lead arrives", body: "Your dialer posts to RealTrack's webhook with owner, phone, address, and call recording.", color: "#0EA5E9" },
-  { step: "02", icon: Sparkles, title: "AI grades it", body: "Gemini listens, qualifies against your rules, calculates ARV/MAO, writes coaching feedback.", color: "#7C3AED" },
-  { step: "03", icon: Trophy, title: "Team closes it", body: "Hot leads land in acquisitions with handoff briefs. Managers see floor pace in real time.", color: "#10B981" },
+  { step: "01", icon: Phone, title: "Lead arrives", body: "Your dialer posts to RealTrack's webhook with owner, phone, address, and call recording.", color: "#16A34A" },
+  { step: "02", icon: Sparkles, title: "AI grades it", body: "Gemini listens, qualifies against your rules, calculates ARV/MAO, writes coaching feedback.", color: "#0B0B0B" },
+  { step: "03", icon: Trophy, title: "Team closes it", body: "Hot leads land in acquisitions with handoff briefs. Managers see floor pace in real time.", color: "#15803D" },
 ];
 
 const USE_CASES = [
@@ -109,9 +116,9 @@ const USE_CASES = [
 ];
 
 const PLANS = [
-  { name: "Starter", price: "$350", tag: "Solo wholesalers", feats: ["500 analyses/mo", "1 workspace", "Call player + ARV", "CSV import + export", "Email support"], accent: "#34D399" },
-  { name: "Professional", price: "$750", tag: "Growing teams", feats: ["2,000 analyses/mo", "Unlimited campaigns", "Teams & roles", "Leaderboard + pacing", "Webhook export", "Priority support"], accent: "#0EA5E9", featured: true },
-  { name: "Enterprise", price: "Custom", tag: "Call floors", feats: ["Unlimited analyses", "Multi-tenant + RBAC", "Custom AI persona", "White-label", "Dedicated manager", "SOC2 / audit logs"], accent: "#A78BFA" },
+  { name: "Starter", price: "$350", tag: "Solo wholesalers", feats: ["500 analyses/mo", "1 workspace", "Call player + ARV", "CSV import + export", "Email support"], accent: "#22C55E" },
+  { name: "Professional", price: "$750", tag: "Growing teams", feats: ["2,000 analyses/mo", "Unlimited campaigns", "Teams & roles", "Leaderboard + pacing", "Webhook export", "Priority support"], accent: "#16A34A", featured: true },
+  { name: "Enterprise", price: "Custom", tag: "Call floors", feats: ["Unlimited analyses", "Multi-tenant + RBAC", "Custom AI persona", "White-label", "Dedicated manager", "SOC2 / audit logs"], accent: "#15803D" },
 ];
 
 const FAQS = [
@@ -199,11 +206,12 @@ export default function LandingPage() {
               <Sparkles size={12} /> NEW · Multi-tenant, white-label ready
             </div>
             <h1 style={{ fontSize: 56, fontWeight: 900, letterSpacing: "-0.03em", lineHeight: 1.05, marginBottom: 22 }}>
-              Turn every cold call into a <span style={{ background: `linear-gradient(135deg, ${SKY}, #7C3AED)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>closeable deal.</span>
+              Track every call. <span style={{ background: `linear-gradient(135deg, ${SKY}, ${SKY_600})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Close every deal.</span>
             </h1>
             <p style={{ fontSize: 19, color: SLATE, lineHeight: 1.55, marginBottom: 34, maxWidth: 620, margin: "0 auto 34px" }}>
-              RealTrack listens to every recording, qualifies leads against your rules, calculates ARV/MAO,
-              and routes Hot leads to acquisitions — automatically. Built for real estate call centers.
+              The closer&apos;s-office OS for real-estate call floors. RealTrack listens to every recording,
+              qualifies leads against your rules, calculates ARV/MAO, and routes Hot leads to acquisitions —
+              so your team only ever touches deals worth closing.
             </p>
             <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
               <Link href="/login" style={{
