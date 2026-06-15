@@ -128,7 +128,7 @@ export default function BrandingPage() {
           <Palette size={26} color={SKY_600} /> Branding
         </h1>
         <p style={{ fontSize: 14, color: SLATE, marginTop: 4 }}>
-          Customize how RealTrack looks for your team. Logo and color apply to your dashboard and sub-user dashboards.
+          Put your logo and color on the floor. Your team and your sub-users see it everywhere.
         </p>
       </div>
 
