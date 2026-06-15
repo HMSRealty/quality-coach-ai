@@ -33,21 +33,24 @@ interface Lead {
 
 const QUALIFIED_SET = ["Hot", "Warm", "Cold"];
 
+// Closer's Office status palette. Hot stays urgent-red because "Hot" is
+// universal floor language for "drop everything." Cold goes slate (not sky)
+// so it sits quietly inside the cream canvas without competing with brand.
 const S_CFG: Record<string, { bg: string; color: string }> = {
-  Hot:          { bg: "#FBEEE8", color: "#DC2626" },
-  Warm:         { bg: "#FFF7ED", color: "#EA580C" },
-  Cold:         { bg: "#F0F9FF", color: "#0284C7" },
-  "Call Back":  { bg: "#FFFBEB", color: "#92400E" },
+  Hot:          { bg: "#FEE2E2", color: "#DC2626" },
+  Warm:         { bg: "#FEF3C7", color: "#B45309" },
+  Cold:         { bg: "#F1F5F9", color: "#475569" },
+  "Call Back":  { bg: "#FEF9C3", color: "#854D0E" },
   Disqualified: { bg: T.surface3 as string, color: T.slate as string },
-  Duplicate:    { bg: "#FAF5FF", color: "#7C3AED" },
+  Duplicate:    { bg: "#F3E8FF", color: "#6B21A8" },
   Processing:   { bg: T.surface3 as string, color: T.slate as string },
-  Commercial:   { bg: "#F5F3FF", color: "#7C3AED" },
-  Error:        { bg: "#FBEEE8", color: "#DC2626" },
+  Commercial:   { bg: "#F3E8FF", color: "#6B21A8" },
+  Error:        { bg: "#FEE2E2", color: "#DC2626" },
 };
 const STATUS_OPTS = ["Hot", "Warm", "Cold", "Call Back", "Disqualified", "Duplicate", "Processing", "Error"];
 
 // ── Charts ──────────────────────────────────────────────────────────────
-function CurvedArea({ data, height = 200, color = "#F2266F", color2 = "#7C3AED" }: {
+function CurvedArea({ data, height = 200, color = "#16A34A", color2 = "#15803D" }: {
   data: number[]; height?: number; color?: string; color2?: string;
 }) {
   if (data.length < 2) return null;
@@ -122,9 +125,9 @@ function StackedBars({ rows, height = 220 }: {
         let y = height - 14 - h;
         return (
           <g key={i}>
-            {hHot > 0 && <rect x={x} y={y} width={barW} height={hHot} rx={6} fill="#F2266F" />}
+            {hHot > 0 && <rect x={x} y={y} width={barW} height={hHot} rx={6} fill="#DC2626" />}
             {hWarm > 0 && <rect x={x} y={y + hHot} width={barW} height={hWarm} rx={6} fill="#F59E0B" />}
-            {hCold > 0 && <rect x={x} y={y + hHot + hWarm} width={barW} height={hCold} rx={6} fill="#0284C7" />}
+            {hCold > 0 && <rect x={x} y={y + hHot + hWarm} width={barW} height={hCold} rx={6} fill="#64748B" />}
             <text x={x + barW / 2} y={height - 2} textAnchor="middle" fontSize={11} fill="var(--text-2)" fontWeight={600}>{r.label}</text>
           </g>
         );
@@ -279,18 +282,18 @@ export default function DashboardPage() {
             padding: "5px 11px", borderRadius: 999, fontSize: 11, fontWeight: 800,
             background: T.magentaDim, color: T.magenta, letterSpacing: "0.03em",
           }}>
-            <Sparkles size={11} /> REVENUE INTELLIGENCE
+            <Sparkles size={11} /> THE FLOOR · LIVE
           </span>
           <h1 style={{ fontSize: 34, marginTop: 10 }}>
             Good {new Date().getHours() < 12 ? "morning" : new Date().getHours() < 17 ? "afternoon" : "evening"},{" "}
             <span style={{ background: T.gradPrimary, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>{displayName}</span>.
           </h1>
           <p style={{ fontSize: 14, color: "var(--text-2)", marginTop: 4 }}>
-            Here&apos;s your call performance snapshot — updated live.
+            Here&apos;s your floor — calls graded, leads ranked, deals waiting.
           </p>
         </div>
         <Link href="/dashboard/analyze" className="btn-brand">
-          <Zap size={14} /> New Analysis
+          <Zap size={14} /> Grade a call
         </Link>
       </section>
 
@@ -319,7 +322,7 @@ export default function DashboardPage() {
       </section>
 
       {/* ── CHARTS ───────────────────────────────────────────────── */}
-      <section className="reveal" style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 18 }}>
+      <section className="reveal" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 18 }}>
         <div style={{
           background: "var(--surface-1)", border: "1px solid var(--border-2)",
           borderRadius: 20, padding: 22, boxShadow: "var(--shadow-md)",
@@ -346,7 +349,7 @@ export default function DashboardPage() {
           </div>
           <StackedBars rows={stacked} />
           <div style={{ display: "flex", gap: 14, marginTop: 12, fontSize: 11 }}>
-            {[{ c: "#F2266F", l: "Hot" }, { c: "#F59E0B", l: "Warm" }, { c: "#0284C7", l: "Cold" }].map((s) => (
+            {[{ c: "#DC2626", l: "Hot" }, { c: "#F59E0B", l: "Warm" }, { c: "#64748B", l: "Cold" }].map((s) => (
               <span key={s.l} style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "var(--text-2)" }}>
                 <span style={{ width: 10, height: 10, borderRadius: 3, background: s.c }} /> {s.l}
               </span>
@@ -376,10 +379,10 @@ export default function DashboardPage() {
             <div style={{ width: 56, height: 56, borderRadius: "50%", background: "var(--surface-3)", margin: "0 auto 16px", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <PhoneCall size={22} color="var(--text-3)" />
             </div>
-            <p style={{ fontSize: 16, fontWeight: 700, color: "var(--text-1)", marginBottom: 6 }}>No calls analyzed yet</p>
-            <p style={{ fontSize: 13, color: "var(--text-2)", marginBottom: 20 }}>Upload your first recording to get instant quality scores.</p>
+            <p style={{ fontSize: 16, fontWeight: 700, color: "var(--text-1)", marginBottom: 6 }}>Nothing on the board yet</p>
+            <p style={{ fontSize: 13, color: "var(--text-2)", marginBottom: 20 }}>Drop your first recording — Hot, Warm, or Cold in seconds.</p>
             <Link href="/dashboard/analyze" className="btn-brand">
-              <Zap size={14} /> Analyze first call
+              <Zap size={14} /> Grade your first call
             </Link>
           </div>
         ) : (
