@@ -7,8 +7,8 @@ import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { Handshake, Loader2, MapPin, ArrowRight, DollarSign } from "lucide-react";
 
-const SKY_600 = "#0284C7";
-const MONEY = "#059669";
+const SKY_600 = "#15803D";
+const MONEY = "#15803D";
 const money = (n: number) => `$${Math.round(Math.max(0, n)).toLocaleString()}`;
 
 interface Lead {
@@ -17,7 +17,8 @@ interface Lead {
   metadata: Record<string, unknown> | null;
 }
 
-const STATUS_C: Record<string, string> = { Hot: "#059669", Warm: "#EA580C" };
+// Hot stays red (universal urgency on floor), Warm stays amber.
+const STATUS_C: Record<string, string> = { Hot: "#DC2626", Warm: "#EA580C" };
 
 export default function DealsPage() {
   const router = useRouter();
@@ -48,12 +49,12 @@ export default function DealsPage() {
   return (
     <div style={{ maxWidth: 1080, margin: "0 auto", display: "flex", flexDirection: "column", gap: 18 }} className="animate-in">
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        <span style={{ width: 38, height: 38, borderRadius: 10, background: "rgba(14,165,233,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <span style={{ width: 38, height: 38, borderRadius: 10, background: "rgba(22,163,74,0.14)", display: "flex", alignItems: "center", justifyContent: "center" }}>
           <Handshake size={19} color={SKY_600} />
         </span>
         <div>
           <h1 style={{ fontSize: 24, fontWeight: 900, color: "#000", letterSpacing: "-0.02em" }}>Hot Leads Alert</h1>
-          <p style={{ fontSize: 13, color: "var(--text-2)" }}>Hot &amp; warm leads ready for an offer — {leads.length} live.</p>
+          <p style={{ fontSize: 13, color: "var(--text-2)" }}>Deals ready to close — {leads.length} on the table.</p>
         </div>
       </div>
 
@@ -62,8 +63,8 @@ export default function DealsPage() {
       ) : leads.length === 0 ? (
         <div style={{ padding: 60, textAlign: "center", background: "#fff", border: "1px solid var(--border-2)", borderRadius: 16, boxShadow: "var(--shadow-sm)" }}>
           <Handshake size={34} color="#CBD5E1" style={{ margin: "0 auto 10px" }} />
-          <p style={{ fontSize: 14, fontWeight: 700, color: "#000" }}>No active deals yet</p>
-          <p style={{ fontSize: 13, color: "var(--text-2)", marginTop: 4 }}>Leads marked Hot or Warm will appear here for offer prep.</p>
+          <p style={{ fontSize: 14, fontWeight: 700, color: "#000" }}>No deals on the table</p>
+          <p style={{ fontSize: 13, color: "var(--text-2)", marginTop: 4 }}>The second a call comes back Hot or Warm, it lands here for offer prep.</p>
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
