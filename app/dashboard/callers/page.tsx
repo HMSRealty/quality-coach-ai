@@ -163,11 +163,11 @@ export default function AgentsPage() {
     <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", flexDirection: "column", gap: 18 }} className="animate-in">
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 800, color: NAVY }}>Agents</h1>
-          <p style={{ fontSize: 13, color: SLATE }}>Add, modify, or remove cold callers. Info · contact · team · shift · target.</p>
+          <h1 style={{ fontSize: 24, fontWeight: 800, color: NAVY }}>Floor Agents</h1>
+          <p style={{ fontSize: 13, color: SLATE }}>Your callers — names, shifts, daily targets. Everyone on the floor lives here.</p>
         </div>
         <button onClick={() => setAdding(true)} className="btn-brand">
-          <Plus size={14} /> Add agent
+          <Plus size={14} /> Add to the floor
         </button>
       </div>
 
