@@ -336,7 +336,7 @@ export default function CampaignsPage() {
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 800, color: "var(--text-1)", marginBottom: 4 }}>Campaigns</h1>
           <p style={{ fontSize: 13, color: "var(--text-3)" }}>
-            Define custom AI qualification rules for different call types.
+            Custom rules per call type. One campaign per market, dialer, or offer angle — your call.
           </p>
         </div>
         <div style={{ display: "flex", gap: 10 }}>
@@ -353,7 +353,7 @@ export default function CampaignsPage() {
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "360px 1fr", gap: 20, alignItems: "start" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 20, alignItems: "start" }}>
 
         {/* ── Create form ── */}
         <Card style={{ padding: 22 }}>
@@ -369,7 +369,7 @@ export default function CampaignsPage() {
             </div>
             <div>
               <p style={{ fontSize: 14, fontWeight: 700, color: "var(--text-1)" }}>New Campaign</p>
-              <p style={{ fontSize: 11, color: "var(--text-3)", marginTop: 1 }}>Define rules for AI scoring</p>
+              <p style={{ fontSize: 11, color: "var(--text-3)", marginTop: 1 }}>Set the rules. The AI follows them.</p>
             </div>
           </div>
 
@@ -485,7 +485,7 @@ export default function CampaignsPage() {
                 No campaigns yet
               </p>
               <p style={{ fontSize: 13, color: "var(--text-3)", lineHeight: 1.65, maxWidth: 320, margin: "0 auto" }}>
-                Create your first campaign using the form, or ask your admin to assign one to you.
+                Build your first one with the form — or ask your admin to drop one into your queue.
               </p>
             </Card>
           ) : (
