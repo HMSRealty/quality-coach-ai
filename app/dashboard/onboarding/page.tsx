@@ -11,10 +11,10 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { CheckCircle2, Circle, Loader2, ArrowRight, Sparkles, Server, Webhook, PartyPopper } from "lucide-react";
 
-const NAVY = "#0F172A";
+const NAVY = "#0B0B0B";
 const SLATE = "#475569";
-const SKY_600 = "#0284C7";
-const MONEY = "#059669";
+const SKY_600 = "#15803D";
+const MONEY = "#15803D";
 
 interface Status {
   has_api_key: boolean;
@@ -60,7 +60,7 @@ export default function OnboardingPage() {
       title: "Add a Gemini API key",
       desc: "Get one free from Google AI Studio. RealTrack uses it to analyze your calls and qualify leads.",
       cta: "Add Gemini Key",
-      href: "/dashboard/settings/api",
+      href: "/dashboard/integrations",
       external: "https://aistudio.google.com/apikey",
     },
     {
@@ -69,7 +69,7 @@ export default function OnboardingPage() {
       title: "Connect your dialer (optional)",
       desc: "Add your Readymode credentials if you want recordings pulled automatically. Skip this if you'll send leads-only or upload calls manually.",
       cta: "Connect Dialer",
-      href: "/dashboard/settings/api",
+      href: "/dashboard/integrations",
     },
     {
       done: status.has_campaign,
@@ -91,12 +91,12 @@ export default function OnboardingPage() {
       <div style={{ textAlign: "center" }}>
         {allDone ? <PartyPopper size={42} style={{ color: MONEY, margin: "0 auto 12px", display: "block" }} /> : null}
         <h1 style={{ fontSize: 28, fontWeight: 900, color: NAVY, letterSpacing: "-0.02em" }}>
-          {allDone ? "You're all set!" : "Get RealTrack working in 3 steps"}
+          {allDone ? "You're live." : "Get the floor live in 3 steps"}
         </h1>
         <p style={{ fontSize: 14, color: SLATE, marginTop: 8 }}>
           {allDone
-            ? "Everything's connected. Leads will start flowing into your Call Library."
-            : `${completed} of ${steps.length} done. Let's finish setup.`}
+            ? "Everything's wired up. Calls land in the Library and get graded automatically."
+            : `${completed} of ${steps.length} done. Let&apos;s finish the wiring.`}
         </p>
       </div>
 
@@ -105,7 +105,7 @@ export default function OnboardingPage() {
         <div style={{
           width: `${(completed / steps.length) * 100}%`,
           height: "100%",
-          background: allDone ? MONEY : "linear-gradient(90deg, #0EA5E9, #0284C7)",
+          background: allDone ? MONEY : "linear-gradient(90deg, #16A34A, #15803D)",
           transition: "width 400ms cubic-bezier(0.34, 1.56, 0.64, 1)",
         }} />
       </div>
@@ -121,7 +121,7 @@ export default function OnboardingPage() {
           }}>
             <div style={{
               width: 38, height: 38, borderRadius: "50%",
-              background: s.done ? "rgba(5,150,105,0.12)" : "rgba(2,132,199,0.08)",
+              background: s.done ? "rgba(22,163,74,0.14)" : "rgba(22,163,74,0.08)",
               display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
             }}>
               {s.done ? <CheckCircle2 size={20} color={MONEY} /> : <s.icon size={18} color={SKY_600} />}
@@ -141,7 +141,7 @@ export default function OnboardingPage() {
               <Link href={s.href} style={{
                 display: "inline-flex", alignItems: "center", gap: 5,
                 padding: "9px 16px", borderRadius: 9,
-                background: "linear-gradient(135deg,#0EA5E9,#0284C7)", color: "#fff",
+                background: "linear-gradient(135deg,#16A34A,#15803D)", color: "#fff",
                 fontSize: 12.5, fontWeight: 800, textDecoration: "none", whiteSpace: "nowrap",
               }}>
                 {s.cta} <ArrowRight size={13} />
