@@ -132,10 +132,10 @@ export default function PayrollPage() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 14 }}>
         <div>
           <h1 style={{ fontSize: 28, fontWeight: 900, color: NAVY, letterSpacing: "-0.02em", display: "flex", alignItems: "center", gap: 10 }}>
-            <DollarSign size={26} color="#059669" /> Compensation & Hours
+            <DollarSign size={26} color="#15803D" /> Compensation & Hours
           </h1>
           <p style={{ fontSize: 13, color: SLATE, marginTop: 4 }}>
-            Role salaries, hours tracking, payroll workbench, and production bonuses.
+            Salaries, hours, payroll, and bonuses — everything the floor gets paid for, in one place.
           </p>
         </div>
       </div>
