@@ -144,7 +144,7 @@ export default function LeaderboardPage() {
             <Trophy size={24} color="#FACC15" /> Leaderboard
           </h1>
           <p style={{ fontSize: 13, color: SLATE, marginTop: 4 }}>
-            Rankings for the last {days} days · EST.
+            Who&apos;s closing, who&apos;s coasting. Last {days} days · EST.
           </p>
           {/* Point legend */}
           <div style={{ display: "flex", gap: 10, marginTop: 10, flexWrap: "wrap", alignItems: "center" }}>
@@ -223,7 +223,7 @@ export default function LeaderboardPage() {
                         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                           <div style={{
                             width: 34, height: 34, borderRadius: "50%", flexShrink: 0,
-                            background: i === 0 ? "linear-gradient(135deg,#F2266F,#7C3AED)" : i === 1 ? "linear-gradient(135deg,#7C3AED,#0284C7)" : "linear-gradient(135deg,#0284C7,#0EA5E9)",
+                            background: i === 0 ? "linear-gradient(135deg,#FACC15,#D97706)" : i === 1 ? "linear-gradient(135deg,#94A3B8,#475569)" : "linear-gradient(135deg,#F97316,#9A3412)",
                             color: "#fff", display: "flex", alignItems: "center", justifyContent: "center",
                             fontSize: 12, fontWeight: 900,
                           }}>
@@ -258,7 +258,7 @@ export default function LeaderboardPage() {
                         {r.callback > 0 ? <Badge count={r.callback} color="#92400E" /> : <span style={{ color: "var(--text-4)" }}>—</span>}
                       </td>
                       <td style={{ ...td, textAlign: "center" }}>
-                        {r.needscall > 0 ? <Badge count={r.needscall} color="#0EA5E9" /> : <span style={{ color: "var(--text-4)" }}>—</span>}
+                        {r.needscall > 0 ? <Badge count={r.needscall} color="#15803D" /> : <span style={{ color: "var(--text-4)" }}>—</span>}
                       </td>
                       <td style={{ ...td, textAlign: "center" }}>
                         {r.disqualified > 0 ? <Badge count={r.disqualified} color="#64748B" /> : <span style={{ color: "var(--text-4)" }}>—</span>}
@@ -286,11 +286,11 @@ export default function LeaderboardPage() {
                           <div style={{ flex: 1, height: 6, borderRadius: 999, background: "var(--surface-3)", overflow: "hidden" }}>
                             <div style={{
                               height: "100%", width: `${Math.min(100, r.pacePct)}%`, borderRadius: 999,
-                              background: r.pacePct >= 100 ? "#10B981" : r.pacePct >= 80 ? "#0284C7" : "#EA580C",
+                              background: r.pacePct >= 100 ? "#16A34A" : r.pacePct >= 80 ? "#15803D" : "#EA580C",
                               transition: "width 600ms ease",
                             }} />
                           </div>
-                          <span style={{ fontSize: 11, fontWeight: 800, color: r.pacePct >= 100 ? "#10B981" : r.pacePct >= 80 ? NAVY : "#EA580C", minWidth: 36, textAlign: "right" }}>
+                          <span style={{ fontSize: 11, fontWeight: 800, color: r.pacePct >= 100 ? "#16A34A" : r.pacePct >= 80 ? NAVY : "#EA580C", minWidth: 36, textAlign: "right" }}>
                             {r.pacePct}%
                           </span>
                         </div>
