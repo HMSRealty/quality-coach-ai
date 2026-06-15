@@ -125,7 +125,7 @@ export default function PermissionsPage() {
       <div>
         <h1 style={{ fontSize: 22, fontWeight: 800, color: NAVY, marginBottom: 4 }}>Form Permissions</h1>
         <p style={{ fontSize: 13, color: SLATE }}>
-          Control each user's submission form. Disable a form to instantly stop accepting leads.
+          Per-user submission forms. Flip one off and that user&apos;s intake stops accepting leads instantly.
         </p>
       </div>
 
