@@ -147,7 +147,7 @@ export default function PersonaPage() {
             <Bot size={20} color={T.teal} /> AI Persona &amp; Kill List
           </h1>
           <p style={{ fontSize: 13, color: SLATE }}>
-            Customize how the AI qualifies every call for your workspace. Saved changes apply to the very next lead analyzed.
+            How the AI grades every call on your floor. The very next lead picks up your changes.
           </p>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
