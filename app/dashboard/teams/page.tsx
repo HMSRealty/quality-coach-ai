@@ -178,7 +178,7 @@ export default function TeamsPage() {
       <div>
         <h1 style={{ fontSize: 22, fontWeight: 800, color: NAVY, marginBottom: 4 }}>Teams</h1>
         <p style={{ fontSize: 13, color: SLATE }}>
-          Group your sub-users into teams and pick their role. What each role can see/do is set by{" "}
+          Organize the floor — group callers, QA, trainers and team leaders so reports roll up cleanly. Permissions live in{" "}
           <a href="/dashboard/roles" style={{ color: T.teal, fontWeight: 700, textDecoration: "none" }}>Roles &amp; Access</a>.
         </p>
       </div>
@@ -216,7 +216,7 @@ export default function TeamsPage() {
         <Card padding={0}>
           <div style={{ padding: 48, textAlign: "center", color: SLATE }}>
             <Users2 size={28} style={{ margin: "0 auto 10px", opacity: 0.4 }} />
-            <p style={{ fontSize: 13 }}>No teams yet. Create one above to start grouping callers, QA and trainers.</p>
+            <p style={{ fontSize: 13 }}>No teams yet. Create one above and start drafting your floor.</p>
           </div>
         </Card>
       ) : (
