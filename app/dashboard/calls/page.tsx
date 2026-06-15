@@ -30,46 +30,47 @@ function EmptyCallLibrary({ hasFilter }: { hasFilter: boolean }) {
     }}>
       <div style={{
         width: 64, height: 64, borderRadius: 16,
-        background: "linear-gradient(135deg, #0EA5E9, #0284C7)",
+        background: "linear-gradient(135deg, #16A34A, #15803D)",
         margin: "0 auto 18px",
         display: "flex", alignItems: "center", justifyContent: "center",
       }}>
         <PhoneCall size={28} color="#fff" />
       </div>
-      <h2 style={{ fontSize: 22, fontWeight: 900, color: "var(--text-1)" }}>Your Call Library is empty</h2>
+      <h2 style={{ fontSize: 22, fontWeight: 900, color: "var(--text-1)" }}>Nothing on the board yet</h2>
       <p style={{ fontSize: 14, color: "var(--text-3)", marginTop: 8, marginBottom: 24, lineHeight: 1.6, maxWidth: 480, marginLeft: "auto", marginRight: "auto" }}>
-        Send a lead from your dialer or webhook to this URL, or run the setup wizard for a step-by-step walkthrough.
+        Point your dialer at this webhook — leads land here automatically and get graded in seconds.
+        First time setting up? The wizard walks you through it.
       </p>
       <div style={{
         display: "inline-flex", alignItems: "center", gap: 8,
-        padding: "10px 14px", background: "#F8FAFC",
+        padding: "10px 14px", background: "#FAF7EE",
         border: "1px solid var(--border-2)", borderRadius: 11,
         marginBottom: 22, maxWidth: "100%",
       }}>
-        <Webhook size={14} color="#0284C7" />
+        <Webhook size={14} color="#15803D" />
         <code style={{ fontSize: 12, fontFamily: "var(--font-mono)", color: "var(--text-1)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{sample}</code>
         <button onClick={() => { navigator.clipboard.writeText(sample); setCopied(true); setTimeout(() => setCopied(false), 1500); }}
           title="Copy URL"
-          style={{ background: "none", border: "none", cursor: "pointer", padding: 4, color: copied ? "#059669" : "var(--text-3)" }}>
+          style={{ background: "none", border: "none", cursor: "pointer", padding: 4, color: copied ? "#15803D" : "var(--text-3)" }}>
           {copied ? <Check size={14} /> : <Copy size={14} />}
         </button>
       </div>
       <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
         <Link href="/dashboard/onboarding" style={{
           padding: "11px 20px", borderRadius: 10,
-          background: "linear-gradient(135deg, #0EA5E9, #0284C7)", color: "#fff",
+          background: "linear-gradient(135deg, #16A34A, #15803D)", color: "#fff",
           fontSize: 13, fontWeight: 800, textDecoration: "none",
           display: "inline-flex", alignItems: "center", gap: 6,
         }}>
-          Open setup wizard <ArrowRight size={13} />
+          Run the wizard <ArrowRight size={13} />
         </Link>
-        <Link href="/dashboard/settings/api" style={{
+        <Link href="/dashboard/integrations" style={{
           padding: "11px 20px", borderRadius: 10,
           background: "#fff", color: "var(--text-1)",
           border: "1px solid var(--border-2)",
           fontSize: 13, fontWeight: 700, textDecoration: "none",
         }}>
-          Get your API key
+          Get my webhook key
         </Link>
       </div>
     </div>
@@ -300,7 +301,7 @@ export default function CallsPage() {
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 800, color: "var(--text-1)", marginBottom: 4 }}>Call Library</h1>
           <p style={{ fontSize: 13, color: "var(--text-2)" }}>
-            {filtered.length} processed lead{filtered.length === 1 ? "" : "s"}. Click any card for full details.
+            {filtered.length} call{filtered.length === 1 ? "" : "s"} graded. Tap any card for the verdict + transcript.
           </p>
         </div>
         <div style={{ display: "flex", gap: 10 }}>
