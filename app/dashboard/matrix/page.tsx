@@ -59,13 +59,15 @@ interface Person {
 }
 
 // ── Buckets ────────────────────────────────────────────────────────────
+// Closer's Office hierarchy: rank shown by darkness, not hue. Top of the
+// floor = jet ink, callers = soft money. One brand family, six clear tiers.
 const BUCKETS = [
-  { key: "owner",        label: "Managers",       icon: Crown,        accent: "#D946EF" },
-  { key: "team_leader",  label: "Team Leaders",   icon: Flag,         accent: "#F59E0B" },
-  { key: "acquisitions", label: "Acquisitions",   icon: Building2,    accent: "#10B981" },
-  { key: "qa",           label: "Quality (QA)",   icon: ShieldCheck,  accent: "#0284C7" },
-  { key: "trainer",      label: "Trainers",       icon: Briefcase,    accent: "#7C3AED" },
-  { key: "caller",       label: "Callers",        icon: PhoneCall,    accent: "#F2266F" },
+  { key: "owner",        label: "Managers",       icon: Crown,        accent: "#0B0B0B" },
+  { key: "team_leader",  label: "Team Leaders",   icon: Flag,         accent: "#166534" },
+  { key: "acquisitions", label: "Acquisitions",   icon: Building2,    accent: "#15803D" },
+  { key: "qa",           label: "Quality (QA)",   icon: ShieldCheck,  accent: "#16A34A" },
+  { key: "trainer",      label: "Trainers",       icon: Briefcase,    accent: "#22C55E" },
+  { key: "caller",       label: "Callers",        icon: PhoneCall,    accent: "#4D7C0F" },
 ] as const;
 type BucketKey = (typeof BUCKETS)[number]["key"];
 const BUCKET_OPTIONS: { value: RoleKey; label: string }[] = [
@@ -100,6 +102,9 @@ export default function MatrixPage() {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [editing, setEditing] = useState<Person | null>(null);
   const [adding, setAdding] = useState(false);
+  // When the user clicks the "+" inside a bucket header, we pre-select that
+  // bucket's role in the Add modal — saves them a click.
+  const [addRoleHint, setAddRoleHint] = useState<RoleKey | null>(null);
   const [toast, setToast] = useState<{ ok: boolean; msg: string } | null>(null);
   const [objections, setObjections] = useState<Array<{ label: string; count: number }>>([]);
   const [objLoading, setObjLoading] = useState(true);
@@ -331,7 +336,7 @@ export default function MatrixPage() {
         <div>
           <h1 style={{ fontSize: 28, fontWeight: 900, color: NAVY, letterSpacing: "-0.02em" }}>Company Matrix</h1>
           <p style={{ fontSize: 13.5, color: SLATE, marginTop: 4 }}>
-            Add, edit, terminate, or delete employees · assign each one to a team · see the full org at a glance.
+            The whole floor at a glance. Add, move, promote, or terminate — and see exactly who&apos;s carrying weight.
           </p>
         </div>
         <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
@@ -344,8 +349,8 @@ export default function MatrixPage() {
                 fontSize: 13, color: "var(--text-1)", outline: "none",
               }} />
           </div>
-          <button onClick={() => setAdding(true)} className="btn-brand">
-            <Plus size={14} /> Add employee
+          <button onClick={() => { setAddRoleHint(null); setAdding(true); }} className="btn-brand">
+            <Plus size={14} /> Add to the floor
           </button>
         </div>
       </div>
@@ -398,7 +403,10 @@ export default function MatrixPage() {
                   <span style={{ width: 30, height: 30, borderRadius: 9, background: b.accent, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}><Icon size={15} /></span>
                   <p style={{ fontSize: 14, fontWeight: 800, color: NAVY, flex: 1 }}>{b.label}</p>
                   <span style={{ fontSize: 12, fontWeight: 800, color: b.accent, background: `${b.accent}22`, padding: "2px 9px", borderRadius: 999 }}>{list.length}</span>
-                  <button onClick={() => setAdding(true)} title="Add to this group" className="btn-ghost" style={{ padding: "5px 8px", fontSize: 11 }}>
+                  <button
+                    onClick={() => { setAddRoleHint(b.key === "owner" ? "owner" : b.key as RoleKey); setAdding(true); }}
+                    title={`Add a ${b.label.toLowerCase().replace(/s$/, "")}`}
+                    className="btn-ghost" style={{ padding: "5px 8px", fontSize: 11 }}>
                     <Plus size={11} />
                   </button>
                 </div>
@@ -499,8 +507,9 @@ export default function MatrixPage() {
       {(adding || editing) && (
         <PersonModal
           initial={editing}
+          defaultRole={addRoleHint}
           teams={teams}
-          onClose={() => { setAdding(false); setEditing(null); }}
+          onClose={() => { setAdding(false); setEditing(null); setAddRoleHint(null); }}
           onSave={saveDraft}
         />
       )}
@@ -603,15 +612,23 @@ function MenuItem({ icon: Icon, label, onClick, color }: { icon: React.Component
 
 // ── Modal ──────────────────────────────────────────────────────────────
 function PersonModal({
-  initial, teams, onClose, onSave,
+  initial, defaultRole, teams, onClose, onSave,
 }: {
-  initial: Person | null; teams: Team[];
+  initial: Person | null; defaultRole?: RoleKey | null; teams: Team[];
   onClose: () => void;
   onSave: (p: Person, password?: string) => Promise<void>;
 }) {
+  // System-user role hints (owner / team_leader / qa / acquisitions / trainer)
+  // flip the modal into "system user" mode automatically — callers don't get
+  // logins so they always start in "agent" mode.
+  const systemRoles: RoleKey[] = ["owner", "team_leader", "qa", "acquisitions", "trainer"];
+  const hint = defaultRole ?? null;
+  const initialKind: "profile" | "agent" = hint && systemRoles.includes(hint) ? "profile" : "agent";
+  const initialRole: RoleKey = hint ?? "caller";
+
   const [d, setD] = useState<Person>(initial || {
-    kind: "agent", id: "", display: "", email: "", phone: "", team_id: null,
-    role: "caller", shift_type: "full_time", daily_target: 2, is_active: true,
+    kind: initialKind, id: "", display: "", email: "", phone: "", team_id: null,
+    role: initialRole, shift_type: "full_time", daily_target: 2, is_active: true,
   });
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
