@@ -108,6 +108,10 @@ export default function CallsPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [campaignFilter, setCampaignFilter] = useState("All");
+  // Date filter: "all" | "today" | "7d" | "30d" | "90d" | "custom"
+  const [dateFilter, setDateFilter] = useState<"all" | "today" | "7d" | "30d" | "90d" | "custom">("all");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const [campaigns, setCampaigns] = useState<string[]>([]);
   const [agents, setAgents] = useState<string[]>([]);
   const [agentFilter, setAgentFilter] = useState("All");
@@ -173,10 +177,33 @@ export default function CallsPage() {
     return () => { cancelled = true; if (channel) supabase.removeChannel(channel); };
   }, []);
 
+  // Resolve the active date-range filter into a [from, to] window in ms.
+  // null on either side means "open-ended."
+  const dateWindow = (() => {
+    if (dateFilter === "all") return null;
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    if (dateFilter === "today") return { from: startOfToday, to: startOfToday + 86_400_000 };
+    if (dateFilter === "7d")  return { from: now.getTime() - 7  * 86_400_000, to: now.getTime() };
+    if (dateFilter === "30d") return { from: now.getTime() - 30 * 86_400_000, to: now.getTime() };
+    if (dateFilter === "90d") return { from: now.getTime() - 90 * 86_400_000, to: now.getTime() };
+    if (dateFilter === "custom") {
+      // Custom from/to inputs are HTML date strings (YYYY-MM-DD), local-tz.
+      const f = dateFrom ? new Date(dateFrom + "T00:00:00").getTime() : -Infinity;
+      const t = dateTo   ? new Date(dateTo   + "T23:59:59").getTime() :  Infinity;
+      return { from: f, to: t };
+    }
+    return null;
+  })();
+
   const filtered = leads.filter(l => {
     if (statusFilter !== "All" && l.status !== statusFilter) return false;
     if (campaignFilter !== "All" && l.campaigns?.name !== campaignFilter) return false;
     if (agentFilter !== "All" && l.agent_name !== agentFilter) return false;
+    if (dateWindow) {
+      const ts = new Date(l.created_at).getTime();
+      if (ts < dateWindow.from || ts > dateWindow.to) return false;
+    }
     if (search.trim()) {
       const q = search.toLowerCase();
       if (!(l.extracted_address || "").toLowerCase().includes(q) && !(l.agent_name || "").toLowerCase().includes(q)) return false;
@@ -396,6 +423,22 @@ export default function CallsPage() {
           <option value="All">All Agents</option>
           {agents.map(a => <option key={a} value={a}>{a}</option>)}
         </select>
+        <select value={dateFilter} onChange={e => setDateFilter(e.target.value as typeof dateFilter)} style={inputStyle} title="Filter by date">
+          <option value="all">All Dates</option>
+          <option value="today">Today</option>
+          <option value="7d">Last 7 days</option>
+          <option value="30d">Last 30 days</option>
+          <option value="90d">Last 90 days</option>
+          <option value="custom">Custom range…</option>
+        </select>
+        {dateFilter === "custom" && (
+          <>
+            <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
+              title="From" style={inputStyle} />
+            <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
+              title="To" style={inputStyle} />
+          </>
+        )}
       </div>
 
       {loading ? (
