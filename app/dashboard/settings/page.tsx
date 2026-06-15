@@ -19,7 +19,7 @@ const HUB: { group: string; items: { label: string; href: string; icon: typeof F
     { label: "Payroll & Comp", href: "/dashboard/payroll", icon: Wallet, desc: "Salary base, KPIs & dialer hours" },
   ] },
   { group: "Access & Integrations", items: [
-    { label: "Webhooks & Integrations", href: "/dashboard/settings/api", icon: Webhook, desc: "Inbound API + outbound webhooks" },
+    { label: "Integrations", href: "/dashboard/integrations", icon: Webhook, desc: "Webhook key, AI keys, dialer connections" },
     { label: "Sub-Users", href: "/dashboard/sub-users", icon: UserCog, desc: "Add users with roles" },
     { label: "Permissions", href: "/dashboard/permissions", icon: Power, desc: "What each role can do" },
     { label: "RBAC Matrix", href: "/dashboard/roles", icon: Shield, desc: "Role permission map" },
@@ -106,7 +106,7 @@ jane@example.com,Alice Johnson,Sales Team B,Mike Brown,2024-03-10`;
       {/* Header */}
       <div>
         <h1 style={{ fontSize: 22, fontWeight: 800, color: "#000", marginBottom: 4 }}>Settings</h1>
-        <p style={{ fontSize: 13, color: "#475569" }}>Everything you can configure, in one place.</p>
+        <p style={{ fontSize: 13, color: "#475569" }}>Every knob, switch, and credential — one place to tune your floor.</p>
       </div>
 
       {/* Master hub */}
