@@ -51,7 +51,7 @@ const BASE_STYLE = `
 `;
 const BUTTON = `
   display: inline-block; padding: 12px 22px; border-radius: 10px;
-  background: linear-gradient(135deg, #0EA5E9, #0284C7); color: #fff !important;
+  background: linear-gradient(135deg, #16A34A, #15803D); color: #fff !important;
   text-decoration: none; font-weight: 800; font-size: 14px; margin: 16px 0;
 `;
 

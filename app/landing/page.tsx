@@ -9,18 +9,19 @@ import {
 } from "lucide-react";
 import { T } from "@/app/_components/tokens";
 
-const GRAD = "linear-gradient(135deg, #F2266F 0%, #7C3AED 100%)";
+// Closer's Office gradient — money-on-money. Used for hero accent + buttons.
+const GRAD = "linear-gradient(135deg, #16A34A 0%, #15803D 100%)";
 
 function RealTrackLogo({ light = false }: { light?: boolean }) {
-  const stroke = light ? "#fff" : "#0B0F1F";
-  const stroke2 = light ? "rgba(255,255,255,0.55)" : "rgba(11,15,31,0.5)";
+  const ink = light ? "#fff" : "#0B0B0B";
+  const accent = "#16A34A";
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-      <svg width={34} height={22} viewBox="0 0 40 24" fill="none">
-        <path d="M2 22 L20 4 L38 22" stroke={stroke} strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
-        <path d="M8 22 L20 11 L32 22" stroke={stroke2} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <svg width={36} height={24} viewBox="0 0 42 28" fill="none">
+        <path d="M4 17 L13 25 L37 4" stroke={ink} strokeWidth="4.2" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M4 17 L13 25 L37 4" stroke={accent} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
-      <span style={{ fontSize: 18, fontWeight: 800, letterSpacing: "0.04em", color: light ? "#fff" : "#0B0F1F" }}>RealTrack</span>
+      <span style={{ fontSize: 18, fontWeight: 900, letterSpacing: "0.06em", color: light ? "#fff" : "#0B0B0B" }}>REALTRACK</span>
     </div>
   );
 }
@@ -41,9 +42,9 @@ const STEPS = [
 ];
 
 const PLANS = [
-  { name: "Starter", price: "$350", tag: "Solo wholesalers", feats: ["500 analyses/mo", "1 workspace", "Call player + ARV", "CSV import", "Email support"], accent: "#34D399" },
-  { name: "Professional", price: "$750", tag: "Growing teams", feats: ["2,000 analyses/mo", "Unlimited campaigns", "Teams & roles", "Leaderboard + pacing", "Webhook export", "Priority support"], accent: "#F2266F", featured: true },
-  { name: "Enterprise", price: "Custom", tag: "Call floors", feats: ["Unlimited analyses", "Multi-tenant + RBAC", "Custom AI persona", "SOC2 / audit logs", "Dedicated manager"], accent: "#A78BFA" },
+  { name: "Starter", price: "$350", tag: "Solo wholesalers", feats: ["500 analyses/mo", "1 workspace", "Call player + ARV", "CSV import", "Email support"], accent: "#22C55E" },
+  { name: "Professional", price: "$750", tag: "Growing teams", feats: ["2,000 analyses/mo", "Unlimited campaigns", "Teams & roles", "Leaderboard + pacing", "Webhook export", "Priority support"], accent: "#16A34A", featured: true },
+  { name: "Enterprise", price: "Custom", tag: "Call floors", feats: ["Unlimited analyses", "Multi-tenant + RBAC", "Custom AI persona", "SOC2 / audit logs", "Dedicated manager"], accent: "#15803D" },
 ];
 
 const BADGES = [
@@ -82,22 +83,22 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* ── HERO (midnight) ── */}
+      {/* ── HERO (jet, Closer's Office) ── */}
       <header style={{
         position: "relative", overflow: "hidden",
-        background: "linear-gradient(180deg, #0B0F1F 0%, #0D1228 60%, #11162A 100%)",
+        background: "linear-gradient(180deg, #0B0B0B 0%, #111111 60%, #18181B 100%)",
         color: "#fff", padding: "150px 28px 110px",
       }}>
-        {/* glow orbs */}
-        <div style={{ position: "absolute", top: -120, left: "12%", width: 480, height: 480, borderRadius: "50%", background: "radial-gradient(circle, rgba(242,38,111,0.30), transparent 70%)", filter: "blur(20px)", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", bottom: -160, right: "8%", width: 520, height: 520, borderRadius: "50%", background: "radial-gradient(circle, rgba(124,58,237,0.28), transparent 70%)", filter: "blur(20px)", pointerEvents: "none" }} />
+        {/* money-green glow orbs */}
+        <div style={{ position: "absolute", top: -120, left: "12%", width: 480, height: 480, borderRadius: "50%", background: "radial-gradient(circle, rgba(22,163,74,0.32), transparent 70%)", filter: "blur(20px)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", bottom: -160, right: "8%", width: 520, height: 520, borderRadius: "50%", background: "radial-gradient(circle, rgba(34,197,94,0.22), transparent 70%)", filter: "blur(20px)", pointerEvents: "none" }} />
 
         <div style={{ maxWidth: 980, margin: "0 auto", textAlign: "center", position: "relative" }}>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "6px 14px", borderRadius: 999, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.14)", fontSize: 12, fontWeight: 700, letterSpacing: "0.04em" }}>
-            <Sparkles size={13} color="#FF4F92" /> AI revenue intelligence for real-estate wholesalers
+            <Sparkles size={13} color="#22C55E" /> The closer&apos;s-office OS for real-estate call floors
           </span>
           <h1 style={{ fontSize: "clamp(40px, 6vw, 68px)", fontWeight: 900, lineHeight: 1.04, letterSpacing: "-0.03em", margin: "22px 0 0" }}>
-            Turn every cold call<br />into a <span style={{ background: GRAD, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>closeable deal.</span>
+            Track every call.<br /><span style={{ background: GRAD, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Close every deal.</span>
           </h1>
           <p style={{ fontSize: 18, lineHeight: 1.6, color: "rgba(255,255,255,0.72)", maxWidth: 640, margin: "22px auto 0" }}>
             RealTrack listens to your calls, qualifies leads against the Zillow value, calculates the offer,

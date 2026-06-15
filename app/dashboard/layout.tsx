@@ -91,16 +91,21 @@ function RealTrackMark({ size = 28 }: { size?: number }) {
   if (brand.isCustom && brand.logoUrl) {
     return <img src={brand.logoUrl} alt={brand.name} style={{ height: size * 0.85, maxWidth: 200, objectFit: "contain" }} />;
   }
-  const accent = brand.isCustom ? brand.color : "#059669";
+  // Closer's Office mark — an upward checkmark stroke. "Tracked → closed."
+  // The short stroke is the call you tracked; the long upward stroke is the
+  // deal you closed. Cream-and-money palette.
+  const accent = brand.isCustom ? brand.color : "#16A34A";
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
-      <svg width={size * 1.25} height={size * 0.8} viewBox="0 0 40 24" fill="none">
-        <path d="M3 21 L20 5 L37 21" stroke="#000000" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M10 21 L20 12 L30 21" stroke={accent} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+      <svg width={size * 1.35} height={size * 0.9} viewBox="0 0 42 28" fill="none">
+        {/* black ink stroke behind */}
+        <path d="M4 17 L13 25 L37 4" stroke="#0B0B0B" strokeWidth="4.2" strokeLinecap="round" strokeLinejoin="round"/>
+        {/* money-green accent stroke on top */}
+        <path d="M4 17 L13 25 L37 4" stroke={accent} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
       <span style={{
-        fontSize: 16, fontWeight: 900, color: "#000000",
-        letterSpacing: "0.08em", lineHeight: 1, fontFamily: "var(--font-sans)",
+        fontSize: 16, fontWeight: 900, color: "#0B0B0B",
+        letterSpacing: "0.06em", lineHeight: 1, fontFamily: "var(--font-sans)",
       }}>{brand.isCustom ? brand.name.toUpperCase() : "REALTRACK"}</span>
     </div>
   );

@@ -31,11 +31,11 @@ const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "RealTrack — AI Call QA & Acquisitions OS | realtrack.app",
+    default: "RealTrack — Track every call. Close every deal.",
     template: "%s · RealTrack",
   },
   description:
-    "RealTrack listens to every cold call, qualifies leads against The Four Pillars, routes Hot leads to acquisitions. Built for real-estate wholesalers and call centers like HMS Realty. Visit realtrack.app to start.",
+    "RealTrack is the closer's-office OS for real-estate call floors. Track every call, qualify against The Four Pillars, and route Hot leads to acquisitions in seconds. Built for wholesalers and call centers like HMS Realty.",
   keywords: [
     "realtrack", "realtrack.app", "real track app",
     "HMS Realty", "hmsrealty", "HMS Realty LLC",
@@ -57,13 +57,13 @@ export const metadata: Metadata = {
     siteName: "RealTrack",
     url: SITE_URL,
     locale: "en_US",
-    title: "RealTrack — AI-powered Real Estate Call QA & Acquisitions OS",
-    description: "Qualify every call against The Four Pillars, surface Hot leads in seconds, coach agents automatically. The OS for high-volume real-estate call centers.",
+    title: "RealTrack — Track every call. Close every deal.",
+    description: "Closer's-office OS for real-estate call floors. AI grades every call against The Four Pillars, surfaces Hot leads in seconds, and coaches your floor automatically.",
     images: [{ url: `${SITE_URL}/og.png`, width: 1200, height: 630, alt: "RealTrack — AI call qualification for real-estate teams" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "RealTrack — Real estate call intelligence",
+    title: "RealTrack — Track every call. Close every deal.",
     description: "AI grades every call against The Four Pillars. Hot leads to acquisitions in seconds. realtrack.app",
     images: [`${SITE_URL}/og.png`],
   },
@@ -71,7 +71,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#FFFFFF",
+  themeColor: "#0B0B0B",
 };
 
 // JSON-LD structured data — helps Google understand what RealTrack is and

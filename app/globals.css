@@ -11,47 +11,49 @@
 ═══════════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* ═══ CLEAN ENTERPRISE — White · Sky Blue · Vibrant Green · Slate ═══
-     One bright, day-only FinTech palette. Sky = action/trust,
-     Emerald = money/success, Slate = chrome & text. */
+  /* ═══ CLOSER'S OFFICE — Jet · Money green · Cream ═══
+     Hustler / real-estate-native energy. Money = primary action,
+     Jet = chrome/ink, Cream = warmth so it doesn't read clinical.
+     CSS variable NAMES are preserved so 100+ files keep working
+     unchanged; only the *values* shift to the new identity. */
 
-  /* Sidebar / chrome surfaces are now WHITE (no dark chrome). */
-  --midnight:      #0F172A;   /* slate-900 — used only as a dark TEXT/icon ink */
-  --midnight-2:    #1E293B;
-  --midnight-3:    #334155;
-  --midnight-line: rgba(15,23,42,0.08);
+  /* Sidebar / chrome / text ink */
+  --midnight:      #0B0B0B;   /* jet — primary ink */
+  --midnight-2:    #18181B;
+  --midnight-3:    #27272A;
+  --midnight-line: rgba(11,11,11,0.10);
 
-  /* Primary accent → SKY BLUE. (var name kept so token-based code repaints.) */
-  --sky:           #0EA5E9;   /* sky-500 */
-  --sky-600:       #0284C7;   /* sky-600 */
-  --magenta:       #0EA5E9;   /* primary action — now sky-500 */
-  --magenta-2:     #38BDF8;   /* hover  (sky-400) */
-  --magenta-3:     #0284C7;   /* pressed (sky-600) */
-  --magenta-glow:  rgba(14, 165, 233, 0.30);
-  --magenta-dim:   rgba(14, 165, 233, 0.12);
+  /* Primary accent → MONEY GREEN. (legacy var names kept for token-based code.) */
+  --sky:           #16A34A;   /* money-600 */
+  --sky-600:       #15803D;   /* money-700 (pressed) */
+  --magenta:       #16A34A;   /* primary action */
+  --magenta-2:     #22C55E;   /* hover  (money-500) */
+  --magenta-3:     #15803D;   /* pressed (money-700) */
+  --magenta-glow:  rgba(22, 163, 74, 0.30);
+  --magenta-dim:   rgba(22, 163, 74, 0.12);
 
-  --violet:        #0284C7;   /* gradient stop → deeper sky (no purple) */
-  --violet-2:      #0369A1;
+  --violet:        #15803D;   /* gradient stop → deeper green */
+  --violet-2:      #166534;
 
-  /* Brand gradient → sky-on-sky for buttons / pills / glints */
-  --grad-primary:  linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
-  --grad-chrome:   linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%);
+  /* Brand gradient → money-on-money for buttons / pills / glints */
+  --grad-primary:  linear-gradient(135deg, #16A34A 0%, #15803D 100%);
+  --grad-chrome:   linear-gradient(180deg, #FFFFFF 0%, #FAF7EE 100%);
 
-  /* Navy aliases → slate-900 ink so legacy "NAVY" text stays sharp & readable */
-  --navy:        #0F172A;
-  --navy-2:      #1E293B;
-  --navy-3:      #334155;
-  --navy-light:  #EEF2F8;
-  --navy-border: #E2E8F0;
-  --navy-glow:   rgba(2,132,199,0.16);
-  --navy-ring:   rgba(2,132,199,0.30);
-  --navy-dim:    rgba(15,23,42,0.05);
+  /* Navy aliases → jet ink so legacy "NAVY" text stays sharp & readable */
+  --navy:        #0B0B0B;
+  --navy-2:      #18181B;
+  --navy-3:      #27272A;
+  --navy-light:  #F5EFE0;
+  --navy-border: #E5DFCC;
+  --navy-glow:   rgba(22,163,74,0.16);
+  --navy-ring:   rgba(22,163,74,0.30);
+  --navy-dim:    rgba(11,11,11,0.05);
 
-  /* Teal/gold aliases → sky so any leftover accent code becomes sky-blue */
+  /* Teal/gold aliases → money green so any leftover accent code stays on-brand */
   --teal:        var(--sky);
   --teal-2:      var(--sky-600);
   --teal-light:  var(--magenta-dim);
-  --teal-border: rgba(14,165,233,0.30);
+  --teal-border: rgba(22,163,74,0.30);
   --teal-glow:   var(--magenta-glow);
   --gold:        var(--sky);
   --gold-2:      var(--sky-600);
@@ -71,19 +73,19 @@
   --slate-3:     #94A3B8;
 
   /* ── Content surfaces ──────────────────────────────────────────────── */
-  --canvas:    #F8FAFC;   /* slate-50 — soft gray so white cards pop */
+  --canvas:    #FAF7EE;   /* cream — warm canvas, closer's-office feel */
   --surface-1: #FFFFFF;   /* card / panel / sidebar */
   --surface-2: #FFFFFF;
-  --surface-3: #F1F5F9;   /* slate-100 — input / subtle row */
-  --surface-4: #E2E8F0;   /* slate-200 */
-  --surface-5: #CBD5E1;   /* slate-300 */
+  --surface-3: #F5F0E1;   /* cream-100 — input / subtle row */
+  --surface-4: #E8E1CC;   /* cream-200 */
+  --surface-5: #D6CDB5;   /* cream-300 */
 
-  /* ── Borders (slate-200 family) ────────────────────────────────────── */
-  --border-1: #F1F5F9;                /* slate-100 hairline */
-  --border-2: #E2E8F0;                /* slate-200 — default card border */
-  --border-3: #CBD5E1;                /* slate-300 */
-  --border-4: #94A3B8;                /* slate-400 */
-  --border-brand: rgba(14,165,233,0.35);
+  /* ── Borders (warm neutrals) ───────────────────────────────────────── */
+  --border-1: #F0E9D6;                /* cream hairline */
+  --border-2: #E5DFCC;                /* default card border */
+  --border-3: #D6CDB5;
+  --border-4: #94A3B8;
+  --border-brand: rgba(22,163,74,0.35);
 
   /* ── Text — pure black primary (brand: black font) ─────────────────── */
   --text-1: #000000;   /* black — primary, maximum readability */
@@ -114,7 +116,7 @@
   --shadow-md: 0 6px 18px rgba(11,15,31,0.08);
   --shadow-lg: 0 18px 44px rgba(11,15,31,0.12);
   --shadow-xl: 0 32px 80px rgba(11,15,31,0.18);
-  --shadow-brand: 0 12px 32px rgba(242,38,111,0.28);
+  --shadow-brand: 0 12px 32px rgba(22,163,74,0.28);
   --shadow-chrome: 0 24px 60px rgba(11,15,31,0.30);
 
   /* ── Radius (pill-leaning, Gong) ───────────────────────────────────── */
@@ -132,11 +134,11 @@
   --font-display: var(--font-geist-sans), "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
-  /* Navigation / active states → SKY BLUE (replaces old purple). */
-  --brand-purple:      #0EA5E9;
-  --brand-purple-2:    #0284C7;
-  --brand-purple-soft: rgba(14, 165, 233, 0.12);
-  --brand-purple-glow: rgba(14, 165, 233, 0.40);
+  /* Navigation / active states → MONEY GREEN (Closer's Office). */
+  --brand-purple:      #16A34A;
+  --brand-purple-2:    #15803D;
+  --brand-purple-soft: rgba(22, 163, 74, 0.12);
+  --brand-purple-glow: rgba(22, 163, 74, 0.40);
 
   /* Emerald — money / success / Hot badges (var name kept for code reuse). */
   --money:        #059669;   /* emerald-600 — financial numbers */
