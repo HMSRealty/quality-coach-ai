@@ -9,9 +9,9 @@ import {
   Users, Plus, Trash2, Loader2, Search, Building2, Phone, Mail, MapPin, X, Pencil, Filter,
 } from "lucide-react";
 
-const SKY = "#0EA5E9";
-const SKY_600 = "#0284C7";
-const MONEY = "#059669";
+const SKY = "#16A34A";
+const SKY_600 = "#15803D";
+const MONEY = "#15803D";
 const money = (n: number) => `$${Math.round(n).toLocaleString()}`;
 const toArr = (s: string) => s.split(",").map(x => x.trim()).filter(Boolean);
 
@@ -86,13 +86,13 @@ export default function CashBuyersPage() {
     <div style={{ maxWidth: 1180, margin: "0 auto", display: "flex", flexDirection: "column", gap: 18 }} className="animate-in">
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <span style={{ width: 38, height: 38, borderRadius: 10, background: "rgba(14,165,233,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}><Users size={19} color={SKY_600} /></span>
+          <span style={{ width: 38, height: 38, borderRadius: 10, background: "rgba(22,163,74,0.14)", display: "flex", alignItems: "center", justifyContent: "center" }}><Users size={19} color={SKY_600} /></span>
           <div>
             <h1 style={{ fontSize: 24, fontWeight: 900, color: "#000", letterSpacing: "-0.02em" }}>Cash Buyers</h1>
-            <p style={{ fontSize: 13, color: "var(--text-2)" }}>{buyers.length} buyer{buyers.length === 1 ? "" : "s"} · filter by area or match a deal price to their buy-box.</p>
+            <p style={{ fontSize: 13, color: "var(--text-2)" }}>{buyers.length} buyer{buyers.length === 1 ? "" : "s"} on the bench. Match a deal to their buy-box in one click.</p>
           </div>
         </div>
-        <button onClick={openNew} style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 16px", borderRadius: 10, background: "linear-gradient(135deg, #0EA5E9, #0284C7)", color: "#fff", border: "none", fontSize: 13, fontWeight: 800, cursor: "pointer", boxShadow: "0 8px 20px rgba(14,165,233,0.35)" }}><Plus size={15} /> Add buyer</button>
+        <button onClick={openNew} style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 16px", borderRadius: 10, background: "linear-gradient(135deg, #16A34A, #15803D)", color: "#fff", border: "none", fontSize: 13, fontWeight: 800, cursor: "pointer", boxShadow: "0 8px 20px rgba(22,163,74,0.35)" }}><Plus size={15} /> Add buyer</button>
       </div>
 
       {/* Filters */}
@@ -116,8 +116,8 @@ export default function CashBuyersPage() {
       ) : shown.length === 0 ? (
         <div style={{ padding: 60, textAlign: "center", background: "#fff", border: "1px solid var(--border-2)", borderRadius: 16, boxShadow: "var(--shadow-sm)" }}>
           <Users size={34} color="#CBD5E1" style={{ margin: "0 auto 10px" }} />
-          <p style={{ fontSize: 14, fontWeight: 700, color: "#000" }}>{buyers.length ? "No buyers match your filters." : "No cash buyers yet"}</p>
-          {!buyers.length && <p style={{ fontSize: 13, color: "var(--text-2)", marginTop: 4 }}>Add your buyers and their buy-box to disposition deals fast.</p>}
+          <p style={{ fontSize: 14, fontWeight: 700, color: "#000" }}>{buyers.length ? "No buyers match your filters." : "No buyers on the bench yet"}</p>
+          {!buyers.length && <p style={{ fontSize: 13, color: "var(--text-2)", marginTop: 4 }}>Add buyers with their buy-box now. When a deal lands, you&apos;ll know who to call first.</p>}
         </div>
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 14 }} className="ci-grid">
