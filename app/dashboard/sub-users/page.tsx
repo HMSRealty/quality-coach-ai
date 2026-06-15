@@ -110,7 +110,7 @@ export default function SubUsersPage() {
     <div style={{ maxWidth: 900, margin: "0 auto", display: "flex", flexDirection: "column", gap: 20 }} className="animate-in">
       <div>
         <h1 style={{ fontSize: 22, fontWeight: 800, color: NAVY, marginBottom: 4 }}>Sub-Users</h1>
-        <p style={{ fontSize: 13, color: SLATE }}>Create accounts under you and act as them when needed.</p>
+        <p style={{ fontSize: 13, color: SLATE }}>Give your floor logins. Act-as them anytime to verify what they see.</p>
       </div>
 
       {toast && (
@@ -166,7 +166,7 @@ export default function SubUsersPage() {
         ) : subUsers.length === 0 ? (
           <div style={{ padding: 40, textAlign: "center", color: SLATE }}>
             <UserCog size={28} style={{ margin: "0 auto 8px", opacity: 0.4 }} />
-            <p style={{ fontSize: 13 }}>No sub-users yet.</p>
+            <p style={{ fontSize: 13 }}>No sub-users yet. Create one above to put someone on the floor.</p>
           </div>
         ) : (
           <div>
