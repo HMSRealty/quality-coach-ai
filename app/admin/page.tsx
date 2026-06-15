@@ -11,8 +11,10 @@ import {
 import { T } from "@/app/_components/tokens";
 
 const NAVY = T.text1;
-const TEAL = "#2F6BFF";
-const GOLD = "#2F6BFF";
+// Closer's Office: TEAL/GOLD were leftover sky-blue. Money green ties admin
+// pages into the same identity as the dashboard.
+const TEAL = "#16A34A";
+const GOLD = "#15803D";
 const SLATE = T.text2;
 
 interface UserRow {
@@ -181,7 +183,7 @@ export default function AdminPage() {
             <ShieldCheck size={18} color={GOLD} />
             <h1 style={{ fontSize: 22, fontWeight: 800, color: NAVY }}>Owner Console</h1>
           </div>
-          <p style={{ fontSize: 13, color: SLATE }}>Manage users, permissions, and platform health.</p>
+          <p style={{ fontSize: 13, color: SLATE }}>Every account, every permission, every signal across the whole platform.</p>
         </div>
         <div style={{ display: "flex", gap: 10 }}>
           <button onClick={loadData} style={{
