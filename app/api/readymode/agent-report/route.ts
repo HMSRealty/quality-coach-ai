@@ -210,43 +210,90 @@ const REPORT_CANDIDATES = [
   "/CCS%20Reports/payroll/results.json",
 ];
 
+interface Attempt {
+  method: "POST" | "GET";
+  url: string;
+  status: number;
+  bytes: number;
+  content_type: string | null;
+  body_preview: string;
+  parser_tried: "json" | "html" | "none";
+  json_keys?: string[];
+}
+
 async function tryFetchReport(
   host: string, jar: Record<string, string>, path: string, fromMDY: string, toMDY: string, fromISO: string, toISO: string,
+  attempts: Attempt[],
 ): Promise<{ rows: ParsedRow[]; status: number; url: string } | null> {
   const url = `https://${host}${path}`;
   const referer = `https://${host}/CCS%20Reports/`;
   const headers = {
     "User-Agent": UA, "Cookie": jarToHeader(jar), "Referer": referer, "Origin": `https://${host}`,
     "Accept": "application/json, text/html, */*",
+    "X-Requested-With": "XMLHttpRequest",
   };
-  // Try POST with form params first — most Readymode reports expect this.
   const postBody = new URLSearchParams({
     from: fromMDY, to: toMDY, start_date: fromISO, end_date: toISO,
     date_from: fromMDY, date_to: toMDY, type: "csv",
+    report_type: "agent", agent: "all", all_users: "1",
   });
-  let r = await fetch(url, {
-    method: "POST", redirect: "follow",
-    headers: { ...headers, "Content-Type": "application/x-www-form-urlencoded" },
-    body: postBody.toString(),
-  });
-  let text = await r.text();
-  if (r.ok && text) {
-    if (text.trim().startsWith("{") || text.trim().startsWith("[")) {
-      try { const rows = parseJsonRows(JSON.parse(text)); if (rows.length) return { rows, status: r.status, url }; } catch {}
+
+  for (const method of ["POST", "GET"] as const) {
+    const target = method === "GET"
+      ? `${url}?from=${encodeURIComponent(fromMDY)}&to=${encodeURIComponent(toMDY)}`
+      : url;
+    let r: Response;
+    try {
+      r = await fetch(target, {
+        method,
+        redirect: "follow",
+        headers: method === "POST"
+          ? { ...headers, "Content-Type": "application/x-www-form-urlencoded" }
+          : headers,
+        body: method === "POST" ? postBody.toString() : undefined,
+      });
+    } catch (e) {
+      attempts.push({
+        method, url: target, status: 0, bytes: 0, content_type: null,
+        body_preview: `fetch threw: ${e instanceof Error ? e.message : String(e)}`,
+        parser_tried: "none",
+      });
+      continue;
     }
-    const rows = parseHtmlRows(text);
-    if (rows.length) return { rows, status: r.status, url };
-  }
-  // Fall back to GET with query string.
-  const getUrl = `${url}?from=${encodeURIComponent(fromMDY)}&to=${encodeURIComponent(toMDY)}`;
-  r = await fetch(getUrl, { method: "GET", headers, redirect: "follow" });
-  text = await r.text();
-  if (r.ok && text) {
-    if (text.trim().startsWith("{") || text.trim().startsWith("[")) {
-      try { const rows = parseJsonRows(JSON.parse(text)); if (rows.length) return { rows, status: r.status, url: getUrl }; } catch {}
+    const text = await r.text();
+    const ct = r.headers.get("content-type");
+    const trimmed = text.trim();
+    let parser: Attempt["parser_tried"] = "none";
+    let jsonKeys: string[] | undefined;
+
+    if (r.ok && trimmed) {
+      if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+        parser = "json";
+        try {
+          const j = JSON.parse(text);
+          if (!Array.isArray(j) && j && typeof j === "object") {
+            jsonKeys = Object.keys(j as Record<string, unknown>).slice(0, 12);
+          }
+          const rows = parseJsonRows(j);
+          if (rows.length) {
+            attempts.push({ method, url: target, status: r.status, bytes: text.length, content_type: ct, body_preview: trimmed.slice(0, 300), parser_tried: parser, json_keys: jsonKeys });
+            return { rows, status: r.status, url: target };
+          }
+        } catch { /* fall through to html parser */ }
+      }
+      parser = "html";
+      const rows = parseHtmlRows(text);
+      if (rows.length) {
+        attempts.push({ method, url: target, status: r.status, bytes: text.length, content_type: ct, body_preview: trimmed.slice(0, 300), parser_tried: parser, json_keys: jsonKeys });
+        return { rows, status: r.status, url: target };
+      }
     }
-    const rows = parseHtmlRows(text);
-    if (rows.length) return { rows, status: r.status, url: getUrl };
+    attempts.push({
+      method, url: target, status: r.status, bytes: text.length, content_type: ct,
+      body_preview: trimmed.slice(0, 300),
+      parser_tried: parser,
+      json_keys: jsonKeys,
+    });
   }
   return null;
 }
@@ -280,24 +327,29 @@ export async function POST(req: NextRequest) {
     const password = await decryptSecret(conn.password_enc as string);
     const host = normalizeHost(conn.subdomain as string);
     const jar = await loginReadymode(host, conn.username as string, password);
+    const sessionLooksOk = Object.keys(jar).some((k) => /sess|sid|auth|phpsess/i.test(k));
 
     const fromMDY = formatMDY(from);
     const toMDY = formatMDY(to);
 
-    // Prefer the cached path; otherwise probe.
     const candidates = conn.report_url ? [conn.report_url as string, ...REPORT_CANDIDATES] : REPORT_CANDIDATES;
+    const attempts: Attempt[] = [];
     let hit: { rows: ParsedRow[]; url: string } | null = null;
-    let lastStatus = 0;
     for (const path of candidates) {
-      const tried = await tryFetchReport(host, jar, path.startsWith("http") ? new URL(path).pathname + new URL(path).search : path, fromMDY, toMDY, from, to);
+      const cleanPath = path.startsWith("http") ? new URL(path).pathname + new URL(path).search : path;
+      const tried = await tryFetchReport(host, jar, cleanPath, fromMDY, toMDY, from, to, attempts);
       if (tried) { hit = tried; break; }
-      lastStatus = lastStatus || 404;
     }
     if (!hit) {
       return NextResponse.json({
         ok: false,
-        error: "Could not locate the Agent Report endpoint on this dialer. Open the Agent Report in your Readymode admin once, copy the URL from your browser, and paste it into the connection's Report URL field.",
-        last_status: lastStatus,
+        error: !sessionLooksOk
+          ? "Login to Readymode did not set a session cookie. Check the username/password on this connection in Integrations."
+          : "Logged in OK, but no Agent Report endpoint returned parseable rows. See diagnostics below.",
+        host,
+        session_cookies: Object.keys(jar),
+        candidates_tried: candidates,
+        attempts,
       }, { status: 502 });
     }
 

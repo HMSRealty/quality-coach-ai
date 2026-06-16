@@ -61,7 +61,7 @@ export function ReadymodeHoursSync() {
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
-  const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string; debug?: unknown } | null>(null);
   const [reassigning, setReassigning] = useState<string | null>(null);
 
   const loadAll = async () => {
@@ -101,7 +101,13 @@ export function ReadymodeHoursSync() {
     const j = await r.json().catch(() => ({}));
     setSyncing(false);
     if (!r.ok || !j.ok) {
-      setMsg({ type: "err", text: j.error || "Sync failed" });
+      // Surface diagnostic detail (attempts, status codes, body previews)
+      // so we can see WHY the sync failed instead of a generic "Sync failed".
+      setMsg({
+        type: "err",
+        text: j.error || `Sync failed (HTTP ${r.status})`,
+        debug: { http_status: r.status, ...j },
+      });
       return;
     }
     setMsg({ type: "ok", text: `Synced ${j.count} agent${j.count === 1 ? "" : "s"} from Readymode.` });
@@ -198,9 +204,26 @@ export function ReadymodeHoursSync() {
             background: msg.type === "ok" ? "#ECFDF5" : "#FEF2F2",
             color: msg.type === "ok" ? MONEY : "#DC2626",
             border: `1px solid ${msg.type === "ok" ? "#A7F3D0" : "#FECACA"}`,
-            fontSize: 12.5, fontWeight: 600, display: "flex", alignItems: "center", gap: 7,
+            fontSize: 12.5, fontWeight: 600,
           }}>
-            {msg.type === "ok" ? <CheckCircle2 size={14} /> : <AlertCircle size={14} />} {msg.text}
+            <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+              {msg.type === "ok" ? <CheckCircle2 size={14} /> : <AlertCircle size={14} />} {msg.text}
+            </div>
+            {msg.debug != null && (
+              <details style={{ marginTop: 8 }}>
+                <summary style={{ cursor: "pointer", fontSize: 11, fontWeight: 700, color: "#7F1D1D" }}>
+                  Show diagnostic details
+                </summary>
+                <pre style={{
+                  marginTop: 6, padding: 10, borderRadius: 7, background: "#FFF",
+                  border: "1px solid #FECACA", color: "#000", fontSize: 11,
+                  maxHeight: 360, overflow: "auto", whiteSpace: "pre-wrap", wordBreak: "break-word",
+                  fontFamily: "var(--font-mono)",
+                }}>
+                  {JSON.stringify(msg.debug, null, 2)}
+                </pre>
+              </details>
+            )}
           </div>
         )}
       </div>
