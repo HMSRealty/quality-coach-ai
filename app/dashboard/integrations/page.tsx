@@ -13,6 +13,7 @@ import { GeminiKeysCard } from "@/app/_components/GeminiKeysCard";
 import { ZillowKeysCard } from "@/app/_components/ZillowKeysCard";
 import { ReadymodeConnectionCard } from "@/app/_components/ReadymodeConnectionCard";
 import { AutoFetchToggle } from "@/app/_components/AutoFetchToggle";
+import { SheetsExportPanel } from "@/app/_components/SheetsExportPanel";
 
 const NAVY = "#0F172A";
 const SLATE = "#475569";
@@ -186,6 +187,9 @@ export default function IntegrationsPage() {
 
       {/* DIALER CONNECTIONS */}
       <ReadymodeConnectionCard />
+
+      {/* GOOGLE SHEETS LIVE EXPORTS */}
+      <SheetsExportPanel />
 
     </div>
   );
