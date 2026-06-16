@@ -56,7 +56,7 @@ const jarToHeader = (jar: Record<string, string>) =>
 async function loginReadymode(host: string, user: string, pass: string): Promise<Record<string, string>> {
   const loginUrl = `https://${host}/login_new/?then=/`;
   const jar: Record<string, string> = {};
-  const getR = await fetch(loginUrl, { headers: { "User-Agent": UA, "Accept": "text/html" }, redirect: "follow" });
+  const getR = await fetchWithTimeout(loginUrl, { headers: { "User-Agent": UA, "Accept": "text/html" }, redirect: "follow", timeoutMs: 8000 });
   mergeSetCookies(jar, getR);
   const body = new URLSearchParams({
     autoequals: "WebRTC", user_tz: "America/New_York",
@@ -64,7 +64,7 @@ async function loginReadymode(host: string, user: string, pass: string): Promise
     login_account: user, login_password: pass,
     login_as_admin: "", logout_other_sessions: "on",
   });
-  const postR = await fetch(loginUrl, {
+  const postR = await fetchWithTimeout(loginUrl, {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
@@ -73,6 +73,7 @@ async function loginReadymode(host: string, user: string, pass: string): Promise
     },
     body: body.toString(),
     redirect: "manual",
+    timeoutMs: 8000,
   });
   mergeSetCookies(jar, postR);
   return jar;
@@ -195,20 +196,28 @@ function formatMDY(iso: string): string {
   return `${m}/${d}/${y}`;
 }
 
-// Confirmed path on hmsrealty.readymode.com (POST). Other tenants on different
-// Readymode versions fall through to the rest. Whichever returns parseable rows
-// gets cached on readymode_connections.report_url so subsequent syncs skip the
-// probe and hit the right path immediately.
+// Confirmed path on hmsrealty.readymode.com (POST). Keep this list short —
+// each probe is a real HTTPS round trip and we run on Cloudflare's edge
+// runtime which has a finite wall-clock budget per request. The first path
+// that returns parseable rows gets cached on readymode_connections.report_url
+// so subsequent syncs skip the probe entirely.
 const REPORT_CANDIDATES = [
   "/CCS%20Reports/agent",
   "/CCS%20Reports/agent/results.json",
   "/CCS%20Reports/agentreport/results.json",
-  "/CCS%20Reports/agent_report/results.json",
-  "/CCS%20Reports/AgentReport/results.json",
-  "/CCS%20Reports/agentreport/",
-  "/CCS%20Reports/agent_report/",
-  "/CCS%20Reports/payroll/results.json",
 ];
+
+// Per-fetch timeout. Generous enough for a slow Readymode response, tight
+// enough that 3 candidates × 2 methods (worst case) fit comfortably under
+// Cloudflare's 30s edge limit even with the login step.
+const FETCH_TIMEOUT_MS = 7000;
+
+function fetchWithTimeout(url: string, init: RequestInit & { timeoutMs?: number }): Promise<Response> {
+  const ms = init.timeoutMs ?? FETCH_TIMEOUT_MS;
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), ms);
+  return fetch(url, { ...init, signal: ctrl.signal }).finally(() => clearTimeout(t));
+}
 
 interface Attempt {
   method: "POST" | "GET";
@@ -244,7 +253,7 @@ async function tryFetchReport(
       : url;
     let r: Response;
     try {
-      r = await fetch(target, {
+      r = await fetchWithTimeout(target, {
         method,
         redirect: "follow",
         headers: method === "POST"
@@ -253,9 +262,10 @@ async function tryFetchReport(
         body: method === "POST" ? postBody.toString() : undefined,
       });
     } catch (e) {
+      const aborted = e instanceof Error && /aborted|timeout/i.test(e.message);
       attempts.push({
         method, url: target, status: 0, bytes: 0, content_type: null,
-        body_preview: `fetch threw: ${e instanceof Error ? e.message : String(e)}`,
+        body_preview: aborted ? `timed out after ${FETCH_TIMEOUT_MS}ms` : `fetch threw: ${e instanceof Error ? e.message : String(e)}`,
         parser_tried: "none",
       });
       continue;
@@ -300,6 +310,7 @@ async function tryFetchReport(
 
 // ── Route ────────────────────────────────────────────────────────────────
 export async function POST(req: NextRequest) {
+  const startedAt = Date.now();
   try {
     const user = await getCaller(req);
     const sb = admin();
@@ -350,6 +361,7 @@ export async function POST(req: NextRequest) {
         session_cookies: Object.keys(jar),
         candidates_tried: candidates,
         attempts,
+        elapsed_ms: Date.now() - startedAt,
       }, { status: 502 });
     }
 
@@ -386,9 +398,14 @@ export async function POST(req: NextRequest) {
       .upsert(payload, { onConflict: "user_id,connection_id,agent_name,period_from,period_to" });
     if (upErr) return NextResponse.json({ ok: false, error: upErr.message }, { status: 500 });
 
-    return NextResponse.json({ ok: true, count: payload.length, url: hit.url });
+    return NextResponse.json({ ok: true, count: payload.length, url: hit.url, elapsed_ms: Date.now() - startedAt });
   } catch (e) {
-    return NextResponse.json({ ok: false, error: e instanceof Error ? e.message : "Error" }, { status: 500 });
+    return NextResponse.json({
+      ok: false,
+      error: e instanceof Error ? e.message : "Error",
+      stack: e instanceof Error ? e.stack?.split("\n").slice(0, 8) : undefined,
+      elapsed_ms: Date.now() - startedAt,
+    }, { status: 500 });
   }
 }
 
