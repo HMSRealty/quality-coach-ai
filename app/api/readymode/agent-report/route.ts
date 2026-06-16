@@ -195,7 +195,13 @@ function formatMDY(iso: string): string {
   return `${m}/${d}/${y}`;
 }
 
+// Confirmed path on hmsrealty.readymode.com (POST). Other tenants on different
+// Readymode versions fall through to the rest. Whichever returns parseable rows
+// gets cached on readymode_connections.report_url so subsequent syncs skip the
+// probe and hit the right path immediately.
 const REPORT_CANDIDATES = [
+  "/CCS%20Reports/agent",
+  "/CCS%20Reports/agent/results.json",
   "/CCS%20Reports/agentreport/results.json",
   "/CCS%20Reports/agent_report/results.json",
   "/CCS%20Reports/AgentReport/results.json",
