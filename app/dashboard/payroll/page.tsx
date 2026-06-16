@@ -3,10 +3,11 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { T } from "@/app/_components/tokens";
-import { Loader2, DollarSign, Download, Calculator, TrendingUp, Users, Clock } from "lucide-react";
+import { Loader2, DollarSign, Download, Calculator, TrendingUp, Users, Clock, Server } from "lucide-react";
 import { DialerHoursCalculator } from "@/app/_components/DialerHoursCalculator";
 import { CompensationStructure } from "@/app/_components/CompensationStructure";
 import { PayrollWorkbench } from "@/app/_components/PayrollWorkbench";
+import { ReadymodeHoursSync } from "@/app/_components/ReadymodeHoursSync";
 
 const NAVY = T.text1;
 const SLATE = T.text2;
@@ -42,7 +43,7 @@ export default function PayrollPage() {
   const [loading, setLoading] = useState(true);
   const [days, setDays] = useState(30);
   const [rate, setRate] = useState(25);
-  const [tab, setTab] = useState<"salaries" | "hours" | "workbench" | "bonuses">("workbench");
+  const [tab, setTab] = useState<"salaries" | "hours" | "dialer" | "workbench" | "bonuses">("workbench");
 
   const load = useCallback(async (d: number, r: number) => {
     setLoading(true);
@@ -123,6 +124,7 @@ export default function PayrollPage() {
     { key: "workbench" as const, label: "Payroll", icon: DollarSign },
     { key: "salaries" as const, label: "Role Salaries", icon: Users },
     { key: "hours" as const, label: "Upload Hours", icon: Clock },
+    { key: "dialer" as const, label: "Dialer Sync", icon: Server },
     { key: "bonuses" as const, label: "Production Bonuses", icon: TrendingUp },
   ];
 
@@ -163,6 +165,8 @@ export default function PayrollPage() {
       {tab === "salaries" && <CompensationStructure />}
 
       {tab === "hours" && <DialerHoursCalculator />}
+
+      {tab === "dialer" && <ReadymodeHoursSync />}
 
       {tab === "workbench" && <PayrollWorkbench />}
 
