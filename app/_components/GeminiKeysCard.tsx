@@ -8,11 +8,11 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Key, Plus, Trash2, Loader2, CheckCircle2, XCircle, Sparkles, Eye, EyeOff, AlertTriangle, Play, Pause } from "lucide-react";
 
-const NAVY = "#0F172A";
+const NAVY = "#15302e";
 const SLATE = "#475569";
-const SKY = "#0EA5E9";
-const SKY_600 = "#0284C7";
-const MONEY = "#059669";
+const SKY = "#0e7c6b";
+const SKY_600 = "#0a5f52";
+const MONEY = "#0a5f52";
 
 interface KeyRow {
   id: string;
@@ -120,7 +120,7 @@ export function GeminiKeysCard() {
         <button onClick={() => setAdding(a => !a)} style={{
           display: "inline-flex", alignItems: "center", gap: 5,
           padding: "7px 12px", borderRadius: 8,
-          background: adding ? "var(--surface-3)" : "linear-gradient(135deg,#0EA5E9,#0284C7)",
+          background: adding ? "var(--surface-3)" : "linear-gradient(135deg,#0e7c6b,#0a5f52)",
           color: adding ? NAVY : "#fff", border: "none", fontSize: 12, fontWeight: 800, cursor: "pointer",
         }}>
           <Plus size={13} /> {adding ? "Cancel" : "Add Key"}

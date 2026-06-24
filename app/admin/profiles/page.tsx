@@ -311,7 +311,7 @@ export default function AdminProfilesPage() {
                               title={p.is_approved === false ? "Approve this user" : "Revoke approval"}
                               style={{
                                 ...iconBtn,
-                                color: p.is_approved === false ? "#059669" : "#92400E",
+                                color: p.is_approved === false ? "#0a5f52" : "#92400E",
                                 borderColor: p.is_approved === false ? "#A7F3D0" : "#FCD34D",
                                 background: p.is_approved === false ? "#ECFDF5" : "#FEF3C7",
                               }}>

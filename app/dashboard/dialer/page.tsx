@@ -483,10 +483,10 @@ export default function DialerPage() {
         }}>
           <div style={{
             width: 8, height: 8, borderRadius: "50%",
-            background: callState === "connected" ? "#10B981" : "#94A3B8",
+            background: callState === "connected" ? "#0e7c6b" : "#94A3B8",
             animation: callState === "connected" ? "pulse 2s ease-in-out infinite" : "none",
           }} />
-          <span style={{ fontSize: 12, fontWeight: 700, color: callState === "connected" ? "#059669" : SLATE }}>
+          <span style={{ fontSize: 12, fontWeight: 700, color: callState === "connected" ? "#0a5f52" : SLATE }}>
             {callState === "connected" ? "LIVE CALL" : callState === "calling" ? "RINGING" : "Idle"}
           </span>
         </div>
@@ -604,7 +604,7 @@ export default function DialerPage() {
                 {callState === "ringing-incoming" && <p style={{ fontSize: 14, color: GOLD, fontWeight: 700 }}>🔔 {statusText}</p>}
                 {callState === "connected" && (
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
-                    <Circle size={8} fill="#10B981" color="#10B981" className="animate-pulse" />
+                    <Circle size={8} fill="#0e7c6b" color="#0e7c6b" className="animate-pulse" />
                     <span style={{ fontSize: 18, fontWeight: 700, color: NAVY, fontFamily: "var(--font-mono)" }}>
                       {formatDuration(callDuration)}
                     </span>
@@ -626,10 +626,10 @@ export default function DialerPage() {
                   </button>
                   <button onClick={acceptIncoming} style={{
                     padding: "14px 28px", borderRadius: 12,
-                    background: "#10B981", color: "#fff", border: "none",
+                    background: "#0e7c6b", color: "#fff", border: "none",
                     fontSize: 14, fontWeight: 800, cursor: "pointer",
                     display: "inline-flex", alignItems: "center", gap: 8,
-                    boxShadow: "0 8px 24px rgba(16,185,129,0.30)",
+                    boxShadow: "0 8px 24px rgba(14,124,107,0.30)",
                   }}>
                     <PhoneIncoming size={16} /> Accept
                   </button>

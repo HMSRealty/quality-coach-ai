@@ -6,12 +6,12 @@ import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 import { Palette, Upload, Loader2, CheckCircle2, X, ImageIcon, Save } from "lucide-react";
 
-const NAVY = "#0F172A";
+const NAVY = "#15302e";
 const SLATE = "#475569";
-const SKY_600 = "#0284C7";
-const MONEY = "#059669";
+const SKY_600 = "#0a5f52";
+const MONEY = "#0a5f52";
 
-const PRESET_COLORS = ["#0EA5E9", "#0284C7", "#7C3AED", "#EC4899", "#F59E0B", "#10B981", "#EF4444", "#0F172A"];
+const PRESET_COLORS = ["#0e7c6b", "#0a5f52", "#0a5f52", "#EC4899", "#e3a23a", "#0e7c6b", "#EF4444", "#15302e"];
 
 export default function BrandingPage() {
   const [orgId, setOrgId] = useState<string | null>(null);
@@ -21,7 +21,7 @@ export default function BrandingPage() {
   const [saved, setSaved] = useState(false);
 
   const [brandName, setBrandName] = useState("");
-  const [brandColor, setBrandColor] = useState("#0284C7");
+  const [brandColor, setBrandColor] = useState("#0a5f52");
   const [brandLogoUrl, setBrandLogoUrl] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -38,7 +38,7 @@ export default function BrandingPage() {
       const { data: org } = await supabase.from("organizations").select("brand_name, brand_logo_url, brand_color").eq("id", id).maybeSingle();
       if (org) {
         setBrandName((org.brand_name as string) || "");
-        setBrandColor((org.brand_color as string) || "#0284C7");
+        setBrandColor((org.brand_color as string) || "#0a5f52");
         setBrandLogoUrl((org.brand_logo_url as string) || null);
       }
       setLoading(false);
@@ -101,7 +101,7 @@ export default function BrandingPage() {
     }
     setBrandName("");
     setBrandLogoUrl(null);
-    setBrandColor("#0284C7");
+    setBrandColor("#0a5f52");
     setTimeout(() => window.location.reload(), 200);
   };
 
@@ -140,11 +140,12 @@ export default function BrandingPage() {
             <img src={brandLogoUrl} alt="" style={{ height: 36, maxWidth: 180, objectFit: "contain" }} />
           ) : (
             <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-              <svg width={30} height={20} viewBox="0 0 40 24" fill="none">
-                <path d="M2 22 L20 4 L38 22" stroke={NAVY} strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M8 22 L20 11 L32 22" stroke={brandColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              <span style={{ fontSize: 16, fontWeight: 800, color: NAVY }}>{brandName || "RealTrack"}</span>
+              <span style={{ display: "flex", alignItems: "flex-end", gap: 2.5, height: 20 }}>
+                {[{ h: 7, c: "#0e7c6b" }, { h: 16, c: "#ef5f3b" }, { h: 11, c: "#e3a23a" }, { h: 20, c: brandColor }].map((b, i) => (
+                  <i key={i} style={{ width: 3, height: b.h, borderRadius: 2, background: b.c, display: "block" }} />
+                ))}
+              </span>
+              <span style={{ fontSize: 18, fontWeight: 700, color: NAVY, fontFamily: "var(--font-display)", letterSpacing: "-0.02em" }}>{brandName || "RealTrack"}</span>
             </div>
           )}
           <div style={{ flex: 1 }} />
@@ -223,7 +224,7 @@ export default function BrandingPage() {
         </button>
         <button onClick={save} disabled={saving} style={{
           padding: "11px 24px", borderRadius: 10, border: "none",
-          background: saved ? MONEY : "linear-gradient(135deg, #0EA5E9, #0284C7)", color: "#fff",
+          background: saved ? MONEY : "linear-gradient(135deg, #0e7c6b, #0a5f52)", color: "#fff",
           fontSize: 13, fontWeight: 800, cursor: saving ? "wait" : "pointer",
           display: "inline-flex", alignItems: "center", gap: 6,
         }}>

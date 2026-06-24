@@ -26,13 +26,13 @@ interface HoursEntry {
 }
 
 const STATUS_COLORS: Record<string, { bg: string; fg: string }> = {
-  Hot:          { bg: "rgba(5,150,105,0.12)",  fg: "#059669" },
+  Hot:          { bg: "rgba(10,95,82,0.12)",  fg: "#0a5f52" },
   Warm:         { bg: "rgba(234,88,12,0.12)",  fg: "#EA580C" },
-  Cold:         { bg: "rgba(2,132,199,0.12)",  fg: "#0284C7" },
+  Cold:         { bg: "rgba(10,95,82,0.12)",  fg: "#0a5f52" },
   "Call Back":  { bg: "rgba(146,64,14,0.12)",  fg: "#92400E" },
-  "Needs Call": { bg: "rgba(14,165,233,0.12)", fg: "#0EA5E9" },
+  "Needs Call": { bg: "rgba(14,124,107,0.12)", fg: "#0e7c6b" },
   Disqualified: { bg: "rgba(100,116,139,0.12)", fg: "#64748B" },
-  Duplicate:    { bg: "rgba(124,58,237,0.12)", fg: "#7C3AED" },
+  Duplicate:    { bg: "rgba(10,95,82,0.12)", fg: "#0a5f52" },
   Error:        { bg: "rgba(220,38,38,0.10)",  fg: "#DC2626" },
   Pending:      { bg: "var(--surface-3)",      fg: "#64748B" },
 };
@@ -115,7 +115,7 @@ export default function MyLeadsPage() {
         <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 20 }}>
           <div style={{
             width: 52, height: 52, borderRadius: "50%",
-            background: "linear-gradient(135deg,#0284C7,#0EA5E9)",
+            background: "linear-gradient(135deg,#0a5f52,#0e7c6b)",
             color: "#fff", display: "flex", alignItems: "center", justifyContent: "center",
             fontSize: 18, fontWeight: 900,
           }}>

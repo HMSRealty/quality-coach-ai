@@ -11,89 +11,94 @@
 ═══════════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* ═══ CLOSER'S OFFICE — Jet · Money green · Cream ═══
-     Hustler / real-estate-native energy. Money = primary action,
-     Jet = chrome/ink, Cream = warmth so it doesn't read clinical.
+  /* ═══ RESONA — Deep Pine · Teal · Coral · Amber on cool paper ═══
+     A calm, editorial QA aesthetic. Teal = good / primary action,
+     Coral = attention / needs coaching, Amber = mid, Pine = ink & chrome.
      CSS variable NAMES are preserved so 100+ files keep working
      unchanged; only the *values* shift to the new identity. */
 
-  /* Sidebar / chrome / text ink */
-  --midnight:      #0B0B0B;   /* jet — primary ink */
-  --midnight-2:    #18181B;
-  --midnight-3:    #27272A;
-  --midnight-line: rgba(11,11,11,0.10);
+  /* Sidebar / chrome / text ink → deep pine */
+  --midnight:      #15302e;   /* deep pine — primary ink */
+  --midnight-2:    #1d3a37;
+  --midnight-3:    #2c4642;
+  --midnight-line: rgba(21,48,46,0.10);
 
-  /* Primary accent → MONEY GREEN. (legacy var names kept for token-based code.) */
-  --sky:           #16A34A;   /* money-600 */
-  --sky-600:       #15803D;   /* money-700 (pressed) */
-  --magenta:       #16A34A;   /* primary action */
-  --magenta-2:     #22C55E;   /* hover  (money-500) */
-  --magenta-3:     #15803D;   /* pressed (money-700) */
-  --magenta-glow:  rgba(22, 163, 74, 0.30);
-  --magenta-dim:   rgba(22, 163, 74, 0.12);
+  /* Primary accent → TEAL. (legacy var names kept for token-based code.) */
+  --sky:           #0e7c6b;   /* teal */
+  --sky-600:       #0a5f52;   /* teal-deep (pressed) */
+  --magenta:       #0e7c6b;   /* primary action */
+  --magenta-2:     #129b86;   /* hover  (lighter teal) */
+  --magenta-3:     #0a5f52;   /* pressed (teal-deep) */
+  --magenta-glow:  rgba(14, 124, 107, 0.30);
+  --magenta-dim:   rgba(14, 124, 107, 0.10);
 
-  --violet:        #15803D;   /* gradient stop → deeper green */
-  --violet-2:      #166534;
+  --violet:        #0a5f52;   /* gradient stop → teal-deep */
+  --violet-2:      #084c42;
 
-  /* Brand gradient → money-on-money for buttons / pills / glints */
-  --grad-primary:  linear-gradient(135deg, #16A34A 0%, #15803D 100%);
-  --grad-chrome:   linear-gradient(180deg, #FFFFFF 0%, #FAF7EE 100%);
+  /* Brand gradient → teal-on-teal for buttons / pills / glints */
+  --grad-primary:  linear-gradient(135deg, #0e7c6b 0%, #0a5f52 100%);
+  --grad-chrome:   linear-gradient(180deg, #fbfbf9 0%, #f3f4f1 100%);
 
-  /* Navy aliases → jet ink so legacy "NAVY" text stays sharp & readable */
-  --navy:        #0B0B0B;
-  --navy-2:      #18181B;
-  --navy-3:      #27272A;
-  --navy-light:  #F5EFE0;
-  --navy-border: #E5DFCC;
-  --navy-glow:   rgba(22,163,74,0.16);
-  --navy-ring:   rgba(22,163,74,0.30);
-  --navy-dim:    rgba(11,11,11,0.05);
+  /* Navy aliases → pine ink so legacy "NAVY" text stays sharp & readable */
+  --navy:        #15302e;
+  --navy-2:      #2c4642;
+  --navy-3:      #3a544f;
+  --navy-light:  #eceee9;
+  --navy-border: #d9ddd6;
+  --navy-glow:   rgba(14,124,107,0.16);
+  --navy-ring:   rgba(14,124,107,0.30);
+  --navy-dim:    rgba(21,48,46,0.05);
 
-  /* Teal/gold aliases → money green so any leftover accent code stays on-brand */
+  /* Teal/gold aliases → on-brand teal & amber for leftover accent code */
   --teal:        var(--sky);
   --teal-2:      var(--sky-600);
   --teal-light:  var(--magenta-dim);
-  --teal-border: rgba(22,163,74,0.30);
+  --teal-border: rgba(14,124,107,0.30);
   --teal-glow:   var(--magenta-glow);
-  --gold:        var(--sky);
-  --gold-2:      var(--sky-600);
-  --gold-light:  var(--magenta-dim);
+  --gold:        #e3a23a;
+  --gold-2:      #b9801f;
+  --gold-light:  rgba(227,162,58,0.14);
 
-  --red:         #DC2626;
-  --red-hover:   #B91C1C;
-  --red-light:   #FEF2F2;
-  --red-border:  rgba(220,38,38,0.30);
-  --red-glow:    rgba(220,38,38,0.30);
-  --red-ring:    rgba(220,38,38,0.30);
-  --red-dim:     rgba(220,38,38,0.08);
+  /* Coral — attention / needs-coaching brand accent */
+  --coral:       #ef5f3b;
+  --coral-deep:  #d94e2c;
 
-  /* ── Slate ramp for muted text ─────────────────────────────────────── */
-  --slate:       #4B5563;
-  --slate-2:     #64748B;
-  --slate-3:     #94A3B8;
+  /* "red"/destructive → coral (needs-coaching / attention) */
+  --red:         #ef5f3b;
+  --red-hover:   #d94e2c;
+  --red-light:   #fdeee9;
+  --red-border:  rgba(239,95,59,0.30);
+  --red-glow:    rgba(239,95,59,0.30);
+  --red-ring:    rgba(239,95,59,0.30);
+  --red-dim:     rgba(239,95,59,0.08);
+
+  /* ── Slate ramp for muted text (pine-tinted) ───────────────────────── */
+  --slate:       #5c6b66;
+  --slate-2:     #74827c;
+  --slate-3:     #9aa6a0;
 
   /* ── Content surfaces ──────────────────────────────────────────────── */
-  --canvas:    #FAF7EE;   /* cream — warm canvas, closer's-office feel */
-  --surface-1: #FFFFFF;   /* card / panel / sidebar */
-  --surface-2: #FFFFFF;
-  --surface-3: #F5F0E1;   /* cream-100 — input / subtle row */
-  --surface-4: #E8E1CC;   /* cream-200 */
-  --surface-5: #D6CDB5;   /* cream-300 */
+  --canvas:    #f3f4f1;   /* cool off-white paper */
+  --surface-1: #fbfbf9;   /* card / panel / sidebar */
+  --surface-2: #ffffff;
+  --surface-3: #eceee9;   /* paper-2 — input / subtle row */
+  --surface-4: #e6e8e3;   /* line-soft */
+  --surface-5: #d9ddd6;   /* line */
 
-  /* ── Borders (warm neutrals) ───────────────────────────────────────── */
-  --border-1: #F0E9D6;                /* cream hairline */
-  --border-2: #E5DFCC;                /* default card border */
-  --border-3: #D6CDB5;
-  --border-4: #94A3B8;
-  --border-brand: rgba(22,163,74,0.35);
+  /* ── Borders (pine-paper family) ───────────────────────────────────── */
+  --border-1: #e6e8e3;                /* hairline (line-soft) */
+  --border-2: #d9ddd6;                /* default card border (line) */
+  --border-3: #cfd4cc;
+  --border-4: #b4bcb5;
+  --border-brand: rgba(14,124,107,0.35);
 
-  /* ── Text — pure black primary (brand: black font) ─────────────────── */
-  --text-1: #000000;   /* black — primary, maximum readability */
-  --text-2: #334155;   /* slate-700 — secondary */
-  --text-3: #64748B;   /* slate-500 — tertiary */
-  --text-4: #94A3B8;   /* slate-400 — disabled */
+  /* ── Text — deep pine primary ──────────────────────────────────────── */
+  --text-1: #15302e;   /* deep pine — primary */
+  --text-2: #2c4642;   /* ink-soft — secondary */
+  --text-3: #5c6b66;   /* slate — tertiary */
+  --text-4: #9aa6a0;   /* muted — disabled */
 
-  --brand-300: #7DD3FC;
+  --brand-300: #6fcabb;
   --brand-400: var(--sky);
   --brand-500: var(--sky);
   --brand-600: var(--sky-600);
@@ -102,22 +107,22 @@
   --brand-ring: var(--navy-ring);
 
   /* ── Semantic ──────────────────────────────────────────────────────── */
-  --emerald: #10B981; --emerald-lt: #34D399; --emerald-bg: #ECFDF5;
-  --amber:   #F59E0B; --amber-bg: #FFFBEB;
-  --rose:    #E11D48; --rose-bg: #FFF1F2; --rose-dim: rgba(225,29,72,0.08); --rose-lt: #FB7185;
-  --sky:     #0284C7; --sky-bg: #F0F9FF;
+  --emerald: #0e7c6b; --emerald-lt: #129b86; --emerald-bg: #e7f3f0;
+  --amber:   #e3a23a; --amber-bg: #fbf3e3;
+  --rose:    #ef5f3b; --rose-bg: #fdeee9; --rose-dim: rgba(239,95,59,0.08); --rose-lt: #f3805f;
+  --sky:     #0e7c6b; --sky-bg: #e7f3f0;
 
   /* ── Admin layout ──────────────────────────────────────────────────── */
   --sidebar-w: 240px;
   --topbar-h: 52px;
 
-  /* ── Shadows ───────────────────────────────────────────────────────── */
-  --shadow-sm: 0 1px 2px rgba(11,15,31,0.06);
-  --shadow-md: 0 6px 18px rgba(11,15,31,0.08);
-  --shadow-lg: 0 18px 44px rgba(11,15,31,0.12);
-  --shadow-xl: 0 32px 80px rgba(11,15,31,0.18);
-  --shadow-brand: 0 12px 32px rgba(22,163,74,0.28);
-  --shadow-chrome: 0 24px 60px rgba(11,15,31,0.30);
+  /* ── Shadows (pine-tinted) ─────────────────────────────────────────── */
+  --shadow-sm: 0 1px 2px rgba(21,48,46,0.06);
+  --shadow-md: 0 6px 18px rgba(21,48,46,0.08);
+  --shadow-lg: 0 18px 44px rgba(21,48,46,0.12);
+  --shadow-xl: 0 32px 80px rgba(21,48,46,0.18);
+  --shadow-brand: 0 12px 32px rgba(14,124,107,0.24);
+  --shadow-chrome: 0 24px 60px rgba(21,48,46,0.28);
 
   /* ── Radius (pill-leaning, Gong) ───────────────────────────────────── */
   --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 22px; --r-2xl: 28px;
@@ -129,21 +134,21 @@
   --spring-heavy:  cubic-bezier(0.16, 1, 0.30, 1);
   --ease-out:      cubic-bezier(0.16, 1, 0.30, 1);
 
-  /* Inter everywhere — one enterprise typeface (Linear / Stripe / Gong). */
-  --font-sans: var(--font-geist-sans), "Inter", ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
-  --font-display: var(--font-geist-sans), "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* Resona type system — Hanken body, Bricolage display, Space Mono metrics. */
+  --font-sans: var(--font-geist-sans), "Hanken Grotesk", ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+  --font-display: var(--font-bricolage), "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), "Space Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
-  /* Navigation / active states → MONEY GREEN (Closer's Office). */
-  --brand-purple:      #16A34A;
-  --brand-purple-2:    #15803D;
-  --brand-purple-soft: rgba(22, 163, 74, 0.12);
-  --brand-purple-glow: rgba(22, 163, 74, 0.40);
+  /* Navigation / active states → TEAL (Resona). */
+  --brand-purple:      #0e7c6b;
+  --brand-purple-2:    #0a5f52;
+  --brand-purple-soft: rgba(14, 124, 107, 0.12);
+  --brand-purple-glow: rgba(14, 124, 107, 0.40);
 
-  /* Emerald — money / success / Hot badges (var name kept for code reuse). */
-  --money:        #059669;   /* emerald-600 — financial numbers */
-  --money-2:      #10B981;   /* emerald-500 */
-  --money-soft:   rgba(16, 185, 129, 0.12);
+  /* Money / success / Hot badges → teal (var name kept for code reuse). */
+  --money:        #0a5f52;   /* teal-deep — financial numbers */
+  --money-2:      #0e7c6b;   /* teal */
+  --money-soft:   rgba(14, 124, 107, 0.12);
 }
 
 /* Dark mode removed — the app is permanently locked to the Clean Enterprise
@@ -165,7 +170,7 @@ html, body {
   text-rendering: optimizeLegibility;
   letter-spacing: -0.005em;
 }
-::selection { background: var(--magenta-dim); color: var(--text-1); }
+::selection { background: var(--magenta); color: #fff; }
 /* ── Lenis smooth-scroll boilerplate ──────────────────────────────────
    Mandatory rules from the Lenis docs. The vertical scroll must own the
    document; never let overflow-x:hidden on html/body fight it (use a wrapper
@@ -237,7 +242,7 @@ button, a, input, select, textarea {
 }
 .btn-brand:hover {
   transform: translateY(-1px);
-  box-shadow: 0 16px 38px rgba(242,38,111,0.40);
+  box-shadow: 0 16px 38px rgba(14,124,107,0.34);
 }
 .btn-brand:active { transform: translateY(0); }
 
@@ -265,8 +270,8 @@ button, a, input, select, textarea {
 @keyframes pulse         { 0%,100% { opacity:1; } 50% { opacity:.5; } }
 @keyframes float         { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
 @keyframes glow          {
-  0%,100% { box-shadow: 0 0 24px rgba(242,38,111,0.25); }
-  50%     { box-shadow: 0 0 44px rgba(242,38,111,0.50); }
+  0%,100% { box-shadow: 0 0 24px rgba(14,124,107,0.25); }
+  50%     { box-shadow: 0 0 44px rgba(14,124,107,0.50); }
 }
 @keyframes iconBounce    { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
 

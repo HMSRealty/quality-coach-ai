@@ -178,7 +178,7 @@ export default function PermissionsPage() {
                       <button onClick={() => copyLink(u)} title="Copy link" style={{
                         padding: 4, background: "transparent", border: "none", cursor: "pointer", color: SLATE,
                       }}>
-                        {copiedId === u.id ? <Check size={13} color="#059669" /> : <Copy size={13} />}
+                        {copiedId === u.id ? <Check size={13} color="#0a5f52" /> : <Copy size={13} />}
                       </button>
                       <a href={`/submit/${u.form_slug}`} target="_blank" rel="noreferrer" title="Open" style={{ color: SLATE }}>
                         <ExternalLink size={13} />

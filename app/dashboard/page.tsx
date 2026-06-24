@@ -50,7 +50,7 @@ const S_CFG: Record<string, { bg: string; color: string }> = {
 const STATUS_OPTS = ["Hot", "Warm", "Cold", "Call Back", "Disqualified", "Duplicate", "Processing", "Error"];
 
 // ── Charts ──────────────────────────────────────────────────────────────
-function CurvedArea({ data, height = 200, color = "#16A34A", color2 = "#15803D" }: {
+function CurvedArea({ data, height = 200, color = "#0e7c6b", color2 = "#0a5f52" }: {
   data: number[]; height?: number; color?: string; color2?: string;
 }) {
   if (data.length < 2) return null;
@@ -126,7 +126,7 @@ function StackedBars({ rows, height = 220 }: {
         return (
           <g key={i}>
             {hHot > 0 && <rect x={x} y={y} width={barW} height={hHot} rx={6} fill="#DC2626" />}
-            {hWarm > 0 && <rect x={x} y={y + hHot} width={barW} height={hWarm} rx={6} fill="#F59E0B" />}
+            {hWarm > 0 && <rect x={x} y={y + hHot} width={barW} height={hWarm} rx={6} fill="#e3a23a" />}
             {hCold > 0 && <rect x={x} y={y + hHot + hWarm} width={barW} height={hCold} rx={6} fill="#64748B" />}
             <text x={x + barW / 2} y={height - 2} textAnchor="middle" fontSize={11} fill="var(--text-2)" fontWeight={600}>{r.label}</text>
           </g>
@@ -302,8 +302,8 @@ export default function DashboardPage() {
         style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16 }}>
         {[
           { label: "Total Calls", value: total, sub: "Last 7 days", trend: trendPct, accent: T.magenta },
-          { label: "Qual Rate",   value: `${qualRate}%`, sub: `${qualified} of ${total}`, trend: 0, accent: "#10B981" },
-          { label: "Qualified",   value: qualified, sub: "Hot · Warm · Cold", trend: qualified > 0 ? 8 : 0, accent: "#10B981" },
+          { label: "Qual Rate",   value: `${qualRate}%`, sub: `${qualified} of ${total}`, trend: 0, accent: "#0e7c6b" },
+          { label: "Qualified",   value: qualified, sub: "Hot · Warm · Cold", trend: qualified > 0 ? 8 : 0, accent: "#0e7c6b" },
           { label: "Disqualified", value: disq, sub: total > 0 ? `${Math.round((disq/total)*100)}% rate` : "—", trend: total > 0 ? -Math.round((disq/total)*100) : 0, accent: "#E11D48" },
         ].map((k) => (
           <div key={k.label} style={{
@@ -349,7 +349,7 @@ export default function DashboardPage() {
           </div>
           <StackedBars rows={stacked} />
           <div style={{ display: "flex", gap: 14, marginTop: 12, fontSize: 11 }}>
-            {[{ c: "#DC2626", l: "Hot" }, { c: "#F59E0B", l: "Warm" }, { c: "#64748B", l: "Cold" }].map((s) => (
+            {[{ c: "#DC2626", l: "Hot" }, { c: "#e3a23a", l: "Warm" }, { c: "#64748B", l: "Cold" }].map((s) => (
               <span key={s.l} style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "var(--text-2)" }}>
                 <span style={{ width: 10, height: 10, borderRadius: 3, background: s.c }} /> {s.l}
               </span>

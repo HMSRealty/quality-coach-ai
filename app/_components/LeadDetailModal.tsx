@@ -113,7 +113,7 @@ export function LeadDetailModal({ leadId, onClose }: { leadId: string; onClose: 
                   background: ok ? "#ECFDF5" : bad ? "#F1F4F9" : "#FFFBEB",
                   border: `1px solid ${ok ? "#A7F3D0" : bad ? "rgba(35,43,58,0.10)" : "#FCD34D"}`,
                   fontSize: 12, fontWeight: 700,
-                  color: ok ? "#059669" : bad ? NAVY : "#92400E",
+                  color: ok ? "#0a5f52" : bad ? NAVY : "#92400E",
                 }}>
                   Status: {lead.status || "Unknown"}
                 </div>

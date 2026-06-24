@@ -76,7 +76,7 @@ export function TrainingSnippets() {
                 width: 36, height: 36, borderRadius: "50%", border: "none", cursor: "pointer",
                 background: T.gradPrimary, color: "#fff",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                boxShadow: "0 6px 16px rgba(242,38,111,0.30)",
+                boxShadow: "0 6px 16px rgba(14,124,107,0.30)",
               }}>
                 {playingId === s.id ? <Pause size={14} /> : <Play size={14} style={{ marginLeft: 2 }} />}
               </button>

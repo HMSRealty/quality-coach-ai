@@ -7,9 +7,9 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Target, Upload, ArrowRight, CheckCircle2, Loader2, Download, Pencil } from "lucide-react";
 
-const SKY = "#16A34A";
-const SKY_600 = "#15803D";
-const MONEY = "#15803D";
+const SKY = "#0e7c6b";
+const SKY_600 = "#0a5f52";
+const MONEY = "#0a5f52";
 
 function parseCsv(text: string): string[][] {
   const rows: string[][] = []; let cur: string[] = []; let f = ""; let q = false;
@@ -103,7 +103,7 @@ export default function ShiftTargetsPage() {
   return (
     <div style={{ maxWidth: 920, margin: "0 auto", display: "flex", flexDirection: "column", gap: 16 }} className="animate-in">
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        <span style={{ width: 38, height: 38, borderRadius: 10, background: "rgba(14,165,233,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}><Target size={19} color={SKY_600} /></span>
+        <span style={{ width: 38, height: 38, borderRadius: 10, background: "rgba(14,124,107,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}><Target size={19} color={SKY_600} /></span>
         <div>
           <h1 style={{ fontSize: 24, fontWeight: 900, color: "#000", letterSpacing: "-0.02em" }}>Shift Targets</h1>
           <p style={{ fontSize: 13, color: "var(--text-2)" }}>Upload the floor sheet → map columns → set every caller&apos;s shift &amp; daily quota in one shot.</p>
@@ -116,9 +116,9 @@ export default function ShiftTargetsPage() {
           <p style={{ fontSize: 14, fontWeight: 800, color: "#000" }}>1 · Upload matrix CSV</p>
           <button onClick={template} className="btn-ghost" style={{ fontSize: 12 }}><Download size={12} /> Template</button>
         </div>
-        <label style={{ border: "2px dashed color-mix(in srgb, #16A34A 35%, transparent)", borderRadius: 14, padding: "24px 18px", textAlign: "center", cursor: "pointer", background: "#FAF7EE", display: "block" }}>
+        <label style={{ border: "2px dashed color-mix(in srgb, #0e7c6b 35%, transparent)", borderRadius: 14, padding: "24px 18px", textAlign: "center", cursor: "pointer", background: "#f3f4f1", display: "block" }}>
           <input type="file" accept=".csv" onChange={e => { const f = e.target.files?.[0]; if (f) onFile(f); }} style={{ display: "none" }} />
-          <Upload size={26} color="#15803D" style={{ margin: "0 auto 8px" }} />
+          <Upload size={26} color="#0a5f52" style={{ margin: "0 auto 8px" }} />
           <p style={{ fontSize: 14, fontWeight: 800, color: "#000" }}>{fileName || "Click to choose a CSV"}</p>
           <p style={{ fontSize: 12, color: "var(--text-3)", marginTop: 3 }}>Must include an Agent column and a Shift Type column.</p>
         </label>
@@ -147,7 +147,7 @@ export default function ShiftTargetsPage() {
         <div style={card}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, flexWrap: "wrap", gap: 10 }}>
             <p style={{ fontSize: 14, fontWeight: 800, color: "#000" }}>3 · Preview ({preview.length} agents)</p>
-            <button onClick={apply} disabled={applying} style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "9px 16px", borderRadius: 10, background: "linear-gradient(135deg, #16A34A, #15803D)", color: "#fff", border: "none", fontSize: 13, fontWeight: 800, cursor: applying ? "wait" : "pointer" }}>
+            <button onClick={apply} disabled={applying} style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "9px 16px", borderRadius: 10, background: "linear-gradient(135deg, #0e7c6b, #0a5f52)", color: "#fff", border: "none", fontSize: 13, fontWeight: 800, cursor: applying ? "wait" : "pointer" }}>
               {applying ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />} Apply targets <ArrowRight size={14} />
             </button>
           </div>

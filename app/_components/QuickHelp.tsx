@@ -24,7 +24,7 @@ export function QuickHelp() {
   const item: React.CSSProperties = {
     display: "flex", alignItems: "center", gap: 11,
     padding: "11px 14px", borderRadius: 10,
-    color: "#0F172A", textDecoration: "none",
+    color: "#15302e", textDecoration: "none",
     fontSize: 13.5, fontWeight: 600,
     transition: "background 120ms ease",
   };
@@ -44,17 +44,17 @@ export function QuickHelp() {
           <Link href="/dashboard/onboarding" onClick={() => setOpen(false)} style={item}
             onMouseEnter={(e) => e.currentTarget.style.background = "#F8FAFC"}
             onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
-            <Rocket size={15} color="#0284C7" /> Setup wizard
+            <Rocket size={15} color="#0a5f52" /> Setup wizard
           </Link>
           <a href="https://realtrack.app/tutorial" target="_blank" rel="noopener noreferrer" onClick={() => setOpen(false)} style={item}
             onMouseEnter={(e) => e.currentTarget.style.background = "#F8FAFC"}
             onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
-            <BookOpen size={15} color="#0284C7" /> Step-by-step guide
+            <BookOpen size={15} color="#0a5f52" /> Step-by-step guide
           </a>
           <a href="mailto:info@realtrack.app" onClick={() => setOpen(false)} style={item}
             onMouseEnter={(e) => e.currentTarget.style.background = "#F8FAFC"}
             onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
-            <Mail size={15} color="#0284C7" /> Email us
+            <Mail size={15} color="#0a5f52" /> Email us
           </a>
         </div>
       )}
@@ -63,9 +63,9 @@ export function QuickHelp() {
         title="Help"
         style={{
           width: 46, height: 46, borderRadius: "50%", border: "none",
-          background: open ? "#0F172A" : "linear-gradient(135deg, #0EA5E9, #0284C7)",
+          background: open ? "#15302e" : "linear-gradient(135deg, #0e7c6b, #0a5f52)",
           color: "#fff", cursor: "pointer",
-          boxShadow: "0 10px 28px rgba(2,132,199,0.40)",
+          boxShadow: "0 10px 28px rgba(10,95,82,0.40)",
           display: "flex", alignItems: "center", justifyContent: "center",
           transition: "all 180ms ease",
         }}

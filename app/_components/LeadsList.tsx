@@ -20,15 +20,15 @@ export interface LeadItem {
 }
 
 const STATUS: Record<string, { bg: string; fg: string; glow: string }> = {
-  Hot:          { bg: "rgba(5,150,105,0.12)",   fg: "#059669", glow: "rgba(5,150,105,0.55)" },
+  Hot:          { bg: "rgba(10,95,82,0.12)",   fg: "#0a5f52", glow: "rgba(10,95,82,0.55)" },
   Warm:         { bg: "rgba(234,88,12,0.12)",   fg: "#EA580C", glow: "rgba(234,88,12,0.5)" },
-  Cold:         { bg: "rgba(2,132,199,0.12)",   fg: "#0284C7", glow: "rgba(2,132,199,0.5)" },
+  Cold:         { bg: "rgba(10,95,82,0.12)",   fg: "#0a5f52", glow: "rgba(10,95,82,0.5)" },
   "Call Back":  { bg: "rgba(146,64,14,0.12)",   fg: "#92400E", glow: "rgba(146,64,14,0.45)" },
-  "Needs Call": { bg: "rgba(14,165,233,0.12)",  fg: "#0284C7", glow: "rgba(14,165,233,0.45)" },
-  Disqualified: { bg: "var(--surface-3)",       fg: "var(--text-3)", glow: "rgba(124,58,237,0.0)" },
-  Duplicate:    { bg: "rgba(124,58,237,0.12)",  fg: "#7C3AED", glow: "rgba(124,58,237,0.5)" },
-  Processing:   { bg: "var(--surface-3)",       fg: "var(--text-3)", glow: "rgba(124,58,237,0.0)" },
-  Pending:      { bg: "var(--surface-3)",       fg: "var(--text-3)", glow: "rgba(124,58,237,0.0)" },
+  "Needs Call": { bg: "rgba(14,124,107,0.12)",  fg: "#0a5f52", glow: "rgba(14,124,107,0.45)" },
+  Disqualified: { bg: "var(--surface-3)",       fg: "var(--text-3)", glow: "rgba(10,95,82,0.0)" },
+  Duplicate:    { bg: "rgba(10,95,82,0.12)",  fg: "#0a5f52", glow: "rgba(10,95,82,0.5)" },
+  Processing:   { bg: "var(--surface-3)",       fg: "var(--text-3)", glow: "rgba(10,95,82,0.0)" },
+  Pending:      { bg: "var(--surface-3)",       fg: "var(--text-3)", glow: "rgba(10,95,82,0.0)" },
   Queued:       { bg: "rgba(29,78,216,0.10)",   fg: "#1D4ED8", glow: "rgba(29,78,216,0.4)" },
   Error:        { bg: "rgba(220,38,38,0.10)",   fg: "#DC2626", glow: "rgba(220,38,38,0.4)" },
 };
@@ -79,7 +79,7 @@ function LeadCard({ lead, isNew, onOpen, onDelete, onAnalyze, selectable, select
         background: selected ? "color-mix(in srgb, var(--sky) 7%, var(--surface-1))" : "var(--surface-1)",
         border: `1px solid ${selected ? "var(--sky)" : glow ? "var(--brand-purple)" : hover ? "var(--border-3)" : "var(--border-2)"}`,
         boxShadow: glow
-          ? "0 0 0 3px var(--brand-purple-soft), 0 14px 30px rgba(124,58,237,0.18)"
+          ? "0 0 0 3px var(--brand-purple-soft), 0 14px 30px rgba(10,95,82,0.18)"
           : hover ? "0 10px 26px rgba(11,15,31,0.12)" : "var(--shadow-sm)",
         transform: hover ? "translateY(-2px)" : "translateY(0)",
         transition: "border-color 220ms ease, box-shadow 260ms ease, transform 200ms cubic-bezier(0.16,1,0.30,1)",
@@ -128,7 +128,7 @@ function LeadCard({ lead, isNew, onOpen, onDelete, onAnalyze, selectable, select
             style={{
               display: "inline-flex", alignItems: "center", gap: 5,
               padding: "5px 12px", borderRadius: 8,
-              background: analyzing ? "#94A3B8" : "linear-gradient(135deg, #059669, #047857)",
+              background: analyzing ? "#94A3B8" : "linear-gradient(135deg, #0a5f52, #047857)",
               color: "#fff", border: "none", fontSize: 11, fontWeight: 800,
               cursor: analyzing ? "wait" : "pointer", whiteSpace: "nowrap",
             }}

@@ -8,20 +8,32 @@ import { supabase } from "@/lib/supabase";
 import { Eye, EyeOff, Loader2, ArrowRight, Home } from "lucide-react";
 import { T } from "@/app/_components/tokens";
 
-const RED   = "#2F6BFF";
-const RED_L = "#FBEEE8";
+const RED   = "#0e7c6b";
+const RED_L = "#fdeee9";
 
 type Tab = "signin" | "signup";
 
 function RealTrackLogo() {
+  // Resona-style equalizer brand mark: four bars (teal · coral · amber · teal)
+  // above a Bricolage wordmark.
+  const bars = [
+    { h: 9, c: "#0e7c6b" },
+    { h: 20, c: "#ef5f3b" },
+    { h: 14, c: "#e3a23a" },
+    { h: 24, c: "#0e7c6b" },
+  ];
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-      <svg width="52" height="32" viewBox="0 0 40 24" fill="none">
-        <path d="M2 22 L20 4 L38 22" stroke={T.navy} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-        <path d="M8 22 L20 11 L32 22" stroke="#2F6BFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.9"/>
-      </svg>
-      <span style={{ fontSize: 13, fontWeight: 800, letterSpacing: "0.12em", color: T.navy, lineHeight: 1 }}>
-        REALTRACK
+    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+      <span style={{ display: "flex", alignItems: "flex-end", gap: 3, height: 24 }}>
+        {bars.map((b, i) => (
+          <i key={i} style={{ width: 3.5, height: b.h, borderRadius: 2, background: b.c, display: "block" }} />
+        ))}
+      </span>
+      <span style={{
+        fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 700,
+        letterSpacing: "-0.02em", color: T.navy, lineHeight: 1,
+      }}>
+        RealTrack
       </span>
     </div>
   );
@@ -175,7 +187,7 @@ export default function AuthPage() {
                 Password
               </label>
               {tab === "signin" && (
-                <Link href="/forgot-password" style={{ fontSize: 11, color: "#0284C7", fontWeight: 700, textDecoration: "none" }}>
+                <Link href="/forgot-password" style={{ fontSize: 11, color: "#0a5f52", fontWeight: 700, textDecoration: "none" }}>
                   Forgot password?
                 </Link>
               )}
@@ -222,7 +234,7 @@ export default function AuthPage() {
             transition: "all 130ms ease",
             marginTop: 4,
           }}
-          onMouseEnter={e => { if (!loading) { e.currentTarget.style.background = "#1E50D8"; e.currentTarget.style.transform = "translateY(-1px)"; } }}
+          onMouseEnter={e => { if (!loading) { e.currentTarget.style.background = "#0a5f52"; e.currentTarget.style.transform = "translateY(-1px)"; } }}
           onMouseLeave={e => { if (!loading) { e.currentTarget.style.background = RED; e.currentTarget.style.transform = "translateY(0)"; } }}
           >
             {loading ? <><Loader2 size={15} className="animate-spin" /> Please wait...</> : <>{tab === "signin" ? "Sign In" : "Create Account"} <ArrowRight size={15} /></>}

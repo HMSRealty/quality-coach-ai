@@ -82,7 +82,7 @@ const NAV_SECONDARY = [
 ];
 
 const PLAN_ACCENT: Record<string, string> = {
-  free: "#94A3B8", starter: "#0EA5E9", professional: "#0284C7", enterprise: "#0369A1",
+  free: "#94A3B8", starter: "#0e7c6b", professional: "#0a5f52", enterprise: "#084c42",
 };
 
 // Workspace mark — uses tenant branding when set, RealTrack default otherwise.
@@ -91,22 +91,27 @@ function RealTrackMark({ size = 28 }: { size?: number }) {
   if (brand.isCustom && brand.logoUrl) {
     return <img src={brand.logoUrl} alt={brand.name} style={{ height: size * 0.85, maxWidth: 200, objectFit: "contain" }} />;
   }
-  // Closer's Office mark — an upward checkmark stroke. "Tracked → closed."
-  // The short stroke is the call you tracked; the long upward stroke is the
-  // deal you closed. Cream-and-money palette.
-  const accent = brand.isCustom ? brand.color : "#16A34A";
+  // Resona mark — a four-bar equalizer (the call waveform). When a tenant
+  // sets a custom accent, the tallest bar adopts it; otherwise teal/coral/amber.
+  const accent = brand.isCustom ? brand.color : "#0e7c6b";
+  const h = size * 0.85;
+  const bars = [
+    { f: 0.36, c: "#0e7c6b" },
+    { f: 0.82, c: "#ef5f3b" },
+    { f: 0.58, c: "#e3a23a" },
+    { f: 1, c: accent },
+  ];
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-      <svg width={size * 1.35} height={size * 0.9} viewBox="0 0 42 28" fill="none">
-        {/* black ink stroke behind */}
-        <path d="M4 17 L13 25 L37 4" stroke="#0B0B0B" strokeWidth="4.2" strokeLinecap="round" strokeLinejoin="round"/>
-        {/* money-green accent stroke on top */}
-        <path d="M4 17 L13 25 L37 4" stroke={accent} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
+      <span style={{ display: "flex", alignItems: "flex-end", gap: 3, height: h }}>
+        {bars.map((b, i) => (
+          <i key={i} style={{ width: 3.5, height: Math.round(h * b.f), borderRadius: 2, background: b.c, display: "block" }} />
+        ))}
+      </span>
       <span style={{
-        fontSize: 16, fontWeight: 900, color: "#0B0B0B",
-        letterSpacing: "0.06em", lineHeight: 1, fontFamily: "var(--font-sans)",
-      }}>{brand.isCustom ? brand.name.toUpperCase() : "REALTRACK"}</span>
+        fontSize: 20, fontWeight: 700, color: "#15302e",
+        letterSpacing: "-0.02em", lineHeight: 1, fontFamily: "var(--font-display)",
+      }}>{brand.isCustom ? brand.name : "RealTrack"}</span>
     </div>
   );
 }
@@ -114,7 +119,7 @@ function RealTrackMark({ size = 28 }: { size?: number }) {
 function NavLink({ item, active }: { item: { label: string; href: string; icon: typeof PhoneCall }; active: boolean }) {
   const Icon = item.icon;
   const [hover, setHover] = useState(false);
-  const SKY = "#0284C7"; // sky-600 for active text/icon on the white sidebar
+  const SKY = "#0a5f52"; // sky-600 for active text/icon on the white sidebar
   return (
     <Link href={item.href}
       onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
@@ -217,7 +222,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
           sidebar drawer; tap the backdrop to close. */}
       <div className="rt-mobile-bar">
         <button onClick={() => setMobileNavOpen((o) => !o)} aria-label="Open menu" style={{
-          background: "none", border: "none", padding: 6, cursor: "pointer", color: "#0F172A",
+          background: "none", border: "none", padding: 6, cursor: "pointer", color: "#15302e",
         }}>
           {mobileNavOpen ? <X size={22} /> : <Menu size={22} />}
         </button>
@@ -376,7 +381,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
             padding: "10px 16px",
             background: T.gradPrimary, color: "#fff",
             fontSize: 13, fontWeight: 700, position: "sticky", top: 0, zIndex: 50,
-            boxShadow: "0 4px 18px rgba(14,165,233,0.35)",
+            boxShadow: "0 4px 18px rgba(14,124,107,0.35)",
           }}>
             <Eye size={14} /> You are acting as <strong>{actingAs}</strong>
             <button onClick={() => stopImpersonation()} style={{
@@ -436,7 +441,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
             background: T.gradPrimary, color: "#fff",
             display: "flex", alignItems: "center", justifyContent: "center",
             fontSize: 12, fontWeight: 800,
-            boxShadow: "0 4px 14px rgba(242,38,111,0.32)",
+            boxShadow: "0 4px 14px rgba(14,124,107,0.32)",
             transition: "transform 220ms var(--spring-snap)",
           }}
           onMouseEnter={e => e.currentTarget.style.transform = "scale(1.08)"}

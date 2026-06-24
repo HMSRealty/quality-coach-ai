@@ -39,7 +39,7 @@ export function AgentScorecard({ agentName }: { agentName: string | null | undef
 
   if (!agentName) return null;
   const grade = data?.grade ?? 0;
-  const gradeColor = grade >= 80 ? "#10B981" : grade >= 60 ? "#F2266F" : grade >= 40 ? "#F59E0B" : "#DC2626";
+  const gradeColor = grade >= 80 ? "#0e7c6b" : grade >= 60 ? "#0e7c6b" : grade >= 40 ? "#e3a23a" : "#DC2626";
 
   return (
     <div style={{
@@ -92,8 +92,8 @@ export function AgentScorecard({ agentName }: { agentName: string | null | undef
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
-            <Bucket label="Strengths" items={data.strengths} accent="#10B981" icon={TrendingUp} />
-            <Bucket label="To improve" items={data.weaknesses} accent="#F59E0B" icon={TrendingDown} />
+            <Bucket label="Strengths" items={data.strengths} accent="#0e7c6b" icon={TrendingUp} />
+            <Bucket label="To improve" items={data.weaknesses} accent="#e3a23a" icon={TrendingDown} />
           </div>
 
           <p style={{ fontSize: 11, color: "var(--text-3)", marginTop: 10 }}>

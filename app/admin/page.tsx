@@ -13,8 +13,8 @@ import { T } from "@/app/_components/tokens";
 const NAVY = T.text1;
 // Closer's Office: TEAL/GOLD were leftover sky-blue. Money green ties admin
 // pages into the same identity as the dashboard.
-const TEAL = "#16A34A";
-const GOLD = "#15803D";
+const TEAL = "#0e7c6b";
+const GOLD = "#0a5f52";
 const SLATE = T.text2;
 
 interface UserRow {
@@ -212,7 +212,7 @@ export default function AdminPage() {
           padding: "12px 16px", borderRadius: 10,
           background: toast.type === "ok" ? "#ECFDF5" : "#FBEEE8",
           border: `1px solid ${toast.type === "ok" ? "#A7F3D0" : "#E7B8A6"}`,
-          color: toast.type === "ok" ? "#059669" : "#DC2626",
+          color: toast.type === "ok" ? "#0a5f52" : "#DC2626",
           fontSize: 13, fontWeight: 600,
           display: "flex", alignItems: "center", gap: 10,
         }}>
@@ -227,7 +227,7 @@ export default function AdminPage() {
           { label: "Total Users", value: stats.totalUsers, icon: Users, color: NAVY },
           { label: "Admins", value: stats.admins, icon: ShieldCheck, color: GOLD },
           { label: "Active Forms", value: stats.activeForms, icon: Power, color: TEAL },
-          { label: "Total Leads", value: stats.totalLeads, icon: Database, color: "#7C3AED" },
+          { label: "Total Leads", value: stats.totalLeads, icon: Database, color: "#0a5f52" },
         ].map(s => (
           <Card key={s.label} padding={18}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>

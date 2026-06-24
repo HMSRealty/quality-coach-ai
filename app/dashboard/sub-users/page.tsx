@@ -118,7 +118,7 @@ export default function SubUsersPage() {
           padding: "12px 16px", borderRadius: 10,
           background: toast.type === "ok" ? "#ECFDF5" : "#FBEEE8",
           border: `1px solid ${toast.type === "ok" ? "#A7F3D0" : "#E7B8A6"}`,
-          color: toast.type === "ok" ? "#059669" : "#DC2626",
+          color: toast.type === "ok" ? "#0a5f52" : "#DC2626",
           fontSize: 13, fontWeight: 600, display: "flex", gap: 8, alignItems: "center",
         }}>
           {toast.type === "ok" ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
@@ -189,7 +189,7 @@ export default function SubUsersPage() {
                     display: "inline-flex", alignItems: "center", gap: 6,
                     padding: "7px 12px", borderRadius: 8,
                     background: u.can_download_calls ? "#ECFDF5" : "#FBEEE8",
-                    color: u.can_download_calls ? "#059669" : "#DC2626",
+                    color: u.can_download_calls ? "#0a5f52" : "#DC2626",
                     border: `1px solid ${u.can_download_calls ? "#A7F3D0" : "#FBCFBE"}`,
                     fontSize: 11, fontWeight: 700, cursor: togglingId === u.id ? "wait" : "pointer",
                   }}>

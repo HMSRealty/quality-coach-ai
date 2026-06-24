@@ -44,7 +44,7 @@ export default function StatusPage() {
   const overallOk = data?.ok ?? false;
 
   return (
-    <div style={{ minHeight: "100vh", background: "#fff", color: "#0F172A" }}>
+    <div style={{ minHeight: "100vh", background: "#fff", color: "#15302e" }}>
       <nav style={{ borderBottom: "1px solid #E2E8F0", padding: "16px 28px" }}>
         <div style={{ maxWidth: 760, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 7, fontSize: 13, color: "#475569", fontWeight: 700, textDecoration: "none" }}>
@@ -64,7 +64,7 @@ export default function StatusPage() {
           border: `1px solid ${overallOk ? "#A7F3D0" : "#FECACA"}`,
           display: "flex", alignItems: "center", gap: 18,
         }}>
-          {overallOk ? <CheckCircle2 size={42} color="#059669" /> : <XCircle size={42} color="#DC2626" />}
+          {overallOk ? <CheckCircle2 size={42} color="#0a5f52" /> : <XCircle size={42} color="#DC2626" />}
           <div>
             <h1 style={{ fontSize: 22, fontWeight: 900, color: overallOk ? "#065F46" : "#7F1D1D" }}>
               {overallOk ? "All systems operational" : "We're investigating an issue"}
@@ -83,7 +83,7 @@ export default function StatusPage() {
               padding: "16px 18px",
               borderBottom: i < (data!.checks.length - 1) ? "1px solid #F1F5F9" : "none",
             }}>
-              {c.ok ? <CheckCircle2 size={18} color="#059669" /> : <XCircle size={18} color="#DC2626" />}
+              {c.ok ? <CheckCircle2 size={18} color="#0a5f52" /> : <XCircle size={18} color="#DC2626" />}
               <div style={{ flex: 1 }}>
                 <p style={{ fontSize: 14, fontWeight: 700 }}>{LABELS[c.name] || c.name}</p>
                 {c.detail && <p style={{ fontSize: 12, color: "#94A3B8", marginTop: 2 }}>{c.detail}</p>}
@@ -93,13 +93,13 @@ export default function StatusPage() {
           ))}
           {loading && !data && (
             <div style={{ padding: 40, textAlign: "center" }}>
-              <Loader2 size={20} className="animate-spin" style={{ color: "#0284C7" }} />
+              <Loader2 size={20} className="animate-spin" style={{ color: "#0a5f52" }} />
             </div>
           )}
         </div>
 
         <p style={{ fontSize: 12, color: "#64748B", marginTop: 22, textAlign: "center" }}>
-          Issue? Email <a href="mailto:info@realtrack.app" style={{ color: "#0284C7", fontWeight: 700, textDecoration: "none" }}>info@realtrack.app</a>
+          Issue? Email <a href="mailto:info@realtrack.app" style={{ color: "#0a5f52", fontWeight: 700, textDecoration: "none" }}>info@realtrack.app</a>
         </p>
       </main>
     </div>

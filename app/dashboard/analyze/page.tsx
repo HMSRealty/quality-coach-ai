@@ -115,14 +115,14 @@ export default function AnalyzePage() {
         <div style={{
           padding: "22px 24px", borderRadius: "var(--r-xl)",
           background: isQualified ? "var(--emerald-dim)" : "var(--rose-dim)",
-          border: `1px solid ${isQualified ? "rgba(16,185,129,0.25)" : "rgba(244,63,94,0.25)"}`,
+          border: `1px solid ${isQualified ? "rgba(14,124,107,0.25)" : "rgba(244,63,94,0.25)"}`,
           animation: "fadeIn var(--t-slow) var(--ease-out)",
         }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <div style={{
                 width: 40, height: 40, borderRadius: "50%",
-                background: isQualified ? "rgba(16,185,129,0.2)" : "rgba(244,63,94,0.15)",
+                background: isQualified ? "rgba(14,124,107,0.2)" : "rgba(244,63,94,0.15)",
                 display: "flex", alignItems: "center", justifyContent: "center",
               }}>
                 {isQualified
@@ -266,7 +266,7 @@ export default function AnalyzePage() {
                 display: "flex", flexDirection: "column", alignItems: "center",
                 justifyContent: "center", gap: 12, padding: "40px 24px",
                 borderRadius: "var(--r-lg)", cursor: "pointer",
-                border: `2px dashed ${dragging ? "var(--brand-400)" : file ? "rgba(16,185,129,0.4)" : "var(--border-3)"}`,
+                border: `2px dashed ${dragging ? "var(--brand-400)" : file ? "rgba(14,124,107,0.4)" : "var(--border-3)"}`,
                 background: dragging ? "var(--brand-dim)" : file ? "var(--emerald-dim)" : "var(--surface-3)",
                 transition: "all var(--t-base) var(--ease-out)",
               }}

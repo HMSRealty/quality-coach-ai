@@ -29,7 +29,7 @@ export function SecurityBadges() {
         <span style={{
           width: 30, height: 30, borderRadius: 10, background: T.gradPrimary,
           display: "flex", alignItems: "center", justifyContent: "center",
-          boxShadow: "0 6px 16px rgba(242,38,111,0.30)",
+          boxShadow: "0 6px 16px rgba(14,124,107,0.30)",
         }}>
           <ShieldCheck size={15} color="#fff" />
         </span>

@@ -4,9 +4,9 @@ import { useState } from "react";
 
 const NAVY = "var(--text-1)";
 const NAVY_2 = "#2A3347";
-const TEAL = "#2F6BFF";
+const TEAL = "#0e7c6b";
 const SLATE = "var(--text-2)";
-const ARROW = "#2F6BFF";
+const ARROW = "#0e7c6b";
 
 interface Step {
   key: string;
@@ -125,11 +125,11 @@ const STEPS: Step[] = [
     render: () => (
       <Chrome title="RealTrack — Lead Detail">
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
-          <span style={{ padding: "5px 12px", borderRadius: 999, background: "#ECFDF5", color: "#059669", fontSize: 11, fontWeight: 800 }}>✓ Qualified</span>
+          <span style={{ padding: "5px 12px", borderRadius: 999, background: "#ECFDF5", color: "#0a5f52", fontSize: 11, fontWeight: 800 }}>✓ Qualified</span>
           <span style={{ fontSize: 12, color: SLATE }}>123 Oak St, Miami FL</span>
         </div>
         <div style={{ padding: 12, borderRadius: 9, background: "#fff", border: "1px solid rgba(35,43,58,0.08)", maxWidth: 420 }}>
-          <p style={{ fontSize: 10, fontWeight: 700, color: "#7C3AED", marginBottom: 4 }}>WHAT HAPPENED ON THE CALL</p>
+          <p style={{ fontSize: 10, fontWeight: 700, color: "#0a5f52", marginBottom: 4 }}>WHAT HAPPENED ON THE CALL</p>
           <p style={{ fontSize: 11, color: NAVY, lineHeight: 1.6 }}>Owner is relocating, motivated to close within 60 days. Asking $210k vs $275k Zestimate — a deep discount with clear motivation.</p>
         </div>
         <Arrow label="Status + reason + summary" top={20} left={300} />

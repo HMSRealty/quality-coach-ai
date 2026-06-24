@@ -10,9 +10,9 @@ import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Loader2, ChevronUp, ChevronDown, CheckCircle2, Activity, Clock, X, StopCircle } from "lucide-react";
 
-const SKY = "#0EA5E9";
-const SKY_600 = "#0284C7";
-const MONEY = "#059669";
+const SKY = "#0e7c6b";
+const SKY_600 = "#0a5f52";
+const MONEY = "#0a5f52";
 
 interface Job { id: string; address: string; agent: string | null; since: string | null; pending: boolean; }
 
@@ -189,9 +189,9 @@ export function ProcessingMonitor() {
         style={{
           display: "inline-flex", alignItems: "center", gap: 9, padding: "10px 15px",
           borderRadius: 999, border: "none", cursor: "pointer",
-          background: count > 0 ? "linear-gradient(135deg, #0EA5E9, #0284C7)" : MONEY,
+          background: count > 0 ? "linear-gradient(135deg, #0e7c6b, #0a5f52)" : MONEY,
           color: "#fff", fontSize: 13, fontWeight: 800,
-          boxShadow: count > 0 ? "0 10px 26px rgba(14,165,233,0.45)" : "0 10px 26px rgba(5,150,105,0.40)",
+          boxShadow: count > 0 ? "0 10px 26px rgba(14,124,107,0.45)" : "0 10px 26px rgba(10,95,82,0.40)",
           float: "right",
         }}
       >

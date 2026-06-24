@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { Send, Loader2, CheckCircle2, AlertCircle, Upload } from "lucide-react";
 
 const NAVY = "var(--text-1)";
-const TEAL = "#2F6BFF";
+const TEAL = "#0e7c6b";
 const SLATE = "var(--text-2)";
 
 interface Caller { id: string; name: string; team_id?: string; }
@@ -206,11 +206,12 @@ export default function PublicSubmitLeadPage() {
         {/* Logo + Header */}
         <div style={{ textAlign: "center", marginBottom: 36 }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
-            <svg width={44} height={28} viewBox="0 0 40 24" fill="none">
-              <path d="M2 22 L20 4 L38 22" stroke={NAVY} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M8 22 L20 11 L32 22" stroke={TEAL} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.9"/>
-            </svg>
-            <span style={{ fontSize: 22, fontWeight: 800, color: NAVY, letterSpacing: "0.06em" }}>
+            <span style={{ display: "flex", alignItems: "flex-end", gap: 3, height: 26 }}>
+              {[{ h: 9, c: TEAL }, { h: 21, c: "var(--coral)" }, { h: 15, c: "var(--amber)" }, { h: 26, c: TEAL }].map((b, i) => (
+                <i key={i} style={{ width: 4, height: b.h, borderRadius: 2, background: b.c, display: "block" }} />
+              ))}
+            </span>
+            <span style={{ fontSize: 24, fontWeight: 700, color: NAVY, letterSpacing: "-0.02em", fontFamily: "var(--font-display)" }}>
               RealTrack
             </span>
           </div>
@@ -227,7 +228,7 @@ export default function PublicSubmitLeadPage() {
             padding: "14px 18px", borderRadius: 12, marginBottom: 18,
             background: "#ECFDF5", border: "1px solid #A7F3D0",
             display: "flex", alignItems: "center", gap: 10,
-            color: "#059669", fontSize: 13, fontWeight: 600,
+            color: "#0a5f52", fontSize: 13, fontWeight: 600,
           }}>
             <CheckCircle2 size={16} /> Lead submitted! Processing has started.
           </div>
@@ -384,7 +385,7 @@ export default function PublicSubmitLeadPage() {
               </div>
               {callFile && (
                 <div style={{ marginTop: 12, padding: "10px 12px", background: "#ECFDF5", borderRadius: 8 }}>
-                  <p style={{ fontSize: 12, color: "#059669", fontWeight: 600 }}>
+                  <p style={{ fontSize: 12, color: "#0a5f52", fontWeight: 600 }}>
                     ✓ Ready: {(callFile.size / (1024 * 1024)).toFixed(1)}MB
                   </p>
                 </div>

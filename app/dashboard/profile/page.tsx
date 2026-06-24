@@ -183,7 +183,7 @@ export default function ProfilePage() {
               display: "flex", alignItems: "center", gap: 6,
               padding: "6px 12px", borderRadius: "var(--r-full)",
               background: profile.is_active ? "var(--emerald-dim)" : "var(--rose-dim)",
-              border: `1px solid ${profile.is_active ? "rgba(16,185,129,0.25)" : "rgba(244,63,94,0.25)"}`,
+              border: `1px solid ${profile.is_active ? "rgba(14,124,107,0.25)" : "rgba(244,63,94,0.25)"}`,
               fontSize: 12, fontWeight: 700,
               color: profile.is_active ? "var(--emerald)" : "var(--rose-lt)",
             }}>

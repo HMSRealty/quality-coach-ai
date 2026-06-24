@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { Upload, Download, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 
 const NAVY = "var(--text-1)";
-const TEAL = "#2F6BFF";
+const TEAL = "#0e7c6b";
 const SLATE = "var(--text-2)";
 
 function parseCSV(text: string): Array<{ name: string; target: string; rules: string }> {
@@ -119,7 +119,7 @@ export function CampaignCSVImport({ onImported }: { onImported?: () => void }) {
           padding: "10px 12px", borderRadius: 8, marginBottom: 12,
           background: msg.type === "ok" ? "#ECFDF5" : "#FBEEE8",
           border: `1px solid ${msg.type === "ok" ? "#A7F3D0" : "#E7B8A6"}`,
-          color: msg.type === "ok" ? "#059669" : "#DC2626",
+          color: msg.type === "ok" ? "#0a5f52" : "#DC2626",
           fontSize: 12, fontWeight: 600, display: "flex", gap: 8, alignItems: "center",
         }}>
           {msg.type === "ok" ? <CheckCircle2 size={14} /> : <AlertCircle size={14} />}

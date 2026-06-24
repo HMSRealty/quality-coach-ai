@@ -30,7 +30,7 @@ function EmptyCallLibrary({ hasFilter }: { hasFilter: boolean }) {
     }}>
       <div style={{
         width: 64, height: 64, borderRadius: 16,
-        background: "linear-gradient(135deg, #16A34A, #15803D)",
+        background: "linear-gradient(135deg, #0e7c6b, #0a5f52)",
         margin: "0 auto 18px",
         display: "flex", alignItems: "center", justifyContent: "center",
       }}>
@@ -43,22 +43,22 @@ function EmptyCallLibrary({ hasFilter }: { hasFilter: boolean }) {
       </p>
       <div style={{
         display: "inline-flex", alignItems: "center", gap: 8,
-        padding: "10px 14px", background: "#FAF7EE",
+        padding: "10px 14px", background: "#f3f4f1",
         border: "1px solid var(--border-2)", borderRadius: 11,
         marginBottom: 22, maxWidth: "100%",
       }}>
-        <Webhook size={14} color="#15803D" />
+        <Webhook size={14} color="#0a5f52" />
         <code style={{ fontSize: 12, fontFamily: "var(--font-mono)", color: "var(--text-1)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{sample}</code>
         <button onClick={() => { navigator.clipboard.writeText(sample); setCopied(true); setTimeout(() => setCopied(false), 1500); }}
           title="Copy URL"
-          style={{ background: "none", border: "none", cursor: "pointer", padding: 4, color: copied ? "#15803D" : "var(--text-3)" }}>
+          style={{ background: "none", border: "none", cursor: "pointer", padding: 4, color: copied ? "#0a5f52" : "var(--text-3)" }}>
           {copied ? <Check size={14} /> : <Copy size={14} />}
         </button>
       </div>
       <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
         <Link href="/dashboard/onboarding" style={{
           padding: "11px 20px", borderRadius: 10,
-          background: "linear-gradient(135deg, #16A34A, #15803D)", color: "#fff",
+          background: "linear-gradient(135deg, #0e7c6b, #0a5f52)", color: "#fff",
           fontSize: 13, fontWeight: 800, textDecoration: "none",
           display: "inline-flex", alignItems: "center", gap: 6,
         }}>
@@ -335,8 +335,8 @@ export default function CallsPage() {
           {pendingLeads.length > 0 && (
             <button onClick={startQualifying} disabled={qualifying} style={{
               display: "inline-flex", alignItems: "center", gap: 7, padding: "9px 16px", borderRadius: 9,
-              background: "linear-gradient(135deg, #059669, #047857)", color: "#fff", border: "none",
-              fontSize: 12.5, fontWeight: 800, cursor: qualifying ? "wait" : "pointer", boxShadow: "0 4px 14px rgba(5,150,105,0.32)", opacity: qualifying ? 0.7 : 1,
+              background: "linear-gradient(135deg, #0a5f52, #047857)", color: "#fff", border: "none",
+              fontSize: 12.5, fontWeight: 800, cursor: qualifying ? "wait" : "pointer", boxShadow: "0 4px 14px rgba(10,95,82,0.32)", opacity: qualifying ? 0.7 : 1,
             }}>{qualifying ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />} Start qualifying ({pendingLeads.length})</button>
           )}
           {queuedLeads.length > 0 && (
@@ -348,8 +348,8 @@ export default function CallsPage() {
           )}
           <button onClick={() => { setSelectMode(m => !m); setSelected(new Set()); }} style={{
             display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 14px", borderRadius: 9,
-            background: selectMode ? "#0EA5E9" : "var(--surface-1)", color: selectMode ? "#fff" : "var(--text-1)",
-            border: `1px solid ${selectMode ? "#0EA5E9" : "var(--border-2)"}`, fontSize: 12, fontWeight: 700, cursor: "pointer",
+            background: selectMode ? "#0e7c6b" : "var(--surface-1)", color: selectMode ? "#fff" : "var(--text-1)",
+            border: `1px solid ${selectMode ? "#0e7c6b" : "var(--border-2)"}`, fontSize: 12, fontWeight: 700, cursor: "pointer",
           }}><CheckSquare size={13} /> {selectMode ? "Done" : "Select"}</button>
           <button onClick={exportCSV} style={{
             display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 14px", borderRadius: 9,
@@ -358,16 +358,16 @@ export default function CallsPage() {
           }}><Download size={13} /> Export CSV</button>
           <button onClick={load} style={{
             display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 14px", borderRadius: 9,
-            background: "#0EA5E9", color: "#fff", border: "none",
-            fontSize: 12, fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 14px rgba(14,165,233,0.30)",
+            background: "#0e7c6b", color: "#fff", border: "none",
+            fontSize: 12, fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 14px rgba(14,124,107,0.30)",
           }}><RotateCcw size={13} /> Refresh</button>
         </div>
       </div>
 
       {/* Background qualification banner */}
       {queuedLeads.length > 0 && (
-        <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", borderRadius: 12, background: "#ECFDF5", border: "1px solid #059669", flexWrap: "wrap" }}>
-          <Loader2 size={16} className="animate-spin" style={{ color: "#059669" }} />
+        <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", borderRadius: 12, background: "#ECFDF5", border: "1px solid #0a5f52", flexWrap: "wrap" }}>
+          <Loader2 size={16} className="animate-spin" style={{ color: "#0a5f52" }} />
           <span style={{ fontSize: 13, fontWeight: 800, color: "#047857" }}>
             Qualifying in the background · {queuedLeads.length} in queue
           </span>
@@ -379,16 +379,16 @@ export default function CallsPage() {
 
       {/* Bulk action bar */}
       {selectMode && (
-        <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 16px", borderRadius: 12, background: "#F0F9FF", border: "1px solid #0EA5E9", flexWrap: "wrap" }}>
-          <span style={{ fontSize: 13, fontWeight: 800, color: "#0369A1" }}>{selected.size} selected</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 16px", borderRadius: 12, background: "#F0F9FF", border: "1px solid #0e7c6b", flexWrap: "wrap" }}>
+          <span style={{ fontSize: 13, fontWeight: 800, color: "#084c42" }}>{selected.size} selected</span>
           <button onClick={() => setSelected(selected.size === filtered.length ? new Set() : new Set(filtered.map(l => l.id)))}
-            style={{ background: "none", border: "none", cursor: "pointer", color: "#0284C7", fontSize: 12.5, fontWeight: 700 }}>
+            style={{ background: "none", border: "none", cursor: "pointer", color: "#0a5f52", fontSize: 12.5, fontWeight: 700 }}>
             {selected.size === filtered.length ? "Clear all" : "Select all"}
           </button>
           <div style={{ flex: 1 }} />
           <button onClick={bulkAnalyze} disabled={!selected.size || bulkBusy} style={{
             display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 9,
-            background: selected.size ? "linear-gradient(135deg,#0EA5E9,#0284C7)" : "#BAE6FD", color: "#fff", border: "none",
+            background: selected.size ? "linear-gradient(135deg,#0e7c6b,#0a5f52)" : "#BAE6FD", color: "#fff", border: "none",
             fontSize: 12.5, fontWeight: 800, cursor: selected.size ? "pointer" : "not-allowed",
           }}>
             {bulkBusy ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />} Analyze selected

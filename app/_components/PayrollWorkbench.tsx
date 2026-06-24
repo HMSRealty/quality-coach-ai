@@ -30,7 +30,7 @@ type RoleRate = {
   target_leads: number;
 };
 
-const SKY = "#0EA5E9", SKY600 = "#0284C7", MONEY = "#059669", NAVY = "#0F172A", SLATE = "#475569";
+const SKY = "#0e7c6b", SKY600 = "#0a5f52", MONEY = "#0a5f52", NAVY = "#15302e", SLATE = "#475569";
 const PAY_METHODS = ["Instapay", "Payoneer", "Vodafone Cash", "Orange Cash", "Etisalat Cash", "Axis Pay", "Bank Transfer", "Cash", "Other"];
 
 type Cfg = {
@@ -392,7 +392,7 @@ export function PayrollWorkbench() {
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ width: 36, height: 36, borderRadius: 9, background: "rgba(5,150,105,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}><Users size={18} color={MONEY} /></span>
+          <span style={{ width: 36, height: 36, borderRadius: 9, background: "rgba(10,95,82,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}><Users size={18} color={MONEY} /></span>
           <div>
             <h2 style={{ fontSize: 19, fontWeight: 900, color: NAVY }}>Payroll Workbench</h2>
             <p style={{ fontSize: 12, color: SLATE }}>Upload one sheet — agents, hours, roles, rates/salaries, payment method &amp; info, and the pay period all auto-fill. Every field stays adjustable.</p>
@@ -404,8 +404,8 @@ export function PayrollWorkbench() {
           <button onClick={syncDialer} className="btn-ghost" style={{ padding: "8px 12px", fontSize: 12 }}><Clock size={13} /> Sync dialer hours</button>
           <button onClick={() => {
             const csv = "Name,Role,Category,Monthly Salary,Hourly Rate,Payable Hours,Email,Color,Payment Method,Payment Info,From,To\n"
-              + '"Jane Doe","RE Telemarketing Agent","Caller","","3","177 Hours 50 Mins.","jane@x.com","#0EA5E9","Instapay","jane@instapay","2026-06-01","2026-06-22"\n'
-              + '"John Manager","Team Leader","Manager","18000","","","john@x.com","#059669","Payoneer","john@payoneer","2026-06-01","2026-06-22"';
+              + '"Jane Doe","RE Telemarketing Agent","Caller","","3","177 Hours 50 Mins.","jane@x.com","#0e7c6b","Instapay","jane@instapay","2026-06-01","2026-06-22"\n'
+              + '"John Manager","Team Leader","Manager","18000","","","john@x.com","#0a5f52","Payoneer","john@payoneer","2026-06-01","2026-06-22"';
             const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); const a = document.createElement("a"); a.href = url; a.download = "payroll-roster-template.csv"; a.click(); URL.revokeObjectURL(url);
           }} className="btn-ghost" style={{ padding: "8px 12px", fontSize: 12 }}><Download size={13} /> Template</button>
           <button onClick={() => setShowCfg(s => !s)} className="btn-ghost" style={{ padding: "8px 12px", fontSize: 12 }}><Settings2 size={13} /> {showCfg ? "Hide" : "Settings"}</button>
@@ -442,7 +442,7 @@ export function PayrollWorkbench() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 12 }}>
         <Stat label="Callers (USD)" value={usd(totals.usdT)} accent={SKY600} />
         <Stat label="Spiffs/Referral (EGP)" value={egp(totals.spiffT)} accent="#EA580C" />
-        <Stat label="Managers (EGP)" value={egp(totals.mgrEgp)} accent="#7C3AED" />
+        <Stat label="Managers (EGP)" value={egp(totals.mgrEgp)} accent="#0a5f52" />
         <Stat label="Grand net payout (EGP)" value={egp(totals.netEgp)} accent={MONEY} />
       </div>
 

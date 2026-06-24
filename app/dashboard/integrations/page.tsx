@@ -15,9 +15,9 @@ import { ReadymodeConnectionCard } from "@/app/_components/ReadymodeConnectionCa
 import { AutoFetchToggle } from "@/app/_components/AutoFetchToggle";
 import { SheetsExportPanel } from "@/app/_components/SheetsExportPanel";
 
-const NAVY = "#0F172A";
+const NAVY = "#15302e";
 const SLATE = "#475569";
-const SKY_600 = "#0284C7";
+const SKY_600 = "#0a5f52";
 
 interface ApiKey { id: string; label: string | null; key_prefix: string; last_used_at: string | null; revoked: boolean; created_at: string; }
 
@@ -115,7 +115,7 @@ export default function IntegrationsPage() {
           {!showKey && (
             <button onClick={createKey} disabled={creating} style={{
               padding: "7px 14px", borderRadius: 8, border: "none",
-              background: "linear-gradient(135deg,#0EA5E9,#0284C7)", color: "#fff",
+              background: "linear-gradient(135deg,#0e7c6b,#0a5f52)", color: "#fff",
               fontSize: 12, fontWeight: 800, cursor: creating ? "wait" : "pointer",
               display: "inline-flex", alignItems: "center", gap: 5,
             }}>
@@ -240,7 +240,7 @@ function ReadOnlyIntegrationsView() {
                 display: "flex", alignItems: "center", gap: 14,
               }}>
                 {integrated
-                  ? <CheckCircle2 size={22} color="#059669" />
+                  ? <CheckCircle2 size={22} color="#0a5f52" />
                   : <AlertTriangle size={22} color="#92400E" />}
                 <div style={{ flex: 1 }}>
                   <p style={{ fontSize: 14, fontWeight: 800, color: NAVY }}>{r.name}</p>

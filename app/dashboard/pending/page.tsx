@@ -6,9 +6,9 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Clock, LogOut, RefreshCw, CreditCard, CheckCircle2, FileCheck2 } from "lucide-react";
 
-const NAVY = "#0F172A";
+const NAVY = "#15302e";
 const SLATE = "#475569";
-const MONEY = "#059669";
+const MONEY = "#0a5f52";
 
 type Status = "unpaid" | "submitted_verification" | "paid" | "free" | "unknown";
 
@@ -68,8 +68,8 @@ export default function PendingApproval() {
         <div style={{
           width: 64, height: 64, borderRadius: "50%",
           background: isReceiptSubmitted
-            ? "linear-gradient(135deg, #F59E0B, #D97706)"
-            : "linear-gradient(135deg, #0EA5E9, #0284C7)",
+            ? "linear-gradient(135deg, #e3a23a, #D97706)"
+            : "linear-gradient(135deg, #0e7c6b, #0a5f52)",
           margin: "0 auto 18px",
           display: "flex", alignItems: "center", justifyContent: "center",
         }}>
@@ -92,9 +92,9 @@ export default function PendingApproval() {
             <a href="/pay" style={{
               display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
               padding: "13px 22px", borderRadius: 11, border: "none",
-              background: "linear-gradient(135deg, #0EA5E9, #0284C7)", color: "#fff",
+              background: "linear-gradient(135deg, #0e7c6b, #0a5f52)", color: "#fff",
               fontSize: 14, fontWeight: 800, cursor: "pointer", textDecoration: "none",
-              boxShadow: "0 8px 20px rgba(2,132,199,0.30)",
+              boxShadow: "0 8px 20px rgba(10,95,82,0.30)",
             }}>
               <CreditCard size={15} /> View Plans & Pay
             </a>
@@ -140,7 +140,7 @@ export default function PendingApproval() {
         </div>
 
         <p style={{ fontSize: 11, color: SLATE, marginTop: 22 }}>
-          Need help? Email <a href="mailto:info@realtrack.app" style={{ color: "#0284C7", fontWeight: 700 }}>info@realtrack.app</a>
+          Need help? Email <a href="mailto:info@realtrack.app" style={{ color: "#0a5f52", fontWeight: 700 }}>info@realtrack.app</a>
         </p>
       </div>
     </div>

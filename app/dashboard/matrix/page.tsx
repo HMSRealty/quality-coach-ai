@@ -62,11 +62,11 @@ interface Person {
 // Closer's Office hierarchy: rank shown by darkness, not hue. Top of the
 // floor = jet ink, callers = soft money. One brand family, six clear tiers.
 const BUCKETS = [
-  { key: "owner",        label: "Managers",       icon: Crown,        accent: "#0B0B0B" },
-  { key: "team_leader",  label: "Team Leaders",   icon: Flag,         accent: "#166534" },
-  { key: "acquisitions", label: "Acquisitions",   icon: Building2,    accent: "#15803D" },
-  { key: "qa",           label: "Quality (QA)",   icon: ShieldCheck,  accent: "#16A34A" },
-  { key: "trainer",      label: "Trainers",       icon: Briefcase,    accent: "#22C55E" },
+  { key: "owner",        label: "Managers",       icon: Crown,        accent: "#15302e" },
+  { key: "team_leader",  label: "Team Leaders",   icon: Flag,         accent: "#084c42" },
+  { key: "acquisitions", label: "Acquisitions",   icon: Building2,    accent: "#0a5f52" },
+  { key: "qa",           label: "Quality (QA)",   icon: ShieldCheck,  accent: "#0e7c6b" },
+  { key: "trainer",      label: "Trainers",       icon: Briefcase,    accent: "#129b86" },
   { key: "caller",       label: "Callers",        icon: PhoneCall,    accent: "#4D7C0F" },
 ] as const;
 type BucketKey = (typeof BUCKETS)[number]["key"];
@@ -461,7 +461,7 @@ export default function MatrixPage() {
               {objections.map((o, i) => {
                 const pct = Math.round((o.count / maxC) * 100);
                 const share = Math.round((o.count / total) * 100);
-                const heat = i === 0 ? "#DC2626" : i === 1 ? "#F2266F" : i === 2 ? "#EA580C" : i === 3 ? "#F59E0B" : "#7C3AED";
+                const heat = i === 0 ? "#DC2626" : i === 1 ? "#0e7c6b" : i === 2 ? "#EA580C" : i === 3 ? "#e3a23a" : "#0a5f52";
                 return (
                   <div key={o.label} style={{ display: "grid", gridTemplateColumns: "180px 1fr 64px 50px", alignItems: "center", gap: 12 }}>
                     <p style={{ fontSize: 13, fontWeight: 700, color: NAVY, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{o.label}</p>
@@ -584,7 +584,7 @@ function PersonRow({
           {person.is_active ? (
             person.kind === "agent" && <MenuItem icon={UserMinus} label="Terminate (mark inactive)" onClick={onTerminate} color="#EA580C" />
           ) : (
-            <MenuItem icon={UserCheck} label="Reactivate" onClick={onReactivate} color="#10B981" />
+            <MenuItem icon={UserCheck} label="Reactivate" onClick={onReactivate} color="#0e7c6b" />
           )}
           {!isOwner && (
             <MenuItem icon={Trash2} label="Delete permanently" onClick={onDelete} color="#DC2626" />

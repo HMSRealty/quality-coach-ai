@@ -1,12 +1,19 @@
 import { ImageResponse } from "next/og";
 
-// Tab favicon — Closer's Office mark. Jet background, upward checkmark
-// stroke in money green. Next 15 auto-generates the favicon from this.
+// Tab favicon — Resona mark. Deep-pine tile with a four-bar equalizer
+// (the call waveform) in teal / coral / amber. Next 15 auto-generates the
+// favicon from this.
 export const runtime = "edge";
 export const size = { width: 64, height: 64 };
 export const contentType = "image/png";
 
 export default function Icon() {
+  const bars = [
+    { h: 16, c: "#0e7c6b" },
+    { h: 34, c: "#ef5f3b" },
+    { h: 24, c: "#e3a23a" },
+    { h: 42, c: "#0e7c6b" },
+  ];
   return new ImageResponse(
     (
       <div
@@ -14,15 +21,17 @@ export default function Icon() {
           width: "100%",
           height: "100%",
           display: "flex",
-          alignItems: "center",
+          alignItems: "flex-end",
           justifyContent: "center",
-          background: "#0B0B0B",
+          gap: 5,
+          background: "#15302e",
           borderRadius: 14,
+          padding: 14,
         }}
       >
-        <svg width="48" height="32" viewBox="0 0 42 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M4 17 L13 25 L37 4" stroke="#16A34A" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+        {bars.map((b, i) => (
+          <div key={i} style={{ width: 6, height: b.h, borderRadius: 3, background: b.c }} />
+        ))}
       </div>
     ),
     { ...size },

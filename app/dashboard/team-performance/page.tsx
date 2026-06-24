@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { BarChart3, TrendingUp, Target, Zap, Loader2 } from "lucide-react";
 
-const RED = "#2F6BFF";
+const RED = "#0e7c6b";
 
 interface TeamPerf { id: string; name: string; calls: number; qualified: number; conversion: number; trend: number; }
 
@@ -86,9 +86,9 @@ export default function TeamPerformancePage() {
           const weightedConv = totalCalls > 0 ? Math.round((totalQual / totalCalls) * 100) : 0;
           return [
             { label: "Total Calls", value: totalCalls, icon: BarChart3, color: RED },
-            { label: "Qualified Leads", value: totalQual, icon: Target, color: "#059669" },
-            { label: "Conversion Rate", value: `${weightedConv}%`, icon: TrendingUp, color: "#0284C7" },
-            { label: "Active Teams", value: teams.length, icon: Zap, color: "#7C3AED" },
+            { label: "Qualified Leads", value: totalQual, icon: Target, color: "#0a5f52" },
+            { label: "Conversion Rate", value: `${weightedConv}%`, icon: TrendingUp, color: "#0a5f52" },
+            { label: "Active Teams", value: teams.length, icon: Zap, color: "#0a5f52" },
           ];
         })().map(({ label, value, icon: Icon, color }) => (
           <div key={label} style={{
@@ -133,10 +133,10 @@ export default function TeamPerformancePage() {
                 <td style={{ padding: "12px 16px", fontSize: 13, fontWeight: 700, color: RED }}>{idx + 1}</td>
                 <td style={{ padding: "12px 16px", fontSize: 13, fontWeight: 600, color: "#232B3A" }}>{team.name}</td>
                 <td style={{ padding: "12px 16px", fontSize: 13, color: "#4B5563" }}>{team.calls}</td>
-                <td style={{ padding: "12px 16px", fontSize: 13, color: "#059669", fontWeight: 600 }}>{team.qualified}</td>
+                <td style={{ padding: "12px 16px", fontSize: 13, color: "#0a5f52", fontWeight: 600 }}>{team.qualified}</td>
                 <td style={{
                   padding: "12px 16px", fontSize: 13, fontWeight: 700,
-                  color: team.conversion > 50 ? "#059669" : team.conversion > 30 ? "#0284C7" : "#DC2626",
+                  color: team.conversion > 50 ? "#0a5f52" : team.conversion > 30 ? "#0a5f52" : "#DC2626",
                 }}>
                   {team.conversion}%
                 </td>
@@ -144,7 +144,7 @@ export default function TeamPerformancePage() {
                   <span style={{
                     padding: "2px 6px", borderRadius: 4,
                     background: team.trend > 0 ? "#ECFDF5" : "#FBEEE8",
-                    color: team.trend > 0 ? "#059669" : RED,
+                    color: team.trend > 0 ? "#0a5f52" : RED,
                     fontWeight: 600, fontSize: 11,
                   }}>
                     {team.trend > 0 ? "+" : ""}{team.trend.toFixed(1)}%

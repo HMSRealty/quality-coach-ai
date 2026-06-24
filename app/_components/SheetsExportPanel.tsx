@@ -9,10 +9,10 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Sheet, Copy, Check, ExternalLink, AlertTriangle, Loader2 } from "lucide-react";
 
-const NAVY = "#0B0B0B";
+const NAVY = "#15302e";
 const SLATE = "#475569";
-const MONEY = "#15803D";
-const SKY_600 = "#15803D";
+const MONEY = "#0a5f52";
+const SKY_600 = "#0a5f52";
 
 interface ApiKey { id: string; key_prefix: string; revoked: boolean; }
 
@@ -67,7 +67,7 @@ export function SheetsExportPanel() {
   return (
     <div style={card}>
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, flexWrap: "wrap" }}>
-        <span style={{ width: 32, height: 32, borderRadius: 9, background: "rgba(22,163,74,0.14)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <span style={{ width: 32, height: 32, borderRadius: 9, background: "rgba(14,124,107,0.14)", display: "flex", alignItems: "center", justifyContent: "center" }}>
           <Sheet size={16} color={MONEY} />
         </span>
         <div style={{ flex: 1, minWidth: 220 }}>
@@ -113,7 +113,7 @@ export function SheetsExportPanel() {
               return (
                 <div key={f.id} style={{
                   padding: "12px 14px", borderRadius: 10,
-                  background: "#FAF7EE", border: "1px solid var(--border-1)",
+                  background: "#f3f4f1", border: "1px solid var(--border-1)",
                 }}>
                   <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 6, flexWrap: "wrap" }}>
                     <p style={{ fontSize: 13, fontWeight: 800, color: NAVY }}>{f.label}</p>
@@ -145,7 +145,7 @@ export function SheetsExportPanel() {
             })}
           </div>
 
-          <div style={{ marginTop: 14, padding: "10px 12px", borderRadius: 9, background: "#F5F0E1", fontSize: 11.5, color: SLATE, lineHeight: 1.6 }}>
+          <div style={{ marginTop: 14, padding: "10px 12px", borderRadius: 9, background: "#eceee9", fontSize: 11.5, color: SLATE, lineHeight: 1.6 }}>
             <strong style={{ color: NAVY }}>Setup:</strong> open a new Google Sheet → click cell A1 → paste a formula above → hit Enter. Each feed lives on its own tab. Open <a href="https://docs.google.com/spreadsheets" target="_blank" rel="noreferrer" style={{ color: SKY_600, fontWeight: 700 }}>sheets.new <ExternalLink size={9} style={{ display: "inline" }} /></a> to start.
           </div>
         </>

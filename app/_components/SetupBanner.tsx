@@ -62,31 +62,31 @@ export function SetupBanner() {
     }}>
       <div style={{
         width: 38, height: 38, borderRadius: 10, flexShrink: 0,
-        background: "linear-gradient(135deg, #0EA5E9, #0284C7)", color: "#fff",
+        background: "linear-gradient(135deg, #0e7c6b, #0a5f52)", color: "#fff",
         display: "flex", alignItems: "center", justifyContent: "center",
       }}>
         <Rocket size={18} />
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: 13.5, fontWeight: 800, color: "#0F172A" }}>
+        <p style={{ fontSize: 13.5, fontWeight: 800, color: "#15302e" }}>
           Almost ready — {done} of {required.length} steps done
         </p>
         <div style={{ display: "flex", gap: 10, marginTop: 5, flexWrap: "wrap" }}>
-          <span style={{ fontSize: 11.5, color: status.gemini ? "#059669" : "#475569", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
-            <CheckCircle2 size={11} color={status.gemini ? "#059669" : "#CBD5E1"} /> Gemini key
+          <span style={{ fontSize: 11.5, color: status.gemini ? "#0a5f52" : "#475569", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
+            <CheckCircle2 size={11} color={status.gemini ? "#0a5f52" : "#CBD5E1"} /> Gemini key
           </span>
-          <span style={{ fontSize: 11.5, color: status.campaign ? "#059669" : "#475569", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
-            <CheckCircle2 size={11} color={status.campaign ? "#059669" : "#CBD5E1"} /> First campaign
+          <span style={{ fontSize: 11.5, color: status.campaign ? "#0a5f52" : "#475569", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
+            <CheckCircle2 size={11} color={status.campaign ? "#0a5f52" : "#CBD5E1"} /> First campaign
           </span>
           <span style={{ fontSize: 11.5, color: "#94A3B8", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
-            <CheckCircle2 size={11} color={status.dialer ? "#059669" : "#CBD5E1"} /> Dialer <span style={{ opacity: 0.7 }}>(optional)</span>
+            <CheckCircle2 size={11} color={status.dialer ? "#0a5f52" : "#CBD5E1"} /> Dialer <span style={{ opacity: 0.7 }}>(optional)</span>
           </span>
         </div>
       </div>
       {next && (
         <Link href={next.href} style={{
           padding: "9px 16px", borderRadius: 9,
-          background: "linear-gradient(135deg, #0EA5E9, #0284C7)", color: "#fff",
+          background: "linear-gradient(135deg, #0e7c6b, #0a5f52)", color: "#fff",
           fontSize: 12.5, fontWeight: 800, textDecoration: "none",
           display: "inline-flex", alignItems: "center", gap: 5,
           whiteSpace: "nowrap",

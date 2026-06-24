@@ -9,9 +9,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Clock, Upload, Plus, Trash2, Download, Save, Loader2, Check } from "lucide-react";
 
-const SKY = "#0EA5E9";
-const SKY_600 = "#0284C7";
-const MONEY = "#059669";
+const SKY = "#0e7c6b";
+const SKY_600 = "#0a5f52";
+const MONEY = "#0a5f52";
 const money = (n: number) => `$${(Math.round(n * 100) / 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 // Parse "12 Hours 60 Mins." / "12h 30m" / "12:30" / "12.5" → decimal hours.
@@ -128,7 +128,7 @@ export function DialerHoursCalculator() {
     <div style={{ background: "#fff", border: "1px solid var(--border-2)", borderRadius: 16, padding: 20, boxShadow: "var(--shadow-sm)" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", marginBottom: 14 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ width: 32, height: 32, borderRadius: 9, background: "color-mix(in srgb, #0EA5E9 14%, transparent)", display: "flex", alignItems: "center", justifyContent: "center" }}><Clock size={16} color={SKY_600} /></span>
+          <span style={{ width: 32, height: 32, borderRadius: 9, background: "color-mix(in srgb, #0e7c6b 14%, transparent)", display: "flex", alignItems: "center", justifyContent: "center" }}><Clock size={16} color={SKY_600} /></span>
           <div>
             <p style={{ fontSize: 15, fontWeight: 800, color: "#000" }}>Dialer Hours → Pay</p>
             <p style={{ fontSize: 11.5, color: "var(--text-3)" }}>Reads the &quot;Payable Hours&quot; column (e.g. &quot;12 Hours 60 Mins.&quot;) and multiplies by the hourly rate.</p>

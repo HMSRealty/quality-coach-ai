@@ -7,8 +7,8 @@ import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { Handshake, Loader2, MapPin, ArrowRight, DollarSign } from "lucide-react";
 
-const SKY_600 = "#15803D";
-const MONEY = "#15803D";
+const SKY_600 = "#0a5f52";
+const MONEY = "#0a5f52";
 const money = (n: number) => `$${Math.round(Math.max(0, n)).toLocaleString()}`;
 
 interface Lead {
@@ -49,7 +49,7 @@ export default function DealsPage() {
   return (
     <div style={{ maxWidth: 1080, margin: "0 auto", display: "flex", flexDirection: "column", gap: 18 }} className="animate-in">
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        <span style={{ width: 38, height: 38, borderRadius: 10, background: "rgba(22,163,74,0.14)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <span style={{ width: 38, height: 38, borderRadius: 10, background: "rgba(14,124,107,0.14)", display: "flex", alignItems: "center", justifyContent: "center" }}>
           <Handshake size={19} color={SKY_600} />
         </span>
         <div>

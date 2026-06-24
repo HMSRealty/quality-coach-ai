@@ -130,7 +130,7 @@ export function HelpButton() {
             <ul style={{ margin: "10px 0 0", padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 6 }}>
               {help.tips.map((t, i) => (
                 <li key={i} style={{ display: "flex", gap: 7, fontSize: 12, color: NAVY }}>
-                  <span style={{ color: "#2F6BFF", fontWeight: 800 }}>›</span>{t}
+                  <span style={{ color: "#0e7c6b", fontWeight: 800 }}>›</span>{t}
                 </li>
               ))}
             </ul>

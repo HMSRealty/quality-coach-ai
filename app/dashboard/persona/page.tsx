@@ -173,7 +173,7 @@ export default function PersonaPage() {
         <div style={{
           padding: "10px 14px", borderRadius: 10, display: "flex", gap: 8, alignItems: "center",
           background: toast.ok ? "#ECFDF5" : "#FBEEE8",
-          color: toast.ok ? "#059669" : "#DC2626",
+          color: toast.ok ? "#0a5f52" : "#DC2626",
           fontSize: 13, fontWeight: 600, border: `1px solid ${toast.ok ? "#A7F3D0" : "#FBCFBE"}`,
         }}>
           {toast.ok ? <CheckCircle2 size={14} /> : <AlertCircle size={14} />} {toast.msg}

@@ -11,10 +11,10 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { UserSearch, Loader2, Phone, Mail, CheckCircle2, ExternalLink, Lock, Search, Copy, AlertCircle } from "lucide-react";
 
-const NAVY = "#0F172A";
+const NAVY = "#15302e";
 const SLATE = "#475569";
-const SKY_600 = "#0284C7";
-const MONEY = "#059669";
+const SKY_600 = "#0a5f52";
+const MONEY = "#0a5f52";
 
 const PROPYTRACE_SITE = "https://propytrace.pages.dev";
 
@@ -184,7 +184,7 @@ export default function PropyTracePage() {
 
         <button onClick={run} disabled={loading || !paid} style={{
           marginTop: 16, padding: "11px 22px", borderRadius: 10, border: "none",
-          background: loading ? "#64748B" : "linear-gradient(135deg,#0EA5E9,#0284C7)",
+          background: loading ? "#64748B" : "linear-gradient(135deg,#0e7c6b,#0a5f52)",
           color: "#fff", fontSize: 14, fontWeight: 800, cursor: loading ? "wait" : "pointer",
           display: "inline-flex", alignItems: "center", gap: 7,
         }}>

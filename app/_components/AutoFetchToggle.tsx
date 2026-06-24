@@ -9,10 +9,10 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Music, Loader2 } from "lucide-react";
 
-const SKY = "#0EA5E9";
-const NAVY = "#0F172A";
+const SKY = "#0e7c6b";
+const NAVY = "#15302e";
 const SLATE = "#475569";
-const MONEY = "#059669";
+const MONEY = "#0a5f52";
 
 export function AutoFetchToggle() {
   const [enabled, setEnabled] = useState(false);
@@ -48,7 +48,7 @@ export function AutoFetchToggle() {
     }}>
       <div style={{
         width: 38, height: 38, borderRadius: 10,
-        background: enabled ? "rgba(5,150,105,0.12)" : "rgba(100,116,139,0.10)",
+        background: enabled ? "rgba(10,95,82,0.12)" : "rgba(100,116,139,0.10)",
         display: "flex", alignItems: "center", justifyContent: "center",
       }}>
         <Music size={18} color={enabled ? MONEY : SLATE} />
@@ -68,7 +68,7 @@ export function AutoFetchToggle() {
         disabled={loading || saving}
         style={{
           position: "relative", width: 48, height: 26, borderRadius: 999, border: "none", padding: 0,
-          background: enabled ? `linear-gradient(135deg, ${SKY}, #0284C7)` : "#CBD5E1",
+          background: enabled ? `linear-gradient(135deg, ${SKY}, #0a5f52)` : "#CBD5E1",
           cursor: loading || saving ? "wait" : "pointer",
           transition: "background 200ms ease",
         }}

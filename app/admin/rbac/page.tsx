@@ -54,8 +54,8 @@ function buildState(matrix: Record<Role, Permission[]>): Record<string, boolean>
   return s;
 }
 
-const SKY_600 = "#0284C7";
-const MONEY = "#059669";
+const SKY_600 = "#0a5f52";
+const MONEY = "#0a5f52";
 
 export default function AdminRbacPage() {
   const [matrix, setMatrix] = useState(() => buildState(DEFAULT_MATRIX));
@@ -145,7 +145,7 @@ export default function AdminRbacPage() {
                               style={{
                                 width: 30, height: 30, borderRadius: 8, border: "none", cursor: isLocked ? "default" : "pointer",
                                 display: "inline-flex", alignItems: "center", justifyContent: "center",
-                                background: hasIt ? (isLocked ? "#D1FAE5" : "color-mix(in srgb, #059669 15%, transparent)") : "#F1F5F9",
+                                background: hasIt ? (isLocked ? "#D1FAE5" : "color-mix(in srgb, #0a5f52 15%, transparent)") : "#F1F5F9",
                                 color: hasIt ? MONEY : "#CBD5E1",
                                 transition: "all 150ms ease",
                                 opacity: isLocked ? 0.8 : 1,

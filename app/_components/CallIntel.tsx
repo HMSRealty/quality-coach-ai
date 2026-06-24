@@ -33,7 +33,7 @@ export function DataVerificationAlert({ hasDiscrepancy, notes }: { hasDiscrepanc
         display: "flex", alignItems: "flex-start", gap: 13, padding: "15px 18px", borderRadius: 14,
         background: "#FFFBEB",                 // amber-50
         border: "1px solid #FBBF24",           // amber-400
-        borderLeft: "4px solid #F59E0B",
+        borderLeft: "4px solid #e3a23a",
         boxShadow: "0 10px 30px rgba(245,158,11,0.16)",
       }}>
       <span style={{ width: 36, height: 36, borderRadius: 10, flexShrink: 0, background: "#FEF3C7", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -114,8 +114,8 @@ export function TcpaShield({ transcript, onJump }: { transcript: string | null |
 // 2. Script-Compliance Timeline
 // ──────────────────────────────────────────────────────────────────────
 const C_CFG: Record<ComplianceStatus, { color: string; label: string; icon: typeof CheckCircle2 }> = {
-  compliant:  { color: "#10B981", label: "Compliant", icon: CheckCircle2 },
-  improvised: { color: "#F59E0B", label: "Off-script (effective)", icon: MinusCircle },
+  compliant:  { color: "#0e7c6b", label: "Compliant", icon: CheckCircle2 },
+  improvised: { color: "#e3a23a", label: "Off-script (effective)", icon: MinusCircle },
   failed:     { color: "#DC2626", label: "Skipped", icon: XCircle },
 };
 
@@ -182,7 +182,7 @@ export function ScriptComplianceTimeline({ transcript, onJump }: { transcript: s
 
       <div style={{ marginTop: 14, paddingTop: 12, borderTop: "1px solid var(--border-1)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <span style={{ fontSize: 11, color: "var(--text-3)" }}>Heuristic from transcript — not a substitute for QA review.</span>
-        <span style={{ fontSize: 13, fontWeight: 900, color: score >= 70 ? "#10B981" : score >= 40 ? "#F59E0B" : "#DC2626" }}>{score}% adherence</span>
+        <span style={{ fontSize: 13, fontWeight: 900, color: score >= 70 ? "#0e7c6b" : score >= 40 ? "#e3a23a" : "#DC2626" }}>{score}% adherence</span>
       </div>
     </div>
   );
@@ -217,10 +217,10 @@ export function BehavioralScorecard({ transcript, agentName }: { transcript: str
 
   const talkPct = Math.round(b.talkRatio * 100);
   // Ideal agent talk share for discovery calls ≈ 43%. Score the deviation.
-  const ratioColor = talkPct <= 50 ? "#10B981" : talkPct <= 65 ? "#F59E0B" : "#DC2626";
+  const ratioColor = talkPct <= 50 ? "#0e7c6b" : talkPct <= 65 ? "#e3a23a" : "#DC2626";
   const wpm = b.agentWpm;
-  const wpmColor = wpm === 0 ? "var(--text-3)" : wpm < 110 ? "#10B981" : wpm < 160 ? "#F59E0B" : "#DC2626";
-  const gradeColor = grade == null ? "var(--text-3)" : grade >= 80 ? "#10B981" : grade >= 60 ? "var(--brand-purple)" : grade >= 40 ? "#F59E0B" : "#DC2626";
+  const wpmColor = wpm === 0 ? "var(--text-3)" : wpm < 110 ? "#0e7c6b" : wpm < 160 ? "#e3a23a" : "#DC2626";
+  const gradeColor = grade == null ? "var(--text-3)" : grade >= 80 ? "#0e7c6b" : grade >= 60 ? "var(--brand-purple)" : grade >= 40 ? "#e3a23a" : "#DC2626";
 
   return (
     <div style={{ background: "var(--surface-1)", border: "1px solid var(--border-2)", borderRadius: 18, padding: 22, boxShadow: "var(--shadow-md)", position: "relative", overflow: "hidden" }}>
@@ -452,7 +452,7 @@ export function InteractiveTranscript({
                 onClick={clipAndRoute} disabled={saving || saved}
                 style={{
                   width: "100%", padding: "10px", borderRadius: 10, border: "none", cursor: saving ? "wait" : "pointer",
-                  background: saved ? "#10B981" : "linear-gradient(135deg, var(--brand-purple), #DB2777)", color: "#fff",
+                  background: saved ? "#0e7c6b" : "linear-gradient(135deg, var(--brand-purple), #DB2777)", color: "#fff",
                   fontSize: 12.5, fontWeight: 800, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 7,
                   boxShadow: "0 8px 22px color-mix(in srgb, var(--brand-purple) 40%, transparent)",
                 }}>

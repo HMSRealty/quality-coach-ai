@@ -9,9 +9,9 @@ import {
   Users, Plus, Trash2, Loader2, Search, Building2, Phone, Mail, MapPin, X, Pencil, Filter,
 } from "lucide-react";
 
-const SKY = "#16A34A";
-const SKY_600 = "#15803D";
-const MONEY = "#15803D";
+const SKY = "#0e7c6b";
+const SKY_600 = "#0a5f52";
+const MONEY = "#0a5f52";
 const money = (n: number) => `$${Math.round(n).toLocaleString()}`;
 const toArr = (s: string) => s.split(",").map(x => x.trim()).filter(Boolean);
 
@@ -86,13 +86,13 @@ export default function CashBuyersPage() {
     <div style={{ maxWidth: 1180, margin: "0 auto", display: "flex", flexDirection: "column", gap: 18 }} className="animate-in">
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <span style={{ width: 38, height: 38, borderRadius: 10, background: "rgba(22,163,74,0.14)", display: "flex", alignItems: "center", justifyContent: "center" }}><Users size={19} color={SKY_600} /></span>
+          <span style={{ width: 38, height: 38, borderRadius: 10, background: "rgba(14,124,107,0.14)", display: "flex", alignItems: "center", justifyContent: "center" }}><Users size={19} color={SKY_600} /></span>
           <div>
             <h1 style={{ fontSize: 24, fontWeight: 900, color: "#000", letterSpacing: "-0.02em" }}>Cash Buyers</h1>
             <p style={{ fontSize: 13, color: "var(--text-2)" }}>{buyers.length} buyer{buyers.length === 1 ? "" : "s"} on the bench. Match a deal to their buy-box in one click.</p>
           </div>
         </div>
-        <button onClick={openNew} style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 16px", borderRadius: 10, background: "linear-gradient(135deg, #16A34A, #15803D)", color: "#fff", border: "none", fontSize: 13, fontWeight: 800, cursor: "pointer", boxShadow: "0 8px 20px rgba(22,163,74,0.35)" }}><Plus size={15} /> Add buyer</button>
+        <button onClick={openNew} style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 16px", borderRadius: 10, background: "linear-gradient(135deg, #0e7c6b, #0a5f52)", color: "#fff", border: "none", fontSize: 13, fontWeight: 800, cursor: "pointer", boxShadow: "0 8px 20px rgba(14,124,107,0.35)" }}><Plus size={15} /> Add buyer</button>
       </div>
 
       {/* Filters */}
@@ -142,7 +142,7 @@ export default function CashBuyersPage() {
               )}
               {(b.areas?.length > 0 || b.property_types?.length > 0) && (
                 <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                  {(b.areas || []).map(a => <span key={a} style={{ fontSize: 10.5, fontWeight: 700, padding: "2px 8px", borderRadius: 999, background: "color-mix(in srgb, #0EA5E9 12%, transparent)", color: SKY_600 }}>{a}</span>)}
+                  {(b.areas || []).map(a => <span key={a} style={{ fontSize: 10.5, fontWeight: 700, padding: "2px 8px", borderRadius: 999, background: "color-mix(in srgb, #0e7c6b 12%, transparent)", color: SKY_600 }}>{a}</span>)}
                   {(b.property_types || []).map(p => <span key={p} style={{ fontSize: 10.5, fontWeight: 700, padding: "2px 8px", borderRadius: 999, background: "var(--surface-3)", color: "var(--text-2)" }}>{p}</span>)}
                 </div>
               )}
@@ -175,7 +175,7 @@ export default function CashBuyersPage() {
             </div>
             <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, padding: "0 20px 20px" }}>
               <button onClick={() => setShowForm(false)} className="btn-ghost">Cancel</button>
-              <button onClick={save} disabled={saving || !form.name.trim()} style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 18px", borderRadius: 10, border: "none", cursor: saving ? "wait" : "pointer", background: form.name.trim() ? "linear-gradient(135deg, #0EA5E9, #0284C7)" : "#7DD3FC", color: "#fff", fontSize: 13, fontWeight: 800 }}>
+              <button onClick={save} disabled={saving || !form.name.trim()} style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 18px", borderRadius: 10, border: "none", cursor: saving ? "wait" : "pointer", background: form.name.trim() ? "linear-gradient(135deg, #0e7c6b, #0a5f52)" : "#7DD3FC", color: "#fff", fontSize: 13, fontWeight: 800 }}>
                 {saving ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />} {editId ? "Save" : "Add buyer"}
               </button>
             </div>

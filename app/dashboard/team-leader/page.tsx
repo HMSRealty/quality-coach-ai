@@ -10,14 +10,14 @@ import { Users, Loader2, TrendingUp, Target, Phone, AlertCircle } from "lucide-r
 
 // Closer's Office. Names kept (TEAL/GOLD) so the file's chart code stays
 // unchanged — only values flip to money-green + cream surfaces.
-const BG = "#FAF7EE";       // cream canvas
+const BG = "#f3f4f1";       // cream canvas
 const PANEL = "#FFFFFF";    // card
-const PANEL_2 = "#F5F0E1";  // cream-100 subtle row
-const TEAL = "#16A34A";     // money primary
-const TEAL_DIM = "rgba(22,163,74,0.14)";
-const TXT = "#0B0B0B";      // jet ink
+const PANEL_2 = "#eceee9";  // cream-100 subtle row
+const TEAL = "#0e7c6b";     // money primary
+const TEAL_DIM = "rgba(14,124,107,0.14)";
+const TXT = "#15302e";      // jet ink
 const MUTED = "#64748B";    // slate-500 secondary
-const GOLD = "#15803D";     // deeper money
+const GOLD = "#0a5f52";     // deeper money
 const ROSE = "#DC2626";     // red — kept for warnings/losses
 
 interface Caller { id: string; name: string; team_id: string | null; aggregate_stats: Record<string, unknown> | null; }

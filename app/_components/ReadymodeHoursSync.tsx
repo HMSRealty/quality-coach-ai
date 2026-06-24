@@ -10,10 +10,10 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Loader2, Server, RefreshCw, CheckCircle2, AlertCircle, CalendarDays } from "lucide-react";
 
-const NAVY = "#0B0B0B";
+const NAVY = "#15302e";
 const SLATE = "#475569";
-const MONEY = "#15803D";
-const MONEY_LT = "#16A34A";
+const MONEY = "#0a5f52";
+const MONEY_LT = "#0e7c6b";
 
 interface Connection { id: string; label: string | null; subdomain: string; is_active: boolean; report_url: string | null; }
 interface UserOption { id: string; email: string | null; full_name: string | null; }
@@ -147,7 +147,7 @@ export function ReadymodeHoursSync() {
       <div style={card}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
           <span style={{
-            width: 32, height: 32, borderRadius: 9, background: "rgba(22,163,74,0.14)",
+            width: 32, height: 32, borderRadius: 9, background: "rgba(14,124,107,0.14)",
             display: "flex", alignItems: "center", justifyContent: "center",
           }}>
             <Server size={16} color={MONEY} />
@@ -188,7 +188,7 @@ export function ReadymodeHoursSync() {
             </div>
             <button onClick={sync} disabled={syncing || !connectionId} style={{
               padding: "10px 18px", borderRadius: 10, border: "none",
-              background: syncing ? "#86EFAC" : "linear-gradient(135deg,#16A34A,#15803D)",
+              background: syncing ? "#86EFAC" : "linear-gradient(135deg,#0e7c6b,#0a5f52)",
               color: "#fff", fontSize: 13, fontWeight: 800,
               cursor: syncing ? "wait" : "pointer", display: "inline-flex", alignItems: "center", gap: 6,
               whiteSpace: "nowrap",
@@ -249,7 +249,7 @@ export function ReadymodeHoursSync() {
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12.5 }}>
               <thead>
-                <tr style={{ background: "#F5F0E1", color: SLATE }}>
+                <tr style={{ background: "#eceee9", color: SLATE }}>
                   {["Agent", "Period", "Logged", "Payable", "Ready", "Break", "Lunch", "AFK", "Assign to"].map((h) => (
                     <th key={h} style={{ padding: "10px 12px", textAlign: "left", fontSize: 10, fontWeight: 800, letterSpacing: "0.05em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
                       {h}

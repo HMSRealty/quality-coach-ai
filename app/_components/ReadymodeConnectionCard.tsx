@@ -8,10 +8,10 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Link as LinkIcon, Loader2, CheckCircle2, XCircle, Trash2, ShieldCheck, Eye, EyeOff, Plus, Server } from "lucide-react";
 
-const NAVY = "#0F172A";
+const NAVY = "#15302e";
 const SLATE = "#475569";
-const MONEY = "#059669";
-const SKY_600 = "#0284C7";
+const MONEY = "#0a5f52";
+const SKY_600 = "#0a5f52";
 
 interface Connection {
   id: string;
@@ -114,7 +114,7 @@ export function ReadymodeConnectionCard() {
         <button onClick={() => { setAdding(a => !a); setMsg(null); reset(); }} style={{
           display: "inline-flex", alignItems: "center", gap: 5,
           padding: "7px 12px", borderRadius: 8,
-          background: adding ? "var(--surface-3)" : "linear-gradient(135deg,#0EA5E9,#0284C7)",
+          background: adding ? "var(--surface-3)" : "linear-gradient(135deg,#0e7c6b,#0a5f52)",
           color: adding ? NAVY : "#fff", border: "none", fontSize: 12, fontWeight: 800, cursor: "pointer",
         }}>
           <Plus size={13} /> {adding ? "Cancel" : "Add Dialer"}
@@ -168,7 +168,7 @@ export function ReadymodeConnectionCard() {
             <button onClick={save} disabled={busy} style={{
               display: "inline-flex", alignItems: "center", gap: 6,
               padding: "10px 18px", borderRadius: 9, border: "none",
-              background: "linear-gradient(135deg,#0EA5E9,#0284C7)", color: "#fff",
+              background: "linear-gradient(135deg,#0e7c6b,#0a5f52)", color: "#fff",
               fontSize: 13, fontWeight: 800, cursor: busy ? "wait" : "pointer",
             }}>
               {busy ? <Loader2 size={13} className="animate-spin" /> : <ShieldCheck size={13} />} Save

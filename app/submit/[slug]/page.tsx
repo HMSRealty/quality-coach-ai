@@ -340,11 +340,12 @@ export default function DynamicSubmitPage() {
       <div style={{ maxWidth: 640, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 32 }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
-            <svg width={40} height={26} viewBox="0 0 40 24" fill="none">
-              <path d="M2 22 L20 4 L38 22" stroke={NAVY} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M8 22 L20 11 L32 22" stroke={TEAL} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span style={{ fontSize: 20, fontWeight: 800, color: NAVY, letterSpacing: "0.04em" }}>RealTrack</span>
+            <span style={{ display: "flex", alignItems: "flex-end", gap: 2.5, height: 24 }}>
+              {[{ h: 8, c: TEAL }, { h: 19, c: "var(--coral)" }, { h: 13, c: "var(--amber)" }, { h: 24, c: TEAL }].map((b, i) => (
+                <i key={i} style={{ width: 3.5, height: b.h, borderRadius: 2, background: b.c, display: "block" }} />
+              ))}
+            </span>
+            <span style={{ fontSize: 22, fontWeight: 700, color: NAVY, letterSpacing: "-0.02em", fontFamily: "var(--font-display)" }}>RealTrack</span>
           </div>
           <h1 style={{ fontSize: 26, fontWeight: 900, color: NAVY, marginBottom: 8 }}>{owner?.form_name}</h1>
           <p style={{ fontSize: 13, color: SLATE }}>Submit a lead — AI evaluation runs automatically.</p>
@@ -367,7 +368,7 @@ export default function DynamicSubmitPage() {
               width: 72, height: 72, borderRadius: "50%", background: "#ECFDF5",
               display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 18px",
             }}>
-              <CheckCircle2 size={36} color="#059669" />
+              <CheckCircle2 size={36} color="#0a5f52" />
             </div>
             <h2 style={{ fontSize: 22, fontWeight: 800, color: NAVY, marginBottom: 8 }}>
               Lead submitted successfully!
@@ -379,7 +380,7 @@ export default function DynamicSubmitPage() {
               display: "inline-flex", alignItems: "center", gap: 8,
               padding: "8px 16px", borderRadius: 999, marginBottom: 28,
               background: ["Hot","Warm","Cold"].includes(doneStatus || "") ? "#ECFDF5" : doneStatus === "Disqualified" ? "#F1F4F9" : "#FFFBEB",
-              color: ["Hot","Warm","Cold"].includes(doneStatus || "") ? "#059669" : doneStatus === "Disqualified" ? "#4B5563" : "#92400E",
+              color: ["Hot","Warm","Cold"].includes(doneStatus || "") ? "#0a5f52" : doneStatus === "Disqualified" ? "#4B5563" : "#92400E",
               fontSize: 13, fontWeight: 800,
             }}>
               Verdict: {doneStatus}

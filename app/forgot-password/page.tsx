@@ -7,9 +7,9 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { Mail, ArrowLeft, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 
-const NAVY = "#0F172A";
+const NAVY = "#15302e";
 const SLATE = "#475569";
-const SKY = "#0EA5E9";
+const SKY = "#0e7c6b";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -48,11 +48,11 @@ export default function ForgotPasswordPage() {
           <>
             <div style={{
               width: 56, height: 56, borderRadius: "50%",
-              background: "rgba(5,150,105,0.12)",
+              background: "rgba(10,95,82,0.12)",
               display: "flex", alignItems: "center", justifyContent: "center",
               margin: "0 auto 16px",
             }}>
-              <CheckCircle2 size={28} color="#059669" />
+              <CheckCircle2 size={28} color="#0a5f52" />
             </div>
             <h1 style={{ fontSize: 22, fontWeight: 900, color: NAVY, textAlign: "center", marginBottom: 8 }}>Check your inbox</h1>
             <p style={{ fontSize: 14, color: SLATE, textAlign: "center", lineHeight: 1.6 }}>
@@ -94,7 +94,7 @@ export default function ForgotPasswordPage() {
 
             <button type="submit" disabled={busy} style={{
               width: "100%", padding: "12px", borderRadius: 11, border: "none",
-              background: "linear-gradient(135deg, #0EA5E9, #0284C7)", color: "#fff",
+              background: "linear-gradient(135deg, #0e7c6b, #0a5f52)", color: "#fff",
               fontSize: 14, fontWeight: 800, cursor: busy ? "wait" : "pointer",
               display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 7,
             }}>

@@ -17,7 +17,7 @@ export interface Brand {
 const DEFAULT: Brand = {
   name: "RealTrack",
   logoUrl: null,
-  color: "#0284C7",
+  color: "#0a5f52",
   isCustom: false,
 };
 

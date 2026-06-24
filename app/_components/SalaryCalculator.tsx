@@ -5,8 +5,8 @@
 import { useState } from "react";
 import { Plus, Trash2, Calculator } from "lucide-react";
 
-const SKY_600 = "#0284C7";
-const MONEY = "#059669";
+const SKY_600 = "#0a5f52";
+const MONEY = "#0a5f52";
 const money = (n: number) =>
   `$${(Math.round(n * 100) / 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
@@ -45,7 +45,7 @@ export function SalaryCalculator() {
   return (
     <div style={{ background: "#fff", border: "1px solid var(--border-2)", borderRadius: 16, padding: 20, boxShadow: "var(--shadow-sm)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
-        <span style={{ width: 32, height: 32, borderRadius: 9, background: "color-mix(in srgb, #0EA5E9 14%, transparent)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <span style={{ width: 32, height: 32, borderRadius: 9, background: "color-mix(in srgb, #0e7c6b 14%, transparent)", display: "flex", alignItems: "center", justifyContent: "center" }}>
           <Calculator size={16} color={SKY_600} />
         </span>
         <div>

@@ -258,7 +258,7 @@ export default function AdminPaymentsPage() {
                             background: approving === inv.id ? "var(--emerald-dim)" : "var(--emerald)",
                             color: approving === inv.id ? "var(--emerald)" : "#000",
                             fontSize: 12, fontWeight: 700, border: "none", cursor: "pointer",
-                            whiteSpace: "nowrap", boxShadow: "0 2px 8px rgba(16,185,129,0.25)",
+                            whiteSpace: "nowrap", boxShadow: "0 2px 8px rgba(14,124,107,0.25)",
                             opacity: approving === inv.id ? 0.7 : 1,
                           }}
                         >

@@ -1,28 +1,31 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Geist_Mono, Space_Grotesk } from "next/font/google";
+import { Bricolage_Grotesque, Hanken_Grotesk, Space_Mono } from "next/font/google";
 import { SmoothScroll } from "@/app/_components/SmoothScroll";
 import { Toaster } from "sonner";
 import "./globals.css";
 
-// Inter — the enterprise UI typeface (Linear / Stripe / Gong vibe).
-const inter = Inter({
-  variable: "--font-geist-sans",        // keep the existing var name so all tokens resolve
+// Hanken Grotesk — the body / UI typeface (Resona brand).
+// Mapped onto --font-geist-sans so every existing token resolves to it.
+const hanken = Hanken_Grotesk({
+  variable: "--font-geist-sans",
   subsets: ["latin"],
   display: "swap",
-  weight: ["400", "500", "600", "700", "800", "900"],
+  weight: ["400", "500", "600", "700", "800"],
 });
 
-const geistMono = Geist_Mono({
+// Space Mono — coverage counters, scores, code-ish metrics.
+const spaceMono = Space_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
   display: "swap",
+  weight: ["400", "700"],
 });
 
-// Display face for headings — bold grotesk for editorial punch
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-display",
+// Bricolage Grotesque — display face for headings (Resona brand punch).
+const bricolage = Bricolage_Grotesque({
+  variable: "--font-bricolage",
   subsets: ["latin"],
-  weight: ["500", "600", "700"],
+  weight: ["400", "600", "700", "800"],
   display: "swap",
 });
 
@@ -71,7 +74,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0B0B0B",
+  themeColor: "#15302e",
 };
 
 // JSON-LD structured data — helps Google understand what RealTrack is and
@@ -118,7 +121,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${geistMono.variable} ${spaceGrotesk.variable}`}
+      className={`${hanken.variable} ${spaceMono.variable} ${bricolage.variable}`}
       suppressHydrationWarning
     >
       <head>

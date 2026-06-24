@@ -8,10 +8,10 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Plus, Trash2, Loader2, Save, Check, Calendar } from "lucide-react";
 
-const NAVY = "#0F172A";
+const NAVY = "#15302e";
 const SLATE = "#475569";
-const SKY = "#0EA5E9";
-const MONEY = "#059669";
+const SKY = "#0e7c6b";
+const MONEY = "#0a5f52";
 
 interface Row {
   id: string;

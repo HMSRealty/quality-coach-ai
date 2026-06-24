@@ -150,8 +150,8 @@ export default function LeaderboardPage() {
           <div style={{ display: "flex", gap: 10, marginTop: 10, flexWrap: "wrap", alignItems: "center" }}>
             <Pill icon={<Flame size={11} />} label="Hot = 1 pt" color="#DC2626" />
             <Pill icon={<Sun size={11} />} label="Warm = 1 pt" color="#EA580C" />
-            <Pill icon={<Snowflake size={11} />} label="Cold = 0.5 pt" color="#0284C7" />
-            <Pill icon={<TrendingUp size={11} />} label={`$${BONUS_PER_POINT} / pt`} color="#10B981" />
+            <Pill icon={<Snowflake size={11} />} label="Cold = 0.5 pt" color="#0a5f52" />
+            <Pill icon={<TrendingUp size={11} />} label={`$${BONUS_PER_POINT} / pt`} color="#0e7c6b" />
           </div>
         </div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
@@ -252,19 +252,19 @@ export default function LeaderboardPage() {
                         {r.warm > 0 ? <Badge count={r.warm} color="#EA580C" /> : <span style={{ color: "var(--text-4)" }}>—</span>}
                       </td>
                       <td style={{ ...td, textAlign: "center" }}>
-                        {r.cold > 0 ? <Badge count={r.cold} color="#0284C7" /> : <span style={{ color: "var(--text-4)" }}>—</span>}
+                        {r.cold > 0 ? <Badge count={r.cold} color="#0a5f52" /> : <span style={{ color: "var(--text-4)" }}>—</span>}
                       </td>
                       <td style={{ ...td, textAlign: "center" }}>
                         {r.callback > 0 ? <Badge count={r.callback} color="#92400E" /> : <span style={{ color: "var(--text-4)" }}>—</span>}
                       </td>
                       <td style={{ ...td, textAlign: "center" }}>
-                        {r.needscall > 0 ? <Badge count={r.needscall} color="#15803D" /> : <span style={{ color: "var(--text-4)" }}>—</span>}
+                        {r.needscall > 0 ? <Badge count={r.needscall} color="#0a5f52" /> : <span style={{ color: "var(--text-4)" }}>—</span>}
                       </td>
                       <td style={{ ...td, textAlign: "center" }}>
                         {r.disqualified > 0 ? <Badge count={r.disqualified} color="#64748B" /> : <span style={{ color: "var(--text-4)" }}>—</span>}
                       </td>
                       <td style={{ ...td, textAlign: "center" }}>
-                        {r.duplicate > 0 ? <Badge count={r.duplicate} color="#7C3AED" /> : <span style={{ color: "var(--text-4)" }}>—</span>}
+                        {r.duplicate > 0 ? <Badge count={r.duplicate} color="#0a5f52" /> : <span style={{ color: "var(--text-4)" }}>—</span>}
                       </td>
                       <td style={{ ...td, textAlign: "center" }}>
                         {r.error > 0 ? <Badge count={r.error} color="#DC2626" /> : <span style={{ color: "var(--text-4)" }}>—</span>}
@@ -272,7 +272,7 @@ export default function LeaderboardPage() {
                       <td style={{ ...td, textAlign: "center", color: SLATE }}>{r.total}</td>
                       {/* Conversion */}
                       <td style={{ ...td, textAlign: "center" }}>
-                        <span style={{ fontWeight: 700, color: r.conversion >= 50 ? "#10B981" : r.conversion >= 25 ? NAVY : SLATE }}>
+                        <span style={{ fontWeight: 700, color: r.conversion >= 50 ? "#0e7c6b" : r.conversion >= 25 ? NAVY : SLATE }}>
                           {r.conversion}%
                         </span>
                       </td>
@@ -286,17 +286,17 @@ export default function LeaderboardPage() {
                           <div style={{ flex: 1, height: 6, borderRadius: 999, background: "var(--surface-3)", overflow: "hidden" }}>
                             <div style={{
                               height: "100%", width: `${Math.min(100, r.pacePct)}%`, borderRadius: 999,
-                              background: r.pacePct >= 100 ? "#16A34A" : r.pacePct >= 80 ? "#15803D" : "#EA580C",
+                              background: r.pacePct >= 100 ? "#0e7c6b" : r.pacePct >= 80 ? "#0a5f52" : "#EA580C",
                               transition: "width 600ms ease",
                             }} />
                           </div>
-                          <span style={{ fontSize: 11, fontWeight: 800, color: r.pacePct >= 100 ? "#16A34A" : r.pacePct >= 80 ? NAVY : "#EA580C", minWidth: 36, textAlign: "right" }}>
+                          <span style={{ fontSize: 11, fontWeight: 800, color: r.pacePct >= 100 ? "#0e7c6b" : r.pacePct >= 80 ? NAVY : "#EA580C", minWidth: 36, textAlign: "right" }}>
                             {r.pacePct}%
                           </span>
                         </div>
                       </td>
                       {/* Bonus */}
-                      <td style={{ ...td, textAlign: "right", fontWeight: 900, color: "#10B981", fontSize: 14 }}>
+                      <td style={{ ...td, textAlign: "right", fontWeight: 900, color: "#0e7c6b", fontSize: 14 }}>
                         {money(r.bonus)}
                       </td>
                     </tr>

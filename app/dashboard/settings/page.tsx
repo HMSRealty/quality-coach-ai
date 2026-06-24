@@ -118,7 +118,7 @@ jane@example.com,Alice Johnson,Sales Team B,Mike Brown,2024-03-10`;
               const Icon = it.icon;
               return (
                 <Link key={it.href} href={it.href} style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 11, padding: "13px 15px", borderRadius: 12, background: "#fff", border: "1px solid var(--border-2)", boxShadow: "var(--shadow-sm)" }}>
-                  <span style={{ width: 34, height: 34, borderRadius: 9, flexShrink: 0, background: "color-mix(in srgb, #0EA5E9 12%, transparent)", display: "flex", alignItems: "center", justifyContent: "center" }}><Icon size={16} color="#0284C7" /></span>
+                  <span style={{ width: 34, height: 34, borderRadius: 9, flexShrink: 0, background: "color-mix(in srgb, #0e7c6b 12%, transparent)", display: "flex", alignItems: "center", justifyContent: "center" }}><Icon size={16} color="#0a5f52" /></span>
                   <span style={{ flex: 1, minWidth: 0 }}>
                     <span style={{ display: "block", fontSize: 13.5, fontWeight: 800, color: "#000" }}>{it.label}</span>
                     <span style={{ display: "block", fontSize: 11.5, color: "var(--text-3)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{it.desc}</span>
@@ -138,7 +138,7 @@ jane@example.com,Alice Johnson,Sales Team B,Mike Brown,2024-03-10`;
           background: message.type === "success" ? "#ECFDF5" : "#FBEEE8",
           border: `1px solid ${message.type === "success" ? "#A7F3D0" : "#E7B8A6"}`,
           display: "flex", alignItems: "center", gap: 10,
-          color: message.type === "success" ? "#059669" : RED,
+          color: message.type === "success" ? "#0a5f52" : RED,
           fontSize: 13, fontWeight: 600,
         }}>
           {message.type === "success" ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
@@ -277,7 +277,7 @@ function DangerZoneCard() {
 
       {result && (
         <div style={{ marginBottom: 12, padding: "10px 14px", borderRadius: 10, fontSize: 13, fontWeight: 700,
-          background: result.ok ? "#ECFDF5" : "#FEF2F2", border: `1px solid ${result.ok ? "#A7F3D0" : "#FECACA"}`, color: result.ok ? "#059669" : "#DC2626" }}>
+          background: result.ok ? "#ECFDF5" : "#FEF2F2", border: `1px solid ${result.ok ? "#A7F3D0" : "#FECACA"}`, color: result.ok ? "#0a5f52" : "#DC2626" }}>
           {result.msg}
         </div>
       )}

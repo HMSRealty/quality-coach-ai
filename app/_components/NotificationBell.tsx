@@ -7,8 +7,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Bell, Check, MapPin, Flame, Sparkles } from "lucide-react";
 import { useRealtimeNotifications } from "@/app/_components/useRealtimeNotifications";
 
-const SKY_600 = "#0284C7";
-const MONEY = "#059669";
+const SKY_600 = "#0a5f52";
+const MONEY = "#0a5f52";
 const SPRING = { type: "spring", stiffness: 460, damping: 32, mass: 0.7 } as const;
 
 function ago(ts: number): string {
@@ -105,7 +105,7 @@ export function NotificationBell() {
                         display: "flex", alignItems: "center", gap: 12, width: "100%", textAlign: "left",
                         padding: "12px 16px", border: "none", borderBottom: "1px solid var(--border-1)",
                         borderLeft: `3px solid ${hot ? accent : "transparent"}`,
-                        background: n.read ? "#fff" : hot ? "color-mix(in srgb, #059669 6%, #fff)" : "#F8FBFF",
+                        background: n.read ? "#fff" : hot ? "color-mix(in srgb, #0a5f52 6%, #fff)" : "#F8FBFF",
                         cursor: "pointer",
                       }}>
                       <span style={{ width: 32, height: 32, borderRadius: 9, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: `color-mix(in srgb, ${accent} 12%, transparent)`, color: accent }}>

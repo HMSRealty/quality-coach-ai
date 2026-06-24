@@ -174,7 +174,7 @@ export default function AgentsPage() {
       {toast && (
         <div style={{
           padding: "10px 14px", borderRadius: 10, display: "flex", gap: 8, alignItems: "center",
-          background: toast.ok ? "#ECFDF5" : "#FBEEE8", color: toast.ok ? "#059669" : "#DC2626",
+          background: toast.ok ? "#ECFDF5" : "#FBEEE8", color: toast.ok ? "#0a5f52" : "#DC2626",
           fontSize: 13, fontWeight: 600, border: `1px solid ${toast.ok ? "#A7F3D0" : "#FBCFBE"}`,
         }}>
           {toast.ok ? <CheckCircle2 size={14} /> : <AlertCircle size={14} />} {toast.msg}
@@ -330,7 +330,7 @@ export default function AgentsPage() {
                               <span title="Has login" style={{ padding: "3px 8px", borderRadius: 999, fontSize: 10, fontWeight: 800, background: "#D1FAE5", color: "#065F46" }}>Has login</span>
                             ) : (
                               <button onClick={() => createLogin(a)} disabled={busyId === a.id} title="Send invite email to this agent"
-                                style={{ ...iconBtn, color: "#0284C7", borderColor: "#BAE6FD", gap: 4, fontSize: 11, fontWeight: 700, padding: "5px 10px" }}>
+                                style={{ ...iconBtn, color: "#0a5f52", borderColor: "#BAE6FD", gap: 4, fontSize: 11, fontWeight: 700, padding: "5px 10px" }}>
                                 <UserPlus size={12} /> Invite
                               </button>
                             )}

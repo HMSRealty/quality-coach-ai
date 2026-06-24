@@ -191,7 +191,7 @@ export function GongPlayer({ src: srcProp, recordingId, downloadUrl, title, lead
             position: "absolute", top: 0, bottom: 0,
             left: `${(snipStart / dur) * 100}%`,
             width: `${(((snipEnd ?? Math.min(dur, snipStart + 30)) - snipStart) / dur) * 100}%`,
-            background: "rgba(242,38,111,0.16)",
+            background: "rgba(14,124,107,0.16)",
             borderLeft: "2px solid var(--magenta)",
             borderRight: "2px solid var(--magenta)",
             pointerEvents: "none", zIndex: 1,
@@ -273,7 +273,7 @@ export function GongPlayer({ src: srcProp, recordingId, downloadUrl, title, lead
             width: 52, height: 52, borderRadius: "50%", border: "none", cursor: "pointer",
             background: T.gradPrimary, color: "#fff",
             display: "flex", alignItems: "center", justifyContent: "center",
-            boxShadow: "0 12px 28px rgba(242,38,111,0.40)",
+            boxShadow: "0 12px 28px rgba(14,124,107,0.40)",
             transition: "transform 220ms var(--spring-snap)",
           }}
           onMouseEnter={(e) => { e.currentTarget.style.transform = "scale(1.06)"; }}

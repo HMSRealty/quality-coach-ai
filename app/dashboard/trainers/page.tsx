@@ -11,8 +11,8 @@ import {
 import { TrainingSnippets } from "@/app/_components/TrainingSnippets";
 
 const NAVY = "var(--text-1)";
-const TEAL = "#2F6BFF";
-const GOLD = "#2F6BFF";
+const TEAL = "#0e7c6b";
+const GOLD = "#0e7c6b";
 const SLATE = "var(--text-2)";
 
 interface Batch {
@@ -234,7 +234,7 @@ export default function TrainersPage() {
           padding: "12px 16px", borderRadius: 10,
           background: toast.type === "ok" ? "#ECFDF5" : "#FBEEE8",
           border: `1px solid ${toast.type === "ok" ? "#A7F3D0" : "#E7B8A6"}`,
-          color: toast.type === "ok" ? "#059669" : "#DC2626",
+          color: toast.type === "ok" ? "#0a5f52" : "#DC2626",
           fontSize: 13, fontWeight: 600, display: "flex", gap: 8, alignItems: "center",
         }}>
           {toast.type === "ok" ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}

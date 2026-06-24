@@ -6,7 +6,7 @@ import { Card } from "@/app/_components/Card";
 import { Send, Loader2, CheckCircle2, Link2, Copy, Check, Users, ExternalLink } from "lucide-react";
 
 const NAVY = "#232B3A";
-const TEAL = "#2F6BFF";
+const TEAL = "#0e7c6b";
 const SLATE = "#4B5563";
 
 interface Campaign { id: string; name: string; }
@@ -243,7 +243,7 @@ export default function SubmitLeadPage() {
               {generatedLink}
             </code>
             <button onClick={copyLink} style={{ padding: 6, background: "#fff", border: "1px solid rgba(35,43,58,0.08)", borderRadius: 7, cursor: "pointer", color: NAVY }}>
-              {copied ? <Check size={14} color="#059669" /> : <Copy size={14} />}
+              {copied ? <Check size={14} color="#0a5f52" /> : <Copy size={14} />}
             </button>
             <a href={generatedLink} target="_blank" rel="noreferrer" style={{ padding: 6, background: "#fff", border: "1px solid rgba(35,43,58,0.08)", borderRadius: 7, color: NAVY }}>
               <ExternalLink size={14} />
@@ -257,7 +257,7 @@ export default function SubmitLeadPage() {
           padding: "12px 16px", borderRadius: 10,
           background: "#ECFDF5", border: "1px solid #A7F3D0",
           display: "flex", alignItems: "center", gap: 10,
-          color: "#059669", fontSize: 13, fontWeight: 600,
+          color: "#0a5f52", fontSize: 13, fontWeight: 600,
         }}>
           <CheckCircle2 size={16} /> {success}
         </div>

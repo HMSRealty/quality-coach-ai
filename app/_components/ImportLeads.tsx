@@ -8,8 +8,8 @@ import { supabase } from "@/lib/supabase";
 import { Upload, X, Loader2, CheckCircle2, Download, FileSpreadsheet, Info } from "lucide-react";
 import { Portal } from "@/app/_components/Portal";
 
-const SKY = "#0EA5E9";
-const MONEY = "#059669";
+const SKY = "#0e7c6b";
+const MONEY = "#0a5f52";
 
 // RFC-ish CSV parser: handles quoted fields (commas & newlines inside quotes).
 function parseCsv(text: string): string[][] {
@@ -263,17 +263,17 @@ export function ImportLeads({ onClose, onDone }: { onClose: () => void; onDone: 
             </select>
           </div>
 
-          <label style={{ border: "2px dashed color-mix(in srgb, #0EA5E9 35%, transparent)", borderRadius: 14, padding: "22px 18px", textAlign: "center", cursor: "pointer", background: "#F8FAFC", display: "block" }}>
+          <label style={{ border: "2px dashed color-mix(in srgb, #0e7c6b 35%, transparent)", borderRadius: 14, padding: "22px 18px", textAlign: "center", cursor: "pointer", background: "#F8FAFC", display: "block" }}>
             <input type="file" accept=".csv" onChange={e => { const f = e.target.files?.[0]; if (f) onFile(f); }} style={{ display: "none" }} />
-            <Upload size={26} color="#0284C7" style={{ margin: "0 auto 8px" }} />
+            <Upload size={26} color="#0a5f52" style={{ margin: "0 auto 8px" }} />
             <p style={{ fontSize: 14, fontWeight: 800, color: "#000" }}>{fileName || "Click to choose a CSV"}</p>
             <p style={{ fontSize: 12, color: "var(--text-3)", marginTop: 3 }}>Any column order — headers are auto-detected by name and cell content</p>
           </label>
 
           {/* Detected column mapping preview */}
           {Object.keys(detected).length > 0 && (
-            <div style={{ borderRadius: 12, border: "1px solid #0EA5E933", background: "#F0F9FF", padding: "12px 14px" }}>
-              <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.05em", textTransform: "uppercase", color: "#0284C7", marginBottom: 8, display: "inline-flex", alignItems: "center", gap: 5 }}>
+            <div style={{ borderRadius: 12, border: "1px solid #0e7c6b33", background: "#F0F9FF", padding: "12px 14px" }}>
+              <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.05em", textTransform: "uppercase", color: "#0a5f52", marginBottom: 8, display: "inline-flex", alignItems: "center", gap: 5 }}>
                 <Info size={11} /> Detected columns
               </p>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
@@ -281,7 +281,7 @@ export function ImportLeads({ onClose, onDone }: { onClose: () => void; onDone: 
                   const col = detected[field];
                   if (!col) return null;
                   return (
-                    <span key={field} style={{ fontSize: 11, padding: "3px 9px", borderRadius: 999, background: "#fff", border: "1px solid #0EA5E955", color: "#0369A1", fontWeight: 700 }}>
+                    <span key={field} style={{ fontSize: 11, padding: "3px 9px", borderRadius: 999, background: "#fff", border: "1px solid #0e7c6b55", color: "#084c42", fontWeight: 700 }}>
                       {label} → <span style={{ color: "#000" }}>{col}</span>
                     </span>
                   );
@@ -303,7 +303,7 @@ export function ImportLeads({ onClose, onDone }: { onClose: () => void; onDone: 
 
           <AnimatePresence>
             {busy && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ padding: "10px 14px", borderRadius: 10, background: "#F0F9FF", border: "1px solid #0EA5E9", fontSize: 13, fontWeight: 700, color: "#0369A1", display: "flex", alignItems: "center", gap: 8 }}>
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ padding: "10px 14px", borderRadius: 10, background: "#F0F9FF", border: "1px solid #0e7c6b", fontSize: 13, fontWeight: 700, color: "#084c42", display: "flex", alignItems: "center", gap: 8 }}>
                 <Loader2 size={14} className="animate-spin" /> Importing &amp; queuing AI… {progress.done}/{progress.total}
               </motion.div>
             )}
@@ -312,7 +312,7 @@ export function ImportLeads({ onClose, onDone }: { onClose: () => void; onDone: 
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
             <button onClick={onClose} className="btn-ghost">Cancel</button>
             <button onClick={run} disabled={busy || !rows.length || !campaignId}
-              style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 18px", borderRadius: 10, border: "none", cursor: busy || !rows.length ? "not-allowed" : "pointer", background: rows.length && campaignId ? "linear-gradient(135deg, #0EA5E9, #0284C7)" : "#7DD3FC", color: "#fff", fontSize: 13, fontWeight: 800 }}>
+              style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 18px", borderRadius: 10, border: "none", cursor: busy || !rows.length ? "not-allowed" : "pointer", background: rows.length && campaignId ? "linear-gradient(135deg, #0e7c6b, #0a5f52)" : "#7DD3FC", color: "#fff", fontSize: 13, fontWeight: 800 }}>
               {busy ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />} Import &amp; Qualify
             </button>
           </div>

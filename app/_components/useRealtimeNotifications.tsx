@@ -109,14 +109,14 @@ export function useRealtimeNotifications() {
 
 // Branded toast card (rendered by Sonner). Kept here so the hook is self-contained.
 function ToastCard({ hot, address, onClick }: { hot: boolean; address: string; onClick: () => void }) {
-  const accent = hot ? "#059669" : "#0284C7";
+  const accent = hot ? "#0a5f52" : "#0a5f52";
   return (
     <div
       onClick={onClick}
       style={{
         display: "flex", alignItems: "center", gap: 12, width: 340, maxWidth: "86vw",
         padding: "13px 15px", borderRadius: 13, cursor: "pointer",
-        background: "#fff", border: `1px solid ${hot ? "color-mix(in srgb, #059669 40%, transparent)" : "var(--border-2)"}`,
+        background: "#fff", border: `1px solid ${hot ? "color-mix(in srgb, #0a5f52 40%, transparent)" : "var(--border-2)"}`,
         borderLeft: `4px solid ${accent}`,
         boxShadow: "0 14px 40px rgba(15,23,42,0.16)",
       }}

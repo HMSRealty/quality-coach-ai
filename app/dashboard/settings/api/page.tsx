@@ -14,9 +14,9 @@ import { ReadymodeConnectionCard } from "@/app/_components/ReadymodeConnectionCa
 import { GeminiKeysCard } from "@/app/_components/GeminiKeysCard";
 import { AutoFetchToggle } from "@/app/_components/AutoFetchToggle";
 
-const SKY = "#0EA5E9";
-const SKY_600 = "#0284C7";
-const MONEY = "#059669";
+const SKY = "#0e7c6b";
+const SKY_600 = "#0a5f52";
+const MONEY = "#0a5f52";
 const SPRING = { type: "spring", stiffness: 440, damping: 30 } as const;
 
 interface ApiKey { id: string; label: string | null; key_prefix: string; last_used_at: string | null; revoked: boolean; created_at: string; }
@@ -80,7 +80,7 @@ function GoogleDriveCard() {
           <button onClick={disconnect} disabled={busy} className="btn-ghost" style={{ fontSize: 12 }}>Disconnect</button>
         </div>
       ) : (
-        <button onClick={connect} disabled={busy} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 16px", borderRadius: 10, background: "linear-gradient(135deg, #0EA5E9, #0284C7)", color: "#fff", border: "none", fontSize: 13, fontWeight: 800, cursor: busy ? "wait" : "pointer", boxShadow: "0 8px 20px rgba(14,165,233,0.35)" }}>
+        <button onClick={connect} disabled={busy} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 16px", borderRadius: 10, background: "linear-gradient(135deg, #0e7c6b, #0a5f52)", color: "#fff", border: "none", fontSize: 13, fontWeight: 800, cursor: busy ? "wait" : "pointer", boxShadow: "0 8px 20px rgba(14,124,107,0.35)" }}>
           {busy ? <Loader2 size={14} className="animate-spin" /> : <ShieldCheck size={14} />} Connect Google Drive
         </button>
       )}
@@ -253,7 +253,7 @@ export default function ApiIntegrationsPage() {
   return (
     <div style={{ maxWidth: 880, margin: "0 auto", display: "flex", flexDirection: "column", gap: 18 }} className="animate-in">
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        <span style={{ width: 40, height: 40, borderRadius: 11, background: "rgba(14,165,233,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <span style={{ width: 40, height: 40, borderRadius: 11, background: "rgba(14,124,107,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}>
           <Webhook size={20} color={SKY_600} />
         </span>
         <div>
@@ -266,7 +266,7 @@ export default function ApiIntegrationsPage() {
       <AnimatePresence>
         {freshKey && (
           <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={SPRING}
-            style={{ ...card, borderColor: "color-mix(in srgb, #059669 40%, transparent)", borderLeft: `4px solid ${MONEY}` }}>
+            style={{ ...card, borderColor: "color-mix(in srgb, #0a5f52 40%, transparent)", borderLeft: `4px solid ${MONEY}` }}>
             <p style={{ fontSize: 12, fontWeight: 900, color: MONEY, textTransform: "uppercase", letterSpacing: "0.05em", display: "inline-flex", alignItems: "center", gap: 6 }}>
               <ShieldCheck size={14} /> Copy your key now — it won&apos;t be shown again
             </p>
@@ -290,7 +290,7 @@ export default function ApiIntegrationsPage() {
             <input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="Key label (e.g. Readymode)"
               style={{ padding: "9px 12px", borderRadius: 10, border: "1px solid var(--border-2)", background: "#fff", color: "#000", fontSize: 13, outline: "none", minWidth: 180 }} />
             <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={generate} disabled={generating}
-              style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "9px 16px", borderRadius: 10, border: "none", cursor: generating ? "wait" : "pointer", background: "linear-gradient(135deg, #0EA5E9, #0284C7)", color: "#fff", fontSize: 13, fontWeight: 800, boxShadow: "0 8px 20px rgba(14,165,233,0.35)" }}>
+              style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "9px 16px", borderRadius: 10, border: "none", cursor: generating ? "wait" : "pointer", background: "linear-gradient(135deg, #0e7c6b, #0a5f52)", color: "#fff", fontSize: 13, fontWeight: 800, boxShadow: "0 8px 20px rgba(14,124,107,0.35)" }}>
               {generating ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />} Generate API Key
             </motion.button>
           </div>
@@ -360,7 +360,7 @@ export default function ApiIntegrationsPage() {
           <input value={testKey} onChange={(e) => setTestKey(e.target.value)} placeholder="Paste an API key (rt_live_…)"
             style={{ flex: 1, minWidth: 220, padding: "11px 13px", borderRadius: 10, border: "1px solid var(--border-2)", background: "#fff", color: "#000", fontFamily: "var(--font-mono)", fontSize: 13, outline: "none" }} />
           <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={runTest} disabled={testing}
-            style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "11px 18px", borderRadius: 10, border: "none", cursor: testing ? "wait" : "pointer", background: "linear-gradient(135deg, #0EA5E9, #0284C7)", color: "#fff", fontSize: 13, fontWeight: 800, boxShadow: "0 8px 20px rgba(14,165,233,0.35)" }}>
+            style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "11px 18px", borderRadius: 10, border: "none", cursor: testing ? "wait" : "pointer", background: "linear-gradient(135deg, #0e7c6b, #0a5f52)", color: "#fff", fontSize: 13, fontWeight: 800, boxShadow: "0 8px 20px rgba(14,124,107,0.35)" }}>
             {testing ? <><Loader2 size={14} className="animate-spin" /> Testing…</> : <><Send size={14} /> Send Test</>}
           </motion.button>
         </div>

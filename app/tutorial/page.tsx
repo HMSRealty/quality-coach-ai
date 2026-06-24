@@ -75,7 +75,7 @@ const FAQS = [
 
 export default function TutorialPage() {
   return (
-    <div style={{ minHeight: "100vh", background: "#fff", color: "#0F172A" }}>
+    <div style={{ minHeight: "100vh", background: "#fff", color: "#15302e" }}>
       <nav style={{ borderBottom: "1px solid #E2E8F0", padding: "16px 28px", background: "#fff", position: "sticky", top: 0, zIndex: 10 }}>
         <div style={{ maxWidth: 960, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 7, fontSize: 13, color: "#475569", fontWeight: 700, textDecoration: "none" }}>
@@ -83,7 +83,7 @@ export default function TutorialPage() {
           </Link>
           <Link href="/login" style={{
             padding: "8px 16px", borderRadius: 9,
-            background: "linear-gradient(135deg,#0EA5E9,#0284C7)", color: "#fff",
+            background: "linear-gradient(135deg,#0e7c6b,#0a5f52)", color: "#fff",
             fontSize: 13, fontWeight: 800, textDecoration: "none",
           }}>
             Sign in →
@@ -97,7 +97,7 @@ export default function TutorialPage() {
           <div style={{
             display: "inline-flex", alignItems: "center", gap: 6,
             padding: "5px 12px", borderRadius: 999,
-            background: "rgba(2,132,199,0.08)", color: "#0284C7",
+            background: "rgba(10,95,82,0.08)", color: "#0a5f52",
             fontSize: 12, fontWeight: 800, marginBottom: 14,
           }}>
             <Sparkles size={12} /> GETTING STARTED
@@ -125,13 +125,13 @@ export default function TutorialPage() {
               }}>
                 <div style={{
                   width: 44, height: 44, borderRadius: 11, flexShrink: 0,
-                  background: "linear-gradient(135deg,#0EA5E9,#0284C7)", color: "#fff",
+                  background: "linear-gradient(135deg,#0e7c6b,#0a5f52)", color: "#fff",
                   display: "flex", alignItems: "center", justifyContent: "center",
                 }}>
                   <Icon size={20} />
                 </div>
                 <div>
-                  <h3 style={{ fontSize: 17, fontWeight: 800, marginBottom: 6, color: "#0F172A" }}>{s.title}</h3>
+                  <h3 style={{ fontSize: 17, fontWeight: 800, marginBottom: 6, color: "#15302e" }}>{s.title}</h3>
                   <p style={{ fontSize: 14.5, color: "#475569", lineHeight: 1.65 }}>{s.body}</p>
                 </div>
               </div>
@@ -148,8 +148,8 @@ export default function TutorialPage() {
             Send leads to RealTrack with a single HTTP POST. Works with any dialer, CRM, or no-code tool.
           </p>
 
-          <div style={{ background: "#0F172A", borderRadius: 12, padding: "18px 22px", overflowX: "auto", fontFamily: "ui-monospace, SF Mono, Consolas, monospace", fontSize: 12.5, color: "#E2E8F0", lineHeight: 1.7 }}>
-            <div style={{ color: "#34D399" }}>POST <span style={{ color: "#FCD34D" }}>https://realtrack.app/api/inbound/lead?key=YOUR_API_KEY</span></div>
+          <div style={{ background: "#15302e", borderRadius: 12, padding: "18px 22px", overflowX: "auto", fontFamily: "ui-monospace, SF Mono, Consolas, monospace", fontSize: 12.5, color: "#E2E8F0", lineHeight: 1.7 }}>
+            <div style={{ color: "#6fcabb" }}>POST <span style={{ color: "#FCD34D" }}>https://realtrack.app/api/inbound/lead?key=YOUR_API_KEY</span></div>
             <div style={{ color: "#94A3B8" }}>Content-Type: application/json</div>
             <div style={{ color: "#94A3B8" }}>Authorization: Bearer YOUR_API_KEY</div>
             <div style={{ height: 8 }} />
@@ -183,9 +183,9 @@ export default function TutorialPage() {
               background: "#fff", border: "1px solid #E2E8F0", borderRadius: 11,
               padding: "14px 18px",
             }}>
-              <summary style={{ fontSize: 15, fontWeight: 700, color: "#0F172A", cursor: "pointer", listStyle: "none", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <summary style={{ fontSize: 15, fontWeight: 700, color: "#15302e", cursor: "pointer", listStyle: "none", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 {f.q}
-                <span style={{ color: "#0284C7", marginLeft: 12 }}>+</span>
+                <span style={{ color: "#0a5f52", marginLeft: 12 }}>+</span>
               </summary>
               <p style={{ marginTop: 10, fontSize: 14, color: "#475569", lineHeight: 1.65 }}>{f.a}</p>
             </details>
@@ -194,15 +194,15 @@ export default function TutorialPage() {
       </section>
 
       {/* CTA */}
-      <section style={{ background: "linear-gradient(180deg, #0F172A, #1E293B)", color: "#fff", padding: "60px 28px", textAlign: "center" }}>
+      <section style={{ background: "linear-gradient(180deg, #15302e, #2c4642)", color: "#fff", padding: "60px 28px", textAlign: "center" }}>
         <h2 style={{ fontSize: 30, fontWeight: 900, marginBottom: 12, letterSpacing: "-0.02em" }}>Ready to start?</h2>
         <p style={{ fontSize: 16, color: "rgba(255,255,255,0.7)", marginBottom: 26 }}>14-day money-back guarantee. Cancel anytime.</p>
         <Link href="/login?tab=signup" style={{
           display: "inline-flex", alignItems: "center", gap: 7,
           padding: "14px 28px", borderRadius: 12,
-          background: "linear-gradient(135deg,#0EA5E9,#0284C7)", color: "#fff",
+          background: "linear-gradient(135deg,#0e7c6b,#0a5f52)", color: "#fff",
           fontSize: 15, fontWeight: 800, textDecoration: "none",
-          boxShadow: "0 10px 30px rgba(2,132,199,0.40)",
+          boxShadow: "0 10px 30px rgba(10,95,82,0.40)",
         }}>
           Get started <ArrowRight size={16} />
         </Link>

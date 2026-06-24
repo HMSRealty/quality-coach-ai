@@ -98,7 +98,7 @@ export default function AdminCampaignsPage() {
         <div style={{
           padding: "10px 14px", borderRadius: 10, display: "flex", gap: 8, alignItems: "center",
           background: toast.ok ? "#ECFDF5" : "#FBEEE8",
-          color: toast.ok ? "#059669" : "#DC2626",
+          color: toast.ok ? "#0a5f52" : "#DC2626",
           fontSize: 13, fontWeight: 600, border: `1px solid ${toast.ok ? "#A7F3D0" : "#FBCFBE"}`,
         }}>
           {toast.ok ? <CheckCircle2 size={14} /> : <AlertCircle size={14} />} {toast.msg}
@@ -159,7 +159,7 @@ export default function AdminCampaignsPage() {
                     <button onClick={() => toggleActive(c)} disabled={savingId === c.id} style={{
                       padding: "3px 10px", borderRadius: 999, fontSize: 11, fontWeight: 700,
                       background: c.is_active ? "#ECFDF5" : T.surface3,
-                      color: c.is_active ? "#059669" : SLATE,
+                      color: c.is_active ? "#0a5f52" : SLATE,
                       border: "none", cursor: "pointer",
                     }}>{c.is_active ? "Active" : "Paused"}</button>
                   </td>
