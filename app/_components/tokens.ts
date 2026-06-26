@@ -30,7 +30,7 @@ export const T = {
   midnight2: "var(--midnight-2)",
   midnight3: "var(--midnight-3)",
   midnightLine: "var(--midnight-line)",
-  magenta:   "var(--magenta)",    // primary accent (Gong pink)
+  magenta:   "var(--magenta)",    // primary accent (brand blue)
   magenta2:  "var(--magenta-2)",
   magenta3:  "var(--magenta-3)",
   magentaGlow: "var(--magenta-glow)",

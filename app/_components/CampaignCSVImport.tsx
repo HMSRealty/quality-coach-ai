@@ -96,7 +96,7 @@ export function CampaignCSVImport({ onImported }: { onImported?: () => void }) {
   return (
     <div style={{
       padding: 18, borderRadius: 12,
-      background: "#0A0A0E", border: "1px solid rgba(35,43,58,0.08)",
+      background: "#FFFFFF", border: "1px solid rgba(35,43,58,0.08)",
       boxShadow: "0 2px 8px rgba(35,43,58,0.04)",
     }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
@@ -107,7 +107,7 @@ export function CampaignCSVImport({ onImported }: { onImported?: () => void }) {
         <button onClick={download} style={{
           display: "inline-flex", alignItems: "center", gap: 6,
           padding: "7px 12px", borderRadius: 8,
-          background: "#101018", color: NAVY, border: "1px solid rgba(35,43,58,0.08)",
+          background: "#F1F2F8", color: NAVY, border: "1px solid rgba(35,43,58,0.08)",
           fontSize: 11, fontWeight: 700, cursor: "pointer",
         }}>
           <Download size={12} /> Template

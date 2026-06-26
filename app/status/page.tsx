@@ -44,13 +44,13 @@ export default function StatusPage() {
   const overallOk = data?.ok ?? false;
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0A0A0E", color: "#F4F4FF" }}>
+    <div style={{ minHeight: "100vh", background: "#FFFFFF", color: "#15131D" }}>
       <nav style={{ borderBottom: "1px solid #22222c", padding: "16px 28px" }}>
         <div style={{ maxWidth: 760, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 7, fontSize: 13, color: "#9A9AB0", fontWeight: 700, textDecoration: "none" }}>
+          <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 7, fontSize: 13, color: "#6B6880", fontWeight: 700, textDecoration: "none" }}>
             <ArrowLeft size={14} /> RealTrack
           </Link>
-          <button onClick={load} disabled={loading} style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "6px 12px", borderRadius: 8, border: "1px solid #22222c", background: "#0A0A0E", color: "#9A9AB0", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+          <button onClick={load} disabled={loading} style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "6px 12px", borderRadius: 8, border: "1px solid #22222c", background: "#FFFFFF", color: "#6B6880", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
             <RefreshCw size={12} className={loading ? "animate-spin" : ""} /> Refresh
           </button>
         </div>
@@ -76,12 +76,12 @@ export default function StatusPage() {
         </div>
 
         {/* Per-system check */}
-        <div style={{ background: "#0A0A0E", border: "1px solid #22222c", borderRadius: 14, overflow: "hidden" }}>
+        <div style={{ background: "#FFFFFF", border: "1px solid #22222c", borderRadius: 14, overflow: "hidden" }}>
           {(data?.checks || []).map((c, i) => (
             <div key={i} style={{
               display: "flex", alignItems: "center", gap: 14,
               padding: "16px 18px",
-              borderBottom: i < (data!.checks.length - 1) ? "1px solid #101018" : "none",
+              borderBottom: i < (data!.checks.length - 1) ? "1px solid #F1F2F8" : "none",
             }}>
               {c.ok ? <CheckCircle2 size={18} color="#2563EB" /> : <XCircle size={18} color="#DC2626" />}
               <div style={{ flex: 1 }}>
@@ -98,7 +98,7 @@ export default function StatusPage() {
           )}
         </div>
 
-        <p style={{ fontSize: 12, color: "#9A9AB0", marginTop: 22, textAlign: "center" }}>
+        <p style={{ fontSize: 12, color: "#6B6880", marginTop: 22, textAlign: "center" }}>
           Issue? Email <a href="mailto:info@realtrack.app" style={{ color: "#2563EB", fontWeight: 700, textDecoration: "none" }}>info@realtrack.app</a>
         </p>
       </main>

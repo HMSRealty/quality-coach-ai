@@ -21,7 +21,7 @@ interface Campaign { id: string; name: string; }
 
 const inputStyle: React.CSSProperties = {
   width: "100%", padding: "10px 12px", borderRadius: 9,
-  background: "#101018", border: "1px solid rgba(255,255,255,0.10)",
+  background: "#F1F2F8", border: "1px solid rgba(20,18,28,0.08)",
   fontSize: 13, color: NAVY, outline: "none",
   transition: "all 200ms cubic-bezier(0.16,1,0.30,1)",
 };
@@ -33,7 +33,7 @@ const labelStyle: React.CSSProperties = {
 function Card({ children, title }: { children: React.ReactNode; title: string }) {
   return (
     <div style={{
-      background: "#0A0A0E", border: "1px solid rgba(255,255,255,0.10)", borderRadius: 14,
+      background: "#FFFFFF", border: "1px solid rgba(20,18,28,0.08)", borderRadius: 14,
       padding: "22px", marginBottom: 18,
       boxShadow: "0 2px 8px rgba(35,43,58,0.04)",
     }}>
@@ -199,7 +199,7 @@ export default function PublicSubmitLeadPage() {
   return (
     <div style={{
       minHeight: "100vh",
-      background: `linear-gradient(180deg, #101018 0%, #000000 100%)`,
+      background: `linear-gradient(180deg, #F1F2F8 0%, #000000 100%)`,
       padding: "40px 24px",
     }} className="animate-in">
       <div style={{ maxWidth: 720, margin: "0 auto" }}>

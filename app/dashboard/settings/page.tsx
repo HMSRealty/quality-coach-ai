@@ -105,8 +105,8 @@ jane@example.com,Alice Johnson,Sales Team B,Mike Brown,2024-03-10`;
     <div style={{ maxWidth: 700, margin: "0 auto", display: "flex", flexDirection: "column", gap: 22 }} className="animate-in">
       {/* Header */}
       <div>
-        <h1 style={{ fontSize: 22, fontWeight: 800, color: "#F4F4FF", marginBottom: 4 }}>Settings</h1>
-        <p style={{ fontSize: 13, color: "#9A9AB0" }}>Every knob, switch, and credential — one place to tune your floor.</p>
+        <h1 style={{ fontSize: 22, fontWeight: 800, color: "#15131D", marginBottom: 4 }}>Settings</h1>
+        <p style={{ fontSize: 13, color: "#6B6880" }}>Every knob, switch, and credential — one place to tune your floor.</p>
       </div>
 
       {/* Master hub */}
@@ -117,10 +117,10 @@ jane@example.com,Alice Johnson,Sales Team B,Mike Brown,2024-03-10`;
             {section.items.map(it => {
               const Icon = it.icon;
               return (
-                <Link key={it.href} href={it.href} style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 11, padding: "13px 15px", borderRadius: 12, background: "#0A0A0E", border: "1px solid var(--border-2)", boxShadow: "var(--shadow-sm)" }}>
+                <Link key={it.href} href={it.href} style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 11, padding: "13px 15px", borderRadius: 12, background: "#FFFFFF", border: "1px solid var(--border-2)", boxShadow: "var(--shadow-sm)" }}>
                   <span style={{ width: 34, height: 34, borderRadius: 9, flexShrink: 0, background: "color-mix(in srgb, #3B82F6 12%, transparent)", display: "flex", alignItems: "center", justifyContent: "center" }}><Icon size={16} color="#2563EB" /></span>
                   <span style={{ flex: 1, minWidth: 0 }}>
-                    <span style={{ display: "block", fontSize: 13.5, fontWeight: 800, color: "#F4F4FF" }}>{it.label}</span>
+                    <span style={{ display: "block", fontSize: 13.5, fontWeight: 800, color: "#15131D" }}>{it.label}</span>
                     <span style={{ display: "block", fontSize: 11.5, color: "var(--text-3)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{it.desc}</span>
                   </span>
                   <ChevronRight size={16} color="var(--text-4)" />
@@ -148,7 +148,7 @@ jane@example.com,Alice Johnson,Sales Team B,Mike Brown,2024-03-10`;
 
       {/* Team Import */}
       <Card title="Import Team Structure">
-        <p style={{ fontSize: 13, color: "#9A9AB0", marginBottom: 14, lineHeight: 1.65 }}>
+        <p style={{ fontSize: 13, color: "#6B6880", marginBottom: 14, lineHeight: 1.65 }}>
           Upload a CSV file to bulk import your team members, trainers, and managers. This will automatically create teams, assign agents, and set up trainers for your organization.
         </p>
 
@@ -156,12 +156,12 @@ jane@example.com,Alice Johnson,Sales Team B,Mike Brown,2024-03-10`;
           <button onClick={downloadTemplate} style={{
             display: "flex", alignItems: "center", gap: 6,
             padding: "9px 16px", borderRadius: 8,
-            background: "#101018", border: "1px solid #22222c",
-            color: "#C7C7D6", fontSize: 12, fontWeight: 600, cursor: "pointer",
+            background: "#F1F2F8", border: "1px solid #22222c",
+            color: "#3A3550", fontSize: 12, fontWeight: 600, cursor: "pointer",
             transition: "all 120ms ease",
           }}
           onMouseEnter={e => e.currentTarget.style.background = "#22222c"}
-          onMouseLeave={e => e.currentTarget.style.background = "#101018"}
+          onMouseLeave={e => e.currentTarget.style.background = "#F1F2F8"}
           >
             <Download size={13} /> Download Template
           </button>
@@ -171,7 +171,7 @@ jane@example.com,Alice Johnson,Sales Team B,Mike Brown,2024-03-10`;
         <div
           style={{
             padding: "28px 20px", borderRadius: 10,
-            border: "2px dashed #22222c", background: "#0A0A0E",
+            border: "2px dashed #22222c", background: "#FFFFFF",
             textAlign: "center", cursor: "pointer",
             transition: "all 120ms ease",
           }}
@@ -182,12 +182,12 @@ jane@example.com,Alice Johnson,Sales Team B,Mike Brown,2024-03-10`;
           }}
           onDragLeave={e => {
             e.currentTarget.style.borderColor = "#22222c";
-            e.currentTarget.style.background = "#0A0A0E";
+            e.currentTarget.style.background = "#FFFFFF";
           }}
           onDrop={e => {
             e.preventDefault();
             e.currentTarget.style.borderColor = "#22222c";
-            e.currentTarget.style.background = "#0A0A0E";
+            e.currentTarget.style.background = "#FFFFFF";
             const file = e.dataTransfer.files[0];
             if (file) {
               if (fileInputRef.current) fileInputRef.current.files = e.dataTransfer.files;
@@ -200,7 +200,7 @@ jane@example.com,Alice Johnson,Sales Team B,Mike Brown,2024-03-10`;
           <p style={{ fontSize: 13, fontWeight: 600, color: "#232B3A", marginBottom: 4 }}>
             {uploading ? "Uploading..." : "Drop CSV file or click to browse"}
           </p>
-          <p style={{ fontSize: 11, color: "#9A9AB0" }}>CSV with Manager, Agent Name, Team Name, Trainer Name, Hiring Date</p>
+          <p style={{ fontSize: 11, color: "#6B6880" }}>CSV with Manager, Agent Name, Team Name, Trainer Name, Hiring Date</p>
           <input
             ref={fileInputRef}
             type="file"
@@ -216,7 +216,7 @@ jane@example.com,Alice Johnson,Sales Team B,Mike Brown,2024-03-10`;
       <Card title="CSV Format">
         <div style={{
           padding: "12px", borderRadius: 8,
-          background: "#101018", border: "1px solid #22222c",
+          background: "#F1F2F8", border: "1px solid #22222c",
           fontFamily: "var(--font-mono)", fontSize: 12, color: "#4B5563",
           lineHeight: 1.6, overflowX: "auto",
         }}>
@@ -266,12 +266,12 @@ function DangerZoneCard() {
   };
 
   return (
-    <div style={{ background: "#0A0A0E", border: "1px solid #FECACA", borderRadius: 16, padding: 20, boxShadow: "var(--shadow-sm)" }}>
+    <div style={{ background: "#FFFFFF", border: "1px solid #FECACA", borderRadius: 16, padding: 20, boxShadow: "var(--shadow-sm)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 6 }}>
         <ShieldAlert size={17} color="#DC2626" />
         <p style={{ fontSize: 15, fontWeight: 800, color: "#DC2626" }}>Danger Zone</p>
       </div>
-      <p style={{ fontSize: 13, color: "#9A9AB0", lineHeight: 1.6, marginBottom: 14 }}>
+      <p style={{ fontSize: 13, color: "#6B6880", lineHeight: 1.6, marginBottom: 14 }}>
         Permanently delete <strong>all of your CRM data</strong> — every lead, call recording, campaign and agent in your account. This cannot be undone. Your login, team logins and organization stay intact. <strong>Owner only.</strong>
       </p>
 
@@ -285,15 +285,15 @@ function DangerZoneCard() {
       {!open ? (
         <button onClick={() => setOpen(true)} style={{
           display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 16px", borderRadius: 10,
-          background: "#0A0A0E", color: "#DC2626", border: "1px solid #DC2626", fontSize: 13, fontWeight: 800, cursor: "pointer",
+          background: "#FFFFFF", color: "#DC2626", border: "1px solid #DC2626", fontSize: 13, fontWeight: 800, cursor: "pointer",
         }}><Trash2 size={14} /> Reset all CRM data</button>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: 14, borderRadius: 12, background: "rgba(251,113,133,0.12)", border: "1px solid #FECACA" }}>
-          <p style={{ fontSize: 13, fontWeight: 700, color: "#FB7185" }}>Type <code style={{ background: "#0A0A0E", padding: "1px 6px", borderRadius: 4, border: "1px solid #FECACA" }}>DELETE</code> to confirm:</p>
+          <p style={{ fontSize: 13, fontWeight: 700, color: "#FB7185" }}>Type <code style={{ background: "#FFFFFF", padding: "1px 6px", borderRadius: 4, border: "1px solid #FECACA" }}>DELETE</code> to confirm:</p>
           <input value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="DELETE" autoFocus
-            style={{ padding: "10px 12px", borderRadius: 9, border: "1px solid #FCA5A5", background: "#0A0A0E", color: "#F4F4FF", fontSize: 14, fontWeight: 800, letterSpacing: "0.1em", outline: "none" }} />
+            style={{ padding: "10px 12px", borderRadius: 9, border: "1px solid #FCA5A5", background: "#FFFFFF", color: "#15131D", fontSize: 14, fontWeight: 800, letterSpacing: "0.1em", outline: "none" }} />
           <div style={{ display: "flex", gap: 8 }}>
-            <button onClick={() => { setOpen(false); setConfirm(""); }} style={{ padding: "9px 16px", borderRadius: 9, background: "#0A0A0E", border: "1px solid var(--border-2)", color: "#F4F4FF", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>Cancel</button>
+            <button onClick={() => { setOpen(false); setConfirm(""); }} style={{ padding: "9px 16px", borderRadius: 9, background: "#FFFFFF", border: "1px solid var(--border-2)", color: "#15131D", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>Cancel</button>
             <button onClick={doReset} disabled={confirm !== "DELETE" || busy} style={{
               display: "inline-flex", alignItems: "center", gap: 7, padding: "9px 18px", borderRadius: 9,
               background: confirm === "DELETE" ? "#DC2626" : "#FCA5A5", color: "#fff", border: "none",
@@ -344,7 +344,7 @@ function ShiftTypeCard({ onToast }: { onToast: (ok: boolean, msg: string) => voi
 
   return (
     <Card title="Shift Type">
-      <p style={{ fontSize: 13, color: "#9A9AB0", marginBottom: 14 }}>
+      <p style={{ fontSize: 13, color: "#6B6880", marginBottom: 14 }}>
         Choose your shift. Part-time targets <strong>1 qualified lead/day</strong>;
         Full-time targets <strong>2/day</strong>. Used for leaderboard and pacing.
       </p>
@@ -359,9 +359,9 @@ function ShiftTypeCard({ onToast }: { onToast: (ok: boolean, msg: string) => voi
               <button key={opt.key} onClick={() => save(opt.key)} disabled={saving}
                 style={{
                   padding: "16px 18px", borderRadius: 14, cursor: saving ? "wait" : "pointer",
-                  background: active ? "#0B0F1F" : "#FFFFFF",
-                  color: active ? "#fff" : "#0B0F1F",
-                  border: active ? "1px solid #0B0F1F" : "1px solid rgba(15,23,42,0.10)",
+                  background: active ? "#15131D" : "#FFFFFF",
+                  color: active ? "#fff" : "#15131D",
+                  border: active ? "1px solid #15131D" : "1px solid rgba(15,23,42,0.10)",
                   textAlign: "left", display: "flex", flexDirection: "column", gap: 6,
                   transition: "all 200ms ease",
                   boxShadow: active ? "0 8px 24px rgba(11,15,31,0.25)" : "0 1px 3px rgba(11,15,31,0.05)",
@@ -412,7 +412,7 @@ function WebhookCard({ onToast }: { onToast: (ok: boolean, msg: string) => void 
 
   return (
     <Card title="Lead Export Webhook">
-      <p style={{ fontSize: 13, color: "#9A9AB0", marginBottom: 14 }}>
+      <p style={{ fontSize: 13, color: "#6B6880", marginBottom: 14 }}>
         Paste your Zapier / GoHighLevel / Make webhook URL. The <strong>Export Lead</strong> button on every Lead page sends the full payload (lead + ARV + AI summary + signed call URL) here.
       </p>
       {loading ? <Loader2 size={16} className="animate-spin" /> : (
@@ -420,11 +420,11 @@ function WebhookCard({ onToast }: { onToast: (ok: boolean, msg: string) => void 
           <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://hooks.zapier.com/..."
             style={{
               flex: 1, padding: "10px 12px", borderRadius: 9,
-              background: "#101018", border: "1px solid rgba(35,43,58,0.10)",
+              background: "#F1F2F8", border: "1px solid rgba(35,43,58,0.10)",
               fontSize: 13, color: "#232B3A", outline: "none",
             }} />
           <button onClick={save} disabled={saving} style={{
-            padding: "10px 18px", borderRadius: 9, background: "#0B0F1F",
+            padding: "10px 18px", borderRadius: 9, background: "#15131D",
             color: "#fff", border: "none", cursor: saving ? "wait" : "pointer",
             fontSize: 13, fontWeight: 700,
           }}>

@@ -8,8 +8,8 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Plus, Trash2, Loader2, Save, Check, Calendar } from "lucide-react";
 
-const NAVY = "#F4F4FF";
-const SLATE = "#9A9AB0";
+const NAVY = "#15131D";
+const SLATE = "#6B6880";
 const SKY = "#3B82F6";
 const MONEY = "#2563EB";
 
@@ -173,12 +173,12 @@ export function CompensationStructure() {
   const dirty = rows.some(r => r._dirty);
   const inp: React.CSSProperties = {
     width: "100%", padding: "7px 9px", borderRadius: 7,
-    border: "1px solid var(--border-2)", background: "#0A0A0E",
+    border: "1px solid var(--border-2)", background: "#FFFFFF",
     color: NAVY, fontSize: 13, outline: "none",
   };
   const num: React.CSSProperties = { ...inp, textAlign: "right", width: 90 };
   const computedCell: React.CSSProperties = {
-    ...num, background: "#101018", color: SLATE, cursor: "not-allowed",
+    ...num, background: "#F1F2F8", color: SLATE, cursor: "not-allowed",
     fontWeight: 700,
   };
   const th: React.CSSProperties = {
@@ -201,7 +201,7 @@ export function CompensationStructure() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
       {/* US Working Days info card */}
-      <div style={{ background: "#0d1626", border: "1px solid #BAE6FD", borderRadius: 12, padding: "12px 16px", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+      <div style={{ background: "#EFF5FF", border: "1px solid #BAE6FD", borderRadius: 12, padding: "12px 16px", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
         <Calendar size={16} color="#0C4A6E" />
         <div style={{ flex: 1, minWidth: 220 }}>
           <p style={{ fontSize: 12.5, fontWeight: 800, color: "#0C4A6E" }}>{year} US Working Days: {totalUsDays} / year · {defaultMonthlyDays} avg / month</p>
@@ -210,7 +210,7 @@ export function CompensationStructure() {
         <p style={{ fontSize: 11, color: "#0C4A6E" }}>Hourly = <strong>Basic ÷ Working Days ÷ shift hrs</strong> (8 full-time, 4 part-time)</p>
       </div>
 
-      <div style={{ background: "#0A0A0E", border: "1px solid var(--border-2)", borderRadius: 16, overflow: "hidden", boxShadow: "var(--shadow-sm)" }}>
+      <div style={{ background: "#FFFFFF", border: "1px solid var(--border-2)", borderRadius: 16, overflow: "hidden", boxShadow: "var(--shadow-sm)" }}>
         {/* Header */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 18px", borderBottom: "1px solid var(--border-1)", flexWrap: "wrap", gap: 10 }}>
           <div>

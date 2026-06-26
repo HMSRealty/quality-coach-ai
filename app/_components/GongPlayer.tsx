@@ -1,6 +1,6 @@
 "use client";
 
-// Gong-style audio player:
+// Built-in waveform audio player:
 //   • Tall waveform with brand-gradient progress fill
 //   • Big circular Play/Pause + skip ±15s
 //   • Speed selector (1× / 1.25× / 1.5× / 2×)
@@ -22,7 +22,7 @@ const fmt = (s: number) => {
 };
 
 // Deterministic pseudo-waveform from the URL string. Real waveform decode is
-// heavy; this gives the visual texture Gong has without bytes.
+// heavy; this gives the waveform texture without the bytes.
 function fakeBars(url: string, count = 96): number[] {
   let h = 0;
   for (let i = 0; i < url.length; i++) h = (h * 31 + url.charCodeAt(i)) | 0;

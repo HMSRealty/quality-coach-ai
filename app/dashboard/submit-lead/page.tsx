@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { Card } from "@/app/_components/Card";
 import { Send, Loader2, CheckCircle2, Link2, Copy, Check, Users, ExternalLink } from "lucide-react";
 
-const NAVY = "#F4F4FF";
+const NAVY = "#15131D";
 const TEAL = "#3B82F6";
 const SLATE = "#4B5563";
 
@@ -15,7 +15,7 @@ interface UserRow { id: string; email: string; }
 
 const inputStyle: React.CSSProperties = {
   width: "100%", padding: "10px 12px", borderRadius: 9,
-  background: "#101018", border: "1px solid rgba(35,43,58,0.10)",
+  background: "#F1F2F8", border: "1px solid rgba(35,43,58,0.10)",
   fontSize: 13, color: NAVY, outline: "none",
 };
 const labelStyle: React.CSSProperties = {
@@ -242,10 +242,10 @@ export default function SubmitLeadPage() {
             <code style={{ flex: 1, fontSize: 12, color: NAVY, fontFamily: "var(--font-mono)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               {generatedLink}
             </code>
-            <button onClick={copyLink} style={{ padding: 6, background: "#0A0A0E", border: "1px solid rgba(35,43,58,0.08)", borderRadius: 7, cursor: "pointer", color: NAVY }}>
+            <button onClick={copyLink} style={{ padding: 6, background: "#FFFFFF", border: "1px solid rgba(35,43,58,0.08)", borderRadius: 7, cursor: "pointer", color: NAVY }}>
               {copied ? <Check size={14} color="#2563EB" /> : <Copy size={14} />}
             </button>
-            <a href={generatedLink} target="_blank" rel="noreferrer" style={{ padding: 6, background: "#0A0A0E", border: "1px solid rgba(35,43,58,0.08)", borderRadius: 7, color: NAVY }}>
+            <a href={generatedLink} target="_blank" rel="noreferrer" style={{ padding: 6, background: "#FFFFFF", border: "1px solid rgba(35,43,58,0.08)", borderRadius: 7, color: NAVY }}>
               <ExternalLink size={14} />
             </a>
           </div>

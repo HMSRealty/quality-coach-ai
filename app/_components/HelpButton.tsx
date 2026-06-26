@@ -101,7 +101,7 @@ export function HelpButton() {
         title="What is this page?"
         style={{
           width: 32, height: 32, borderRadius: 9,
-          background: open ? "#101018" : "#101018", border: "1px solid #22222c",
+          background: open ? "#F1F2F8" : "#F1F2F8", border: "1px solid #22222c",
           display: "flex", alignItems: "center", justifyContent: "center",
           cursor: "pointer", color: open ? NAVY : SLATE, transition: "all 120ms ease",
         }}

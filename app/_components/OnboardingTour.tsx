@@ -71,7 +71,7 @@ export function OnboardingTour() {
       animation: "fadeIn 200ms ease",
     }}>
       <div style={{
-        maxWidth: 460, width: "100%", background: "#0A0A0E",
+        maxWidth: 460, width: "100%", background: "#FFFFFF",
         borderRadius: 18, padding: "28px 28px 22px",
         boxShadow: "0 30px 80px rgba(15,23,42,0.30)",
         position: "relative",
@@ -91,10 +91,10 @@ export function OnboardingTour() {
           <Icon size={24} color="#fff" />
         </div>
 
-        <h2 style={{ fontSize: 18, fontWeight: 900, color: "#F4F4FF", textAlign: "center", marginBottom: 7 }}>
+        <h2 style={{ fontSize: 18, fontWeight: 900, color: "#15131D", textAlign: "center", marginBottom: 7 }}>
           {s.title}
         </h2>
-        <p style={{ fontSize: 13.5, color: "#9A9AB0", textAlign: "center", lineHeight: 1.6, marginBottom: 20 }}>
+        <p style={{ fontSize: 13.5, color: "#6B6880", textAlign: "center", lineHeight: 1.6, marginBottom: 20 }}>
           {s.body}
         </p>
 
@@ -116,7 +116,7 @@ export function OnboardingTour() {
               style={{
                 display: "inline-flex", alignItems: "center", gap: 5,
                 padding: "10px 14px", borderRadius: 10,
-                background: "#0A0A0E", border: "1px solid #22222c", color: "#9A9AB0",
+                background: "#FFFFFF", border: "1px solid #22222c", color: "#6B6880",
                 fontSize: 12.5, fontWeight: 700, cursor: "pointer",
               }}>
               <ArrowLeft size={13} /> Back
@@ -127,7 +127,7 @@ export function OnboardingTour() {
               style={{
                 flex: 1, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6,
                 padding: "10px 14px", borderRadius: 10,
-                background: "#0A0A0E", border: "1px solid #22222c", color: "#F4F4FF",
+                background: "#FFFFFF", border: "1px solid #22222c", color: "#15131D",
                 fontSize: 12.5, fontWeight: 800, cursor: "pointer", textDecoration: "none",
               }}>
               {s.cta.label}

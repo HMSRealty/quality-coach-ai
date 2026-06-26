@@ -59,12 +59,12 @@ interface ExtractedItem {
 const STATUS_CONFIG: Record<string, { bg: string; color: string; icon: typeof CheckCircle2 }> = {
   Hot:          { bg: "rgba(52,211,153,0.12)", color: "#2563EB", icon: CheckCircle2 },
   Warm:         { bg: "#FFF7ED", color: "#EA580C", icon: CheckCircle2 },
-  Cold:         { bg: "#0d1626", color: "#2563EB", icon: CheckCircle2 },
-  Disqualified: { bg: "#101018", color: "#4B5563", icon: XCircle },
+  Cold:         { bg: "#EFF5FF", color: "#2563EB", icon: CheckCircle2 },
+  Disqualified: { bg: "#F1F2F8", color: "#4B5563", icon: XCircle },
   "Call Back":  { bg: "rgba(245,158,11,0.12)", color: "#F59E0B", icon: Phone },
-  "Needs Call": { bg: "#0d1626", color: "#2563EB", icon: Phone },
-  Processing:   { bg: "#101018", color: "#4B5563", icon: Clock },
-  Pending:      { bg: "#F5F7FA", color: "#9A9AB0", icon: Clock },
+  "Needs Call": { bg: "#EFF5FF", color: "#2563EB", icon: Phone },
+  Processing:   { bg: "#F1F2F8", color: "#4B5563", icon: Clock },
+  Pending:      { bg: "#F5F7FA", color: "#6B6880", icon: Clock },
   Queued:       { bg: "rgba(59,130,246,0.10)", color: "#1D4ED8", icon: Clock },
   Duplicate:    { bg: "#EAF0FF", color: "#F59E0B", icon: AlertTriangle },
   Commercial:   { bg: "#F5F3FF", color: "#2563EB", icon: AlertTriangle },
@@ -277,7 +277,7 @@ export default function LeadDetailPage() {
             {lead.extracted_address && (
               <button onClick={fetchZillowData} disabled={fetchingZillow}
                 title="Fetch / refresh Zillow property data"
-                style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 16px", borderRadius: 999, border: "1px solid #3B82F640", background: "#0d1626", color: "#2563EB", fontSize: 12.5, fontWeight: 800, cursor: fetchingZillow ? "wait" : "pointer" }}>
+                style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 16px", borderRadius: 999, border: "1px solid #3B82F640", background: "#EFF5FF", color: "#2563EB", fontSize: 12.5, fontWeight: 800, cursor: fetchingZillow ? "wait" : "pointer" }}>
                 {fetchingZillow ? <Loader2 size={13} className="animate-spin" /> : <RefreshCw size={13} />}
                 {fetchingZillow ? "Fetching Zillow…" : "Refresh Zillow"}
               </button>
@@ -422,7 +422,7 @@ export default function LeadDetailPage() {
             {lead.ai_coaching_points.map((pt, i) => (
               <li key={i} style={{
                 padding: "12px 14px", borderRadius: 10,
-                background: "#101018", border: "1px solid rgba(35,43,58,0.06)",
+                background: "#F1F2F8", border: "1px solid rgba(35,43,58,0.06)",
                 display: "flex", gap: 10, alignItems: "flex-start",
               }}>
                 <div style={{
@@ -471,7 +471,7 @@ export default function LeadDetailPage() {
             {template && (
               <Section icon={FileText} title="Lead Template (extracted from call)" accent={NAVY}>
                 <pre style={{
-                  margin: 0, padding: 16, borderRadius: 10, background: "#101018",
+                  margin: 0, padding: 16, borderRadius: 10, background: "#F1F2F8",
                   border: "1px solid rgba(35,43,58,0.06)", whiteSpace: "pre-wrap",
                   fontFamily: "var(--font-mono)", fontSize: 12.5, color: "var(--text-1)", lineHeight: 1.7,
                 }}>{template}</pre>
@@ -496,7 +496,7 @@ export default function LeadDetailPage() {
                   {items.map((it, i) => (
                     <div key={i} style={{
                       padding: 14, borderRadius: 10,
-                      background: it.is_deal_breaker ? "rgba(251,113,133,0.12)" : "#101018",
+                      background: it.is_deal_breaker ? "rgba(251,113,133,0.12)" : "#F1F2F8",
                       border: `1px solid ${it.is_deal_breaker ? "#E7B8A6" : "rgba(35,43,58,0.06)"}`,
                     }}>
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 6 }}>
@@ -596,7 +596,7 @@ export default function LeadDetailPage() {
             onDrop={handleDrop}
             style={{
               padding: 28, borderRadius: 10,
-              background: dragOver ? "#E0F2FE" : "#101018",
+              background: dragOver ? "#E0F2FE" : "#F1F2F8",
               border: `2px dashed ${dragOver ? "#2563EB" : "rgba(35,43,58,0.10)"}`,
               textAlign: "center", transition: "all 0.15s",
             }}
@@ -629,7 +629,7 @@ export default function LeadDetailPage() {
                 value={driveInput}
                 onChange={e => setDriveInput(e.target.value)}
                 placeholder="Or paste a Google Drive call link (anyone with the link)"
-                style={{ flex: 1, padding: "9px 12px", borderRadius: 9, border: "1px solid rgba(35,43,58,0.15)", background: "#0A0A0E", color: NAVY, fontSize: 12.5, outline: "none" }}
+                style={{ flex: 1, padding: "9px 12px", borderRadius: 9, border: "1px solid rgba(35,43,58,0.15)", background: "#FFFFFF", color: NAVY, fontSize: 12.5, outline: "none" }}
               />
               <button onClick={attachDriveLink} disabled={attachingDrive || !driveInput.trim()} style={{
                 display: "inline-flex", alignItems: "center", gap: 6,
@@ -652,7 +652,7 @@ export default function LeadDetailPage() {
               value={driveInput}
               onChange={e => setDriveInput(e.target.value)}
               placeholder="Replace the Google Drive link…"
-              style={{ flex: 1, padding: "8px 12px", borderRadius: 9, border: "1px solid rgba(35,43,58,0.12)", background: "#0A0A0E", color: NAVY, fontSize: 12, outline: "none" }}
+              style={{ flex: 1, padding: "8px 12px", borderRadius: 9, border: "1px solid rgba(35,43,58,0.12)", background: "#FFFFFF", color: NAVY, fontSize: 12, outline: "none" }}
             />
             <button onClick={attachDriveLink} disabled={attachingDrive || !driveInput.trim()} style={{
               display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 9,
@@ -752,7 +752,7 @@ export default function LeadDetailPage() {
         <button onClick={deleteLead} disabled={deleting} style={{
           display: "inline-flex", alignItems: "center", gap: 8,
           padding: "11px 18px", borderRadius: 10,
-          background: "#0A0A0E", color: "#DC2626", border: "1px solid #FECACA",
+          background: "#FFFFFF", color: "#DC2626", border: "1px solid #FECACA",
           fontSize: 13, fontWeight: 700,
           cursor: deleting ? "wait" : "pointer",
         }}>
@@ -806,7 +806,7 @@ function BantBlock({ label, value }: { label: string; value: string | null }) {
   return (
     <div style={{
       padding: 12, borderRadius: 10,
-      background: value ? "rgba(59,130,246,0.10)" : "#101018",
+      background: value ? "rgba(59,130,246,0.10)" : "#F1F2F8",
       border: `1px solid ${value ? `${TEAL}30` : "rgba(35,43,58,0.06)"}`,
     }}>
       <p style={{ fontSize: 10, fontWeight: 700, color: value ? TEAL : SLATE, marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>{label}</p>

@@ -2,52 +2,50 @@
 @import "lenis/dist/lenis.css";
 
 /* ═══════════════════════════════════════════════════════════════════════
-   REALTRACK — Gong-inspired revenue-intelligence aesthetic.
-   • Midnight navy chrome  (sidebar / header / dark surfaces)
-   • Crisp white content   (cards / dashboards)
-   • Vibrant magenta accent for primary action + brand glow
-   • Glassmorphism for floating elements (header / overlays)
-   • View-timeline scroll-reveal animations for content blocks
+   RealTrack by Ascendyaa — the all-in-one operations platform for real-estate
+   call floors and wholesalers: qualify → coach → track → dispose, in one place.
+   Light identity: clean white surfaces, deep ink text, a single purple→blue
+   gradient (#6B3FA0 → #3B82F6) as the accent, and the ascending "A" mark.
 ═══════════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* ═══ ASCENDYA — Black luxury · Purple→Blue gradient ═══
-     RealTrack wears Ascendya's identity: true-black canvas, deep panels,
-     near-white text, and a single purple→blue gradient as the accent.
+  /* ═══ ASCENDYAA — White · Purple→Blue gradient ═══
+     The light identity: clean white canvas, soft panels, deep ink text,
+     and a single purple→blue gradient as the accent.
      CSS variable NAMES are preserved so 100+ files keep working
      unchanged; only the *values* shift to the new identity. */
 
-  /* Sidebar / chrome / dark surfaces */
-  --midnight:      #0A0A0E;   /* panel — sidebar / dark chrome base */
-  --midnight-2:    #101018;
-  --midnight-3:    #15151f;
-  --midnight-line: rgba(255,255,255,0.08);
+  /* Dark-chrome aliases → deep ink for the few inverted sections (bands/CTAs) */
+  --midnight:      #14121C;   /* deep ink (purple-leaning) */
+  --midnight-2:    #1E1B2A;
+  --midnight-3:    #2A2740;
+  --midnight-line: rgba(20,18,28,0.10);
 
   /* Primary accent → BLUE (gradient end). (legacy var names kept.) */
   --sky:           #3B82F6;   /* blue */
   --sky-600:       #2563EB;   /* deeper blue (pressed) */
   --magenta:       #3B82F6;   /* primary solid action */
-  --magenta-2:     #60A5FA;   /* hover (lighter blue) */
-  --magenta-3:     #2563EB;   /* pressed */
-  --magenta-glow:  rgba(59, 130, 246, 0.35);
-  --magenta-dim:   rgba(59, 130, 246, 0.14);
+  --magenta-2:     #2563EB;   /* hover (deeper blue) */
+  --magenta-3:     #1D4ED8;   /* pressed */
+  --magenta-glow:  rgba(59, 130, 246, 0.30);
+  --magenta-dim:   rgba(59, 130, 246, 0.10);
 
   --violet:        #6B3FA0;   /* gradient start → purple */
   --violet-2:      #573382;
 
   /* Brand gradient → purple→blue for buttons / pills / glints / text */
   --grad-primary:  linear-gradient(120deg, #6B3FA0 0%, #3B82F6 100%);
-  --grad-chrome:   linear-gradient(180deg, #0A0A0E 0%, #000000 100%);
+  --grad-chrome:   linear-gradient(180deg, #FFFFFF 0%, #F6F7FB 100%);
 
-  /* Navy aliases → NEAR-WHITE so legacy "NAVY" text stays sharp on dark */
-  --navy:        #F4F4FF;
-  --navy-2:      #C7C7D6;
-  --navy-3:      #9A9AB0;
-  --navy-light:  #15151f;
-  --navy-border: rgba(255,255,255,0.12);
-  --navy-glow:   rgba(59,130,246,0.20);
-  --navy-ring:   rgba(59,130,246,0.40);
-  --navy-dim:    rgba(255,255,255,0.05);
+  /* Navy aliases → deep ink so legacy "NAVY" text stays sharp on white */
+  --navy:        #15131D;
+  --navy-2:      #3A3550;
+  --navy-3:      #6B6880;
+  --navy-light:  #EFF0F6;
+  --navy-border: #E3E4ED;
+  --navy-glow:   rgba(59,130,246,0.16);
+  --navy-ring:   rgba(59,130,246,0.30);
+  --navy-dim:    rgba(20,18,28,0.05);
 
   /* Teal/gold aliases → on-brand blue & purple for leftover accent code */
   --teal:        var(--sky);
@@ -56,47 +54,47 @@
   --teal-border: rgba(59,130,246,0.30);
   --teal-glow:   var(--magenta-glow);
   --gold:        #6B3FA0;
-  --gold-2:      #8B5CC4;
-  --gold-light:  rgba(107,63,160,0.18);
+  --gold-2:      #573382;
+  --gold-light:  rgba(107,63,160,0.12);
 
   /* Purple — secondary brand accent (gradient start) */
-  --coral:       #8B5CF6;
-  --coral-deep:  #6B3FA0;
+  --coral:       #6B3FA0;
+  --coral-deep:  #573382;
 
-  /* "red"/destructive → rose (readable on black) */
-  --red:         #FB7185;
-  --red-hover:   #F43F5E;
-  --red-light:   rgba(251,113,133,0.12);
-  --red-border:  rgba(251,113,133,0.32);
-  --red-glow:    rgba(251,113,133,0.32);
-  --red-ring:    rgba(251,113,133,0.32);
-  --red-dim:     rgba(251,113,133,0.10);
+  /* "red"/destructive → rose */
+  --red:         #E11D48;
+  --red-hover:   #BE123C;
+  --red-light:   #FFF1F3;
+  --red-border:  rgba(225,29,72,0.28);
+  --red-glow:    rgba(225,29,72,0.28);
+  --red-ring:    rgba(225,29,72,0.28);
+  --red-dim:     rgba(225,29,72,0.07);
 
-  /* ── Slate ramp for muted text (cool grays on black) ───────────────── */
-  --slate:       #9A9AB0;
-  --slate-2:     #6C6C82;
-  --slate-3:     #55556A;
+  /* ── Slate ramp for muted text ─────────────────────────────────────── */
+  --slate:       #5B5870;
+  --slate-2:     #6B6880;
+  --slate-3:     #9A98AC;
 
-  /* ── Content surfaces (black luxury) ───────────────────────────────── */
-  --canvas:    #000000;   /* true black */
-  --surface-1: #0A0A0E;   /* card / panel / sidebar */
-  --surface-2: #101018;
-  --surface-3: #101018;   /* input / subtle row */
-  --surface-4: #1B1B24;   /* hover / raised */
-  --surface-5: #26262F;
+  /* ── Content surfaces (clean white) ────────────────────────────────── */
+  --canvas:    #F6F7FB;   /* soft white canvas */
+  --surface-1: #FFFFFF;   /* card / panel / sidebar */
+  --surface-2: #FFFFFF;
+  --surface-3: #F1F2F8;   /* input / subtle row */
+  --surface-4: #E7E9F2;   /* hover / raised */
+  --surface-5: #D7DAE6;
 
-  /* ── Borders (white hairlines) ─────────────────────────────────────── */
-  --border-1: rgba(255,255,255,0.06);  /* hairline */
-  --border-2: rgba(255,255,255,0.10);  /* default card border (line) */
-  --border-3: rgba(255,255,255,0.16);  /* line-strong */
-  --border-4: rgba(255,255,255,0.24);
-  --border-brand: rgba(59,130,246,0.40);
+  /* ── Borders (cool light hairlines) ────────────────────────────────── */
+  --border-1: #EEF0F6;                 /* hairline */
+  --border-2: #E3E4ED;                 /* default card border (line) */
+  --border-3: #D3D5E1;                 /* line-strong */
+  --border-4: #B7BACB;
+  --border-brand: rgba(59,130,246,0.35);
 
-  /* ── Text — near-white primary ─────────────────────────────────────── */
-  --text-1: #F4F4FF;   /* primary */
-  --text-2: #C7C7D6;   /* secondary */
-  --text-3: #9A9AB0;   /* muted — tertiary */
-  --text-4: #6C6C82;   /* muted-dim — disabled */
+  /* ── Text — deep ink primary ───────────────────────────────────────── */
+  --text-1: #15131D;   /* primary (deep ink) */
+  --text-2: #3A3550;   /* secondary */
+  --text-3: #6B6880;   /* muted — tertiary */
+  --text-4: #9A98AC;   /* muted-dim — disabled */
 
   --brand-300: #93C5FD;
   --brand-400: var(--sky);
@@ -106,25 +104,25 @@
   --brand-glow: var(--magenta-glow);
   --brand-ring: var(--navy-ring);
 
-  /* ── Semantic (tuned for dark) ─────────────────────────────────────── */
-  --emerald: #34D399; --emerald-lt: #6EE7B7; --emerald-bg: rgba(52,211,153,0.12);
-  --amber:   #F59E0B; --amber-bg: rgba(245,158,11,0.12);
-  --rose:    #FB7185; --rose-bg: rgba(251,113,133,0.12); --rose-dim: rgba(251,113,133,0.10); --rose-lt: #FDA4AF;
-  --sky:     #3B82F6; --sky-bg: rgba(59,130,246,0.12);
+  /* ── Semantic ──────────────────────────────────────────────────────── */
+  --emerald: #059669; --emerald-lt: #10B981; --emerald-bg: #ECFDF5;
+  --amber:   #D97706; --amber-bg: #FFFBEB;
+  --rose:    #E11D48; --rose-bg: #FFF1F3; --rose-dim: rgba(225,29,72,0.07); --rose-lt: #F43F5E;
+  --sky:     #3B82F6; --sky-bg: #EFF5FF;
 
   /* ── Admin layout ──────────────────────────────────────────────────── */
   --sidebar-w: 240px;
   --topbar-h: 52px;
 
-  /* ── Shadows (deep, black-based) ───────────────────────────────────── */
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.40);
-  --shadow-md: 0 6px 18px rgba(0,0,0,0.50);
-  --shadow-lg: 0 18px 44px rgba(0,0,0,0.60);
-  --shadow-xl: 0 32px 80px rgba(0,0,0,0.70);
-  --shadow-brand: 0 12px 36px -8px rgba(59,130,246,0.55);
-  --shadow-chrome: 0 24px 60px rgba(0,0,0,0.70);
+  /* ── Shadows (soft, ink-tinted) ────────────────────────────────────── */
+  --shadow-sm: 0 1px 2px rgba(20,18,28,0.06);
+  --shadow-md: 0 6px 18px rgba(20,18,28,0.08);
+  --shadow-lg: 0 18px 44px rgba(20,18,28,0.12);
+  --shadow-xl: 0 32px 80px rgba(20,18,28,0.16);
+  --shadow-brand: 0 12px 32px -8px rgba(59,130,246,0.45);
+  --shadow-chrome: 0 24px 60px rgba(20,18,28,0.18);
 
-  /* ── Radius (pill-leaning, Gong) ───────────────────────────────────── */
+  /* ── Radius (pill-leaning) ───────────────────────────────────── */
   --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 22px; --r-2xl: 28px;
   --r-pill: 999px;
 
@@ -145,10 +143,10 @@
   --brand-purple-soft: rgba(59, 130, 246, 0.14);
   --brand-purple-glow: rgba(59, 130, 246, 0.40);
 
-  /* Money / success / Hot badges → emerald (readable on black). */
-  --money:        #34D399;   /* emerald — financial numbers */
-  --money-2:      #6EE7B7;
-  --money-soft:   rgba(52, 211, 153, 0.12);
+  /* Money / success / Hot badges → emerald. */
+  --money:        #059669;   /* emerald — financial numbers */
+  --money-2:      #10B981;
+  --money-soft:   rgba(5, 150, 105, 0.10);
 }
 
 /* Dark mode removed — the app is permanently locked to the Clean Enterprise
@@ -170,10 +168,8 @@ html, body {
   text-rendering: optimizeLegibility;
   letter-spacing: -0.005em;
 }
-::selection { background: var(--magenta); color: #fff; }
-/* Form controls render light by default; force the dark scheme so native
-   selects, scrollbars, and autofill match the Ascendya black theme. */
-:root { color-scheme: dark; }
+::selection { background: var(--magenta-dim); color: var(--text-1); }
+:root { color-scheme: light; }
 /* ── Lenis smooth-scroll boilerplate ──────────────────────────────────
    Mandatory rules from the Lenis docs. The vertical scroll must own the
    document; never let overflow-x:hidden on html/body fight it (use a wrapper
@@ -190,7 +186,7 @@ html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth iframe { pointer-events: none; }
 img, video { max-width: 100%; height: auto; }
 
-/* Heavy, impactful display headings (Gong vibe) */
+/* Heavy, impactful display headings */
 h1, h2, h3 {
   font-family: var(--font-display);
   letter-spacing: -0.025em;

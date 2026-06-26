@@ -8,8 +8,8 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Link as LinkIcon, Loader2, CheckCircle2, XCircle, Trash2, ShieldCheck, Eye, EyeOff, Plus, Server } from "lucide-react";
 
-const NAVY = "#F4F4FF";
-const SLATE = "#9A9AB0";
+const NAVY = "#15131D";
+const SLATE = "#6B6880";
 const MONEY = "#2563EB";
 const SKY_600 = "#2563EB";
 
@@ -101,14 +101,14 @@ export function ReadymodeConnectionCard() {
     await load();
   };
 
-  const card: React.CSSProperties = { background: "#0A0A0E", border: "1px solid var(--border-2)", borderRadius: 14, padding: 22, boxShadow: "var(--shadow-sm)" };
-  const inp: React.CSSProperties = { width: "100%", padding: "9px 11px", borderRadius: 9, border: "1px solid var(--border-2)", background: "#0A0A0E", color: "#F4F4FF", fontSize: 13, outline: "none", fontFamily: "var(--font-mono)" };
+  const card: React.CSSProperties = { background: "#FFFFFF", border: "1px solid var(--border-2)", borderRadius: 14, padding: 22, boxShadow: "var(--shadow-sm)" };
+  const inp: React.CSSProperties = { width: "100%", padding: "9px 11px", borderRadius: 9, border: "1px solid var(--border-2)", background: "#FFFFFF", color: "#15131D", fontSize: 13, outline: "none", fontFamily: "var(--font-mono)" };
   const lbl: React.CSSProperties = { fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--text-3)", marginBottom: 5, display: "block" };
 
   return (
     <div style={card}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
-        <p style={{ fontSize: 15, fontWeight: 800, color: "#F4F4FF", display: "inline-flex", alignItems: "center", gap: 8 }}>
+        <p style={{ fontSize: 15, fontWeight: 800, color: "#15131D", display: "inline-flex", alignItems: "center", gap: 8 }}>
           <LinkIcon size={16} color={SKY_600} /> Readymode Dialers
         </p>
         <button onClick={() => { setAdding(a => !a); setMsg(null); reset(); }} style={{
@@ -126,7 +126,7 @@ export function ReadymodeConnectionCard() {
       </p>
 
       {adding && (
-        <div style={{ background: "#101018", border: "1px solid var(--border-1)", borderRadius: 10, padding: 14, marginBottom: 14 }}>
+        <div style={{ background: "#F1F2F8", border: "1px solid var(--border-1)", borderRadius: 10, padding: 14, marginBottom: 14 }}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 }}>
             <div>
               <label style={lbl}>Label (optional)</label>
@@ -176,7 +176,7 @@ export function ReadymodeConnectionCard() {
             <button onClick={test} disabled={testing} style={{
               display: "inline-flex", alignItems: "center", gap: 6,
               padding: "10px 14px", borderRadius: 9, border: "1px solid var(--border-2)",
-              background: "#0A0A0E", color: "#F4F4FF", fontSize: 12.5, fontWeight: 700, cursor: testing ? "wait" : "pointer",
+              background: "#FFFFFF", color: "#15131D", fontSize: 12.5, fontWeight: 700, cursor: testing ? "wait" : "pointer",
             }}>
               {testing ? <Loader2 size={13} className="animate-spin" /> : <CheckCircle2 size={13} />} Test Login
             </button>
@@ -194,7 +194,7 @@ export function ReadymodeConnectionCard() {
               <div key={c.id} style={{
                 display: "flex", alignItems: "center", gap: 10,
                 padding: "11px 14px", borderRadius: 10,
-                background: c.is_active ? "#101018" : "rgba(251,113,133,0.12)",
+                background: c.is_active ? "#F1F2F8" : "rgba(251,113,133,0.12)",
                 border: `1px solid ${c.is_active ? "var(--border-1)" : "#FECACA"}`,
                 opacity: c.is_active ? 1 : 0.7,
               }}>
@@ -210,7 +210,7 @@ export function ReadymodeConnectionCard() {
                   </p>
                 </div>
                 <button onClick={() => toggle(c)} title={c.is_active ? "Pause" : "Resume"}
-                  style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "5px 10px", borderRadius: 7, border: "1px solid var(--border-2)", background: "#0A0A0E", color: NAVY, fontSize: 11.5, fontWeight: 700, cursor: "pointer" }}>
+                  style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "5px 10px", borderRadius: 7, border: "1px solid var(--border-2)", background: "#FFFFFF", color: NAVY, fontSize: 11.5, fontWeight: 700, cursor: "pointer" }}>
                   {c.is_active ? "Pause" : "Resume"}
                 </button>
                 <button onClick={() => remove(c)} title="Remove"

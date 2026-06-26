@@ -211,7 +211,7 @@ export default function LeaderboardPage() {
                       {/* Rank */}
                       <td style={{ ...td, textAlign: "center", fontWeight: 900 }}>
                         {medal ? (
-                          <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 28, height: 28, borderRadius: "50%", background: medal.color, color: "#F4F4FF", fontSize: 11, fontWeight: 900 }}>
+                          <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 28, height: 28, borderRadius: "50%", background: medal.color, color: "#15131D", fontSize: 11, fontWeight: 900 }}>
                             {i + 1}
                           </span>
                         ) : (
@@ -223,7 +223,7 @@ export default function LeaderboardPage() {
                         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                           <div style={{
                             width: 34, height: 34, borderRadius: "50%", flexShrink: 0,
-                            background: i === 0 ? "linear-gradient(135deg,#FACC15,#D97706)" : i === 1 ? "linear-gradient(135deg,#94A3B8,#26262F)" : "linear-gradient(135deg,#F97316,#FB923C)",
+                            background: i === 0 ? "linear-gradient(135deg,#FACC15,#D97706)" : i === 1 ? "linear-gradient(135deg,#94A3B8,#D7DAE6)" : "linear-gradient(135deg,#F97316,#FB923C)",
                             color: "#fff", display: "flex", alignItems: "center", justifyContent: "center",
                             fontSize: 12, fontWeight: 900,
                           }}>
@@ -261,7 +261,7 @@ export default function LeaderboardPage() {
                         {r.needscall > 0 ? <Badge count={r.needscall} color="#2563EB" /> : <span style={{ color: "var(--text-4)" }}>—</span>}
                       </td>
                       <td style={{ ...td, textAlign: "center" }}>
-                        {r.disqualified > 0 ? <Badge count={r.disqualified} color="#9A9AB0" /> : <span style={{ color: "var(--text-4)" }}>—</span>}
+                        {r.disqualified > 0 ? <Badge count={r.disqualified} color="#6B6880" /> : <span style={{ color: "var(--text-4)" }}>—</span>}
                       </td>
                       <td style={{ ...td, textAlign: "center" }}>
                         {r.duplicate > 0 ? <Badge count={r.duplicate} color="#2563EB" /> : <span style={{ color: "var(--text-4)" }}>—</span>}

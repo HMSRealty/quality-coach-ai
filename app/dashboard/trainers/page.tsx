@@ -46,7 +46,7 @@ interface Session {
 
 const inputStyle: React.CSSProperties = {
   width: "100%", padding: "10px 12px", borderRadius: 9,
-  background: "#101018", border: "1px solid rgba(35,43,58,0.10)",
+  background: "#F1F2F8", border: "1px solid rgba(35,43,58,0.10)",
   fontSize: 13, color: NAVY, outline: "none",
 };
 const labelStyle: React.CSSProperties = {
@@ -379,7 +379,7 @@ export default function TrainersPage() {
                     }}><Trash2 size={13} /></button>
                   </div>
                   {s.notes && (
-                    <p style={{ fontSize: 12, color: SLATE, lineHeight: 1.6, padding: "10px 12px", background: "#101018", borderRadius: 8, marginLeft: 50 }}>
+                    <p style={{ fontSize: 12, color: SLATE, lineHeight: 1.6, padding: "10px 12px", background: "#F1F2F8", borderRadius: 8, marginLeft: 50 }}>
                       {s.notes}
                     </p>
                   )}

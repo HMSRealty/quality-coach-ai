@@ -11,8 +11,8 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { CheckCircle2, Circle, Loader2, ArrowRight, Sparkles, Server, Webhook, PartyPopper } from "lucide-react";
 
-const NAVY = "#F4F4FF";
-const SLATE = "#9A9AB0";
+const NAVY = "#15131D";
+const SLATE = "#6B6880";
 const SKY_600 = "#2563EB";
 const MONEY = "#2563EB";
 
@@ -114,7 +114,7 @@ export default function OnboardingPage() {
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         {steps.map((s, i) => (
           <div key={i} style={{
-            background: "#0A0A0E", border: `1px solid ${s.done ? "#A7F3D0" : "var(--border-2)"}`,
+            background: "#FFFFFF", border: `1px solid ${s.done ? "#A7F3D0" : "var(--border-2)"}`,
             borderRadius: 14, padding: "18px 20px", boxShadow: "var(--shadow-sm)",
             display: "flex", alignItems: "center", gap: 14,
             opacity: s.done ? 0.85 : 1,

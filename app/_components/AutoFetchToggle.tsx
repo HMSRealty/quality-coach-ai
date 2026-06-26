@@ -10,8 +10,8 @@ import { supabase } from "@/lib/supabase";
 import { Music, Loader2 } from "lucide-react";
 
 const SKY = "#3B82F6";
-const NAVY = "#F4F4FF";
-const SLATE = "#9A9AB0";
+const NAVY = "#15131D";
+const SLATE = "#6B6880";
 const MONEY = "#2563EB";
 
 export function AutoFetchToggle() {
@@ -42,7 +42,7 @@ export function AutoFetchToggle() {
 
   return (
     <div style={{
-      background: "#0A0A0E", border: "1px solid var(--border-2)", borderRadius: 14,
+      background: "#FFFFFF", border: "1px solid var(--border-2)", borderRadius: 14,
       padding: 18, boxShadow: "var(--shadow-sm)",
       display: "flex", alignItems: "center", gap: 14,
     }}>
@@ -78,7 +78,7 @@ export function AutoFetchToggle() {
         ) : (
           <span style={{
             position: "absolute", top: 3, left: enabled ? 25 : 3,
-            width: 20, height: 20, borderRadius: "50%", background: "#0A0A0E",
+            width: 20, height: 20, borderRadius: "50%", background: "#FFFFFF",
             boxShadow: "0 2px 4px rgba(0,0,0,0.18)",
             transition: "left 240ms cubic-bezier(0.34, 1.56, 0.64, 1)",
           }} />

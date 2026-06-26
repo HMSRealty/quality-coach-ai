@@ -53,7 +53,7 @@ export default function DealsPage() {
           <Handshake size={19} color={SKY_600} />
         </span>
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 900, color: "#F4F4FF", letterSpacing: "-0.02em" }}>Hot Leads Alert</h1>
+          <h1 style={{ fontSize: 24, fontWeight: 900, color: "#15131D", letterSpacing: "-0.02em" }}>Hot Leads Alert</h1>
           <p style={{ fontSize: 13, color: "var(--text-2)" }}>Deals ready to close — {leads.length} on the table.</p>
         </div>
       </div>
@@ -61,9 +61,9 @@ export default function DealsPage() {
       {loading ? (
         <div style={{ padding: 60, textAlign: "center" }}><Loader2 size={24} className="animate-spin" style={{ color: SKY_600 }} /></div>
       ) : leads.length === 0 ? (
-        <div style={{ padding: 60, textAlign: "center", background: "#0A0A0E", border: "1px solid var(--border-2)", borderRadius: 16, boxShadow: "var(--shadow-sm)" }}>
+        <div style={{ padding: 60, textAlign: "center", background: "#FFFFFF", border: "1px solid var(--border-2)", borderRadius: 16, boxShadow: "var(--shadow-sm)" }}>
           <Handshake size={34} color="#33333f" style={{ margin: "0 auto 10px" }} />
-          <p style={{ fontSize: 14, fontWeight: 700, color: "#F4F4FF" }}>No deals on the table</p>
+          <p style={{ fontSize: 14, fontWeight: 700, color: "#15131D" }}>No deals on the table</p>
           <p style={{ fontSize: 13, color: "var(--text-2)", marginTop: 4 }}>The second a call comes back Hot or Warm, it lands here for offer prep.</p>
         </div>
       ) : (
@@ -72,15 +72,15 @@ export default function DealsPage() {
             <div key={l.id} onClick={() => router.push(`/dashboard/leads/${l.id}`)}
               style={{
                 display: "grid", gridTemplateColumns: "minmax(0,1fr) auto auto", alignItems: "center", gap: 16,
-                background: "#0A0A0E", border: "1px solid var(--border-2)", borderRadius: 14, padding: "14px 18px",
+                background: "#FFFFFF", border: "1px solid var(--border-2)", borderRadius: 14, padding: "14px 18px",
                 cursor: "pointer", boxShadow: "var(--shadow-sm)",
               }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
-                <span style={{ width: 30, height: 30, borderRadius: 9, background: "#101018", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <span style={{ width: 30, height: 30, borderRadius: 9, background: "#F1F2F8", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                   <MapPin size={14} color={SKY_600} />
                 </span>
                 <div style={{ minWidth: 0 }}>
-                  <p style={{ fontSize: 14, fontWeight: 700, color: "#F4F4FF", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{l.extracted_address || "Unknown address"}</p>
+                  <p style={{ fontSize: 14, fontWeight: 700, color: "#15131D", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{l.extracted_address || "Unknown address"}</p>
                   <p style={{ fontSize: 11.5, color: "var(--text-3)" }}>{l.agent_name || "Unassigned"} · Ask {l.asking_price ? money(l.asking_price) : "—"}</p>
                 </div>
               </div>

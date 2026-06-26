@@ -7,8 +7,8 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { KeyRound, Loader2, CheckCircle2, AlertCircle, Eye, EyeOff } from "lucide-react";
 
-const NAVY = "#F4F4FF";
-const SLATE = "#9A9AB0";
+const NAVY = "#15131D";
+const SLATE = "#6B6880";
 
 export default function ResetPasswordPage() {
   const [ready, setReady] = useState(false);
@@ -47,12 +47,12 @@ export default function ResetPasswordPage() {
   return (
     <div style={{
       minHeight: "100vh",
-      background: "linear-gradient(180deg, #101018 0%, rgba(59,130,246,0.10) 100%)",
+      background: "linear-gradient(180deg, #F1F2F8 0%, rgba(59,130,246,0.10) 100%)",
       display: "flex", alignItems: "center", justifyContent: "center", padding: 24,
     }}>
       <div style={{
         width: "100%", maxWidth: 420,
-        background: "#0A0A0E", borderRadius: 18, padding: "36px 32px",
+        background: "#FFFFFF", borderRadius: 18, padding: "36px 32px",
         boxShadow: "0 20px 60px rgba(15,23,42,0.08)",
         border: "1px solid #22222c",
       }}>
@@ -100,7 +100,7 @@ export default function ResetPasswordPage() {
                 autoFocus
                 style={{
                   width: "100%", padding: "11px 38px", borderRadius: 10,
-                  border: "1px solid #22222c", background: "#101018",
+                  border: "1px solid #22222c", background: "#F1F2F8",
                   fontSize: 14, color: NAVY, outline: "none",
                 }} />
               <button type="button" onClick={() => setShowPw(s => !s)}
@@ -117,7 +117,7 @@ export default function ResetPasswordPage() {
               <input type={showPw ? "text" : "password"} value={pw2} onChange={e => setPw2(e.target.value)}
                 style={{
                   width: "100%", padding: "11px 12px 11px 38px", borderRadius: 10,
-                  border: "1px solid #22222c", background: "#101018",
+                  border: "1px solid #22222c", background: "#F1F2F8",
                   fontSize: 14, color: NAVY, outline: "none",
                 }} />
             </div>

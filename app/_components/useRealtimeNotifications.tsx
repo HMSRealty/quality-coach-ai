@@ -116,7 +116,7 @@ function ToastCard({ hot, address, onClick }: { hot: boolean; address: string; o
       style={{
         display: "flex", alignItems: "center", gap: 12, width: 340, maxWidth: "86vw",
         padding: "13px 15px", borderRadius: 13, cursor: "pointer",
-        background: "#0A0A0E", border: `1px solid ${hot ? "color-mix(in srgb, #2563EB 40%, transparent)" : "var(--border-2)"}`,
+        background: "#FFFFFF", border: `1px solid ${hot ? "color-mix(in srgb, #2563EB 40%, transparent)" : "var(--border-2)"}`,
         borderLeft: `4px solid ${accent}`,
         boxShadow: "0 14px 40px rgba(15,23,42,0.16)",
       }}
@@ -126,7 +126,7 @@ function ToastCard({ hot, address, onClick }: { hot: boolean; address: string; o
         <p style={{ fontSize: 12, fontWeight: 900, letterSpacing: "0.04em", textTransform: "uppercase", color: accent }}>
           {hot ? "Hot Lead" : "New Lead"}
         </p>
-        <p style={{ fontSize: 13.5, fontWeight: 700, color: "#F4F4FF", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+        <p style={{ fontSize: 13.5, fontWeight: 700, color: "#15131D", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
           {address}
         </p>
       </div>

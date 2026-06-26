@@ -122,20 +122,20 @@ export function DialerHoursCalculator() {
   };
 
   const th: React.CSSProperties = { padding: "9px 12px", textAlign: "left", fontSize: 10, fontWeight: 800, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--text-3)", whiteSpace: "nowrap" };
-  const inp: React.CSSProperties = { width: "100%", padding: "7px 9px", borderRadius: 8, border: "1px solid var(--border-2)", background: "#0A0A0E", color: "#F4F4FF", fontSize: 13, outline: "none" };
+  const inp: React.CSSProperties = { width: "100%", padding: "7px 9px", borderRadius: 8, border: "1px solid var(--border-2)", background: "#FFFFFF", color: "#15131D", fontSize: 13, outline: "none" };
 
   return (
-    <div style={{ background: "#0A0A0E", border: "1px solid var(--border-2)", borderRadius: 16, padding: 20, boxShadow: "var(--shadow-sm)" }}>
+    <div style={{ background: "#FFFFFF", border: "1px solid var(--border-2)", borderRadius: 16, padding: 20, boxShadow: "var(--shadow-sm)" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", marginBottom: 14 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <span style={{ width: 32, height: 32, borderRadius: 9, background: "color-mix(in srgb, #3B82F6 14%, transparent)", display: "flex", alignItems: "center", justifyContent: "center" }}><Clock size={16} color={SKY_600} /></span>
           <div>
-            <p style={{ fontSize: 15, fontWeight: 800, color: "#F4F4FF" }}>Dialer Hours → Pay</p>
+            <p style={{ fontSize: 15, fontWeight: 800, color: "#15131D" }}>Dialer Hours → Pay</p>
             <p style={{ fontSize: 11.5, color: "var(--text-3)" }}>Reads the &quot;Payable Hours&quot; column (e.g. &quot;12 Hours 60 Mins.&quot;) and multiplies by the hourly rate.</p>
           </div>
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-          <label style={{ fontSize: 12, fontWeight: 700, color: "#F4F4FF" }}>Hourly rate</label>
+          <label style={{ fontSize: 12, fontWeight: 700, color: "#15131D" }}>Hourly rate</label>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 2 }}>
             <span style={{ fontWeight: 800, color: "var(--text-3)" }}>$</span>
             <input type="number" min={0} step={0.5} value={rate} onChange={e => updateRate(Math.max(0, Number(e.target.value) || 0))}
@@ -153,7 +153,7 @@ export function DialerHoursCalculator() {
       <div style={{ overflowX: "auto", borderRadius: 12, border: "1px solid var(--border-2)" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 640 }}>
           <thead>
-            <tr style={{ background: "#101018" }}>
+            <tr style={{ background: "#F1F2F8" }}>
               <th style={th}>Employee</th>
               <th style={th}>Payable Hours (raw)</th>
               <th style={{ ...th, textAlign: "right" }}>Hours</th>
@@ -167,7 +167,7 @@ export function DialerHoursCalculator() {
               <tr key={i} style={{ borderTop: "1px solid var(--border-1)" }}>
                 <td style={{ padding: "7px 10px", minWidth: 150 }}><input value={r.name} onChange={e => setRow(i, { name: e.target.value })} placeholder="Name (matches CRM agent)" style={inp} /></td>
                 <td style={{ padding: "7px 10px", minWidth: 170 }}><input value={r.raw} onChange={e => setRow(i, { raw: e.target.value })} placeholder="12 Hours 60 Mins." style={inp} /></td>
-                <td style={{ padding: "7px 10px", textAlign: "right", fontWeight: 700, color: "#F4F4FF", whiteSpace: "nowrap" }}>{r.hours ? r.hours.toFixed(2) : "—"}</td>
+                <td style={{ padding: "7px 10px", textAlign: "right", fontWeight: 700, color: "#15131D", whiteSpace: "nowrap" }}>{r.hours ? r.hours.toFixed(2) : "—"}</td>
                 <td style={{ padding: "7px 10px", textAlign: "right" }}>
                   <input type="number" min={0} step={0.5} value={r.rate ?? ""} onChange={e => setRow(i, { rate: e.target.value === "" ? null : Math.max(0, Number(e.target.value) || 0) })}
                     placeholder={String(rate)} style={{ ...inp, width: 70, textAlign: "right" }} />
@@ -178,10 +178,10 @@ export function DialerHoursCalculator() {
             ))}
           </tbody>
           <tfoot>
-            <tr style={{ borderTop: "2px solid var(--border-2)", background: "#101018" }}>
-              <td style={{ padding: "10px 12px", fontWeight: 900, color: "#F4F4FF" }}>Total</td>
+            <tr style={{ borderTop: "2px solid var(--border-2)", background: "#F1F2F8" }}>
+              <td style={{ padding: "10px 12px", fontWeight: 900, color: "#15131D" }}>Total</td>
               <td />
-              <td style={{ padding: "10px 12px", textAlign: "right", fontWeight: 900, color: "#F4F4FF", whiteSpace: "nowrap" }}>{totals.hours.toFixed(2)} h</td>
+              <td style={{ padding: "10px 12px", textAlign: "right", fontWeight: 900, color: "#15131D", whiteSpace: "nowrap" }}>{totals.hours.toFixed(2)} h</td>
               <td />
               <td style={{ padding: "10px 12px", textAlign: "right", fontWeight: 900, color: MONEY, whiteSpace: "nowrap" }}>{money(totals.pay)}</td>
               <td />
@@ -190,7 +190,7 @@ export function DialerHoursCalculator() {
         </table>
       </div>
 
-      <button onClick={addRow} style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 12, padding: "8px 14px", borderRadius: 9, background: "#101018", border: "1px solid var(--border-2)", color: SKY_600, fontSize: 12.5, fontWeight: 800, cursor: "pointer" }}><Plus size={14} /> Add employee</button>
+      <button onClick={addRow} style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 12, padding: "8px 14px", borderRadius: 9, background: "#F1F2F8", border: "1px solid var(--border-2)", color: SKY_600, fontSize: 12.5, fontWeight: 800, cursor: "pointer" }}><Plus size={14} /> Add employee</button>
       <p style={{ fontSize: 11, color: "var(--text-4)", marginTop: 10 }}>
         Parses &quot;Hours&quot; + &quot;Mins&quot; (so &quot;12 Hours 60 Mins.&quot; = 13.00 h), also accepts 12:30, 12h 30m, or a plain number. Per-row rate overrides the default.
       </p>

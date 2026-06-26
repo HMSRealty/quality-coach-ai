@@ -68,14 +68,14 @@ export function SetupBanner() {
         <Rocket size={18} />
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: 13.5, fontWeight: 800, color: "#F4F4FF" }}>
+        <p style={{ fontSize: 13.5, fontWeight: 800, color: "#15131D" }}>
           Almost ready — {done} of {required.length} steps done
         </p>
         <div style={{ display: "flex", gap: 10, marginTop: 5, flexWrap: "wrap" }}>
-          <span style={{ fontSize: 11.5, color: status.gemini ? "#2563EB" : "#26262F", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
+          <span style={{ fontSize: 11.5, color: status.gemini ? "#2563EB" : "#D7DAE6", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
             <CheckCircle2 size={11} color={status.gemini ? "#2563EB" : "#33333f"} /> Gemini key
           </span>
-          <span style={{ fontSize: 11.5, color: status.campaign ? "#2563EB" : "#26262F", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
+          <span style={{ fontSize: 11.5, color: status.campaign ? "#2563EB" : "#D7DAE6", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
             <CheckCircle2 size={11} color={status.campaign ? "#2563EB" : "#33333f"} /> First campaign
           </span>
           <span style={{ fontSize: 11.5, color: "#94A3B8", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
@@ -100,7 +100,7 @@ export function SetupBanner() {
           setDismissed(true);
         }}
         title="Dismiss"
-        style={{ background: "none", border: "none", cursor: "pointer", padding: 4, color: "#9A9AB0" }}
+        style={{ background: "none", border: "none", cursor: "pointer", padding: 4, color: "#6B6880" }}
       >
         <X size={15} />
       </button>

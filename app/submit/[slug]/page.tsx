@@ -305,7 +305,7 @@ export default function DynamicSubmitPage() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#101018" }}>
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#F1F2F8" }}>
         <Loader2 size={28} className="animate-spin" style={{ color: NAVY }} />
       </div>
     );
@@ -313,11 +313,11 @@ export default function DynamicSubmitPage() {
 
   if (blocked) {
     return (
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#101018", padding: 24 }}>
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#F1F2F8", padding: 24 }}>
         <div style={{
-          maxWidth: 440, padding: 40, background: "#0A0A0E", borderRadius: 16,
-          border: "1px solid rgba(255,255,255,0.10)", textAlign: "center",
-          boxShadow: "0 12px 40px rgba(255,255,255,0.10)",
+          maxWidth: 440, padding: 40, background: "#FFFFFF", borderRadius: 16,
+          border: "1px solid rgba(20,18,28,0.08)", textAlign: "center",
+          boxShadow: "0 12px 40px rgba(20,18,28,0.08)",
         }}>
           <div style={{ width: 64, height: 64, borderRadius: "50%", background: "#F1F4F9", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 18px" }}>
             <Lock size={28} color={SLATE} />
@@ -331,12 +331,12 @@ export default function DynamicSubmitPage() {
 
   const inputStyle: React.CSSProperties = {
     width: "100%", padding: "10px 12px", borderRadius: 9,
-    background: "#101018", border: "1px solid rgba(255,255,255,0.10)",
+    background: "#F1F2F8", border: "1px solid rgba(20,18,28,0.08)",
     fontSize: 13, color: NAVY, outline: "none",
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "linear-gradient(180deg, #101018 0%, #000000 100%)", padding: "40px 24px" }} className="animate-in">
+    <div style={{ minHeight: "100vh", background: "linear-gradient(180deg, #F1F2F8 0%, #000000 100%)", padding: "40px 24px" }} className="animate-in">
       <div style={{ maxWidth: 640, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 32 }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 11, marginBottom: 18 }}>
@@ -359,8 +359,8 @@ export default function DynamicSubmitPage() {
         {/* ── SUCCESS SCREEN ── */}
         {doneStatus ? (
           <div style={{
-            background: "#0A0A0E", borderRadius: 16, padding: "40px 28px",
-            border: "1px solid rgba(255,255,255,0.10)", boxShadow: "0 2px 12px rgba(35,43,58,0.06)",
+            background: "#FFFFFF", borderRadius: 16, padding: "40px 28px",
+            border: "1px solid rgba(20,18,28,0.08)", boxShadow: "0 2px 12px rgba(35,43,58,0.06)",
             textAlign: "center",
           }}>
             <div style={{
@@ -394,7 +394,7 @@ export default function DynamicSubmitPage() {
             </button>
           </div>
         ) : (
-        <form onSubmit={handleSubmit} style={{ background: "#0A0A0E", borderRadius: 14, padding: 24, border: "1px solid rgba(255,255,255,0.10)", boxShadow: "0 2px 12px rgba(35,43,58,0.06)", position: "relative" }}>
+        <form onSubmit={handleSubmit} style={{ background: "#FFFFFF", borderRadius: 14, padding: 24, border: "1px solid rgba(20,18,28,0.08)", boxShadow: "0 2px 12px rgba(35,43,58,0.06)", position: "relative" }}>
           {submitting && (() => {
             const m = (statusMsg || "").toLowerCase();
             const step = m.includes("verdict") ? 4
@@ -451,7 +451,7 @@ export default function DynamicSubmitPage() {
 
           {/* Extra properties */}
           {extraProps.map((p, i) => (
-            <div key={i} style={{ padding: 12, borderRadius: 10, background: "#101018", border: "1px solid rgba(255,255,255,0.10)", marginBottom: 12 }}>
+            <div key={i} style={{ padding: 12, borderRadius: 10, background: "#F1F2F8", border: "1px solid rgba(20,18,28,0.08)", marginBottom: 12 }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
                 <span style={{ fontSize: 11, fontWeight: 700, color: SLATE }}>Property #{i + 2}</span>
                 <button type="button" onClick={() => removeProperty(i)} style={{ background: "none", border: "none", color: "#DC2626", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Remove</button>
@@ -512,7 +512,7 @@ export default function DynamicSubmitPage() {
               {callFiles.map((f, i) => (
                 <div key={i} style={{
                   display: "flex", alignItems: "center", gap: 10,
-                  padding: "9px 12px", borderRadius: 9, background: "#101018", border: "1px solid rgba(255,255,255,0.10)",
+                  padding: "9px 12px", borderRadius: 9, background: "#F1F2F8", border: "1px solid rgba(20,18,28,0.08)",
                 }}>
                   <FileAudio size={14} color={TEAL} />
                   <p style={{ flex: 1, fontSize: 12, color: NAVY, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{f.name}</p>

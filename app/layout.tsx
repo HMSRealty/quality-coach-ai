@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     template: "%s · RealTrack by Ascendyaa",
   },
   description:
-    "RealTrack is the closer's-office OS for real-estate call floors. Track every call, qualify against The Four Pillars, and route Hot leads to acquisitions in seconds. Built for wholesalers and call centers like HMS Realty.",
+    "RealTrack by Ascendyaa is the all-in-one operations platform for real-estate call floors and wholesalers — qualify leads, coach your floor, track performance with live dashboards, and run disposition, all in one place.",
   keywords: [
     "realtrack", "realtrack.app", "real track app",
     "HMS Realty", "hmsrealty", "HMS Realty LLC",
@@ -50,6 +50,7 @@ export const metadata: Metadata = {
   authors: [{ name: "Ascendyaa", url: SITE_URL }],
   creator: "Ascendyaa",
   publisher: "Ascendyaa",
+  icons: { icon: [{ url: "/favicon.svg", type: "image/svg+xml" }], shortcut: "/favicon.svg", apple: "/favicon.svg" },
   alternates: { canonical: "/" },
   robots: {
     index: true, follow: true,
@@ -61,24 +62,24 @@ export const metadata: Metadata = {
     url: SITE_URL,
     locale: "en_US",
     title: "RealTrack by Ascendyaa — Track every call. Close every deal.",
-    description: "An Ascendyaa product. The closer's OS for real-estate call floors — AI grades every call against The Four Pillars, surfaces Hot leads in seconds, and coaches your floor automatically.",
-    images: [{ url: `${SITE_URL}/og.png`, width: 1200, height: 630, alt: "RealTrack by Ascendyaa — AI call qualification for real-estate teams" }],
+    description: "An Ascendyaa product. The all-in-one operations platform for real-estate call floors — qualify, coach, track, and dispose, all in one place.",
+    images: [{ url: `${SITE_URL}/og.png`, width: 1200, height: 630, alt: "RealTrack by Ascendyaa — real-estate operations, end to end" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "RealTrack by Ascendyaa — Track every call. Close every deal.",
-    description: "AI grades every call against The Four Pillars. Hot leads to acquisitions in seconds. realtrack.app",
+    description: "Real-estate operations, end to end: qualify, coach, track, and dispose — all in one place. realtrack.app",
     images: [`${SITE_URL}/og.png`],
   },
   category: "business",
 };
 
 export const viewport: Viewport = {
-  themeColor: "#F4F4FF",
+  themeColor: "#15131D",
 };
 
-// JSON-LD structured data — helps Google understand what RealTrack is and
-// who's behind it. Includes Organization, SoftwareApplication, and FAQ.
+// JSON-LD structured data — helps search engines understand what RealTrack is
+// and who's behind it. Includes Organization, SoftwareApplication, and WebSite.
 const STRUCTURED_DATA = {
   "@context": "https://schema.org",
   "@graph": [
@@ -99,7 +100,7 @@ const STRUCTURED_DATA = {
       url: SITE_URL,
       applicationCategory: "BusinessApplication",
       operatingSystem: "Web",
-      description: "AI-powered call qualification and acquisitions OS for real estate wholesalers and call centers.",
+      description: "All-in-one operations platform for real-estate wholesalers and call centers — qualify, coach, track, and dispose, all in one place.",
       offers: [
         { "@type": "Offer", name: "Starter",      price: "350",   priceCurrency: "USD", description: "500 analyses/month, 1 workspace" },
         { "@type": "Offer", name: "Professional", price: "750",   priceCurrency: "USD", description: "2,000 analyses/month, unlimited campaigns" },

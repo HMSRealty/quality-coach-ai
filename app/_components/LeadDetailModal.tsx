@@ -110,7 +110,7 @@ export function LeadDetailModal({ leadId, onClose }: { leadId: string; onClose: 
               return (
                 <div style={{
                   padding: "10px 14px", borderRadius: 10, marginBottom: 20,
-                  background: ok ? "rgba(52,211,153,0.12)" : bad ? "#101018" : "rgba(245,158,11,0.12)",
+                  background: ok ? "rgba(52,211,153,0.12)" : bad ? "#F1F2F8" : "rgba(245,158,11,0.12)",
                   border: `1px solid ${ok ? "#A7F3D0" : bad ? "rgba(35,43,58,0.10)" : "#FCD34D"}`,
                   fontSize: 12, fontWeight: 700,
                   color: ok ? "#2563EB" : bad ? NAVY : "#F59E0B",

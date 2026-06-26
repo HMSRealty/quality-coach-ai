@@ -1,6 +1,6 @@
 "use client";
 
-// Fully customizable payroll workbench — inspired by a real call-center payroll
+// Fully customizable payroll workbench — built for real call-center payroll
 // sheet, but every number/date/payment is user-editable and nothing is hardcoded.
 //   • Config panel: custom period dates, business days, session hrs, USD↔EGP rate,
 //     KPI threshold + pay, lead bonus, OT multiplier, Friday spiff, manager quality
@@ -30,7 +30,7 @@ type RoleRate = {
   target_leads: number;
 };
 
-const SKY = "#3B82F6", SKY600 = "#2563EB", MONEY = "#2563EB", NAVY = "#0A0A0E", SLATE = "#26262F";
+const SKY = "#3B82F6", SKY600 = "#2563EB", MONEY = "#2563EB", NAVY = "#FFFFFF", SLATE = "#D7DAE6";
 const PAY_METHODS = ["Instapay", "Payoneer", "Vodafone Cash", "Orange Cash", "Etisalat Cash", "Axis Pay", "Bank Transfer", "Cash", "Other"];
 
 type Cfg = {
@@ -380,7 +380,7 @@ export function PayrollWorkbench() {
   };
 
   const dirty = people.some(p => p._dirty);
-  const inp: React.CSSProperties = { width: "100%", padding: "6px 8px", borderRadius: 7, border: "1px solid var(--border-2)", background: "#0A0A0E", color: NAVY, fontSize: 12.5, outline: "none" };
+  const inp: React.CSSProperties = { width: "100%", padding: "6px 8px", borderRadius: 7, border: "1px solid var(--border-2)", background: "#FFFFFF", color: NAVY, fontSize: 12.5, outline: "none" };
   const numCell: React.CSSProperties = { ...inp, width: 72, textAlign: "right" };
   const th: React.CSSProperties = { padding: "9px 10px", textAlign: "left", fontSize: 9.5, fontWeight: 800, letterSpacing: "0.05em", color: SLATE, textTransform: "uppercase", whiteSpace: "nowrap" };
   const td: React.CSSProperties = { padding: "7px 10px", fontSize: 12.5, color: NAVY, whiteSpace: "nowrap" };
@@ -419,7 +419,7 @@ export function PayrollWorkbench() {
 
       {/* CONFIG — every knob adjustable */}
       {showCfg && (
-        <div style={{ background: "#101018", border: "1px solid var(--border-2)", borderRadius: 14, padding: 16 }}>
+        <div style={{ background: "#F1F2F8", border: "1px solid var(--border-2)", borderRadius: 14, padding: 16 }}>
           <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.05em", color: SKY600, textTransform: "uppercase", marginBottom: 12 }}>Payroll settings (adjust freely)</p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(170px, 1fr))", gap: 12 }}>
             <Field label="Period start"><input type="date" value={cfg.periodStart} onChange={e => setCfgK("periodStart", e.target.value)} style={inp} /></Field>

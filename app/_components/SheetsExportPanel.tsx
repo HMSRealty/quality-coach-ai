@@ -9,8 +9,8 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Sheet, Copy, Check, ExternalLink, AlertTriangle, Loader2 } from "lucide-react";
 
-const NAVY = "#F4F4FF";
-const SLATE = "#9A9AB0";
+const NAVY = "#15131D";
+const SLATE = "#6B6880";
 const MONEY = "#2563EB";
 const SKY_600 = "#2563EB";
 
@@ -60,7 +60,7 @@ export function SheetsExportPanel() {
   );
 
   const card: React.CSSProperties = {
-    background: "#0A0A0E", border: "1px solid var(--border-2)",
+    background: "#FFFFFF", border: "1px solid var(--border-2)",
     borderRadius: 14, padding: 22, boxShadow: "var(--shadow-sm)",
   };
 
@@ -96,7 +96,7 @@ export function SheetsExportPanel() {
               placeholder={`Paste full key (${activeKey.key_prefix}…) to generate formulas`}
               style={{
                 flex: 1, minWidth: 240, padding: "9px 12px", borderRadius: 9,
-                border: "1px solid var(--border-2)", background: "#0A0A0E", color: NAVY,
+                border: "1px solid var(--border-2)", background: "#FFFFFF", color: NAVY,
                 fontSize: 12.5, fontFamily: "var(--font-mono)", outline: "none",
               }}
             />
@@ -113,7 +113,7 @@ export function SheetsExportPanel() {
               return (
                 <div key={f.id} style={{
                   padding: "12px 14px", borderRadius: 10,
-                  background: "#101018", border: "1px solid var(--border-1)",
+                  background: "#F1F2F8", border: "1px solid var(--border-1)",
                 }}>
                   <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 6, flexWrap: "wrap" }}>
                     <p style={{ fontSize: 13, fontWeight: 800, color: NAVY }}>{f.label}</p>
@@ -122,7 +122,7 @@ export function SheetsExportPanel() {
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <code style={{
                       flex: 1, fontSize: 11.5, fontFamily: "var(--font-mono)", color: NAVY,
-                      background: "#0A0A0E", padding: "8px 10px", borderRadius: 7,
+                      background: "#FFFFFF", padding: "8px 10px", borderRadius: 7,
                       border: "1px solid var(--border-2)", overflow: "hidden",
                       textOverflow: "ellipsis", whiteSpace: "nowrap",
                     }}>{formula}</code>
@@ -132,7 +132,7 @@ export function SheetsExportPanel() {
                       title={revealKey ? "Copy formula" : "Paste your full key first"}
                       style={{
                         padding: "7px 11px", borderRadius: 8, border: "1px solid var(--border-2)",
-                        background: "#0A0A0E", color: NAVY, cursor: revealKey ? "pointer" : "not-allowed",
+                        background: "#FFFFFF", color: NAVY, cursor: revealKey ? "pointer" : "not-allowed",
                         opacity: revealKey ? 1 : 0.5,
                         fontSize: 11.5, fontWeight: 700,
                         display: "inline-flex", alignItems: "center", gap: 5,
@@ -145,7 +145,7 @@ export function SheetsExportPanel() {
             })}
           </div>
 
-          <div style={{ marginTop: 14, padding: "10px 12px", borderRadius: 9, background: "#101018", fontSize: 11.5, color: SLATE, lineHeight: 1.6 }}>
+          <div style={{ marginTop: 14, padding: "10px 12px", borderRadius: 9, background: "#F1F2F8", fontSize: 11.5, color: SLATE, lineHeight: 1.6 }}>
             <strong style={{ color: NAVY }}>Setup:</strong> open a new Google Sheet → click cell A1 → paste a formula above → hit Enter. Each feed lives on its own tab. Open <a href="https://docs.google.com/spreadsheets" target="_blank" rel="noreferrer" style={{ color: SKY_600, fontWeight: 700 }}>sheets.new <ExternalLink size={9} style={{ display: "inline" }} /></a> to start.
           </div>
         </>

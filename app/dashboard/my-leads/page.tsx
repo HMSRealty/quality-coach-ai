@@ -31,10 +31,10 @@ const STATUS_COLORS: Record<string, { bg: string; fg: string }> = {
   Cold:         { bg: "rgba(10,95,82,0.12)",  fg: "#2563EB" },
   "Call Back":  { bg: "rgba(146,64,14,0.12)",  fg: "#F59E0B" },
   "Needs Call": { bg: "rgba(59,130,246,0.12)", fg: "#3B82F6" },
-  Disqualified: { bg: "rgba(100,116,139,0.12)", fg: "#9A9AB0" },
+  Disqualified: { bg: "rgba(100,116,139,0.12)", fg: "#6B6880" },
   Duplicate:    { bg: "rgba(10,95,82,0.12)", fg: "#2563EB" },
   Error:        { bg: "rgba(220,38,38,0.10)",  fg: "#DC2626" },
-  Pending:      { bg: "var(--surface-3)",      fg: "#9A9AB0" },
+  Pending:      { bg: "var(--surface-3)",      fg: "#6B6880" },
 };
 
 export default function MyLeadsPage() {

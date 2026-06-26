@@ -19,14 +19,14 @@ interface Step {
 // ── small UI primitives for the mock screens ──
 function Chrome({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div style={{ borderRadius: 14, overflow: "hidden", border: "1px solid rgba(35,43,58,0.12)", background: "#0A0A0E", boxShadow: "0 12px 40px rgba(35,43,58,0.12)" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 14px", background: "#101018", borderBottom: "1px solid rgba(35,43,58,0.08)" }}>
+    <div style={{ borderRadius: 14, overflow: "hidden", border: "1px solid rgba(35,43,58,0.12)", background: "#FFFFFF", boxShadow: "0 12px 40px rgba(35,43,58,0.12)" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 14px", background: "#F1F2F8", borderBottom: "1px solid rgba(35,43,58,0.08)" }}>
         <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#FF5F57" }} />
         <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#FEBC2E" }} />
         <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#28C840" }} />
         <span style={{ marginLeft: 10, fontSize: 11, color: SLATE, fontWeight: 600 }}>{title}</span>
       </div>
-      <div style={{ padding: 18, position: "relative", minHeight: 230, background: "#101018" }}>{children}</div>
+      <div style={{ padding: 18, position: "relative", minHeight: 230, background: "#F1F2F8" }}>{children}</div>
     </div>
   );
 }
@@ -128,7 +128,7 @@ const STEPS: Step[] = [
           <span style={{ padding: "5px 12px", borderRadius: 999, background: "rgba(52,211,153,0.12)", color: "#2563EB", fontSize: 11, fontWeight: 800 }}>✓ Qualified</span>
           <span style={{ fontSize: 12, color: SLATE }}>123 Oak St, Miami FL</span>
         </div>
-        <div style={{ padding: 12, borderRadius: 9, background: "#0A0A0E", border: "1px solid rgba(35,43,58,0.08)", maxWidth: 420 }}>
+        <div style={{ padding: 12, borderRadius: 9, background: "#FFFFFF", border: "1px solid rgba(35,43,58,0.08)", maxWidth: 420 }}>
           <p style={{ fontSize: 10, fontWeight: 700, color: "#2563EB", marginBottom: 4 }}>WHAT HAPPENED ON THE CALL</p>
           <p style={{ fontSize: 11, color: NAVY, lineHeight: 1.6 }}>Owner is relocating, motivated to close within 60 days. Asking $210k vs $275k Zestimate — a deep discount with clear motivation.</p>
         </div>
@@ -147,7 +147,7 @@ const STEPS: Step[] = [
           {["[02:14] Acknowledge seller's divorce before pivoting to repairs.",
             "[04:30] Strong price anchor — repeat this on every call.",
             "[06:02] Ask for the decision-maker earlier next time."].map((t, i) => (
-            <div key={i} style={{ display: "flex", gap: 8, padding: "8px 10px", borderRadius: 8, background: "#101018", fontSize: 11, color: NAVY }}>
+            <div key={i} style={{ display: "flex", gap: 8, padding: "8px 10px", borderRadius: 8, background: "#F1F2F8", fontSize: 11, color: NAVY }}>
               <span style={{ minWidth: 18, height: 18, borderRadius: "50%", background: "var(--midnight)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 800 }}>{i + 1}</span>
               {t}
             </div>
@@ -165,7 +165,7 @@ const STEPS: Step[] = [
       <Chrome title="RealTrack — Team Leader">
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, maxWidth: 420, marginBottom: 14 }}>
           {[["Callers", "8"], ["Qualified", "41"], ["Pass Rate", "57%"]].map(([l, v]) => (
-            <div key={l} style={{ padding: 12, borderRadius: 9, background: "#0A0A0E", border: "1px solid rgba(35,43,58,0.08)" }}>
+            <div key={l} style={{ padding: 12, borderRadius: 9, background: "#FFFFFF", border: "1px solid rgba(35,43,58,0.08)" }}>
               <p style={{ fontSize: 9, color: SLATE, fontWeight: 700 }}>{l}</p>
               <p style={{ fontSize: 20, fontWeight: 900, color: NAVY }}>{v}</p>
             </div>

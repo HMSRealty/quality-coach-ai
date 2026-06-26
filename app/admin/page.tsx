@@ -11,7 +11,7 @@ import {
 import { T } from "@/app/_components/tokens";
 
 const NAVY = T.text1;
-// Closer's Office: TEAL/GOLD were leftover sky-blue. Money green ties admin
+// RealTrack — TEAL/GOLD were leftover sky-blue. Money green ties admin
 // pages into the same identity as the dashboard.
 const TEAL = "#3B82F6";
 const GOLD = "#2563EB";

@@ -79,7 +79,7 @@ export default function CashBuyersPage() {
     });
   }, [buyers, q, area, price]);
 
-  const inp: React.CSSProperties = { width: "100%", padding: "10px 12px", borderRadius: 10, border: "1px solid var(--border-2)", background: "#0A0A0E", color: "#F4F4FF", fontSize: 13, outline: "none" };
+  const inp: React.CSSProperties = { width: "100%", padding: "10px 12px", borderRadius: 10, border: "1px solid var(--border-2)", background: "#FFFFFF", color: "#15131D", fontSize: 13, outline: "none" };
   const lbl: React.CSSProperties = { fontSize: 11, fontWeight: 800, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--text-3)", display: "block", marginBottom: 5 };
 
   return (
@@ -88,7 +88,7 @@ export default function CashBuyersPage() {
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <span style={{ width: 38, height: 38, borderRadius: 10, background: "rgba(59,130,246,0.14)", display: "flex", alignItems: "center", justifyContent: "center" }}><Users size={19} color={SKY_600} /></span>
           <div>
-            <h1 style={{ fontSize: 24, fontWeight: 900, color: "#F4F4FF", letterSpacing: "-0.02em" }}>Cash Buyers</h1>
+            <h1 style={{ fontSize: 24, fontWeight: 900, color: "#15131D", letterSpacing: "-0.02em" }}>Cash Buyers</h1>
             <p style={{ fontSize: 13, color: "var(--text-2)" }}>{buyers.length} buyer{buyers.length === 1 ? "" : "s"} on the bench. Match a deal to their buy-box in one click.</p>
           </div>
         </div>
@@ -96,7 +96,7 @@ export default function CashBuyersPage() {
       </div>
 
       {/* Filters */}
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", padding: 14, borderRadius: 12, background: "#0A0A0E", border: "1px solid var(--border-2)", boxShadow: "var(--shadow-sm)" }}>
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", padding: 14, borderRadius: 12, background: "#FFFFFF", border: "1px solid var(--border-2)", boxShadow: "var(--shadow-sm)" }}>
         <div style={{ position: "relative", flex: 1, minWidth: 180 }}>
           <Search size={14} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--text-3)" }} />
           <input value={q} onChange={e => setQ(e.target.value)} placeholder="Search name / company…" style={{ ...inp, paddingLeft: 36 }} />
@@ -114,18 +114,18 @@ export default function CashBuyersPage() {
       {loading ? (
         <div style={{ padding: 60, textAlign: "center" }}><Loader2 size={24} className="animate-spin" style={{ color: SKY_600 }} /></div>
       ) : shown.length === 0 ? (
-        <div style={{ padding: 60, textAlign: "center", background: "#0A0A0E", border: "1px solid var(--border-2)", borderRadius: 16, boxShadow: "var(--shadow-sm)" }}>
+        <div style={{ padding: 60, textAlign: "center", background: "#FFFFFF", border: "1px solid var(--border-2)", borderRadius: 16, boxShadow: "var(--shadow-sm)" }}>
           <Users size={34} color="#33333f" style={{ margin: "0 auto 10px" }} />
-          <p style={{ fontSize: 14, fontWeight: 700, color: "#F4F4FF" }}>{buyers.length ? "No buyers match your filters." : "No buyers on the bench yet"}</p>
+          <p style={{ fontSize: 14, fontWeight: 700, color: "#15131D" }}>{buyers.length ? "No buyers match your filters." : "No buyers on the bench yet"}</p>
           {!buyers.length && <p style={{ fontSize: 13, color: "var(--text-2)", marginTop: 4 }}>Add buyers with their buy-box now. When a deal lands, you&apos;ll know who to call first.</p>}
         </div>
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 14 }} className="ci-grid">
           {shown.map(b => (
-            <div key={b.id} style={{ background: "#0A0A0E", border: "1px solid var(--border-2)", borderRadius: 14, padding: 16, boxShadow: "var(--shadow-sm)", display: "flex", flexDirection: "column", gap: 8 }}>
+            <div key={b.id} style={{ background: "#FFFFFF", border: "1px solid var(--border-2)", borderRadius: 14, padding: 16, boxShadow: "var(--shadow-sm)", display: "flex", flexDirection: "column", gap: 8 }}>
               <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
                 <div style={{ minWidth: 0 }}>
-                  <p style={{ fontSize: 15, fontWeight: 800, color: "#F4F4FF" }}>{b.name}</p>
+                  <p style={{ fontSize: 15, fontWeight: 800, color: "#15131D" }}>{b.name}</p>
                   {b.company && <p style={{ fontSize: 12, color: "var(--text-3)", display: "inline-flex", alignItems: "center", gap: 4 }}><Building2 size={11} /> {b.company}</p>}
                 </div>
                 <div style={{ display: "flex", gap: 4 }}>
@@ -157,9 +157,9 @@ export default function CashBuyersPage() {
         <Portal>
         <div onMouseDown={e => { if (e.target === e.currentTarget) setShowForm(false); }}
           style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(15,23,42,0.45)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-          <div style={{ width: "100%", maxWidth: 560, background: "#0A0A0E", borderRadius: 18, boxShadow: "0 24px 60px rgba(15,23,42,0.30)", overflow: "hidden", animation: "modalIn 200ms cubic-bezier(0.16,1,0.3,1) both" }}>
+          <div style={{ width: "100%", maxWidth: 560, background: "#FFFFFF", borderRadius: 18, boxShadow: "0 24px 60px rgba(15,23,42,0.30)", overflow: "hidden", animation: "modalIn 200ms cubic-bezier(0.16,1,0.3,1) both" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: "1px solid var(--border-1)" }}>
-              <p style={{ fontSize: 16, fontWeight: 800, color: "#F4F4FF" }}>{editId ? "Edit buyer" : "Add cash buyer"}</p>
+              <p style={{ fontSize: 16, fontWeight: 800, color: "#15131D" }}>{editId ? "Edit buyer" : "Add cash buyer"}</p>
               <button onClick={() => setShowForm(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-3)" }}><X size={18} /></button>
             </div>
             <div style={{ padding: 20, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>

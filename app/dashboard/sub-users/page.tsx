@@ -16,7 +16,7 @@ interface SubUser {
 
 const inputStyle: React.CSSProperties = {
   width: "100%", padding: "10px 12px", borderRadius: 9,
-  background: "#101018", border: "1px solid rgba(35,43,58,0.10)",
+  background: "#F1F2F8", border: "1px solid rgba(35,43,58,0.10)",
   fontSize: 13, color: NAVY, outline: "none",
 };
 
@@ -199,7 +199,7 @@ export default function SubUsersPage() {
                 <button onClick={() => actAs(u.id)} disabled={actingId === u.id} style={{
                   display: "inline-flex", alignItems: "center", gap: 6,
                   padding: "7px 14px", borderRadius: 8,
-                  background: "#101018", color: NAVY, border: "1px solid rgba(35,43,58,0.10)",
+                  background: "#F1F2F8", color: NAVY, border: "1px solid rgba(35,43,58,0.10)",
                   fontSize: 12, fontWeight: 700, cursor: actingId === u.id ? "wait" : "pointer",
                 }}>
                   {actingId === u.id ? <Loader2 size={12} className="animate-spin" /> : <Eye size={12} />} Act as

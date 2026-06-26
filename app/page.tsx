@@ -7,20 +7,18 @@ import { useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 
 /* ════════════════════════════════════════════════════════════════════════
-   RealTrack landing — Resona editorial system (deep pine · teal · coral ·
-   amber on cool paper). All styles are scoped under `.rzn` so nothing leaks
-   into the dashboard. Fonts resolve to the app's CSS variables:
-   --font-display = Bricolage Grotesque · --font-sans = Hanken Grotesk ·
-   --font-mono = Space Mono.
+   RealTrack by Ascendyaa — landing. White Ascendyaa identity: clean surfaces,
+   deep ink text, a purple→blue gradient accent, and deep-ink inverted bands.
+   All styles are scoped under `.rzn` so nothing leaks into the dashboard.
 ════════════════════════════════════════════════════════════════════════ */
 
 const CSS = `
 .rzn{
-  --ink:#F4F4FF; --ink-soft:#C7C7D6; --paper:#000000; --paper-2:#0A0A0E;
-  --card:#0A0A0E; --teal:#3B82F6; --teal-deep:#60A5FA; --coral:#A78BFA;
-  --amber:#F59E0B; --slate:#9A9AB0; --line:rgba(255,255,255,.10); --line-soft:rgba(255,255,255,.06);
-  --band:#0A0A0E; --grad:linear-gradient(120deg,#6B3FA0 0%,#3B82F6 100%);
-  --shadow:0 1px 2px rgba(0,0,0,.4), 0 24px 60px -20px rgba(0,0,0,.8);
+  --ink:#15131D; --ink-soft:#3A3550; --paper:#F6F7FB; --paper-2:#FFFFFF;
+  --card:#FFFFFF; --teal:#3B82F6; --teal-deep:#2563EB; --coral:#E11D48;
+  --amber:#F59E0B; --slate:#6B6880; --line:rgba(20,18,28,0.10); --line-soft:rgba(20,18,28,0.06);
+  --band:#14121C; --grad:linear-gradient(120deg,#6B3FA0 0%,#3B82F6 100%);
+  --shadow:0 1px 2px rgba(20,18,28,.06), 0 24px 60px -24px rgba(20,18,28,.18);
   --radius:14px;
   background:var(--paper); color:var(--ink);
   font-family:var(--font-sans),"Manrope",system-ui,sans-serif;
@@ -35,7 +33,7 @@ const CSS = `
 
 /* NAV */
 .rzn nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(10px);
-  background:rgba(0,0,0,.72);border-bottom:1px solid var(--line)}
+  background:rgba(255,255,255,.78);border-bottom:1px solid var(--line)}
 .rzn .nav-inner{display:flex;align-items:center;justify-content:space-between;height:68px}
 .rzn .brand{display:flex;align-items:center;gap:10px;font-family:var(--font-display),"Sora",sans-serif;font-weight:700;font-size:22px;letter-spacing:-.02em}
 .rzn .brand-mark{display:flex;align-items:flex-end;gap:2.5px;height:22px}
@@ -93,7 +91,7 @@ const CSS = `
 .rzn .band h2 em{font-style:normal;color:var(--coral)}
 .rzn .band p{color:#aebdb8;max-width:46ch;margin-top:22px;font-size:18px}
 .rzn .compare{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:54px}
-.rzn .compare-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:var(--radius);padding:28px}
+.rzn .compare-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:var(--radius);padding:28px}
 .rzn .compare-card .label{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:#8ea29c;font-weight:600}
 .rzn .compare-card .big{font-family:var(--font-mono),"JetBrains Mono",monospace;font-weight:700;font-size:clamp(44px,7vw,72px);line-height:1;margin:14px 0 6px}
 .rzn .compare-card.old .big{color:#6f827c}
@@ -191,7 +189,7 @@ const CSS = `
 /* FINAL CTA */
 .rzn .final{background:var(--band);color:#fff;border:1px solid var(--line);border-radius:24px;padding:72px 56px;position:relative;overflow:hidden}
 .rzn .final .barsbg{position:absolute;inset:0;display:flex;align-items:flex-end;gap:4px;opacity:.1;padding:0 30px}
-.rzn .final .barsbg i{flex:1;background:#0A0A0E;border-radius:3px 3px 0 0}
+.rzn .final .barsbg i{flex:1;background:#FFFFFF;border-radius:3px 3px 0 0}
 .rzn .final-inner{position:relative;z-index:2;text-align:center}
 .rzn .final h2{font-size:clamp(32px,5vw,58px);color:#fff;max-width:18ch;margin:0 auto}
 .rzn .final p{color:#aebdb8;max-width:48ch;margin:20px auto 0;font-size:18px}
@@ -279,7 +277,7 @@ const SAMPLE_CALLS: SampleCall[] = [
     meta: "Rep: Sam O. · 5m 58s · qualified",
     overall: 96,
     p: [97, 95, 98, 96, 94],
-    fb: "A model acquisitions call. Calm opening, genuine empathy about the situation, and a clean bridge from motivation to a realistic offer anchored on the Zillow value. Textbook close with a firm next step.",
+    fb: "A model acquisitions call. Calm opening, genuine empathy about the situation, and a clean bridge from motivation to a realistic offer anchored on live market value. Textbook close with a firm next step.",
     next: "Nothing to fix — clip this one for the new-hire training library.",
   },
 ];
@@ -294,13 +292,13 @@ const FEATURES = [
   },
   {
     title: "Instant MAO & ARV",
-    body: "Live Zillow value plus AI-estimated repairs auto-calculate your Maximum Allowable Offer — and a one-click offer PDF — on every qualified lead.",
+    body: "Live market value plus AI-estimated repairs auto-calculate your Maximum Allowable Offer — and a one-click offer PDF — on every qualified lead.",
     svg: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4" /><circle cx="12" cy="12" r="3" /></svg>
     ),
   },
   {
-    title: "Gong-style call player",
+    title: "Built-in call player",
     body: "Waveform scrubbing, speed control, highlight reels, and secure signed-URL playback — for every recording, searchable across the whole floor.",
     svg: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
@@ -333,17 +331,17 @@ const STEPS = [
   {
     n: "STEP 01",
     title: "Connect your recordings",
-    body: "Point RealTrack at your call recordings — Drive, S3, your dialer, or a shared folder. New calls are picked up automatically as they land. No rep action required.",
+    body: "Point RealTrack at your call recordings — your dialer or recording source. New calls are picked up automatically as they land. No rep action required.",
   },
   {
     n: "STEP 02",
-    title: "AI qualifies & scores",
-    body: "Each call is transcribed word-for-word with speakers separated, scored against your persona, and matched to the live Zillow value to compute ARV and the offer.",
+    title: "Qualify, score & price",
+    body: "Each call is transcribed with speakers separated, scored against your persona, and matched to live market value to compute ARV and the offer — automatically.",
   },
   {
     n: "STEP 03",
-    title: "Coach & hand off",
-    body: "Managers open one view: scores by rep, the calls that need attention, and a next step for each. Acquisitions get a handoff brief and only touch deals worth closing.",
+    title: "Coach, track & dispose",
+    body: "Managers open one view: scores by rep, live dashboards, the calls that need attention, and a next step for each — then hand qualified deals to disposition.",
   },
 ];
 
@@ -394,7 +392,7 @@ const CHECK = (
 function scoreColor(s: number) {
   if (s >= 90) return "#3B82F6";
   if (s >= 70) return "#F59E0B";
-  return "#FB7185";
+  return "#E11D48";
 }
 
 export default function LandingPage() {
@@ -429,7 +427,7 @@ export default function LandingPage() {
         const b = document.createElement("div");
         b.className = "bar";
         b.style.height = "6px";
-        b.style.background = "#1B1B24";
+        b.style.background = "#E7E9F2";
         canvas.appendChild(b);
       }
     }
@@ -562,15 +560,15 @@ export default function LandingPage() {
       {/* HERO */}
       <header>
         <div className="wrap">
-          <div className="eyebrow"><span className="dot" />AI call intelligence for real-estate acquisitions</div>
-          <h1 className="hero-title">Qualify every call. <span className="accent">Coach</span> every rep.</h1>
-          <p className="hero-sub">Your QA lead listens to maybe two calls in a hundred. RealTrack transcribes and grades <b>100% of them</b> — every rep, every shift — qualifies the lead against live market value, and turns each call into a score, a reason, and a next step.</p>
+          <div className="eyebrow"><span className="dot" />Real-estate operations — qualify to disposition</div>
+          <h1 className="hero-title">Your whole floor. <span className="accent">One</span> platform.</h1>
+          <p className="hero-sub">RealTrack runs your real-estate operation end to end — <b>qualify leads, coach your floor, track performance, and dispose deals</b> — all in one place. Every call scored, every rep coached, every deal moving.</p>
           <div className="hero-cta">
             <Link href="/login" className="btn btn-coral">Book a 20-min demo →</Link>
             <a href="#preview" className="btn btn-ghost2">See a scored call</a>
           </div>
           <div className="hero-note">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A9AB0" strokeWidth="2"><path d="M20 6L9 17l-5-5" /></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B6880" strokeWidth="2"><path d="M20 6L9 17l-5-5" /></svg>
             Drops into your existing recordings &amp; dialer. No rip-and-replace.
           </div>
 
@@ -606,7 +604,7 @@ export default function LandingPage() {
             <div className="compare-card new">
               <div className="label">QA with RealTrack</div>
               <div className="big">100&nbsp;/&nbsp;100</div>
-              <div className="cap">Every call transcribed, qualified against your persona, priced against the Zillow value, and routed to the right coach.</div>
+              <div className="cap">Every call transcribed, qualified against your persona, priced against live market value, and routed to the right coach.</div>
               <div className="minibars new" id="newBars" />
             </div>
           </div>
@@ -660,7 +658,7 @@ export default function LandingPage() {
                 <div className="meta" id="callTitle"><b>Lead #4471 · Probate seller</b>Rep: Marcus T. · 6m 12s · qualified</div>
                 <div className="gauge">
                   <svg width="96" height="96" viewBox="0 0 96 96">
-                    <circle cx="48" cy="48" r="40" fill="none" stroke="#1B1B24" strokeWidth="9" />
+                    <circle cx="48" cy="48" r="40" fill="none" stroke="#E7E9F2" strokeWidth="9" />
                     <circle id="gaugeArc" cx="48" cy="48" r="40" fill="none" stroke="#3B82F6" strokeWidth="9" strokeLinecap="round" strokeDasharray="251.2" strokeDashoffset="251.2" />
                   </svg>
                   <div className="read"><span className="v" id="gaugeVal">0</span><span className="l">score</span></div>
@@ -671,7 +669,7 @@ export default function LandingPage() {
                 <div className="tag">QA summary</div>
                 <p id="fbText">—</p>
                 <div className="next">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FB7185" strokeWidth="2" style={{ marginTop: 2, flex: "none" }}><path d="M13 2L3 14h7l-1 8 10-12h-7z" /></svg>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E11D48" strokeWidth="2" style={{ marginTop: 2, flex: "none" }}><path d="M13 2L3 14h7l-1 8 10-12h-7z" /></svg>
                   <div><div className="tag">Next step</div><p id="nextText">—</p></div>
                 </div>
               </div>

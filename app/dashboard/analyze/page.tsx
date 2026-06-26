@@ -216,7 +216,7 @@ export default function AnalyzePage() {
                 <Link href="/dashboard/campaigns" style={{
                   display: "flex", alignItems: "center", gap: 5,
                   padding: "7px 12px", borderRadius: "var(--r-md)",
-                  background: "var(--amber)", color: "#F4F4FF",
+                  background: "var(--amber)", color: "#15131D",
                   fontSize: 12, fontWeight: 700, textDecoration: "none", whiteSpace: "nowrap",
                 }}>
                   <FolderCog size={12} /> Create Campaign <ArrowRight size={11} />

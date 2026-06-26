@@ -121,7 +121,7 @@ export default function AuthPage() {
 
         {/* Tab switcher */}
         <div style={{
-          display: "flex", background: "#101018",
+          display: "flex", background: "#F1F2F8",
           border: "1px solid #22222c",
           borderRadius: 12, padding: 4, marginBottom: 26, gap: 4,
         }}>
@@ -145,28 +145,28 @@ export default function AuthPage() {
             <>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                 <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#C7C7D6", marginBottom: 6 }}>Full name</label>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#3A3550", marginBottom: 6 }}>Full name</label>
                   <input type="text" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Jane Doe" required style={inputBase} />
                 </div>
                 <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#C7C7D6", marginBottom: 6 }}>Username</label>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#3A3550", marginBottom: 6 }}>Username</label>
                   <input type="text" value={username} onChange={e => setUsername(e.target.value)} placeholder="jane" required style={inputBase} />
                 </div>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                 <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#C7C7D6", marginBottom: 6 }}>Phone</label>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#3A3550", marginBottom: 6 }}>Phone</label>
                   <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+1 (305) 555-0199" required style={inputBase} />
                 </div>
                 <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#C7C7D6", marginBottom: 6 }}>Website</label>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#3A3550", marginBottom: 6 }}>Website</label>
                   <input type="url" value={website} onChange={e => setWebsite(e.target.value)} placeholder="https://…" style={inputBase} />
                 </div>
               </div>
             </>
           )}
           <div>
-            <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#C7C7D6", marginBottom: 7, letterSpacing: "0.02em" }}>
+            <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#3A3550", marginBottom: 7, letterSpacing: "0.02em" }}>
               Email address
             </label>
             <input
@@ -176,7 +176,7 @@ export default function AuthPage() {
           </div>
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 7 }}>
-              <label style={{ fontSize: 12, fontWeight: 700, color: "#C7C7D6", letterSpacing: "0.02em" }}>
+              <label style={{ fontSize: 12, fontWeight: 700, color: "#3A3550", letterSpacing: "0.02em" }}>
                 Password
               </label>
               {tab === "signin" && (
@@ -218,7 +218,7 @@ export default function AuthPage() {
 
           <button type="submit" disabled={loading} style={{
             width: "100%", padding: "12px",
-            background: loading ? "#101018" : RED,
+            background: loading ? "#F1F2F8" : RED,
             color: loading ? T.text3 : "#fff",
             border: "none", borderRadius: 10,
             fontSize: 14, fontWeight: 700, cursor: loading ? "not-allowed" : "pointer",

@@ -124,7 +124,7 @@ function PayInner() {
         )}
         <Link href="/dashboard"
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold"
-          style={{ background: "var(--accent)", color: "#F4F4FF" }}>
+          style={{ background: "var(--accent)", color: "#15131D" }}>
           Go to Dashboard
         </Link>
       </div>
@@ -138,7 +138,7 @@ function PayInner() {
         <div className="max-w-5xl w-full mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="w-7 h-7 rounded flex items-center justify-center text-xs font-black"
-              style={{ background: "var(--accent)", color: "#F4F4FF" }}>H</span>
+              style={{ background: "var(--accent)", color: "#15131D" }}>H</span>
             <span className="text-sm font-bold">Real<span style={{ color: "var(--accent)" }}>Track</span></span>
           </div>
           <Link href="/landing"
@@ -277,7 +277,7 @@ function PayInner() {
 
               <button type="submit" disabled={submitting}
                 className="w-full py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all"
-                style={{ background: "var(--accent)", color: "#F4F4FF", opacity: submitting ? 0.6 : 1 }}>
+                style={{ background: "var(--accent)", color: "#15131D", opacity: submitting ? 0.6 : 1 }}>
                 {submitting && <Loader2 size={14} className="animate-spin" />}
                 {submitting ? "Submitting..." : "Submit Payment Confirmation"}
               </button>

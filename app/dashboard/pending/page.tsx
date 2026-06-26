@@ -6,8 +6,8 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Clock, LogOut, RefreshCw, CreditCard, CheckCircle2, FileCheck2 } from "lucide-react";
 
-const NAVY = "#F4F4FF";
-const SLATE = "#9A9AB0";
+const NAVY = "#15131D";
+const SLATE = "#6B6880";
 const MONEY = "#2563EB";
 
 type Status = "unpaid" | "submitted_verification" | "paid" | "free" | "unknown";
@@ -55,11 +55,11 @@ export default function PendingApproval() {
   return (
     <div style={{
       minHeight: "100vh",
-      background: "linear-gradient(180deg, #101018 0%, rgba(59,130,246,0.10) 100%)",
+      background: "linear-gradient(180deg, #F1F2F8 0%, rgba(59,130,246,0.10) 100%)",
       display: "flex", alignItems: "center", justifyContent: "center", padding: 24,
     }}>
       <div style={{
-        maxWidth: 520, width: "100%", background: "#0A0A0E",
+        maxWidth: 520, width: "100%", background: "#FFFFFF",
         borderRadius: 18, padding: 36,
         boxShadow: "0 20px 60px rgba(15,23,42,0.08)",
         border: "1px solid #22222c",
@@ -123,7 +123,7 @@ export default function PendingApproval() {
           <button onClick={recheck} disabled={checking} style={{
             flex: 1, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 7,
             padding: "11px 18px", borderRadius: 10,
-            background: "#0A0A0E", border: "1px solid #22222c", color: NAVY,
+            background: "#FFFFFF", border: "1px solid #22222c", color: NAVY,
             fontSize: 13, fontWeight: 700, cursor: checking ? "wait" : "pointer",
           }}>
             <RefreshCw size={14} className={checking ? "animate-spin" : ""} />
@@ -132,7 +132,7 @@ export default function PendingApproval() {
           <button onClick={logout} style={{
             display: "inline-flex", alignItems: "center", gap: 6,
             padding: "11px 16px", borderRadius: 10,
-            border: "1px solid #22222c", background: "#0A0A0E", color: SLATE,
+            border: "1px solid #22222c", background: "#FFFFFF", color: SLATE,
             fontSize: 12.5, fontWeight: 700, cursor: "pointer",
           }}>
             <LogOut size={13} /> Sign out

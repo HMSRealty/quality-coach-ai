@@ -8,8 +8,8 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Key, Plus, Trash2, Loader2, CheckCircle2, XCircle, Home, Eye, EyeOff, AlertTriangle, Play, Pause } from "lucide-react";
 
-const NAVY = "#F4F4FF";
-const SLATE = "#9A9AB0";
+const NAVY = "#15131D";
+const SLATE = "#6B6880";
 const SKY = "#3B82F6";
 const SKY_600 = "#2563EB";
 const MONEY = "#2563EB";
@@ -108,13 +108,13 @@ export function ZillowKeysCard() {
     await load();
   };
 
-  const card: React.CSSProperties = { background: "#0A0A0E", border: "1px solid var(--border-2)", borderRadius: 14, padding: 22, boxShadow: "var(--shadow-sm)" };
-  const inp: React.CSSProperties = { width: "100%", padding: "9px 11px", borderRadius: 9, border: "1px solid var(--border-2)", background: "#0A0A0E", color: "#F4F4FF", fontSize: 13, outline: "none", fontFamily: "var(--font-mono)" };
+  const card: React.CSSProperties = { background: "#FFFFFF", border: "1px solid var(--border-2)", borderRadius: 14, padding: 22, boxShadow: "var(--shadow-sm)" };
+  const inp: React.CSSProperties = { width: "100%", padding: "9px 11px", borderRadius: 9, border: "1px solid var(--border-2)", background: "#FFFFFF", color: "#15131D", fontSize: 13, outline: "none", fontFamily: "var(--font-mono)" };
 
   return (
     <div style={card}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6, flexWrap: "wrap", gap: 8 }}>
-        <p style={{ fontSize: 15, fontWeight: 800, color: "#F4F4FF", display: "inline-flex", alignItems: "center", gap: 8 }}>
+        <p style={{ fontSize: 15, fontWeight: 800, color: "#15131D", display: "inline-flex", alignItems: "center", gap: 8 }}>
           <Home size={16} color={SKY_600} /> Zillow / Property Data
         </p>
         <button onClick={() => setAdding(a => !a)} style={{
@@ -177,7 +177,7 @@ export function ZillowKeysCard() {
               <div key={k.id} style={{
                 display: "flex", alignItems: "center", gap: 10,
                 padding: "10px 14px", borderRadius: 10,
-                background: k.is_active ? "#101018" : "rgba(251,113,133,0.12)",
+                background: k.is_active ? "#F1F2F8" : "rgba(251,113,133,0.12)",
                 border: `1px solid ${k.is_active ? "var(--border-1)" : "#FECACA"}`,
                 opacity: k.is_active ? 1 : 0.7,
                 flexWrap: "wrap",
@@ -200,12 +200,12 @@ export function ZillowKeysCard() {
                   </p>
                 </div>
                 <select value={k.assigned_user_id || ""} onChange={e => reassign(k, e.target.value)}
-                  title="Reassign" style={{ padding: "4px 8px", borderRadius: 7, border: "1px solid var(--border-2)", background: "#0A0A0E", color: NAVY, fontSize: 11, maxWidth: 140 }}>
+                  title="Reassign" style={{ padding: "4px 8px", borderRadius: 7, border: "1px solid var(--border-2)", background: "#FFFFFF", color: NAVY, fontSize: 11, maxWidth: 140 }}>
                   <option value="">Unassigned</option>
                   {users.map(u => <option key={u.id} value={u.id}>{u.full_name || u.email || u.id.slice(0, 8)}</option>)}
                 </select>
                 <button onClick={() => toggle(k)} title={k.is_active ? "Pause" : "Resume"}
-                  style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "5px 10px", borderRadius: 7, border: "1px solid var(--border-2)", background: "#0A0A0E", color: NAVY, fontSize: 11.5, fontWeight: 700, cursor: "pointer" }}>
+                  style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "5px 10px", borderRadius: 7, border: "1px solid var(--border-2)", background: "#FFFFFF", color: NAVY, fontSize: 11.5, fontWeight: 700, cursor: "pointer" }}>
                   {k.is_active ? <><Pause size={11} /> Pause</> : <><Play size={11} /> Resume</>}
                 </button>
                 <button onClick={() => remove(k)} title="Remove"

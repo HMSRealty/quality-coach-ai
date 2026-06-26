@@ -59,10 +59,10 @@ interface Person {
 }
 
 // ── Buckets ────────────────────────────────────────────────────────────
-// Closer's Office hierarchy: rank shown by darkness, not hue. Top of the
+// Rank hierarchy: rank shown by darkness, not hue. Top of the
 // floor = jet ink, callers = soft money. One brand family, six clear tiers.
 const BUCKETS = [
-  { key: "owner",        label: "Managers",       icon: Crown,        accent: "#0A0A0E" },
+  { key: "owner",        label: "Managers",       icon: Crown,        accent: "#FFFFFF" },
   { key: "team_leader",  label: "Team Leaders",   icon: Flag,         accent: "#1D4ED8" },
   { key: "acquisitions", label: "Acquisitions",   icon: Building2,    accent: "#2563EB" },
   { key: "qa",           label: "Quality (QA)",   icon: ShieldCheck,  accent: "#3B82F6" },

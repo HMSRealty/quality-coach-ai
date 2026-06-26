@@ -1,6 +1,6 @@
 "use client";
 
-// Gong-inspired dashboard chrome:
+// Dashboard chrome:
 //   • Midnight-gradient sticky sidebar with magenta active indicator
 //   • Glass topbar (backdrop-blur, floats over scrolling content)
 //   • Lift/glow hover on every nav link
@@ -96,7 +96,7 @@ function RealTrackMark({ size = 28 }: { size?: number }) {
     <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
       <img src="/ascendya-mark.svg" alt="Ascendyaa" style={{ height: size * 0.98, width: "auto", display: "block" }} />
       <span style={{ display: "flex", flexDirection: "column", lineHeight: 1 }}>
-        <span style={{ fontSize: 19, fontWeight: 800, color: "#F4F4FF", letterSpacing: "-0.01em", fontFamily: "var(--font-display)" }}>
+        <span style={{ fontSize: 19, fontWeight: 800, color: "#15131D", letterSpacing: "-0.01em", fontFamily: "var(--font-display)" }}>
           {brand.isCustom ? brand.name : "RealTrack"}
         </span>
         {!brand.isCustom && (
@@ -113,7 +113,7 @@ function RealTrackMark({ size = 28 }: { size?: number }) {
 function NavLink({ item, active }: { item: { label: string; href: string; icon: typeof PhoneCall }; active: boolean }) {
   const Icon = item.icon;
   const [hover, setHover] = useState(false);
-  const SKY = "#60A5FA"; // bright blue for active text/icon on the dark sidebar
+  const SKY = "#2563EB"; // blue for active text/icon on the white sidebar
   return (
     <Link href={item.href}
       onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
@@ -122,8 +122,8 @@ function NavLink({ item, active }: { item: { label: string; href: string; icon: 
         display: "flex", alignItems: "center", gap: 11,
         padding: "9px 13px", borderRadius: 10,
         textDecoration: "none",
-        background: active ? "rgba(59,130,246,0.12)" : hover ? "rgba(255,255,255,0.04)" : "transparent",
-        color: active ? SKY : "#C7C7D6",
+        background: active ? "rgba(59,130,246,0.12)" : hover ? "rgba(20,18,28,0.04)" : "transparent",
+        color: active ? SKY : "#3A3550",
         fontSize: 13, fontWeight: active ? 700 : 500,
         transform: hover && !active ? "translateX(2px)" : "translateX(0)",
         transition: "all 180ms cubic-bezier(0.16, 1, 0.30, 1)",
@@ -137,7 +137,7 @@ function NavLink({ item, active }: { item: { label: string; href: string; icon: 
         }} />
       )}
       <Icon size={16} strokeWidth={active ? 2.3 : 1.9}
-        color={active ? SKY : "#9A9AB0"}
+        color={active ? SKY : "#6B6880"}
         style={{ transition: "transform 240ms var(--spring-snap)", transform: hover ? "translateY(-1px)" : "translateY(0)" }} />
       {item.label}
     </Link>
@@ -216,7 +216,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
           sidebar drawer; tap the backdrop to close. */}
       <div className="rt-mobile-bar">
         <button onClick={() => setMobileNavOpen((o) => !o)} aria-label="Open menu" style={{
-          background: "none", border: "none", padding: 6, cursor: "pointer", color: "#F4F4FF",
+          background: "none", border: "none", padding: 6, cursor: "pointer", color: "#15131D",
         }}>
           {mobileNavOpen ? <X size={22} /> : <Menu size={22} />}
         </button>
@@ -237,7 +237,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
       {/* ───────── SIDEBAR — white, sky indicators, native scroll ───────── */}
       <aside className={`rt-sidebar ${mobileNavOpen ? "rt-sidebar-open" : ""}`} style={{
         width: 256,
-        background: "#0A0A0E",
+        background: "#FFFFFF",
         borderRight: "1px solid var(--border-2)",
         display: "flex", flexDirection: "column",
         boxShadow: "var(--shadow-sm)",

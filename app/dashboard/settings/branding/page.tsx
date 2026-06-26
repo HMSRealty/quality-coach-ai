@@ -6,12 +6,12 @@ import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 import { Palette, Upload, Loader2, CheckCircle2, X, ImageIcon, Save } from "lucide-react";
 
-const NAVY = "#F4F4FF";
-const SLATE = "#9A9AB0";
+const NAVY = "#15131D";
+const SLATE = "#6B6880";
 const SKY_600 = "#2563EB";
 const MONEY = "#2563EB";
 
-const PRESET_COLORS = ["#3B82F6", "#2563EB", "#2563EB", "#EC4899", "#F59E0B", "#3B82F6", "#EF4444", "#0A0A0E"];
+const PRESET_COLORS = ["#3B82F6", "#2563EB", "#2563EB", "#EC4899", "#F59E0B", "#3B82F6", "#EF4444", "#FFFFFF"];
 
 export default function BrandingPage() {
   const [orgId, setOrgId] = useState<string | null>(null);
@@ -105,8 +105,8 @@ export default function BrandingPage() {
     setTimeout(() => window.location.reload(), 200);
   };
 
-  const card: React.CSSProperties = { background: "#0A0A0E", border: "1px solid var(--border-2)", borderRadius: 14, padding: 24, boxShadow: "var(--shadow-sm)" };
-  const inp: React.CSSProperties = { width: "100%", padding: "10px 12px", borderRadius: 10, border: "1px solid var(--border-2)", background: "#0A0A0E", color: NAVY, fontSize: 14, outline: "none" };
+  const card: React.CSSProperties = { background: "#FFFFFF", border: "1px solid var(--border-2)", borderRadius: 14, padding: 24, boxShadow: "var(--shadow-sm)" };
+  const inp: React.CSSProperties = { width: "100%", padding: "10px 12px", borderRadius: 10, border: "1px solid var(--border-2)", background: "#FFFFFF", color: NAVY, fontSize: 14, outline: "none" };
   const lbl: React.CSSProperties = { fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: SLATE, marginBottom: 7, display: "block" };
 
   if (loading) return (
@@ -135,7 +135,7 @@ export default function BrandingPage() {
       {/* Live preview */}
       <div style={{ ...card, padding: 0, overflow: "hidden" }}>
         <div style={{ padding: "10px 16px", borderBottom: "1px solid var(--border-1)", background: "var(--surface-3)", fontSize: 11, fontWeight: 700, color: SLATE, letterSpacing: "0.04em", textTransform: "uppercase" }}>Live Preview</div>
-        <div style={{ padding: 22, display: "flex", alignItems: "center", gap: 14, background: "#0A0A0E" }}>
+        <div style={{ padding: 22, display: "flex", alignItems: "center", gap: 14, background: "#FFFFFF" }}>
           {brandLogoUrl ? (
             <img src={brandLogoUrl} alt="" style={{ height: 36, maxWidth: 180, objectFit: "contain" }} />
           ) : (
@@ -176,7 +176,7 @@ export default function BrandingPage() {
             <div style={{ display: "flex", gap: 8 }}>
               <button onClick={() => fileRef.current?.click()} disabled={saving} style={{
                 padding: "9px 14px", borderRadius: 9, border: "1px solid var(--border-2)",
-                background: "#0A0A0E", color: NAVY, fontSize: 12.5, fontWeight: 700, cursor: "pointer",
+                background: "#FFFFFF", color: NAVY, fontSize: 12.5, fontWeight: 700, cursor: "pointer",
                 display: "inline-flex", alignItems: "center", gap: 5,
               }}>
                 {saving ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />}
@@ -215,7 +215,7 @@ export default function BrandingPage() {
 
       {/* Save */}
       <div style={{ display: "flex", gap: 9, justifyContent: "flex-end" }}>
-        <button onClick={reset} style={{ padding: "11px 18px", borderRadius: 10, border: "1px solid var(--border-2)", background: "#0A0A0E", color: SLATE, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+        <button onClick={reset} style={{ padding: "11px 18px", borderRadius: 10, border: "1px solid var(--border-2)", background: "#FFFFFF", color: SLATE, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
           Reset to defaults
         </button>
         <button onClick={save} disabled={saving} style={{

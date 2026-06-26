@@ -258,7 +258,7 @@ export default function ProfilePage() {
                   <button onClick={() => setTab("api")} style={{
                     display: "flex", alignItems: "center", gap: 5,
                     padding: "7px 14px", borderRadius: "var(--r-md)",
-                    background: "var(--amber)", color: "#F4F4FF",
+                    background: "var(--amber)", color: "#15131D",
                     fontSize: 12, fontWeight: 700, border: "none", cursor: "pointer", whiteSpace: "nowrap",
                   }}>
                     Add Key <ChevronRight size={12} />
@@ -422,7 +422,7 @@ export default function ProfilePage() {
                   </p>
                   <Link href="/landing#pricing" style={{
                     padding: "7px 14px", borderRadius: "var(--r-md)",
-                    background: "var(--amber)", color: "#F4F4FF",
+                    background: "var(--amber)", color: "#15131D",
                     fontSize: 12, fontWeight: 700, textDecoration: "none", whiteSpace: "nowrap",
                   }}>
                     Upgrade Plan

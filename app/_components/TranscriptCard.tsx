@@ -1,6 +1,6 @@
 "use client";
 
-// Gong-style transcript viewer. Parses the diarized "Agent:/Seller: [MM:SS] …"
+// Diarized transcript viewer. Parses the diarized "Agent:/Seller: [MM:SS] …"
 // transcript the analyzer stores on the lead, renders it as a clean two-sided
 // conversation with timestamps, a live search filter, and copy-to-clipboard.
 import { useMemo, useState } from "react";

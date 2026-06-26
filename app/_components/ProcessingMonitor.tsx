@@ -128,12 +128,12 @@ export function ProcessingMonitor() {
       {/* Expanded list */}
       {open && count > 0 && (
         <div style={{
-          marginBottom: 8, background: "#0A0A0E", borderRadius: 14, border: "1px solid var(--border-2)",
+          marginBottom: 8, background: "#FFFFFF", borderRadius: 14, border: "1px solid var(--border-2)",
           boxShadow: "0 20px 50px rgba(15,23,42,0.22)", overflow: "hidden",
         }}>
           <div style={{ padding: "11px 14px", borderBottom: "1px solid var(--border-1)", display: "flex", alignItems: "center", gap: 8 }}>
             <Activity size={15} color={SKY_600} />
-            <span style={{ fontSize: 12.5, fontWeight: 800, color: "#F4F4FF", flex: 1 }}>
+            <span style={{ fontSize: 12.5, fontWeight: 800, color: "#15131D", flex: 1 }}>
               {active} analyzing{queued > 0 ? ` · ${queued} queued` : ""}
             </span>
             {count > 0 && (
@@ -158,7 +158,7 @@ export function ProcessingMonitor() {
                   ? <Clock size={14} style={{ color: "var(--text-3)", flexShrink: 0 }} />
                   : <Loader2 size={14} className="animate-spin" style={{ color: SKY, flexShrink: 0 }} />}
                 <div style={{ minWidth: 0, flex: 1 }}>
-                  <p style={{ fontSize: 12.5, fontWeight: 700, color: "#F4F4FF", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{j.address}</p>
+                  <p style={{ fontSize: 12.5, fontWeight: 700, color: "#15131D", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{j.address}</p>
                   <p style={{ fontSize: 11, color: "var(--text-3)" }}>
                     {j.pending ? `Queued${typeof i === "number" ? ` · #${i + 1 - active}` : ""}` : `Analyzing${j.agent ? ` · ${j.agent}` : ""} · ${ageLabel(j.since)}`}
                   </p>

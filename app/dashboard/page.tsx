@@ -1,6 +1,6 @@
 "use client";
 
-// Gong-inspired Overview:
+// Overview:
 //   • Hero with brand-gradient pill + breathable spacing
 //   • KPI scorecards w/ trend chips (▲ / ▼)
 //   • Smooth curved-line chart + stacked-bar weekly comparison
@@ -33,13 +33,13 @@ interface Lead {
 
 const QUALIFIED_SET = ["Hot", "Warm", "Cold"];
 
-// Closer's Office status palette. Hot stays urgent-red because "Hot" is
+// Status palette. Hot stays urgent-red because "Hot" is
 // universal floor language for "drop everything." Cold goes slate (not sky)
 // so it sits quietly inside the cream canvas without competing with brand.
 const S_CFG: Record<string, { bg: string; color: string }> = {
   Hot:          { bg: "#FEE2E2", color: "#DC2626" },
   Warm:         { bg: "rgba(245,158,11,0.12)", color: "#B45309" },
-  Cold:         { bg: "#101018", color: "#9A9AB0" },
+  Cold:         { bg: "#F1F2F8", color: "#6B6880" },
   "Call Back":  { bg: "rgba(245,158,11,0.12)", color: "#F59E0B" },
   Disqualified: { bg: T.surface3 as string, color: T.slate as string },
   Duplicate:    { bg: "#F3E8FF", color: "#6B21A8" },
@@ -127,7 +127,7 @@ function StackedBars({ rows, height = 220 }: {
           <g key={i}>
             {hHot > 0 && <rect x={x} y={y} width={barW} height={hHot} rx={6} fill="#DC2626" />}
             {hWarm > 0 && <rect x={x} y={y + hHot} width={barW} height={hWarm} rx={6} fill="#F59E0B" />}
-            {hCold > 0 && <rect x={x} y={y + hHot + hWarm} width={barW} height={hCold} rx={6} fill="#9A9AB0" />}
+            {hCold > 0 && <rect x={x} y={y + hHot + hWarm} width={barW} height={hCold} rx={6} fill="#6B6880" />}
             <text x={x + barW / 2} y={height - 2} textAnchor="middle" fontSize={11} fill="var(--text-2)" fontWeight={600}>{r.label}</text>
           </g>
         );
@@ -349,7 +349,7 @@ export default function DashboardPage() {
           </div>
           <StackedBars rows={stacked} />
           <div style={{ display: "flex", gap: 14, marginTop: 12, fontSize: 11 }}>
-            {[{ c: "#DC2626", l: "Hot" }, { c: "#F59E0B", l: "Warm" }, { c: "#26262F", l: "Cold" }].map((s) => (
+            {[{ c: "#DC2626", l: "Hot" }, { c: "#F59E0B", l: "Warm" }, { c: "#D7DAE6", l: "Cold" }].map((s) => (
               <span key={s.l} style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "var(--text-2)" }}>
                 <span style={{ width: 10, height: 10, borderRadius: 3, background: s.c }} /> {s.l}
               </span>

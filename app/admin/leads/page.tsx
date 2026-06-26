@@ -7,7 +7,7 @@ import Link from "next/link";
 import { T } from "@/app/_components/tokens";
 
 const BG = T.surface3;
-const PANEL = "#0A0A0E";
+const PANEL = "#FFFFFF";
 const PANEL_2 = T.surface3;
 const TEAL = "#2563EB";
 const TXT = T.navy;

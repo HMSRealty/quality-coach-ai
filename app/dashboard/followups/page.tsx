@@ -107,7 +107,7 @@ export default function FollowupsPage() {
             {f.label}
             <span style={{
               padding: "1px 7px", borderRadius: 999, fontSize: 10,
-              background: filter === f.id ? "rgba(255,255,255,0.2)" : "#101018",
+              background: filter === f.id ? "rgba(255,255,255,0.2)" : "#F1F2F8",
               color: filter === f.id ? "#fff" : SLATE,
             }}>
               {f.count}

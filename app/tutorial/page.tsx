@@ -75,10 +75,10 @@ const FAQS = [
 
 export default function TutorialPage() {
   return (
-    <div style={{ minHeight: "100vh", background: "#0A0A0E", color: "#F4F4FF" }}>
-      <nav style={{ borderBottom: "1px solid #22222c", padding: "16px 28px", background: "#0A0A0E", position: "sticky", top: 0, zIndex: 10 }}>
+    <div style={{ minHeight: "100vh", background: "#FFFFFF", color: "#15131D" }}>
+      <nav style={{ borderBottom: "1px solid #22222c", padding: "16px 28px", background: "#FFFFFF", position: "sticky", top: 0, zIndex: 10 }}>
         <div style={{ maxWidth: 960, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 7, fontSize: 13, color: "#9A9AB0", fontWeight: 700, textDecoration: "none" }}>
+          <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 7, fontSize: 13, color: "#6B6880", fontWeight: 700, textDecoration: "none" }}>
             <ArrowLeft size={14} /> Back to RealTrack
           </Link>
           <Link href="/login" style={{
@@ -105,7 +105,7 @@ export default function TutorialPage() {
           <h1 style={{ fontSize: 40, fontWeight: 900, letterSpacing: "-0.025em", marginBottom: 14 }}>
             From signup to qualified leads in 15 minutes.
           </h1>
-          <p style={{ fontSize: 17, color: "#9A9AB0", lineHeight: 1.6 }}>
+          <p style={{ fontSize: 17, color: "#6B6880", lineHeight: 1.6 }}>
             Follow these eight steps to get RealTrack fully operational — from your first signup
             through to your first AI-qualified lead landing in your Call Library.
           </p>
@@ -120,7 +120,7 @@ export default function TutorialPage() {
             return (
               <div key={i} style={{
                 display: "flex", gap: 18, padding: "20px 22px",
-                background: "#0A0A0E", border: "1px solid #22222c", borderRadius: 14,
+                background: "#FFFFFF", border: "1px solid #22222c", borderRadius: 14,
                 boxShadow: "0 1px 3px rgba(15,23,42,0.04)",
               }}>
                 <div style={{
@@ -131,8 +131,8 @@ export default function TutorialPage() {
                   <Icon size={20} />
                 </div>
                 <div>
-                  <h3 style={{ fontSize: 17, fontWeight: 800, marginBottom: 6, color: "#F4F4FF" }}>{s.title}</h3>
-                  <p style={{ fontSize: 14.5, color: "#9A9AB0", lineHeight: 1.65 }}>{s.body}</p>
+                  <h3 style={{ fontSize: 17, fontWeight: 800, marginBottom: 6, color: "#15131D" }}>{s.title}</h3>
+                  <p style={{ fontSize: 14.5, color: "#6B6880", lineHeight: 1.65 }}>{s.body}</p>
                 </div>
               </div>
             );
@@ -141,14 +141,14 @@ export default function TutorialPage() {
       </section>
 
       {/* Webhook reference */}
-      <section style={{ background: "#101018", padding: "60px 28px" }}>
+      <section style={{ background: "#F1F2F8", padding: "60px 28px" }}>
         <div style={{ maxWidth: 760, margin: "0 auto" }}>
           <h2 style={{ fontSize: 26, fontWeight: 900, marginBottom: 8, letterSpacing: "-0.02em" }}>Webhook reference</h2>
-          <p style={{ fontSize: 14.5, color: "#9A9AB0", marginBottom: 22 }}>
+          <p style={{ fontSize: 14.5, color: "#6B6880", marginBottom: 22 }}>
             Send leads to RealTrack with a single HTTP POST. Works with any dialer, CRM, or no-code tool.
           </p>
 
-          <div style={{ background: "#0A0A0E", borderRadius: 12, padding: "18px 22px", overflowX: "auto", fontFamily: "ui-monospace, SF Mono, Consolas, monospace", fontSize: 12.5, color: "#22222c", lineHeight: 1.7 }}>
+          <div style={{ background: "#FFFFFF", borderRadius: 12, padding: "18px 22px", overflowX: "auto", fontFamily: "ui-monospace, SF Mono, Consolas, monospace", fontSize: 12.5, color: "#22222c", lineHeight: 1.7 }}>
             <div style={{ color: "#93C5FD" }}>POST <span style={{ color: "#FCD34D" }}>https://realtrack.app/api/inbound/lead?key=YOUR_API_KEY</span></div>
             <div style={{ color: "#94A3B8" }}>Content-Type: application/json</div>
             <div style={{ color: "#94A3B8" }}>Authorization: Bearer YOUR_API_KEY</div>
@@ -163,11 +163,11 @@ export default function TutorialPage() {
             <div>  &quot;<span style={{ color: "#7DD3FC" }}>phone</span>&quot;: &quot;5551234567&quot;,</div>
             <div>  &quot;<span style={{ color: "#7DD3FC" }}>campaign</span>&quot;: &quot;Motivated Sellers&quot;,</div>
             <div>  &quot;<span style={{ color: "#7DD3FC" }}>agent_name</span>&quot;: &quot;Sarah Smith&quot;,</div>
-            <div>  &quot;<span style={{ color: "#7DD3FC" }}>recording_url</span>&quot;: &quot;https://...&quot;  <span style={{ color: "#9A9AB0" }}>// optional</span></div>
+            <div>  &quot;<span style={{ color: "#7DD3FC" }}>recording_url</span>&quot;: &quot;https://...&quot;  <span style={{ color: "#6B6880" }}>// optional</span></div>
             <div>{`}`}</div>
           </div>
 
-          <p style={{ fontSize: 12.5, color: "#9A9AB0", marginTop: 14 }}>
+          <p style={{ fontSize: 12.5, color: "#6B6880", marginTop: 14 }}>
             Get your API key under <strong>Settings → API → API Keys</strong>. Webhook accepts JSON, form-urlencoded, or
             Readymode&apos;s <code style={{ background: "#22222c", padding: "1px 5px", borderRadius: 4 }}>lead[0][field]</code> format.
           </p>
@@ -180,21 +180,21 @@ export default function TutorialPage() {
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {FAQS.map((f, i) => (
             <details key={i} style={{
-              background: "#0A0A0E", border: "1px solid #22222c", borderRadius: 11,
+              background: "#FFFFFF", border: "1px solid #22222c", borderRadius: 11,
               padding: "14px 18px",
             }}>
-              <summary style={{ fontSize: 15, fontWeight: 700, color: "#F4F4FF", cursor: "pointer", listStyle: "none", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <summary style={{ fontSize: 15, fontWeight: 700, color: "#15131D", cursor: "pointer", listStyle: "none", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 {f.q}
                 <span style={{ color: "#2563EB", marginLeft: 12 }}>+</span>
               </summary>
-              <p style={{ marginTop: 10, fontSize: 14, color: "#9A9AB0", lineHeight: 1.65 }}>{f.a}</p>
+              <p style={{ marginTop: 10, fontSize: 14, color: "#6B6880", lineHeight: 1.65 }}>{f.a}</p>
             </details>
           ))}
         </div>
       </section>
 
       {/* CTA */}
-      <section style={{ background: "linear-gradient(180deg, #0A0A0E, #1B1B24)", color: "#fff", padding: "60px 28px", textAlign: "center" }}>
+      <section style={{ background: "linear-gradient(180deg, #FFFFFF, #E7E9F2)", color: "#fff", padding: "60px 28px", textAlign: "center" }}>
         <h2 style={{ fontSize: 30, fontWeight: 900, marginBottom: 12, letterSpacing: "-0.02em" }}>Ready to start?</h2>
         <p style={{ fontSize: 16, color: "rgba(255,255,255,0.7)", marginBottom: 26 }}>14-day money-back guarantee. Cancel anytime.</p>
         <Link href="/login?tab=signup" style={{
@@ -208,7 +208,7 @@ export default function TutorialPage() {
         </Link>
       </section>
 
-      <footer style={{ background: "#0B0F1F", color: "rgba(255,255,255,0.6)", padding: "30px 28px", textAlign: "center", fontSize: 12 }}>
+      <footer style={{ background: "#15131D", color: "rgba(255,255,255,0.6)", padding: "30px 28px", textAlign: "center", fontSize: 12 }}>
         <a href="mailto:info@realtrack.app" style={{ color: "rgba(255,255,255,0.85)", textDecoration: "none" }}>info@realtrack.app</a>
         <div style={{ marginTop: 6 }}>© {new Date().getFullYear()} RealTrack.</div>
       </footer>

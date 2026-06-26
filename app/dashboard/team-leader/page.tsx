@@ -8,15 +8,15 @@ import {
 } from "recharts";
 import { Users, Loader2, TrendingUp, Target, Phone, AlertCircle } from "lucide-react";
 
-// Closer's Office. Names kept (TEAL/GOLD) so the file's chart code stays
+// RealTrack — Names kept (TEAL/GOLD) so the file's chart code stays
 // unchanged — only values flip to money-green + cream surfaces.
-const BG = "#000000";       // cream canvas
-const PANEL = "#0A0A0E";    // card
-const PANEL_2 = "#101018";  // cream-100 subtle row
+const BG = "#F6F7FB";       // cream canvas
+const PANEL = "#FFFFFF";    // card
+const PANEL_2 = "#F1F2F8";  // cream-100 subtle row
 const TEAL = "#3B82F6";     // money primary
 const TEAL_DIM = "rgba(59,130,246,0.14)";
-const TXT = "#F4F4FF";      // jet ink
-const MUTED = "#9A9AB0";    // slate-500 secondary
+const TXT = "#15131D";      // jet ink
+const MUTED = "#6B6880";    // slate-500 secondary
 const GOLD = "#2563EB";     // deeper money
 const ROSE = "#DC2626";     // red — kept for warnings/losses
 

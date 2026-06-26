@@ -16,8 +16,8 @@ const emptyKpi = (): KpiRow => ({ name: "", target: 0, actual: 0, bonusPerUnit: 
 
 const INP: React.CSSProperties = {
   width: "100%", padding: "7px 9px", borderRadius: 8,
-  border: "1px solid var(--border-2)", background: "#0A0A0E",
-  color: "#F4F4FF", fontSize: 13, outline: "none",
+  border: "1px solid var(--border-2)", background: "#FFFFFF",
+  color: "#15131D", fontSize: 13, outline: "none",
 };
 const NUM: React.CSSProperties = { ...INP, textAlign: "right" };
 
@@ -43,13 +43,13 @@ export function SalaryCalculator() {
   const gross = baseSalary + hourlyPay + leadBonus + kpiBonus;
 
   return (
-    <div style={{ background: "#0A0A0E", border: "1px solid var(--border-2)", borderRadius: 16, padding: 20, boxShadow: "var(--shadow-sm)" }}>
+    <div style={{ background: "#FFFFFF", border: "1px solid var(--border-2)", borderRadius: 16, padding: 20, boxShadow: "var(--shadow-sm)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
         <span style={{ width: 32, height: 32, borderRadius: 9, background: "color-mix(in srgb, #3B82F6 14%, transparent)", display: "flex", alignItems: "center", justifyContent: "center" }}>
           <Calculator size={16} color={SKY_600} />
         </span>
         <div>
-          <p style={{ fontSize: 15, fontWeight: 800, color: "#F4F4FF" }}>Salary Calculator</p>
+          <p style={{ fontSize: 15, fontWeight: 800, color: "#15131D" }}>Salary Calculator</p>
           <p style={{ fontSize: 11.5, color: "var(--text-3)" }}>Enter hours, leads, and KPIs — gross pay is calculated automatically.</p>
         </div>
       </div>
@@ -67,7 +67,7 @@ export function SalaryCalculator() {
       <div style={{ overflowX: "auto", borderRadius: 12, border: "1px solid var(--border-2)", marginBottom: 10 }}>
         <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 580 }}>
           <thead>
-            <tr style={{ background: "#101018" }}>
+            <tr style={{ background: "#F1F2F8" }}>
               {["KPI Name", "Target", "Actual", "Bonus / Unit", "Earned", ""].map((h, i) => (
                 <th key={i} style={{ padding: "8px 10px", textAlign: i >= 3 ? "right" : "left", fontSize: 10, fontWeight: 800, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--text-3)", borderBottom: "1px solid var(--border-2)", whiteSpace: "nowrap" }}>{h}</th>
               ))}
@@ -107,12 +107,12 @@ export function SalaryCalculator() {
           </tbody>
         </table>
       </div>
-      <button onClick={addKpi} style={{ display: "inline-flex", alignItems: "center", gap: 6, marginBottom: 20, padding: "7px 13px", borderRadius: 9, background: "#101018", border: "1px solid var(--border-2)", color: SKY_600, fontSize: 12.5, fontWeight: 800, cursor: "pointer" }}>
+      <button onClick={addKpi} style={{ display: "inline-flex", alignItems: "center", gap: 6, marginBottom: 20, padding: "7px 13px", borderRadius: 9, background: "#F1F2F8", border: "1px solid var(--border-2)", color: SKY_600, fontSize: 12.5, fontWeight: 800, cursor: "pointer" }}>
         <Plus size={13} /> Add KPI
       </button>
 
       {/* Results breakdown */}
-      <div style={{ background: "#101018", borderRadius: 14, padding: 18, border: "1px solid var(--border-2)" }}>
+      <div style={{ background: "#F1F2F8", borderRadius: 14, padding: 18, border: "1px solid var(--border-2)" }}>
         <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--text-3)", marginBottom: 12 }}>Pay Breakdown</p>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <BreakdownRow label="Base Salary" value={baseSalary} />
@@ -121,7 +121,7 @@ export function SalaryCalculator() {
           <BreakdownRow label="KPI Bonuses" value={kpiBonus} />
           <div style={{ height: 1, background: "var(--border-2)", margin: "4px 0" }} />
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span style={{ fontSize: 14, fontWeight: 900, color: "#F4F4FF" }}>Gross Pay</span>
+            <span style={{ fontSize: 14, fontWeight: 900, color: "#15131D" }}>Gross Pay</span>
             <span style={{ fontSize: 22, fontWeight: 900, color: MONEY, letterSpacing: "-0.02em" }}>{money(gross)}</span>
           </div>
         </div>

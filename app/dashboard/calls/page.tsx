@@ -15,7 +15,7 @@ function EmptyCallLibrary({ hasFilter }: { hasFilter: boolean }) {
   const sample = "https://realtrack.app/api/inbound/lead?key=YOUR_API_KEY";
   if (hasFilter) {
     return (
-      <div style={{ padding: 70, textAlign: "center", background: "#0A0A0E", borderRadius: 16, border: "1px solid var(--border-2)" }}>
+      <div style={{ padding: 70, textAlign: "center", background: "#FFFFFF", borderRadius: 16, border: "1px solid var(--border-2)" }}>
         <Search size={28} style={{ margin: "0 auto 14px", opacity: 0.35, color: "var(--text-3)" }} />
         <p style={{ fontSize: 14, fontWeight: 700, color: "var(--text-1)" }}>No leads match your filters</p>
         <p style={{ fontSize: 12.5, color: "var(--text-3)", marginTop: 6 }}>Try clearing the search or filter selections above.</p>
@@ -24,7 +24,7 @@ function EmptyCallLibrary({ hasFilter }: { hasFilter: boolean }) {
   }
   return (
     <div style={{
-      padding: "44px 28px", background: "#0A0A0E", borderRadius: 18,
+      padding: "44px 28px", background: "#FFFFFF", borderRadius: 18,
       border: "1px solid var(--border-2)", textAlign: "center",
       boxShadow: "var(--shadow-sm)",
     }}>
@@ -43,7 +43,7 @@ function EmptyCallLibrary({ hasFilter }: { hasFilter: boolean }) {
       </p>
       <div style={{
         display: "inline-flex", alignItems: "center", gap: 8,
-        padding: "10px 14px", background: "#101018",
+        padding: "10px 14px", background: "#F1F2F8",
         border: "1px solid var(--border-2)", borderRadius: 11,
         marginBottom: 22, maxWidth: "100%",
       }}>
@@ -66,7 +66,7 @@ function EmptyCallLibrary({ hasFilter }: { hasFilter: boolean }) {
         </Link>
         <Link href="/dashboard/integrations" style={{
           padding: "11px 20px", borderRadius: 10,
-          background: "#0A0A0E", color: "var(--text-1)",
+          background: "#FFFFFF", color: "var(--text-1)",
           border: "1px solid var(--border-2)",
           fontSize: 13, fontWeight: 700, textDecoration: "none",
         }}>
@@ -379,7 +379,7 @@ export default function CallsPage() {
 
       {/* Bulk action bar */}
       {selectMode && (
-        <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 16px", borderRadius: 12, background: "#0d1626", border: "1px solid #3B82F6", flexWrap: "wrap" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 16px", borderRadius: 12, background: "#EFF5FF", border: "1px solid #3B82F6", flexWrap: "wrap" }}>
           <span style={{ fontSize: 13, fontWeight: 800, color: "#1D4ED8" }}>{selected.size} selected</span>
           <button onClick={() => setSelected(selected.size === filtered.length ? new Set() : new Set(filtered.map(l => l.id)))}
             style={{ background: "none", border: "none", cursor: "pointer", color: "#2563EB", fontSize: 12.5, fontWeight: 700 }}>

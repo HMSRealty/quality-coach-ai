@@ -163,7 +163,7 @@ export default function PermissionsPage() {
                 <td style={{ padding: "12px 16px" }}>
                   <span style={{
                     padding: "3px 10px", borderRadius: 999, fontSize: 11, fontWeight: 700,
-                    background: u.role === "admin" ? "#EAF0FF" : "#101018",
+                    background: u.role === "admin" ? "#EAF0FF" : "#F1F2F8",
                     color: u.role === "admin" ? "#F59E0B" : SLATE,
                   }}>
                     {u.role}

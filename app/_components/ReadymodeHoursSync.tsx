@@ -10,8 +10,8 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Loader2, Server, RefreshCw, CheckCircle2, AlertCircle, CalendarDays } from "lucide-react";
 
-const NAVY = "#F4F4FF";
-const SLATE = "#9A9AB0";
+const NAVY = "#15131D";
+const SLATE = "#6B6880";
 const MONEY = "#2563EB";
 const MONEY_LT = "#3B82F6";
 
@@ -134,10 +134,10 @@ export function ReadymodeHoursSync() {
 
   const inp: React.CSSProperties = {
     padding: "9px 11px", borderRadius: 9, border: "1px solid var(--border-2)",
-    background: "#0A0A0E", color: NAVY, fontSize: 13, outline: "none",
+    background: "#FFFFFF", color: NAVY, fontSize: 13, outline: "none",
   };
   const card: React.CSSProperties = {
-    background: "#0A0A0E", border: "1px solid var(--border-2)", borderRadius: 14,
+    background: "#FFFFFF", border: "1px solid var(--border-2)", borderRadius: 14,
     padding: 22, boxShadow: "var(--shadow-sm)",
   };
 
@@ -215,8 +215,8 @@ export function ReadymodeHoursSync() {
                   Show diagnostic details
                 </summary>
                 <pre style={{
-                  marginTop: 6, padding: 10, borderRadius: 7, background: "#0A0A0E",
-                  border: "1px solid #FECACA", color: "#F4F4FF", fontSize: 11,
+                  marginTop: 6, padding: 10, borderRadius: 7, background: "#FFFFFF",
+                  border: "1px solid #FECACA", color: "#15131D", fontSize: 11,
                   maxHeight: 360, overflow: "auto", whiteSpace: "pre-wrap", wordBreak: "break-word",
                   fontFamily: "var(--font-mono)",
                 }}>
@@ -249,7 +249,7 @@ export function ReadymodeHoursSync() {
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12.5 }}>
               <thead>
-                <tr style={{ background: "#101018", color: SLATE }}>
+                <tr style={{ background: "#F1F2F8", color: SLATE }}>
                   {["Agent", "Period", "Logged", "Payable", "Ready", "Break", "Lunch", "AFK", "Assign to"].map((h) => (
                     <th key={h} style={{ padding: "10px 12px", textAlign: "left", fontSize: 10, fontWeight: 800, letterSpacing: "0.05em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
                       {h}

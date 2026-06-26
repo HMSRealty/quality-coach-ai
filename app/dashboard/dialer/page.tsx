@@ -478,7 +478,7 @@ export default function DialerPage() {
         <div style={{
           display: "flex", alignItems: "center", gap: 8,
           padding: "8px 14px", borderRadius: 999,
-          background: callState === "connected" ? "rgba(52,211,153,0.12)" : "#101018",
+          background: callState === "connected" ? "rgba(52,211,153,0.12)" : "#F1F2F8",
           border: `1px solid ${callState === "connected" ? "#A7F3D0" : "rgba(35,43,58,0.08)"}`,
         }}>
           <div style={{
@@ -529,13 +529,13 @@ export default function DialerPage() {
                   style={{
                     display: "flex", alignItems: "center", gap: 10,
                     width: "100%", padding: "10px 12px", borderRadius: 10,
-                    background: selectedPeer?.user_id === peer.user_id ? "#101018" : "transparent",
+                    background: selectedPeer?.user_id === peer.user_id ? "#F1F2F8" : "transparent",
                     border: "none", textAlign: "left",
                     cursor: callState === "idle" ? "pointer" : "not-allowed",
                     opacity: callState === "idle" ? 1 : 0.5,
                     transition: "background 200ms",
                   }}
-                  onMouseEnter={e => { if (callState === "idle") e.currentTarget.style.background = "#101018"; }}
+                  onMouseEnter={e => { if (callState === "idle") e.currentTarget.style.background = "#F1F2F8"; }}
                   onMouseLeave={e => { if (selectedPeer?.user_id !== peer.user_id) e.currentTarget.style.background = "transparent"; }}
                 >
                   <div style={{
@@ -638,7 +638,7 @@ export default function DialerPage() {
                 <div style={{ display: "flex", gap: 14, justifyContent: "center" }}>
                   <button onClick={toggleMute} disabled={callState !== "connected"} style={{
                     width: 56, height: 56, borderRadius: "50%",
-                    background: muted ? "rgba(251,113,133,0.12)" : "#101018",
+                    background: muted ? "rgba(251,113,133,0.12)" : "#F1F2F8",
                     border: `1px solid ${muted ? "#E7B8A6" : "rgba(35,43,58,0.08)"}`,
                     display: "flex", alignItems: "center", justifyContent: "center",
                     cursor: callState === "connected" ? "pointer" : "not-allowed",
