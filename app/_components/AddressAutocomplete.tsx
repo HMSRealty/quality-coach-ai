@@ -187,11 +187,11 @@ export function AddressAutocomplete({ value, onChange, onSelect, placeholder, re
 }
 
 const STATUS_LABEL: Record<Status, { label: string; tip: string; bg: string; fg: string; dot: string }> = {
-  "no-key":          { label: "NO KEY",   tip: "NEXT_PUBLIC_GOOGLE_PLACES_KEY isn't set in the build. Add it as a Cloudflare Pages env var on the Production environment, then redeploy.", bg: "#FEF3C7", fg: "#92400E", dot: "#D97706" },
-  "loading":         { label: "LOADING",  tip: "Fetching the Google Places script…", bg: "#E0E7FF", fg: "#3730A3", dot: "#0a5f52" },
-  "ready":           { label: "AUTOCOMPLETE",  tip: "Google Places is active — start typing to see suggestions.", bg: "#D1FAE5", fg: "#065F46", dot: "#0e7c6b" },
-  "auth-failure":    { label: "BAD KEY",  tip: "Google rejected the key. Likely causes: Places API not enabled in your Google Cloud project, billing not enabled, or the key is restricted to a different referrer.", bg: "#FEE2E2", fg: "#991B1B", dot: "#DC2626" },
-  "blocked":         { label: "BLOCKED",  tip: "The Google Maps script failed to load (ad-blocker or CORS). Try a different network or disable blockers.", bg: "#FEE2E2", fg: "#991B1B", dot: "#DC2626" },
-  "timeout":         { label: "TIMEOUT",  tip: "The script never finished loading. Reload the page; if it persists, the Maps endpoint may be unreachable from your network.", bg: "#FEE2E2", fg: "#991B1B", dot: "#DC2626" },
-  "library-missing": { label: "NO PLACES",tip: "Maps loaded but the Places library is missing. Re-check the script URL has libraries=places.", bg: "#FEE2E2", fg: "#991B1B", dot: "#DC2626" },
+  "no-key":          { label: "NO KEY",   tip: "NEXT_PUBLIC_GOOGLE_PLACES_KEY isn't set in the build. Add it as a Cloudflare Pages env var on the Production environment, then redeploy.", bg: "rgba(245,158,11,0.12)", fg: "#F59E0B", dot: "#D97706" },
+  "loading":         { label: "LOADING",  tip: "Fetching the Google Places script…", bg: "#E0E7FF", fg: "#3730A3", dot: "#2563EB" },
+  "ready":           { label: "AUTOCOMPLETE",  tip: "Google Places is active — start typing to see suggestions.", bg: "#D1FAE5", fg: "#34D399", dot: "#3B82F6" },
+  "auth-failure":    { label: "BAD KEY",  tip: "Google rejected the key. Likely causes: Places API not enabled in your Google Cloud project, billing not enabled, or the key is restricted to a different referrer.", bg: "#FEE2E2", fg: "#FB7185", dot: "#DC2626" },
+  "blocked":         { label: "BLOCKED",  tip: "The Google Maps script failed to load (ad-blocker or CORS). Try a different network or disable blockers.", bg: "#FEE2E2", fg: "#FB7185", dot: "#DC2626" },
+  "timeout":         { label: "TIMEOUT",  tip: "The script never finished loading. Reload the page; if it persists, the Maps endpoint may be unreachable from your network.", bg: "#FEE2E2", fg: "#FB7185", dot: "#DC2626" },
+  "library-missing": { label: "NO PLACES",tip: "Maps loaded but the Places library is missing. Re-check the script URL has libraries=places.", bg: "#FEE2E2", fg: "#FB7185", dot: "#DC2626" },
 };

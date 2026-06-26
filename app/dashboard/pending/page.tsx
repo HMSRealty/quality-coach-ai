@@ -6,9 +6,9 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Clock, LogOut, RefreshCw, CreditCard, CheckCircle2, FileCheck2 } from "lucide-react";
 
-const NAVY = "#15302e";
-const SLATE = "#475569";
-const MONEY = "#0a5f52";
+const NAVY = "#F4F4FF";
+const SLATE = "#9A9AB0";
+const MONEY = "#2563EB";
 
 type Status = "unpaid" | "submitted_verification" | "paid" | "free" | "unknown";
 
@@ -55,21 +55,21 @@ export default function PendingApproval() {
   return (
     <div style={{
       minHeight: "100vh",
-      background: "linear-gradient(180deg, #F8FAFC 0%, #EFF6FF 100%)",
+      background: "linear-gradient(180deg, #101018 0%, rgba(59,130,246,0.10) 100%)",
       display: "flex", alignItems: "center", justifyContent: "center", padding: 24,
     }}>
       <div style={{
-        maxWidth: 520, width: "100%", background: "#fff",
+        maxWidth: 520, width: "100%", background: "#0A0A0E",
         borderRadius: 18, padding: 36,
         boxShadow: "0 20px 60px rgba(15,23,42,0.08)",
-        border: "1px solid #E2E8F0",
+        border: "1px solid #22222c",
         textAlign: "center",
       }}>
         <div style={{
           width: 64, height: 64, borderRadius: "50%",
           background: isReceiptSubmitted
-            ? "linear-gradient(135deg, #e3a23a, #D97706)"
-            : "linear-gradient(135deg, #0e7c6b, #0a5f52)",
+            ? "linear-gradient(135deg, #F59E0B, #D97706)"
+            : "linear-gradient(135deg, #3B82F6, #2563EB)",
           margin: "0 auto 18px",
           display: "flex", alignItems: "center", justifyContent: "center",
         }}>
@@ -92,7 +92,7 @@ export default function PendingApproval() {
             <a href="/pay" style={{
               display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
               padding: "13px 22px", borderRadius: 11, border: "none",
-              background: "linear-gradient(135deg, #0e7c6b, #0a5f52)", color: "#fff",
+              background: "linear-gradient(135deg, #3B82F6, #2563EB)", color: "#fff",
               fontSize: 14, fontWeight: 800, cursor: "pointer", textDecoration: "none",
               boxShadow: "0 8px 20px rgba(10,95,82,0.30)",
             }}>
@@ -106,14 +106,14 @@ export default function PendingApproval() {
 
         {isReceiptSubmitted && (
           <div style={{
-            background: "#FEFCE8", border: "1px solid #FDE68A",
+            background: "rgba(245,158,11,0.12)", border: "1px solid #FDE68A",
             borderRadius: 12, padding: 14, marginBottom: 18,
             textAlign: "left",
           }}>
-            <p style={{ fontSize: 12, fontWeight: 700, color: "#854D0E", marginBottom: 4, display: "flex", alignItems: "center", gap: 6 }}>
+            <p style={{ fontSize: 12, fontWeight: 700, color: "#F59E0B", marginBottom: 4, display: "flex", alignItems: "center", gap: 6 }}>
               <CheckCircle2 size={13} /> Receipt received
             </p>
-            <p style={{ fontSize: 12, color: "#854D0E", lineHeight: 1.5 }}>
+            <p style={{ fontSize: 12, color: "#F59E0B", lineHeight: 1.5 }}>
               Hang tight — we&apos;ll activate your account within 1–4 business hours. Refresh with the button below once you get the email.
             </p>
           </div>
@@ -123,7 +123,7 @@ export default function PendingApproval() {
           <button onClick={recheck} disabled={checking} style={{
             flex: 1, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 7,
             padding: "11px 18px", borderRadius: 10,
-            background: "#fff", border: "1px solid #E2E8F0", color: NAVY,
+            background: "#0A0A0E", border: "1px solid #22222c", color: NAVY,
             fontSize: 13, fontWeight: 700, cursor: checking ? "wait" : "pointer",
           }}>
             <RefreshCw size={14} className={checking ? "animate-spin" : ""} />
@@ -132,7 +132,7 @@ export default function PendingApproval() {
           <button onClick={logout} style={{
             display: "inline-flex", alignItems: "center", gap: 6,
             padding: "11px 16px", borderRadius: 10,
-            border: "1px solid #E2E8F0", background: "#fff", color: SLATE,
+            border: "1px solid #22222c", background: "#0A0A0E", color: SLATE,
             fontSize: 12.5, fontWeight: 700, cursor: "pointer",
           }}>
             <LogOut size={13} /> Sign out
@@ -140,7 +140,7 @@ export default function PendingApproval() {
         </div>
 
         <p style={{ fontSize: 11, color: SLATE, marginTop: 22 }}>
-          Need help? Email <a href="mailto:info@realtrack.app" style={{ color: "#0a5f52", fontWeight: 700 }}>info@realtrack.app</a>
+          Need help? Email <a href="mailto:info@realtrack.app" style={{ color: "#2563EB", fontWeight: 700 }}>info@realtrack.app</a>
         </p>
       </div>
     </div>

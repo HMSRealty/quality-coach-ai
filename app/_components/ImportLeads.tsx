@@ -8,8 +8,8 @@ import { supabase } from "@/lib/supabase";
 import { Upload, X, Loader2, CheckCircle2, Download, FileSpreadsheet, Info } from "lucide-react";
 import { Portal } from "@/app/_components/Portal";
 
-const SKY = "#0e7c6b";
-const MONEY = "#0a5f52";
+const SKY = "#3B82F6";
+const MONEY = "#2563EB";
 
 // RFC-ish CSV parser: handles quoted fields (commas & newlines inside quotes).
 function parseCsv(text: string): string[][] {
@@ -247,33 +247,33 @@ export function ImportLeads({ onClose, onDone }: { onClose: () => void; onDone: 
     <div onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }}
       style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(15,23,42,0.45)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
       <motion.div initial={{ opacity: 0, y: 8, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ type: "spring", stiffness: 420, damping: 30 }}
-        style={{ width: "100%", maxWidth: 660, background: "#fff", borderRadius: 18, boxShadow: "0 24px 60px rgba(15,23,42,0.30)", overflow: "hidden", maxHeight: "90vh", display: "flex", flexDirection: "column" }}>
+        style={{ width: "100%", maxWidth: 660, background: "#0A0A0E", borderRadius: 18, boxShadow: "0 24px 60px rgba(15,23,42,0.30)", overflow: "hidden", maxHeight: "90vh", display: "flex", flexDirection: "column" }}>
 
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: "1px solid var(--border-1)", flexShrink: 0 }}>
-          <p style={{ fontSize: 16, fontWeight: 800, color: "#000", display: "inline-flex", alignItems: "center", gap: 9 }}><FileSpreadsheet size={18} color={SKY} /> Import Leads (CSV)</p>
+          <p style={{ fontSize: 16, fontWeight: 800, color: "#F4F4FF", display: "inline-flex", alignItems: "center", gap: 9 }}><FileSpreadsheet size={18} color={SKY} /> Import Leads (CSV)</p>
           <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-3)" }}><X size={18} /></button>
         </div>
 
         <div style={{ padding: 20, display: "flex", flexDirection: "column", gap: 14, overflowY: "auto" }}>
           <div>
             <label style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--text-3)", display: "block", marginBottom: 6 }}>Campaign</label>
-            <select value={campaignId} onChange={e => setCampaignId(e.target.value)} style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: "1px solid var(--border-2)", background: "#fff", color: "#000", fontSize: 13, outline: "none" }}>
+            <select value={campaignId} onChange={e => setCampaignId(e.target.value)} style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: "1px solid var(--border-2)", background: "#0A0A0E", color: "#F4F4FF", fontSize: 13, outline: "none" }}>
               <option value="">Select campaign…</option>
               {campaigns.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           </div>
 
-          <label style={{ border: "2px dashed color-mix(in srgb, #0e7c6b 35%, transparent)", borderRadius: 14, padding: "22px 18px", textAlign: "center", cursor: "pointer", background: "#F8FAFC", display: "block" }}>
+          <label style={{ border: "2px dashed color-mix(in srgb, #3B82F6 35%, transparent)", borderRadius: 14, padding: "22px 18px", textAlign: "center", cursor: "pointer", background: "#101018", display: "block" }}>
             <input type="file" accept=".csv" onChange={e => { const f = e.target.files?.[0]; if (f) onFile(f); }} style={{ display: "none" }} />
-            <Upload size={26} color="#0a5f52" style={{ margin: "0 auto 8px" }} />
-            <p style={{ fontSize: 14, fontWeight: 800, color: "#000" }}>{fileName || "Click to choose a CSV"}</p>
+            <Upload size={26} color="#2563EB" style={{ margin: "0 auto 8px" }} />
+            <p style={{ fontSize: 14, fontWeight: 800, color: "#F4F4FF" }}>{fileName || "Click to choose a CSV"}</p>
             <p style={{ fontSize: 12, color: "var(--text-3)", marginTop: 3 }}>Any column order — headers are auto-detected by name and cell content</p>
           </label>
 
           {/* Detected column mapping preview */}
           {Object.keys(detected).length > 0 && (
-            <div style={{ borderRadius: 12, border: "1px solid #0e7c6b33", background: "#F0F9FF", padding: "12px 14px" }}>
-              <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.05em", textTransform: "uppercase", color: "#0a5f52", marginBottom: 8, display: "inline-flex", alignItems: "center", gap: 5 }}>
+            <div style={{ borderRadius: 12, border: "1px solid #3B82F633", background: "#0d1626", padding: "12px 14px" }}>
+              <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.05em", textTransform: "uppercase", color: "#2563EB", marginBottom: 8, display: "inline-flex", alignItems: "center", gap: 5 }}>
                 <Info size={11} /> Detected columns
               </p>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
@@ -281,8 +281,8 @@ export function ImportLeads({ onClose, onDone }: { onClose: () => void; onDone: 
                   const col = detected[field];
                   if (!col) return null;
                   return (
-                    <span key={field} style={{ fontSize: 11, padding: "3px 9px", borderRadius: 999, background: "#fff", border: "1px solid #0e7c6b55", color: "#084c42", fontWeight: 700 }}>
-                      {label} → <span style={{ color: "#000" }}>{col}</span>
+                    <span key={field} style={{ fontSize: 11, padding: "3px 9px", borderRadius: 999, background: "#0A0A0E", border: "1px solid #3B82F655", color: "#1D4ED8", fontWeight: 700 }}>
+                      {label} → <span style={{ color: "#F4F4FF" }}>{col}</span>
                     </span>
                   );
                 })}
@@ -303,7 +303,7 @@ export function ImportLeads({ onClose, onDone }: { onClose: () => void; onDone: 
 
           <AnimatePresence>
             {busy && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ padding: "10px 14px", borderRadius: 10, background: "#F0F9FF", border: "1px solid #0e7c6b", fontSize: 13, fontWeight: 700, color: "#084c42", display: "flex", alignItems: "center", gap: 8 }}>
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ padding: "10px 14px", borderRadius: 10, background: "#0d1626", border: "1px solid #3B82F6", fontSize: 13, fontWeight: 700, color: "#1D4ED8", display: "flex", alignItems: "center", gap: 8 }}>
                 <Loader2 size={14} className="animate-spin" /> Importing &amp; queuing AI… {progress.done}/{progress.total}
               </motion.div>
             )}
@@ -312,7 +312,7 @@ export function ImportLeads({ onClose, onDone }: { onClose: () => void; onDone: 
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
             <button onClick={onClose} className="btn-ghost">Cancel</button>
             <button onClick={run} disabled={busy || !rows.length || !campaignId}
-              style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 18px", borderRadius: 10, border: "none", cursor: busy || !rows.length ? "not-allowed" : "pointer", background: rows.length && campaignId ? "linear-gradient(135deg, #0e7c6b, #0a5f52)" : "#7DD3FC", color: "#fff", fontSize: 13, fontWeight: 800 }}>
+              style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 18px", borderRadius: 10, border: "none", cursor: busy || !rows.length ? "not-allowed" : "pointer", background: rows.length && campaignId ? "linear-gradient(135deg, #3B82F6, #2563EB)" : "#7DD3FC", color: "#fff", fontSize: 13, fontWeight: 800 }}>
               {busy ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />} Import &amp; Qualify
             </button>
           </div>

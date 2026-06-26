@@ -166,7 +166,7 @@ export default function AdminProfilesPage() {
       {toast && (
         <div style={{
           padding: "10px 14px", borderRadius: 10, display: "flex", gap: 8, alignItems: "center",
-          background: toast.ok ? T.emeraldBg : "#FBEEE8",
+          background: toast.ok ? T.emeraldBg : "rgba(251,113,133,0.12)",
           color: toast.ok ? T.emerald : "#DC2626",
           fontSize: 13, fontWeight: 600, border: `1px solid ${toast.ok ? "#A7F3D0" : "#FBCFBE"}`,
         }}>
@@ -259,7 +259,7 @@ export default function AdminProfilesPage() {
                               {!p.parent_user_id && p.is_approved === false && (
                                 <span style={{
                                   fontSize: 9, fontWeight: 800, padding: "2px 6px", borderRadius: 999,
-                                  background: "#FEF3C7", color: "#92400E",
+                                  background: "rgba(245,158,11,0.12)", color: "#F59E0B",
                                   display: "inline-flex", alignItems: "center", gap: 3,
                                 }}>
                                   <Clock size={9} /> PENDING
@@ -311,9 +311,9 @@ export default function AdminProfilesPage() {
                               title={p.is_approved === false ? "Approve this user" : "Revoke approval"}
                               style={{
                                 ...iconBtn,
-                                color: p.is_approved === false ? "#0a5f52" : "#92400E",
+                                color: p.is_approved === false ? "#2563EB" : "#F59E0B",
                                 borderColor: p.is_approved === false ? "#A7F3D0" : "#FCD34D",
-                                background: p.is_approved === false ? "#ECFDF5" : "#FEF3C7",
+                                background: p.is_approved === false ? "rgba(52,211,153,0.12)" : "rgba(245,158,11,0.12)",
                               }}>
                               {busyId === p.id ? <Loader2 size={12} className="animate-spin" /> : <ShieldCheck size={12} />}
                             </button>

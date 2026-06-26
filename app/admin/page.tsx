@@ -13,8 +13,8 @@ import { T } from "@/app/_components/tokens";
 const NAVY = T.text1;
 // Closer's Office: TEAL/GOLD were leftover sky-blue. Money green ties admin
 // pages into the same identity as the dashboard.
-const TEAL = "#0e7c6b";
-const GOLD = "#0a5f52";
+const TEAL = "#3B82F6";
+const GOLD = "#2563EB";
 const SLATE = T.text2;
 
 interface UserRow {
@@ -210,9 +210,9 @@ export default function AdminPage() {
       {toast && (
         <div style={{
           padding: "12px 16px", borderRadius: 10,
-          background: toast.type === "ok" ? "#ECFDF5" : "#FBEEE8",
+          background: toast.type === "ok" ? "rgba(52,211,153,0.12)" : "rgba(251,113,133,0.12)",
           border: `1px solid ${toast.type === "ok" ? "#A7F3D0" : "#E7B8A6"}`,
-          color: toast.type === "ok" ? "#0a5f52" : "#DC2626",
+          color: toast.type === "ok" ? "#2563EB" : "#DC2626",
           fontSize: 13, fontWeight: 600,
           display: "flex", alignItems: "center", gap: 10,
         }}>
@@ -227,7 +227,7 @@ export default function AdminPage() {
           { label: "Total Users", value: stats.totalUsers, icon: Users, color: NAVY },
           { label: "Admins", value: stats.admins, icon: ShieldCheck, color: GOLD },
           { label: "Active Forms", value: stats.activeForms, icon: Power, color: TEAL },
-          { label: "Total Leads", value: stats.totalLeads, icon: Database, color: "#0a5f52" },
+          { label: "Total Leads", value: stats.totalLeads, icon: Database, color: "#2563EB" },
         ].map(s => (
           <Card key={s.label} padding={18}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
@@ -280,7 +280,7 @@ export default function AdminPage() {
                     <span style={{
                       padding: "3px 10px", borderRadius: 999, fontSize: 11, fontWeight: 700,
                       background: u.role === "admin" ? "#EAF0FF" : T.surface3,
-                      color: u.role === "admin" ? "#92400E" : SLATE,
+                      color: u.role === "admin" ? "#F59E0B" : SLATE,
                     }}>
                       {u.role}
                     </span>
@@ -312,7 +312,7 @@ export default function AdminPage() {
                       </button>
                       <button onClick={() => deleteUser(u)} title="Delete" style={{
                         padding: "5px 8px", borderRadius: 7,
-                        background: "#FBEEE8", color: "#DC2626", border: "1px solid #E7B8A6",
+                        background: "rgba(251,113,133,0.12)", color: "#DC2626", border: "1px solid #E7B8A6",
                         cursor: "pointer", display: "flex", alignItems: "center",
                       }}>
                         <Trash2 size={11} />

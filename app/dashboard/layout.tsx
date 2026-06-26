@@ -82,7 +82,7 @@ const NAV_SECONDARY = [
 ];
 
 const PLAN_ACCENT: Record<string, string> = {
-  free: "#94A3B8", starter: "#0e7c6b", professional: "#0a5f52", enterprise: "#084c42",
+  free: "#94A3B8", starter: "#3B82F6", professional: "#2563EB", enterprise: "#1D4ED8",
 };
 
 // Workspace mark — uses tenant branding when set, RealTrack default otherwise.
@@ -91,27 +91,21 @@ function RealTrackMark({ size = 28 }: { size?: number }) {
   if (brand.isCustom && brand.logoUrl) {
     return <img src={brand.logoUrl} alt={brand.name} style={{ height: size * 0.85, maxWidth: 200, objectFit: "contain" }} />;
   }
-  // Resona mark — a four-bar equalizer (the call waveform). When a tenant
-  // sets a custom accent, the tallest bar adopts it; otherwise teal/coral/amber.
-  const accent = brand.isCustom ? brand.color : "#0e7c6b";
-  const h = size * 0.85;
-  const bars = [
-    { f: 0.36, c: "#0e7c6b" },
-    { f: 0.82, c: "#ef5f3b" },
-    { f: 0.58, c: "#e3a23a" },
-    { f: 1, c: accent },
-  ];
+  // Ascendya "A" mark + RealTrack wordmark — the "RealTrack by Ascendya" lockup.
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-      <span style={{ display: "flex", alignItems: "flex-end", gap: 3, height: h }}>
-        {bars.map((b, i) => (
-          <i key={i} style={{ width: 3.5, height: Math.round(h * b.f), borderRadius: 2, background: b.c, display: "block" }} />
-        ))}
+    <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
+      <img src="/ascendya-mark.svg" alt="Ascendya" style={{ height: size * 0.98, width: "auto", display: "block" }} />
+      <span style={{ display: "flex", flexDirection: "column", lineHeight: 1 }}>
+        <span style={{ fontSize: 19, fontWeight: 800, color: "#F4F4FF", letterSpacing: "-0.01em", fontFamily: "var(--font-display)" }}>
+          {brand.isCustom ? brand.name : "RealTrack"}
+        </span>
+        {!brand.isCustom && (
+          <span style={{
+            fontSize: 9.5, fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase", marginTop: 4,
+            background: "linear-gradient(120deg,#6B3FA0,#3B82F6)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent",
+          }}>by Ascendya</span>
+        )}
       </span>
-      <span style={{
-        fontSize: 20, fontWeight: 700, color: "#15302e",
-        letterSpacing: "-0.02em", lineHeight: 1, fontFamily: "var(--font-display)",
-      }}>{brand.isCustom ? brand.name : "RealTrack"}</span>
     </div>
   );
 }
@@ -119,7 +113,7 @@ function RealTrackMark({ size = 28 }: { size?: number }) {
 function NavLink({ item, active }: { item: { label: string; href: string; icon: typeof PhoneCall }; active: boolean }) {
   const Icon = item.icon;
   const [hover, setHover] = useState(false);
-  const SKY = "#0a5f52"; // sky-600 for active text/icon on the white sidebar
+  const SKY = "#60A5FA"; // bright blue for active text/icon on the dark sidebar
   return (
     <Link href={item.href}
       onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
@@ -128,8 +122,8 @@ function NavLink({ item, active }: { item: { label: string; href: string; icon: 
         display: "flex", alignItems: "center", gap: 11,
         padding: "9px 13px", borderRadius: 10,
         textDecoration: "none",
-        background: active ? "#F0F9FF" : hover ? "#F8FAFC" : "transparent",
-        color: active ? SKY : "#000000",
+        background: active ? "rgba(59,130,246,0.12)" : hover ? "rgba(255,255,255,0.04)" : "transparent",
+        color: active ? SKY : "#C7C7D6",
         fontSize: 13, fontWeight: active ? 700 : 500,
         transform: hover && !active ? "translateX(2px)" : "translateX(0)",
         transition: "all 180ms cubic-bezier(0.16, 1, 0.30, 1)",
@@ -143,7 +137,7 @@ function NavLink({ item, active }: { item: { label: string; href: string; icon: 
         }} />
       )}
       <Icon size={16} strokeWidth={active ? 2.3 : 1.9}
-        color={active ? SKY : "#475569"}
+        color={active ? SKY : "#9A9AB0"}
         style={{ transition: "transform 240ms var(--spring-snap)", transform: hover ? "translateY(-1px)" : "translateY(0)" }} />
       {item.label}
     </Link>
@@ -222,7 +216,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
           sidebar drawer; tap the backdrop to close. */}
       <div className="rt-mobile-bar">
         <button onClick={() => setMobileNavOpen((o) => !o)} aria-label="Open menu" style={{
-          background: "none", border: "none", padding: 6, cursor: "pointer", color: "#15302e",
+          background: "none", border: "none", padding: 6, cursor: "pointer", color: "#F4F4FF",
         }}>
           {mobileNavOpen ? <X size={22} /> : <Menu size={22} />}
         </button>
@@ -243,7 +237,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
       {/* ───────── SIDEBAR — white, sky indicators, native scroll ───────── */}
       <aside className={`rt-sidebar ${mobileNavOpen ? "rt-sidebar-open" : ""}`} style={{
         width: 256,
-        background: "#FFFFFF",
+        background: "#0A0A0E",
         borderRight: "1px solid var(--border-2)",
         display: "flex", flexDirection: "column",
         boxShadow: "var(--shadow-sm)",
@@ -381,7 +375,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
             padding: "10px 16px",
             background: T.gradPrimary, color: "#fff",
             fontSize: 13, fontWeight: 700, position: "sticky", top: 0, zIndex: 50,
-            boxShadow: "0 4px 18px rgba(14,124,107,0.35)",
+            boxShadow: "0 4px 18px rgba(59,130,246,0.35)",
           }}>
             <Eye size={14} /> You are acting as <strong>{actingAs}</strong>
             <button onClick={() => stopImpersonation()} style={{
@@ -441,7 +435,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
             background: T.gradPrimary, color: "#fff",
             display: "flex", alignItems: "center", justifyContent: "center",
             fontSize: 12, fontWeight: 800,
-            boxShadow: "0 4px 14px rgba(14,124,107,0.32)",
+            boxShadow: "0 4px 14px rgba(59,130,246,0.32)",
             transition: "transform 220ms var(--spring-snap)",
           }}
           onMouseEnter={e => e.currentTarget.style.transform = "scale(1.08)"}

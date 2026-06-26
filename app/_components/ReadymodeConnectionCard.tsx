@@ -8,10 +8,10 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Link as LinkIcon, Loader2, CheckCircle2, XCircle, Trash2, ShieldCheck, Eye, EyeOff, Plus, Server } from "lucide-react";
 
-const NAVY = "#15302e";
-const SLATE = "#475569";
-const MONEY = "#0a5f52";
-const SKY_600 = "#0a5f52";
+const NAVY = "#F4F4FF";
+const SLATE = "#9A9AB0";
+const MONEY = "#2563EB";
+const SKY_600 = "#2563EB";
 
 interface Connection {
   id: string;
@@ -101,20 +101,20 @@ export function ReadymodeConnectionCard() {
     await load();
   };
 
-  const card: React.CSSProperties = { background: "#fff", border: "1px solid var(--border-2)", borderRadius: 14, padding: 22, boxShadow: "var(--shadow-sm)" };
-  const inp: React.CSSProperties = { width: "100%", padding: "9px 11px", borderRadius: 9, border: "1px solid var(--border-2)", background: "#fff", color: "#000", fontSize: 13, outline: "none", fontFamily: "var(--font-mono)" };
+  const card: React.CSSProperties = { background: "#0A0A0E", border: "1px solid var(--border-2)", borderRadius: 14, padding: 22, boxShadow: "var(--shadow-sm)" };
+  const inp: React.CSSProperties = { width: "100%", padding: "9px 11px", borderRadius: 9, border: "1px solid var(--border-2)", background: "#0A0A0E", color: "#F4F4FF", fontSize: 13, outline: "none", fontFamily: "var(--font-mono)" };
   const lbl: React.CSSProperties = { fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--text-3)", marginBottom: 5, display: "block" };
 
   return (
     <div style={card}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
-        <p style={{ fontSize: 15, fontWeight: 800, color: "#000", display: "inline-flex", alignItems: "center", gap: 8 }}>
+        <p style={{ fontSize: 15, fontWeight: 800, color: "#F4F4FF", display: "inline-flex", alignItems: "center", gap: 8 }}>
           <LinkIcon size={16} color={SKY_600} /> Readymode Dialers
         </p>
         <button onClick={() => { setAdding(a => !a); setMsg(null); reset(); }} style={{
           display: "inline-flex", alignItems: "center", gap: 5,
           padding: "7px 12px", borderRadius: 8,
-          background: adding ? "var(--surface-3)" : "linear-gradient(135deg,#0e7c6b,#0a5f52)",
+          background: adding ? "var(--surface-3)" : "linear-gradient(135deg,#3B82F6,#2563EB)",
           color: adding ? NAVY : "#fff", border: "none", fontSize: 12, fontWeight: 800, cursor: "pointer",
         }}>
           <Plus size={13} /> {adding ? "Cancel" : "Add Dialer"}
@@ -126,7 +126,7 @@ export function ReadymodeConnectionCard() {
       </p>
 
       {adding && (
-        <div style={{ background: "#F8FAFC", border: "1px solid var(--border-1)", borderRadius: 10, padding: 14, marginBottom: 14 }}>
+        <div style={{ background: "#101018", border: "1px solid var(--border-1)", borderRadius: 10, padding: 14, marginBottom: 14 }}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 }}>
             <div>
               <label style={lbl}>Label (optional)</label>
@@ -155,7 +155,7 @@ export function ReadymodeConnectionCard() {
           {msg && (
             <div style={{
               marginTop: 12, padding: "9px 12px", borderRadius: 8,
-              background: msg.type === "ok" ? "#ECFDF5" : "#FEF2F2",
+              background: msg.type === "ok" ? "rgba(52,211,153,0.12)" : "rgba(251,113,133,0.12)",
               color: msg.type === "ok" ? MONEY : "#DC2626",
               border: `1px solid ${msg.type === "ok" ? "#A7F3D0" : "#FECACA"}`,
               fontSize: 12.5, fontWeight: 600, display: "flex", alignItems: "center", gap: 7,
@@ -168,7 +168,7 @@ export function ReadymodeConnectionCard() {
             <button onClick={save} disabled={busy} style={{
               display: "inline-flex", alignItems: "center", gap: 6,
               padding: "10px 18px", borderRadius: 9, border: "none",
-              background: "linear-gradient(135deg,#0e7c6b,#0a5f52)", color: "#fff",
+              background: "linear-gradient(135deg,#3B82F6,#2563EB)", color: "#fff",
               fontSize: 13, fontWeight: 800, cursor: busy ? "wait" : "pointer",
             }}>
               {busy ? <Loader2 size={13} className="animate-spin" /> : <ShieldCheck size={13} />} Save
@@ -176,7 +176,7 @@ export function ReadymodeConnectionCard() {
             <button onClick={test} disabled={testing} style={{
               display: "inline-flex", alignItems: "center", gap: 6,
               padding: "10px 14px", borderRadius: 9, border: "1px solid var(--border-2)",
-              background: "#fff", color: "#000", fontSize: 12.5, fontWeight: 700, cursor: testing ? "wait" : "pointer",
+              background: "#0A0A0E", color: "#F4F4FF", fontSize: 12.5, fontWeight: 700, cursor: testing ? "wait" : "pointer",
             }}>
               {testing ? <Loader2 size={13} className="animate-spin" /> : <CheckCircle2 size={13} />} Test Login
             </button>
@@ -194,23 +194,23 @@ export function ReadymodeConnectionCard() {
               <div key={c.id} style={{
                 display: "flex", alignItems: "center", gap: 10,
                 padding: "11px 14px", borderRadius: 10,
-                background: c.is_active ? "#F8FAFC" : "#FEF2F2",
+                background: c.is_active ? "#101018" : "rgba(251,113,133,0.12)",
                 border: `1px solid ${c.is_active ? "var(--border-1)" : "#FECACA"}`,
                 opacity: c.is_active ? 1 : 0.7,
               }}>
-                <Server size={15} color={ok ? MONEY : c.is_active ? "#92400E" : "#DC2626"} />
+                <Server size={15} color={ok ? MONEY : c.is_active ? "#F59E0B" : "#DC2626"} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <p style={{ fontSize: 13, fontWeight: 700, color: NAVY, display: "flex", alignItems: "center", gap: 6 }}>
                     {c.label || c.subdomain}
                     {!c.is_active && <span style={{ fontSize: 9, color: "#DC2626", fontWeight: 800 }}>● DISABLED</span>}
-                    {c.last_login_ok === false && <span style={{ fontSize: 9, color: "#92400E", fontWeight: 800 }}>● LOGIN FAILED</span>}
+                    {c.last_login_ok === false && <span style={{ fontSize: 9, color: "#F59E0B", fontWeight: 800 }}>● LOGIN FAILED</span>}
                   </p>
                   <p style={{ fontSize: 11, color: SLATE, marginTop: 1, fontFamily: "var(--font-mono)" }}>
                     {c.subdomain}.readymode.com · {c.username}
                   </p>
                 </div>
                 <button onClick={() => toggle(c)} title={c.is_active ? "Pause" : "Resume"}
-                  style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "5px 10px", borderRadius: 7, border: "1px solid var(--border-2)", background: "#fff", color: NAVY, fontSize: 11.5, fontWeight: 700, cursor: "pointer" }}>
+                  style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "5px 10px", borderRadius: 7, border: "1px solid var(--border-2)", background: "#0A0A0E", color: NAVY, fontSize: 11.5, fontWeight: 700, cursor: "pointer" }}>
                   {c.is_active ? "Pause" : "Resume"}
                 </button>
                 <button onClick={() => remove(c)} title="Remove"

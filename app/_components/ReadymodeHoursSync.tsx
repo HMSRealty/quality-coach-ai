@@ -10,10 +10,10 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Loader2, Server, RefreshCw, CheckCircle2, AlertCircle, CalendarDays } from "lucide-react";
 
-const NAVY = "#15302e";
-const SLATE = "#475569";
-const MONEY = "#0a5f52";
-const MONEY_LT = "#0e7c6b";
+const NAVY = "#F4F4FF";
+const SLATE = "#9A9AB0";
+const MONEY = "#2563EB";
+const MONEY_LT = "#3B82F6";
 
 interface Connection { id: string; label: string | null; subdomain: string; is_active: boolean; report_url: string | null; }
 interface UserOption { id: string; email: string | null; full_name: string | null; }
@@ -134,10 +134,10 @@ export function ReadymodeHoursSync() {
 
   const inp: React.CSSProperties = {
     padding: "9px 11px", borderRadius: 9, border: "1px solid var(--border-2)",
-    background: "#fff", color: NAVY, fontSize: 13, outline: "none",
+    background: "#0A0A0E", color: NAVY, fontSize: 13, outline: "none",
   };
   const card: React.CSSProperties = {
-    background: "#fff", border: "1px solid var(--border-2)", borderRadius: 14,
+    background: "#0A0A0E", border: "1px solid var(--border-2)", borderRadius: 14,
     padding: 22, boxShadow: "var(--shadow-sm)",
   };
 
@@ -147,7 +147,7 @@ export function ReadymodeHoursSync() {
       <div style={card}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
           <span style={{
-            width: 32, height: 32, borderRadius: 9, background: "rgba(14,124,107,0.14)",
+            width: 32, height: 32, borderRadius: 9, background: "rgba(59,130,246,0.14)",
             display: "flex", alignItems: "center", justifyContent: "center",
           }}>
             <Server size={16} color={MONEY} />
@@ -162,8 +162,8 @@ export function ReadymodeHoursSync() {
 
         {connections.length === 0 ? (
           <div style={{
-            padding: 14, borderRadius: 10, background: "#FEF9C3",
-            border: "1px solid #FDE68A", color: "#854D0E", fontSize: 13,
+            padding: 14, borderRadius: 10, background: "rgba(245,158,11,0.12)",
+            border: "1px solid #FDE68A", color: "#F59E0B", fontSize: 13,
           }}>
             No Readymode connection yet. Add one in{" "}
             <a href="/dashboard/integrations" style={{ color: MONEY, fontWeight: 700 }}>Integrations</a> first.
@@ -188,7 +188,7 @@ export function ReadymodeHoursSync() {
             </div>
             <button onClick={sync} disabled={syncing || !connectionId} style={{
               padding: "10px 18px", borderRadius: 10, border: "none",
-              background: syncing ? "#86EFAC" : "linear-gradient(135deg,#0e7c6b,#0a5f52)",
+              background: syncing ? "#86EFAC" : "linear-gradient(135deg,#3B82F6,#2563EB)",
               color: "#fff", fontSize: 13, fontWeight: 800,
               cursor: syncing ? "wait" : "pointer", display: "inline-flex", alignItems: "center", gap: 6,
               whiteSpace: "nowrap",
@@ -201,7 +201,7 @@ export function ReadymodeHoursSync() {
         {msg && (
           <div style={{
             marginTop: 12, padding: "9px 12px", borderRadius: 9,
-            background: msg.type === "ok" ? "#ECFDF5" : "#FEF2F2",
+            background: msg.type === "ok" ? "rgba(52,211,153,0.12)" : "rgba(251,113,133,0.12)",
             color: msg.type === "ok" ? MONEY : "#DC2626",
             border: `1px solid ${msg.type === "ok" ? "#A7F3D0" : "#FECACA"}`,
             fontSize: 12.5, fontWeight: 600,
@@ -215,8 +215,8 @@ export function ReadymodeHoursSync() {
                   Show diagnostic details
                 </summary>
                 <pre style={{
-                  marginTop: 6, padding: 10, borderRadius: 7, background: "#FFF",
-                  border: "1px solid #FECACA", color: "#000", fontSize: 11,
+                  marginTop: 6, padding: 10, borderRadius: 7, background: "#0A0A0E",
+                  border: "1px solid #FECACA", color: "#F4F4FF", fontSize: 11,
                   maxHeight: 360, overflow: "auto", whiteSpace: "pre-wrap", wordBreak: "break-word",
                   fontFamily: "var(--font-mono)",
                 }}>
@@ -249,7 +249,7 @@ export function ReadymodeHoursSync() {
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12.5 }}>
               <thead>
-                <tr style={{ background: "#eceee9", color: SLATE }}>
+                <tr style={{ background: "#101018", color: SLATE }}>
                   {["Agent", "Period", "Logged", "Payable", "Ready", "Break", "Lunch", "AFK", "Assign to"].map((h) => (
                     <th key={h} style={{ padding: "10px 12px", textAlign: "left", fontSize: 10, fontWeight: 800, letterSpacing: "0.05em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
                       {h}

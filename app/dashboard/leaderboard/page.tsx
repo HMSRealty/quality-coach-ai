@@ -150,8 +150,8 @@ export default function LeaderboardPage() {
           <div style={{ display: "flex", gap: 10, marginTop: 10, flexWrap: "wrap", alignItems: "center" }}>
             <Pill icon={<Flame size={11} />} label="Hot = 1 pt" color="#DC2626" />
             <Pill icon={<Sun size={11} />} label="Warm = 1 pt" color="#EA580C" />
-            <Pill icon={<Snowflake size={11} />} label="Cold = 0.5 pt" color="#0a5f52" />
-            <Pill icon={<TrendingUp size={11} />} label={`$${BONUS_PER_POINT} / pt`} color="#0e7c6b" />
+            <Pill icon={<Snowflake size={11} />} label="Cold = 0.5 pt" color="#2563EB" />
+            <Pill icon={<TrendingUp size={11} />} label={`$${BONUS_PER_POINT} / pt`} color="#3B82F6" />
           </div>
         </div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
@@ -176,7 +176,7 @@ export default function LeaderboardPage() {
         <div style={{ padding: 80, textAlign: "center" }}><Loader2 size={28} className="animate-spin" style={{ color: NAVY }} /></div>
       ) : shown.length === 0 ? (
         <div style={{ padding: 60, textAlign: "center", background: "var(--surface-1)", borderRadius: 18, border: "1px solid var(--border-2)" }}>
-          <Trophy size={36} color="#CBD5E1" style={{ margin: "0 auto 10px" }} />
+          <Trophy size={36} color="#33333f" style={{ margin: "0 auto 10px" }} />
           <p style={{ fontSize: 14, color: SLATE }}>{rows.length ? "No agents match your filter." : "No qualified leads in this range yet."}</p>
         </div>
       ) : (
@@ -211,7 +211,7 @@ export default function LeaderboardPage() {
                       {/* Rank */}
                       <td style={{ ...td, textAlign: "center", fontWeight: 900 }}>
                         {medal ? (
-                          <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 28, height: 28, borderRadius: "50%", background: medal.color, color: "#000", fontSize: 11, fontWeight: 900 }}>
+                          <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 28, height: 28, borderRadius: "50%", background: medal.color, color: "#F4F4FF", fontSize: 11, fontWeight: 900 }}>
                             {i + 1}
                           </span>
                         ) : (
@@ -223,7 +223,7 @@ export default function LeaderboardPage() {
                         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                           <div style={{
                             width: 34, height: 34, borderRadius: "50%", flexShrink: 0,
-                            background: i === 0 ? "linear-gradient(135deg,#FACC15,#D97706)" : i === 1 ? "linear-gradient(135deg,#94A3B8,#475569)" : "linear-gradient(135deg,#F97316,#9A3412)",
+                            background: i === 0 ? "linear-gradient(135deg,#FACC15,#D97706)" : i === 1 ? "linear-gradient(135deg,#94A3B8,#26262F)" : "linear-gradient(135deg,#F97316,#FB923C)",
                             color: "#fff", display: "flex", alignItems: "center", justifyContent: "center",
                             fontSize: 12, fontWeight: 900,
                           }}>
@@ -252,19 +252,19 @@ export default function LeaderboardPage() {
                         {r.warm > 0 ? <Badge count={r.warm} color="#EA580C" /> : <span style={{ color: "var(--text-4)" }}>—</span>}
                       </td>
                       <td style={{ ...td, textAlign: "center" }}>
-                        {r.cold > 0 ? <Badge count={r.cold} color="#0a5f52" /> : <span style={{ color: "var(--text-4)" }}>—</span>}
+                        {r.cold > 0 ? <Badge count={r.cold} color="#2563EB" /> : <span style={{ color: "var(--text-4)" }}>—</span>}
                       </td>
                       <td style={{ ...td, textAlign: "center" }}>
-                        {r.callback > 0 ? <Badge count={r.callback} color="#92400E" /> : <span style={{ color: "var(--text-4)" }}>—</span>}
+                        {r.callback > 0 ? <Badge count={r.callback} color="#F59E0B" /> : <span style={{ color: "var(--text-4)" }}>—</span>}
                       </td>
                       <td style={{ ...td, textAlign: "center" }}>
-                        {r.needscall > 0 ? <Badge count={r.needscall} color="#0a5f52" /> : <span style={{ color: "var(--text-4)" }}>—</span>}
+                        {r.needscall > 0 ? <Badge count={r.needscall} color="#2563EB" /> : <span style={{ color: "var(--text-4)" }}>—</span>}
                       </td>
                       <td style={{ ...td, textAlign: "center" }}>
-                        {r.disqualified > 0 ? <Badge count={r.disqualified} color="#64748B" /> : <span style={{ color: "var(--text-4)" }}>—</span>}
+                        {r.disqualified > 0 ? <Badge count={r.disqualified} color="#9A9AB0" /> : <span style={{ color: "var(--text-4)" }}>—</span>}
                       </td>
                       <td style={{ ...td, textAlign: "center" }}>
-                        {r.duplicate > 0 ? <Badge count={r.duplicate} color="#0a5f52" /> : <span style={{ color: "var(--text-4)" }}>—</span>}
+                        {r.duplicate > 0 ? <Badge count={r.duplicate} color="#2563EB" /> : <span style={{ color: "var(--text-4)" }}>—</span>}
                       </td>
                       <td style={{ ...td, textAlign: "center" }}>
                         {r.error > 0 ? <Badge count={r.error} color="#DC2626" /> : <span style={{ color: "var(--text-4)" }}>—</span>}
@@ -272,7 +272,7 @@ export default function LeaderboardPage() {
                       <td style={{ ...td, textAlign: "center", color: SLATE }}>{r.total}</td>
                       {/* Conversion */}
                       <td style={{ ...td, textAlign: "center" }}>
-                        <span style={{ fontWeight: 700, color: r.conversion >= 50 ? "#0e7c6b" : r.conversion >= 25 ? NAVY : SLATE }}>
+                        <span style={{ fontWeight: 700, color: r.conversion >= 50 ? "#3B82F6" : r.conversion >= 25 ? NAVY : SLATE }}>
                           {r.conversion}%
                         </span>
                       </td>
@@ -286,17 +286,17 @@ export default function LeaderboardPage() {
                           <div style={{ flex: 1, height: 6, borderRadius: 999, background: "var(--surface-3)", overflow: "hidden" }}>
                             <div style={{
                               height: "100%", width: `${Math.min(100, r.pacePct)}%`, borderRadius: 999,
-                              background: r.pacePct >= 100 ? "#0e7c6b" : r.pacePct >= 80 ? "#0a5f52" : "#EA580C",
+                              background: r.pacePct >= 100 ? "#3B82F6" : r.pacePct >= 80 ? "#2563EB" : "#EA580C",
                               transition: "width 600ms ease",
                             }} />
                           </div>
-                          <span style={{ fontSize: 11, fontWeight: 800, color: r.pacePct >= 100 ? "#0e7c6b" : r.pacePct >= 80 ? NAVY : "#EA580C", minWidth: 36, textAlign: "right" }}>
+                          <span style={{ fontSize: 11, fontWeight: 800, color: r.pacePct >= 100 ? "#3B82F6" : r.pacePct >= 80 ? NAVY : "#EA580C", minWidth: 36, textAlign: "right" }}>
                             {r.pacePct}%
                           </span>
                         </div>
                       </td>
                       {/* Bonus */}
-                      <td style={{ ...td, textAlign: "right", fontWeight: 900, color: "#0e7c6b", fontSize: 14 }}>
+                      <td style={{ ...td, textAlign: "right", fontWeight: 900, color: "#3B82F6", fontSize: 14 }}>
                         {money(r.bonus)}
                       </td>
                     </tr>

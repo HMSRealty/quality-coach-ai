@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { BarChart3, TrendingUp, Target, Zap, Loader2 } from "lucide-react";
 
-const RED = "#0e7c6b";
+const RED = "#3B82F6";
 
 interface TeamPerf { id: string; name: string; calls: number; qualified: number; conversion: number; trend: number; }
 
@@ -65,7 +65,7 @@ export default function TeamPerformancePage() {
   if (loading) return (
     <div style={{ textAlign: "center", padding: "40px 24px" }}>
       <Loader2 size={24} className="animate-spin" style={{ margin: "0 auto 12px", color: RED }} />
-      <p style={{ color: "#64748B" }}>Loading team performance...</p>
+      <p style={{ color: "#9A9AB0" }}>Loading team performance...</p>
     </div>
   );
 
@@ -74,7 +74,7 @@ export default function TeamPerformancePage() {
       {/* Header */}
       <div>
         <h1 style={{ fontSize: 22, fontWeight: 800, color: "#232B3A", marginBottom: 4 }}>Team Performance Tracker</h1>
-        <p style={{ fontSize: 13, color: "#64748B" }}>Real-time KPI tracking and performance analytics for all teams.</p>
+        <p style={{ fontSize: 13, color: "#9A9AB0" }}>Real-time KPI tracking and performance analytics for all teams.</p>
       </div>
 
       {/* KPI Summary — weighted by call volume, not naive avg of percentages */}
@@ -86,17 +86,17 @@ export default function TeamPerformancePage() {
           const weightedConv = totalCalls > 0 ? Math.round((totalQual / totalCalls) * 100) : 0;
           return [
             { label: "Total Calls", value: totalCalls, icon: BarChart3, color: RED },
-            { label: "Qualified Leads", value: totalQual, icon: Target, color: "#0a5f52" },
-            { label: "Conversion Rate", value: `${weightedConv}%`, icon: TrendingUp, color: "#0a5f52" },
-            { label: "Active Teams", value: teams.length, icon: Zap, color: "#0a5f52" },
+            { label: "Qualified Leads", value: totalQual, icon: Target, color: "#2563EB" },
+            { label: "Conversion Rate", value: `${weightedConv}%`, icon: TrendingUp, color: "#2563EB" },
+            { label: "Active Teams", value: teams.length, icon: Zap, color: "#2563EB" },
           ];
         })().map(({ label, value, icon: Icon, color }) => (
           <div key={label} style={{
-            background: "#FFFFFF", border: "1px solid #E5E7EB", borderRadius: 12, padding: "16px",
+            background: "#0A0A0E", border: "1px solid #22222c", borderRadius: 12, padding: "16px",
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
               <Icon size={16} color={color} />
-              <p style={{ fontSize: 11, color: "#64748B", fontWeight: 600 }}>{label}</p>
+              <p style={{ fontSize: 11, color: "#9A9AB0", fontWeight: 600 }}>{label}</p>
             </div>
             <p style={{ fontSize: 24, fontWeight: 900, color }}>{value}</p>
           </div>
@@ -105,15 +105,15 @@ export default function TeamPerformancePage() {
 
       {/* Leaderboard */}
       <div style={{
-        background: "#FFFFFF", border: "1px solid #E5E7EB", borderRadius: 12,
+        background: "#0A0A0E", border: "1px solid #22222c", borderRadius: 12,
         overflow: "hidden",
       }}>
-        <div style={{ padding: "18px 20px", borderBottom: "1px solid #E5E7EB", background: "#FAFAFA" }}>
+        <div style={{ padding: "18px 20px", borderBottom: "1px solid #22222c", background: "#0A0A0E" }}>
           <h3 style={{ fontSize: 14, fontWeight: 700, color: "#232B3A" }}>Team Rankings</h3>
         </div>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
-            <tr style={{ background: "#F4EFE7", borderBottom: "1px solid #E5E7EB" }}>
+            <tr style={{ background: "#101018", borderBottom: "1px solid #22222c" }}>
               {["Rank", "Team", "Calls", "Qualified", "Conversion", "Trend"].map(h => (
                 <th key={h} style={{
                   padding: "12px 16px", textAlign: "left", fontSize: 11,
@@ -126,25 +126,25 @@ export default function TeamPerformancePage() {
           </thead>
           <tbody>
             {teams.map((team, idx) => (
-              <tr key={team.id} style={{ borderBottom: "1px solid #F3F4F6" }}
-                onMouseEnter={e => e.currentTarget.style.background = "#FAFAFA"}
+              <tr key={team.id} style={{ borderBottom: "1px solid #101018" }}
+                onMouseEnter={e => e.currentTarget.style.background = "#0A0A0E"}
                 onMouseLeave={e => e.currentTarget.style.background = "transparent"}
               >
                 <td style={{ padding: "12px 16px", fontSize: 13, fontWeight: 700, color: RED }}>{idx + 1}</td>
                 <td style={{ padding: "12px 16px", fontSize: 13, fontWeight: 600, color: "#232B3A" }}>{team.name}</td>
                 <td style={{ padding: "12px 16px", fontSize: 13, color: "#4B5563" }}>{team.calls}</td>
-                <td style={{ padding: "12px 16px", fontSize: 13, color: "#0a5f52", fontWeight: 600 }}>{team.qualified}</td>
+                <td style={{ padding: "12px 16px", fontSize: 13, color: "#2563EB", fontWeight: 600 }}>{team.qualified}</td>
                 <td style={{
                   padding: "12px 16px", fontSize: 13, fontWeight: 700,
-                  color: team.conversion > 50 ? "#0a5f52" : team.conversion > 30 ? "#0a5f52" : "#DC2626",
+                  color: team.conversion > 50 ? "#2563EB" : team.conversion > 30 ? "#2563EB" : "#DC2626",
                 }}>
                   {team.conversion}%
                 </td>
                 <td style={{ padding: "12px 16px", fontSize: 13 }}>
                   <span style={{
                     padding: "2px 6px", borderRadius: 4,
-                    background: team.trend > 0 ? "#ECFDF5" : "#FBEEE8",
-                    color: team.trend > 0 ? "#0a5f52" : RED,
+                    background: team.trend > 0 ? "rgba(52,211,153,0.12)" : "rgba(251,113,133,0.12)",
+                    color: team.trend > 0 ? "#2563EB" : RED,
                     fontWeight: 600, fontSize: 11,
                   }}>
                     {team.trend > 0 ? "+" : ""}{team.trend.toFixed(1)}%

@@ -53,7 +53,7 @@ export default function RolesPage() {
               <tr style={{ background: T.surface3 }}>
                 <th style={{ textAlign: "left", padding: "12px 16px", fontSize: 11, fontWeight: 700, color: SLATE, textTransform: "uppercase", letterSpacing: "0.05em" }}>Permission</th>
                 {ROLES.map((r) => (
-                  <th key={r} style={{ padding: "12px 10px", fontSize: 11, fontWeight: 800, color: r === myRole ? "#0e7c6b" : NAVY, textAlign: "center" }}>
+                  <th key={r} style={{ padding: "12px 10px", fontSize: 11, fontWeight: 800, color: r === myRole ? "#3B82F6" : NAVY, textAlign: "center" }}>
                     {ROLE_LABELS[r]}
                   </th>
                 ))}
@@ -73,8 +73,8 @@ export default function RolesPage() {
                       return (
                         <td key={r} style={{ textAlign: "center", padding: "11px 10px", background: r === myRole ? "rgba(47,107,255,0.05)" : "transparent" }}>
                           {ok
-                            ? <Check size={16} color="#0a5f52" style={{ display: "inline" }} />
-                            : <Minus size={14} color="#CBD5E1" style={{ display: "inline" }} />}
+                            ? <Check size={16} color="#2563EB" style={{ display: "inline" }} />
+                            : <Minus size={14} color="#33333f" style={{ display: "inline" }} />}
                         </td>
                       );
                     })}
@@ -87,7 +87,7 @@ export default function RolesPage() {
       </div>
 
       <div style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 12, color: SLATE }}>
-        <ShieldCheck size={14} color="#0a5f52" />
+        <ShieldCheck size={14} color="#2563EB" />
         Changing a user&apos;s role updates these permissions everywhere — server routes and database policies included.
       </div>
     </div>

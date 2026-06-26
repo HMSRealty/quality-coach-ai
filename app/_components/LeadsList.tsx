@@ -20,13 +20,13 @@ export interface LeadItem {
 }
 
 const STATUS: Record<string, { bg: string; fg: string; glow: string }> = {
-  Hot:          { bg: "rgba(10,95,82,0.12)",   fg: "#0a5f52", glow: "rgba(10,95,82,0.55)" },
+  Hot:          { bg: "rgba(10,95,82,0.12)",   fg: "#2563EB", glow: "rgba(10,95,82,0.55)" },
   Warm:         { bg: "rgba(234,88,12,0.12)",   fg: "#EA580C", glow: "rgba(234,88,12,0.5)" },
-  Cold:         { bg: "rgba(10,95,82,0.12)",   fg: "#0a5f52", glow: "rgba(10,95,82,0.5)" },
-  "Call Back":  { bg: "rgba(146,64,14,0.12)",   fg: "#92400E", glow: "rgba(146,64,14,0.45)" },
-  "Needs Call": { bg: "rgba(14,124,107,0.12)",  fg: "#0a5f52", glow: "rgba(14,124,107,0.45)" },
+  Cold:         { bg: "rgba(10,95,82,0.12)",   fg: "#2563EB", glow: "rgba(10,95,82,0.5)" },
+  "Call Back":  { bg: "rgba(146,64,14,0.12)",   fg: "#F59E0B", glow: "rgba(146,64,14,0.45)" },
+  "Needs Call": { bg: "rgba(59,130,246,0.12)",  fg: "#2563EB", glow: "rgba(59,130,246,0.45)" },
   Disqualified: { bg: "var(--surface-3)",       fg: "var(--text-3)", glow: "rgba(10,95,82,0.0)" },
-  Duplicate:    { bg: "rgba(10,95,82,0.12)",  fg: "#0a5f52", glow: "rgba(10,95,82,0.5)" },
+  Duplicate:    { bg: "rgba(10,95,82,0.12)",  fg: "#2563EB", glow: "rgba(10,95,82,0.5)" },
   Processing:   { bg: "var(--surface-3)",       fg: "var(--text-3)", glow: "rgba(10,95,82,0.0)" },
   Pending:      { bg: "var(--surface-3)",       fg: "var(--text-3)", glow: "rgba(10,95,82,0.0)" },
   Queued:       { bg: "rgba(29,78,216,0.10)",   fg: "#1D4ED8", glow: "rgba(29,78,216,0.4)" },
@@ -128,7 +128,7 @@ function LeadCard({ lead, isNew, onOpen, onDelete, onAnalyze, selectable, select
             style={{
               display: "inline-flex", alignItems: "center", gap: 5,
               padding: "5px 12px", borderRadius: 8,
-              background: analyzing ? "#94A3B8" : "linear-gradient(135deg, #0a5f52, #047857)",
+              background: analyzing ? "#94A3B8" : "linear-gradient(135deg, #2563EB, #047857)",
               color: "#fff", border: "none", fontSize: 11, fontWeight: 800,
               cursor: analyzing ? "wait" : "pointer", whiteSpace: "nowrap",
             }}
@@ -143,7 +143,7 @@ function LeadCard({ lead, isNew, onOpen, onDelete, onAnalyze, selectable, select
             title="Delete lead"
             style={{
               width: 30, height: 30, borderRadius: 8, flexShrink: 0,
-              background: hover ? "#FEF2F2" : "transparent", border: "1px solid var(--border-2)",
+              background: hover ? "rgba(251,113,133,0.12)" : "transparent", border: "1px solid var(--border-2)",
               color: "#DC2626", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
               opacity: hover ? 1 : 0.45, transition: "opacity 160ms ease, background 160ms ease",
             }}><Trash2 size={14} /></button>

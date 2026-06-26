@@ -11,10 +11,10 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { CheckCircle2, Circle, Loader2, ArrowRight, Sparkles, Server, Webhook, PartyPopper } from "lucide-react";
 
-const NAVY = "#15302e";
-const SLATE = "#475569";
-const SKY_600 = "#0a5f52";
-const MONEY = "#0a5f52";
+const NAVY = "#F4F4FF";
+const SLATE = "#9A9AB0";
+const SKY_600 = "#2563EB";
+const MONEY = "#2563EB";
 
 interface Status {
   has_api_key: boolean;
@@ -105,7 +105,7 @@ export default function OnboardingPage() {
         <div style={{
           width: `${(completed / steps.length) * 100}%`,
           height: "100%",
-          background: allDone ? MONEY : "linear-gradient(90deg, #0e7c6b, #0a5f52)",
+          background: allDone ? MONEY : "linear-gradient(90deg, #3B82F6, #2563EB)",
           transition: "width 400ms cubic-bezier(0.34, 1.56, 0.64, 1)",
         }} />
       </div>
@@ -114,14 +114,14 @@ export default function OnboardingPage() {
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         {steps.map((s, i) => (
           <div key={i} style={{
-            background: "#fff", border: `1px solid ${s.done ? "#A7F3D0" : "var(--border-2)"}`,
+            background: "#0A0A0E", border: `1px solid ${s.done ? "#A7F3D0" : "var(--border-2)"}`,
             borderRadius: 14, padding: "18px 20px", boxShadow: "var(--shadow-sm)",
             display: "flex", alignItems: "center", gap: 14,
             opacity: s.done ? 0.85 : 1,
           }}>
             <div style={{
               width: 38, height: 38, borderRadius: "50%",
-              background: s.done ? "rgba(14,124,107,0.14)" : "rgba(14,124,107,0.08)",
+              background: s.done ? "rgba(59,130,246,0.14)" : "rgba(59,130,246,0.08)",
               display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
             }}>
               {s.done ? <CheckCircle2 size={20} color={MONEY} /> : <s.icon size={18} color={SKY_600} />}
@@ -141,7 +141,7 @@ export default function OnboardingPage() {
               <Link href={s.href} style={{
                 display: "inline-flex", alignItems: "center", gap: 5,
                 padding: "9px 16px", borderRadius: 9,
-                background: "linear-gradient(135deg,#0e7c6b,#0a5f52)", color: "#fff",
+                background: "linear-gradient(135deg,#3B82F6,#2563EB)", color: "#fff",
                 fontSize: 12.5, fontWeight: 800, textDecoration: "none", whiteSpace: "nowrap",
               }}>
                 {s.cta} <ArrowRight size={13} />

@@ -29,15 +29,15 @@ interface HoursEntry {
 }
 
 const STATUS_COLORS: Record<string, { bg: string; fg: string }> = {
-  Hot:          { bg: "rgba(10,95,82,0.12)",  fg: "#0a5f52" },
+  Hot:          { bg: "rgba(10,95,82,0.12)",  fg: "#2563EB" },
   Warm:         { bg: "rgba(234,88,12,0.12)",  fg: "#EA580C" },
-  Cold:         { bg: "rgba(10,95,82,0.12)",  fg: "#0a5f52" },
-  "Call Back":  { bg: "rgba(146,64,14,0.12)",  fg: "#92400E" },
-  "Needs Call": { bg: "rgba(14,124,107,0.12)", fg: "#0e7c6b" },
-  Disqualified: { bg: "var(--surface-3)",      fg: "#64748B" },
-  Duplicate:    { bg: "rgba(10,95,82,0.12)", fg: "#0a5f52" },
+  Cold:         { bg: "rgba(10,95,82,0.12)",  fg: "#2563EB" },
+  "Call Back":  { bg: "rgba(146,64,14,0.12)",  fg: "#F59E0B" },
+  "Needs Call": { bg: "rgba(59,130,246,0.12)", fg: "#3B82F6" },
+  Disqualified: { bg: "var(--surface-3)",      fg: "#9A9AB0" },
+  Duplicate:    { bg: "rgba(10,95,82,0.12)", fg: "#2563EB" },
   Error:        { bg: "rgba(220,38,38,0.10)",  fg: "#DC2626" },
-  Pending:      { bg: "var(--surface-3)",      fg: "#64748B" },
+  Pending:      { bg: "var(--surface-3)",      fg: "#9A9AB0" },
   Queued:       { bg: "rgba(29,78,216,0.10)",  fg: "#1D4ED8" },
 };
 
@@ -116,7 +116,7 @@ export default function AgentViewPage() {
         <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 20 }}>
           <div style={{
             width: 52, height: 52, borderRadius: "50%",
-            background: "linear-gradient(135deg,#0e7c6b,#0a5f52)",
+            background: "linear-gradient(135deg,#3B82F6,#2563EB)",
             color: "#fff", display: "flex", alignItems: "center", justifyContent: "center",
             fontSize: 18, fontWeight: 900,
           }}>

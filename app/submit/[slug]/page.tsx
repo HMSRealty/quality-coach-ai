@@ -315,7 +315,7 @@ export default function DynamicSubmitPage() {
     return (
       <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#F2F5F9", padding: 24 }}>
         <div style={{
-          maxWidth: 440, padding: 40, background: "#fff", borderRadius: 16,
+          maxWidth: 440, padding: 40, background: "#0A0A0E", borderRadius: 16,
           border: "1px solid rgba(35,43,58,0.08)", textAlign: "center",
           boxShadow: "0 12px 40px rgba(35,43,58,0.08)",
         }}>
@@ -339,20 +339,19 @@ export default function DynamicSubmitPage() {
     <div style={{ minHeight: "100vh", background: "linear-gradient(180deg, #F2F5F9 0%, #FFF 100%)", padding: "40px 24px" }} className="animate-in">
       <div style={{ maxWidth: 640, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 32 }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
-            <span style={{ display: "flex", alignItems: "flex-end", gap: 2.5, height: 24 }}>
-              {[{ h: 8, c: TEAL }, { h: 19, c: "var(--coral)" }, { h: 13, c: "var(--amber)" }, { h: 24, c: TEAL }].map((b, i) => (
-                <i key={i} style={{ width: 3.5, height: b.h, borderRadius: 2, background: b.c, display: "block" }} />
-              ))}
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 11, marginBottom: 18 }}>
+            <img src="/ascendya-mark.svg" alt="Ascendya" style={{ height: 36, width: "auto", display: "block" }} />
+            <span style={{ display: "flex", flexDirection: "column", lineHeight: 1, textAlign: "left" }}>
+              <span style={{ fontSize: 23, fontWeight: 800, color: NAVY, letterSpacing: "-0.02em", fontFamily: "var(--font-display)" }}>RealTrack</span>
+              <span style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: "0.24em", textTransform: "uppercase", marginTop: 4, background: "linear-gradient(120deg,#6B3FA0,#3B82F6)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>by Ascendya</span>
             </span>
-            <span style={{ fontSize: 22, fontWeight: 700, color: NAVY, letterSpacing: "-0.02em", fontFamily: "var(--font-display)" }}>RealTrack</span>
           </div>
           <h1 style={{ fontSize: 26, fontWeight: 900, color: NAVY, marginBottom: 8 }}>{owner?.form_name}</h1>
           <p style={{ fontSize: 13, color: SLATE }}>Submit a lead — AI evaluation runs automatically.</p>
         </div>
 
         {error && !doneStatus && (
-          <div style={{ padding: "12px 16px", borderRadius: 10, marginBottom: 16, background: "#FBEEE8", border: "1px solid #E7B8A6", display: "flex", alignItems: "center", gap: 10, color: "#DC2626", fontSize: 13, fontWeight: 600 }}>
+          <div style={{ padding: "12px 16px", borderRadius: 10, marginBottom: 16, background: "rgba(251,113,133,0.12)", border: "1px solid #E7B8A6", display: "flex", alignItems: "center", gap: 10, color: "#DC2626", fontSize: 13, fontWeight: 600 }}>
             <AlertCircle size={16} /> {error}
           </div>
         )}
@@ -360,15 +359,15 @@ export default function DynamicSubmitPage() {
         {/* ── SUCCESS SCREEN ── */}
         {doneStatus ? (
           <div style={{
-            background: "#FFF", borderRadius: 16, padding: "40px 28px",
+            background: "#0A0A0E", borderRadius: 16, padding: "40px 28px",
             border: "1px solid rgba(35,43,58,0.08)", boxShadow: "0 2px 12px rgba(35,43,58,0.06)",
             textAlign: "center",
           }}>
             <div style={{
-              width: 72, height: 72, borderRadius: "50%", background: "#ECFDF5",
+              width: 72, height: 72, borderRadius: "50%", background: "rgba(52,211,153,0.12)",
               display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 18px",
             }}>
-              <CheckCircle2 size={36} color="#0a5f52" />
+              <CheckCircle2 size={36} color="#2563EB" />
             </div>
             <h2 style={{ fontSize: 22, fontWeight: 800, color: NAVY, marginBottom: 8 }}>
               Lead submitted successfully!
@@ -379,8 +378,8 @@ export default function DynamicSubmitPage() {
             <div style={{
               display: "inline-flex", alignItems: "center", gap: 8,
               padding: "8px 16px", borderRadius: 999, marginBottom: 28,
-              background: ["Hot","Warm","Cold"].includes(doneStatus || "") ? "#ECFDF5" : doneStatus === "Disqualified" ? "#F1F4F9" : "#FFFBEB",
-              color: ["Hot","Warm","Cold"].includes(doneStatus || "") ? "#0a5f52" : doneStatus === "Disqualified" ? "#4B5563" : "#92400E",
+              background: ["Hot","Warm","Cold"].includes(doneStatus || "") ? "rgba(52,211,153,0.12)" : doneStatus === "Disqualified" ? "#F1F4F9" : "rgba(245,158,11,0.12)",
+              color: ["Hot","Warm","Cold"].includes(doneStatus || "") ? "#2563EB" : doneStatus === "Disqualified" ? "#4B5563" : "#92400E",
               fontSize: 13, fontWeight: 800,
             }}>
               Verdict: {doneStatus}
@@ -395,7 +394,7 @@ export default function DynamicSubmitPage() {
             </button>
           </div>
         ) : (
-        <form onSubmit={handleSubmit} style={{ background: "#FFF", borderRadius: 14, padding: 24, border: "1px solid rgba(35,43,58,0.08)", boxShadow: "0 2px 12px rgba(35,43,58,0.06)", position: "relative" }}>
+        <form onSubmit={handleSubmit} style={{ background: "#0A0A0E", borderRadius: 14, padding: 24, border: "1px solid rgba(35,43,58,0.08)", boxShadow: "0 2px 12px rgba(35,43,58,0.06)", position: "relative" }}>
           {submitting && (() => {
             const m = (statusMsg || "").toLowerCase();
             const step = m.includes("verdict") ? 4

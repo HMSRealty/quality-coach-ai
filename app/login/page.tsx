@@ -8,32 +8,25 @@ import { supabase } from "@/lib/supabase";
 import { Eye, EyeOff, Loader2, ArrowRight, Home } from "lucide-react";
 import { T } from "@/app/_components/tokens";
 
-const RED   = "#0e7c6b";
-const RED_L = "#fdeee9";
+const RED   = "#3B82F6";
+const RED_L = "rgba(251,113,133,0.12)";
 
 type Tab = "signin" | "signup";
 
 function RealTrackLogo() {
-  // Resona-style equalizer brand mark: four bars (teal · coral · amber · teal)
-  // above a Bricolage wordmark.
-  const bars = [
-    { h: 9, c: "#0e7c6b" },
-    { h: 20, c: "#ef5f3b" },
-    { h: 14, c: "#e3a23a" },
-    { h: 24, c: "#0e7c6b" },
-  ];
+  // Ascendya "A" mark + RealTrack wordmark — the "RealTrack by Ascendya" lockup.
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-      <span style={{ display: "flex", alignItems: "flex-end", gap: 3, height: 24 }}>
-        {bars.map((b, i) => (
-          <i key={i} style={{ width: 3.5, height: b.h, borderRadius: 2, background: b.c, display: "block" }} />
-        ))}
-      </span>
-      <span style={{
-        fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 700,
-        letterSpacing: "-0.02em", color: T.navy, lineHeight: 1,
-      }}>
-        RealTrack
+    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+      <img src="/ascendya-mark.svg" alt="Ascendya" style={{ height: 38, width: "auto", display: "block" }} />
+      <span style={{ display: "flex", flexDirection: "column", lineHeight: 1 }}>
+        <span style={{
+          fontFamily: "var(--font-display)", fontSize: 24, fontWeight: 800,
+          letterSpacing: "-0.02em", color: T.navy, lineHeight: 1,
+        }}>RealTrack</span>
+        <span style={{
+          fontSize: 10, fontWeight: 700, letterSpacing: "0.24em", textTransform: "uppercase", marginTop: 5,
+          background: "linear-gradient(120deg,#6B3FA0,#3B82F6)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent",
+        }}>by Ascendya</span>
       </span>
     </div>
   );
@@ -100,7 +93,7 @@ export default function AuthPage() {
 
   const inputBase: React.CSSProperties = {
     width: "100%", padding: "11px 14px",
-    background: T.surface3, border: "1.5px solid #E5E7EB",
+    background: T.surface3, border: "1.5px solid #22222c",
     borderRadius: 10, fontSize: 14, color: T.navy,
     outline: "none",
   };
@@ -114,7 +107,7 @@ export default function AuthPage() {
       {/* Card */}
       <div className="animate-scale" style={{
         width: "100%", maxWidth: 420,
-        background: T.surface1, border: "1.5px solid #E5E7EB",
+        background: T.surface1, border: "1.5px solid #22222c",
         borderRadius: 20, padding: "36px 32px",
         boxShadow: "0 8px 32px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06)",
       }}>
@@ -128,8 +121,8 @@ export default function AuthPage() {
 
         {/* Tab switcher */}
         <div style={{
-          display: "flex", background: "#F3F4F6",
-          border: "1px solid #E5E7EB",
+          display: "flex", background: "#101018",
+          border: "1px solid #22222c",
           borderRadius: 12, padding: 4, marginBottom: 26, gap: 4,
         }}>
           {(["signin", "signup"] as Tab[]).map(t => (
@@ -137,9 +130,9 @@ export default function AuthPage() {
               flex: 1, padding: "9px 12px",
               borderRadius: 9, border: "none", cursor: "pointer",
               fontSize: 13, fontWeight: 600,
-              background: tab === t ? "#FFFFFF" : "transparent",
-              color: tab === t ? T.navy : T.slate2,
-              boxShadow: tab === t ? "0 1px 4px rgba(0,0,0,0.08)" : "none",
+              background: tab === t ? "var(--grad-primary)" : "transparent",
+              color: tab === t ? "#fff" : T.slate2,
+              boxShadow: tab === t ? "0 6px 18px -8px rgba(59,130,246,0.6)" : "none",
               transition: "all 140ms ease",
             }}>
               {t === "signin" ? "Sign In" : "Sign Up"}
@@ -152,28 +145,28 @@ export default function AuthPage() {
             <>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                 <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 6 }}>Full name</label>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#C7C7D6", marginBottom: 6 }}>Full name</label>
                   <input type="text" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Jane Doe" required style={inputBase} />
                 </div>
                 <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 6 }}>Username</label>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#C7C7D6", marginBottom: 6 }}>Username</label>
                   <input type="text" value={username} onChange={e => setUsername(e.target.value)} placeholder="jane" required style={inputBase} />
                 </div>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                 <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 6 }}>Phone</label>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#C7C7D6", marginBottom: 6 }}>Phone</label>
                   <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+1 (305) 555-0199" required style={inputBase} />
                 </div>
                 <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 6 }}>Website</label>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#C7C7D6", marginBottom: 6 }}>Website</label>
                   <input type="url" value={website} onChange={e => setWebsite(e.target.value)} placeholder="https://…" style={inputBase} />
                 </div>
               </div>
             </>
           )}
           <div>
-            <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 7, letterSpacing: "0.02em" }}>
+            <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#C7C7D6", marginBottom: 7, letterSpacing: "0.02em" }}>
               Email address
             </label>
             <input
@@ -183,11 +176,11 @@ export default function AuthPage() {
           </div>
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 7 }}>
-              <label style={{ fontSize: 12, fontWeight: 700, color: "#334155", letterSpacing: "0.02em" }}>
+              <label style={{ fontSize: 12, fontWeight: 700, color: "#C7C7D6", letterSpacing: "0.02em" }}>
                 Password
               </label>
               {tab === "signin" && (
-                <Link href="/forgot-password" style={{ fontSize: 11, color: "#0a5f52", fontWeight: 700, textDecoration: "none" }}>
+                <Link href="/forgot-password" style={{ fontSize: 11, color: "#2563EB", fontWeight: 700, textDecoration: "none" }}>
                   Forgot password?
                 </Link>
               )}
@@ -215,7 +208,7 @@ export default function AuthPage() {
           {msg && (
             <div style={{
               padding: "10px 14px", borderRadius: 9, fontSize: 13,
-              background: msg.ok ? "#ECFDF5" : "#FBEEE8",
+              background: msg.ok ? "rgba(52,211,153,0.12)" : "rgba(251,113,133,0.12)",
               border: `1px solid ${msg.ok ? "#A7F3D0" : "#E7B8A6"}`,
               color: msg.ok ? "#065F46" : RED,
             }}>
@@ -225,7 +218,7 @@ export default function AuthPage() {
 
           <button type="submit" disabled={loading} style={{
             width: "100%", padding: "12px",
-            background: loading ? "#F3F4F6" : RED,
+            background: loading ? "#101018" : RED,
             color: loading ? T.text3 : "#fff",
             border: "none", borderRadius: 10,
             fontSize: 14, fontWeight: 700, cursor: loading ? "not-allowed" : "pointer",
@@ -234,7 +227,7 @@ export default function AuthPage() {
             transition: "all 130ms ease",
             marginTop: 4,
           }}
-          onMouseEnter={e => { if (!loading) { e.currentTarget.style.background = "#0a5f52"; e.currentTarget.style.transform = "translateY(-1px)"; } }}
+          onMouseEnter={e => { if (!loading) { e.currentTarget.style.background = "#2563EB"; e.currentTarget.style.transform = "translateY(-1px)"; } }}
           onMouseLeave={e => { if (!loading) { e.currentTarget.style.background = RED; e.currentTarget.style.transform = "translateY(0)"; } }}
           >
             {loading ? <><Loader2 size={15} className="animate-spin" /> Please wait...</> : <>{tab === "signin" ? "Sign In" : "Create Account"} <ArrowRight size={15} /></>}

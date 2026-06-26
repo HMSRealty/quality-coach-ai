@@ -8,11 +8,11 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Key, Plus, Trash2, Loader2, CheckCircle2, XCircle, Sparkles, Eye, EyeOff, AlertTriangle, Play, Pause } from "lucide-react";
 
-const NAVY = "#15302e";
-const SLATE = "#475569";
-const SKY = "#0e7c6b";
-const SKY_600 = "#0a5f52";
-const MONEY = "#0a5f52";
+const NAVY = "#F4F4FF";
+const SLATE = "#9A9AB0";
+const SKY = "#3B82F6";
+const SKY_600 = "#2563EB";
+const MONEY = "#2563EB";
 
 interface KeyRow {
   id: string;
@@ -108,19 +108,19 @@ export function GeminiKeysCard() {
     await load();
   };
 
-  const card: React.CSSProperties = { background: "#fff", border: "1px solid var(--border-2)", borderRadius: 14, padding: 22, boxShadow: "var(--shadow-sm)" };
-  const inp: React.CSSProperties = { width: "100%", padding: "9px 11px", borderRadius: 9, border: "1px solid var(--border-2)", background: "#fff", color: "#000", fontSize: 13, outline: "none", fontFamily: "var(--font-mono)" };
+  const card: React.CSSProperties = { background: "#0A0A0E", border: "1px solid var(--border-2)", borderRadius: 14, padding: 22, boxShadow: "var(--shadow-sm)" };
+  const inp: React.CSSProperties = { width: "100%", padding: "9px 11px", borderRadius: 9, border: "1px solid var(--border-2)", background: "#0A0A0E", color: "#F4F4FF", fontSize: 13, outline: "none", fontFamily: "var(--font-mono)" };
 
   return (
     <div style={card}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
-        <p style={{ fontSize: 15, fontWeight: 800, color: "#000", display: "inline-flex", alignItems: "center", gap: 8 }}>
+        <p style={{ fontSize: 15, fontWeight: 800, color: "#F4F4FF", display: "inline-flex", alignItems: "center", gap: 8 }}>
           <Sparkles size={16} color={SKY_600} /> Gemini API Key Pool
         </p>
         <button onClick={() => setAdding(a => !a)} style={{
           display: "inline-flex", alignItems: "center", gap: 5,
           padding: "7px 12px", borderRadius: 8,
-          background: adding ? "var(--surface-3)" : "linear-gradient(135deg,#0e7c6b,#0a5f52)",
+          background: adding ? "var(--surface-3)" : "linear-gradient(135deg,#3B82F6,#2563EB)",
           color: adding ? NAVY : "#fff", border: "none", fontSize: 12, fontWeight: 800, cursor: "pointer",
         }}>
           <Plus size={13} /> {adding ? "Cancel" : "Add Key"}
@@ -158,7 +158,7 @@ export function GeminiKeysCard() {
       {msg && (
         <div style={{
           marginBottom: 12, padding: "9px 12px", borderRadius: 8,
-          background: msg.type === "ok" ? "#ECFDF5" : "#FEF2F2",
+          background: msg.type === "ok" ? "rgba(52,211,153,0.12)" : "rgba(251,113,133,0.12)",
           color: msg.type === "ok" ? MONEY : "#DC2626",
           border: `1px solid ${msg.type === "ok" ? "#A7F3D0" : "#FECACA"}`,
           fontSize: 12.5, fontWeight: 600, display: "flex", alignItems: "center", gap: 7,
@@ -177,11 +177,11 @@ export function GeminiKeysCard() {
               <div key={k.id} style={{
                 display: "flex", alignItems: "center", gap: 10,
                 padding: "10px 14px", borderRadius: 10,
-                background: k.is_active ? "#F8FAFC" : "#FEF2F2",
+                background: k.is_active ? "#101018" : "rgba(251,113,133,0.12)",
                 border: `1px solid ${k.is_active ? "var(--border-1)" : "#FECACA"}`,
                 opacity: k.is_active ? 1 : 0.7,
               }}>
-                <Key size={14} color={ok ? MONEY : k.is_active ? "#92400E" : "#DC2626"} />
+                <Key size={14} color={ok ? MONEY : k.is_active ? "#F59E0B" : "#DC2626"} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <p style={{ fontSize: 13, fontWeight: 700, color: NAVY }}>
                     {k.label || "(unlabeled)"}
@@ -191,7 +191,7 @@ export function GeminiKeysCard() {
                     Assigned to <strong style={{ color: NAVY }}>{userLabel(k.assigned_user_id)}</strong>
                     {k.last_used_at && <span> · used {new Date(k.last_used_at).toLocaleDateString()}</span>}
                     {k.consecutive_errors > 0 && (
-                      <span style={{ color: "#92400E", fontWeight: 700, marginLeft: 8 }}>
+                      <span style={{ color: "#F59E0B", fontWeight: 700, marginLeft: 8 }}>
                         <AlertTriangle size={10} style={{ display: "inline", marginRight: 3 }} />
                         {k.consecutive_errors} errors
                       </span>
@@ -199,12 +199,12 @@ export function GeminiKeysCard() {
                   </p>
                 </div>
                 <select value={k.assigned_user_id || ""} onChange={e => reassign(k, e.target.value)}
-                  title="Reassign" style={{ padding: "4px 8px", borderRadius: 7, border: "1px solid var(--border-2)", background: "#fff", color: NAVY, fontSize: 11, maxWidth: 140 }}>
+                  title="Reassign" style={{ padding: "4px 8px", borderRadius: 7, border: "1px solid var(--border-2)", background: "#0A0A0E", color: NAVY, fontSize: 11, maxWidth: 140 }}>
                   <option value="">Unassigned</option>
                   {users.map(u => <option key={u.id} value={u.id}>{u.full_name || u.email || u.id.slice(0, 8)}</option>)}
                 </select>
                 <button onClick={() => toggle(k)} title={k.is_active ? "Pause" : "Resume"}
-                  style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "5px 10px", borderRadius: 7, border: "1px solid var(--border-2)", background: "#fff", color: NAVY, fontSize: 11.5, fontWeight: 700, cursor: "pointer" }}>
+                  style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "5px 10px", borderRadius: 7, border: "1px solid var(--border-2)", background: "#0A0A0E", color: NAVY, fontSize: 11.5, fontWeight: 700, cursor: "pointer" }}>
                   {k.is_active ? <><Pause size={11} /> Pause</> : <><Play size={11} /> Resume</>}
                 </button>
                 <button onClick={() => remove(k)} title="Remove"

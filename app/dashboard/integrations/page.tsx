@@ -15,9 +15,9 @@ import { ReadymodeConnectionCard } from "@/app/_components/ReadymodeConnectionCa
 import { AutoFetchToggle } from "@/app/_components/AutoFetchToggle";
 import { SheetsExportPanel } from "@/app/_components/SheetsExportPanel";
 
-const NAVY = "#15302e";
-const SLATE = "#475569";
-const SKY_600 = "#0a5f52";
+const NAVY = "#F4F4FF";
+const SLATE = "#9A9AB0";
+const SKY_600 = "#2563EB";
 
 interface ApiKey { id: string; label: string | null; key_prefix: string; last_used_at: string | null; revoked: boolean; created_at: string; }
 
@@ -107,15 +107,15 @@ export default function IntegrationsPage() {
       </div>
 
       {/* WEBHOOK URL + KEY */}
-      <div style={{ background: "#fff", border: "1px solid var(--border-2)", borderRadius: 14, padding: 22, boxShadow: "var(--shadow-sm)" }}>
+      <div style={{ background: "#0A0A0E", border: "1px solid var(--border-2)", borderRadius: 14, padding: 22, boxShadow: "var(--shadow-sm)" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, flexWrap: "wrap", gap: 8 }}>
-          <p style={{ fontSize: 15, fontWeight: 800, color: "#000", display: "inline-flex", alignItems: "center", gap: 8 }}>
+          <p style={{ fontSize: 15, fontWeight: 800, color: "#F4F4FF", display: "inline-flex", alignItems: "center", gap: 8 }}>
             <Webhook size={16} color={SKY_600} /> Webhook
           </p>
           {!showKey && (
             <button onClick={createKey} disabled={creating} style={{
               padding: "7px 14px", borderRadius: 8, border: "none",
-              background: "linear-gradient(135deg,#0e7c6b,#0a5f52)", color: "#fff",
+              background: "linear-gradient(135deg,#3B82F6,#2563EB)", color: "#fff",
               fontSize: 12, fontWeight: 800, cursor: creating ? "wait" : "pointer",
               display: "inline-flex", alignItems: "center", gap: 5,
             }}>
@@ -127,20 +127,20 @@ export default function IntegrationsPage() {
           Point your dialer or CRM at this URL with the key as a Bearer token. We accept JSON, form-urlencoded,
           and Readymode&apos;s native format.
         </p>
-        <div style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: 9, padding: "10px 14px", fontFamily: "var(--font-mono)", fontSize: 12.5, color: NAVY, overflowX: "auto", whiteSpace: "nowrap" }}>
+        <div style={{ background: "#101018", border: "1px solid #22222c", borderRadius: 9, padding: "10px 14px", fontFamily: "var(--font-mono)", fontSize: 12.5, color: NAVY, overflowX: "auto", whiteSpace: "nowrap" }}>
           {webhookUrl}
         </div>
 
         {showKey && (
-          <div style={{ marginTop: 14, background: "#FEFCE8", border: "1px solid #FDE68A", borderRadius: 9, padding: "12px 14px" }}>
-            <p style={{ fontSize: 12, fontWeight: 800, color: "#854D0E", marginBottom: 6 }}>
+          <div style={{ marginTop: 14, background: "rgba(245,158,11,0.12)", border: "1px solid #FDE68A", borderRadius: 9, padding: "12px 14px" }}>
+            <p style={{ fontSize: 12, fontWeight: 800, color: "#F59E0B", marginBottom: 6 }}>
               <AlertTriangle size={12} style={{ display: "inline", marginRight: 4 }} />
               Copy this key now. We only show it once.
             </p>
             <code style={{ display: "block", fontSize: 12.5, fontFamily: "var(--font-mono)", color: NAVY, wordBreak: "break-all" }}>{showKey}</code>
             <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-              <button onClick={() => navigator.clipboard.writeText(showKey)} style={{ padding: "6px 12px", borderRadius: 7, border: "1px solid #FDE68A", background: "#fff", color: "#854D0E", fontSize: 11.5, fontWeight: 700, cursor: "pointer" }}>Copy</button>
-              <button onClick={() => setShowKey(null)} style={{ padding: "6px 12px", borderRadius: 7, border: "none", background: "#854D0E", color: "#fff", fontSize: 11.5, fontWeight: 700, cursor: "pointer" }}>I&apos;ve saved it</button>
+              <button onClick={() => navigator.clipboard.writeText(showKey)} style={{ padding: "6px 12px", borderRadius: 7, border: "1px solid #FDE68A", background: "#0A0A0E", color: "#F59E0B", fontSize: 11.5, fontWeight: 700, cursor: "pointer" }}>Copy</button>
+              <button onClick={() => setShowKey(null)} style={{ padding: "6px 12px", borderRadius: 7, border: "none", background: "#F59E0B", color: "#fff", fontSize: 11.5, fontWeight: 700, cursor: "pointer" }}>I&apos;ve saved it</button>
             </div>
           </div>
         )}
@@ -151,7 +151,7 @@ export default function IntegrationsPage() {
               <div key={k.id} style={{
                 display: "flex", alignItems: "center", gap: 10,
                 padding: "9px 13px", borderRadius: 9,
-                background: k.revoked ? "#FEF2F2" : "#F8FAFC",
+                background: k.revoked ? "rgba(251,113,133,0.12)" : "#101018",
                 border: `1px solid ${k.revoked ? "#FECACA" : "var(--border-1)"}`,
                 opacity: k.revoked ? 0.65 : 1,
               }}>
@@ -162,7 +162,7 @@ export default function IntegrationsPage() {
                 {k.revoked ? (
                   <span style={{ fontSize: 10, color: "#DC2626", fontWeight: 800 }}>REVOKED</span>
                 ) : (
-                  <button onClick={() => revoke(k.id)} style={{ padding: "4px 10px", borderRadius: 6, border: "1px solid #FECACA", background: "#FEF2F2", color: "#DC2626", fontSize: 11, fontWeight: 700, cursor: "pointer" }}>
+                  <button onClick={() => revoke(k.id)} style={{ padding: "4px 10px", borderRadius: 6, border: "1px solid #FECACA", background: "rgba(251,113,133,0.12)", color: "#DC2626", fontSize: 11, fontWeight: 700, cursor: "pointer" }}>
                     Revoke
                   </button>
                 )}
@@ -235,13 +235,13 @@ function ReadOnlyIntegrationsView() {
             const integrated = r.count > 0;
             return (
               <div key={r.name} style={{
-                background: "#fff", border: `1px solid ${integrated ? "#A7F3D0" : "var(--border-2)"}`,
+                background: "#0A0A0E", border: `1px solid ${integrated ? "#A7F3D0" : "var(--border-2)"}`,
                 borderRadius: 12, padding: 18,
                 display: "flex", alignItems: "center", gap: 14,
               }}>
                 {integrated
-                  ? <CheckCircle2 size={22} color="#0a5f52" />
-                  : <AlertTriangle size={22} color="#92400E" />}
+                  ? <CheckCircle2 size={22} color="#2563EB" />
+                  : <AlertTriangle size={22} color="#F59E0B" />}
                 <div style={{ flex: 1 }}>
                   <p style={{ fontSize: 14, fontWeight: 800, color: NAVY }}>{r.name}</p>
                   <p style={{ fontSize: 12.5, color: SLATE, marginTop: 2 }}>{r.desc}</p>
@@ -249,8 +249,8 @@ function ReadOnlyIntegrationsView() {
                 <span style={{
                   fontSize: 11.5, fontWeight: 800,
                   padding: "5px 11px", borderRadius: 999,
-                  background: integrated ? "#ECFDF5" : "#FEF3C7",
-                  color: integrated ? "#047857" : "#92400E",
+                  background: integrated ? "rgba(52,211,153,0.12)" : "rgba(245,158,11,0.12)",
+                  color: integrated ? "#047857" : "#F59E0B",
                 }}>
                   {integrated ? `Integrated · ${r.count} active` : "Not set up yet"}
                 </span>
@@ -261,7 +261,7 @@ function ReadOnlyIntegrationsView() {
       )}
 
       <div style={{
-        background: "#F8FAFC", border: "1px solid var(--border-1)",
+        background: "#101018", border: "1px solid var(--border-1)",
         borderRadius: 12, padding: 16, fontSize: 12.5, color: SLATE, lineHeight: 1.6,
       }}>
         Missing an integration? Email <a href="mailto:info@realtrack.app" style={{ color: SKY_600, fontWeight: 700 }}>info@realtrack.app</a> and we&apos;ll wire it up for you.

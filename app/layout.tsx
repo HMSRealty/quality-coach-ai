@@ -1,28 +1,28 @@
 import type { Metadata, Viewport } from "next";
-import { Bricolage_Grotesque, Hanken_Grotesk, Space_Mono } from "next/font/google";
+import { Sora, Manrope, JetBrains_Mono } from "next/font/google";
 import { SmoothScroll } from "@/app/_components/SmoothScroll";
 import { Toaster } from "sonner";
 import "./globals.css";
 
-// Hanken Grotesk — the body / UI typeface (Resona brand).
+// Manrope — the body / UI typeface (Ascendya brand).
 // Mapped onto --font-geist-sans so every existing token resolves to it.
-const hanken = Hanken_Grotesk({
+const manrope = Manrope({
   variable: "--font-geist-sans",
   subsets: ["latin"],
   display: "swap",
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["400", "500", "600", "700"],
 });
 
-// Space Mono — coverage counters, scores, code-ish metrics.
-const spaceMono = Space_Mono({
+// JetBrains Mono — metrics / code-ish numerics.
+const jetbrainsMono = JetBrains_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
   display: "swap",
   weight: ["400", "700"],
 });
 
-// Bricolage Grotesque — display face for headings (Resona brand punch).
-const bricolage = Bricolage_Grotesque({
+// Sora — display face for headings (Ascendya brand).
+const sora = Sora({
   variable: "--font-bricolage",
   subsets: ["latin"],
   weight: ["400", "600", "700", "800"],
@@ -34,8 +34,8 @@ const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "RealTrack — Track every call. Close every deal.",
-    template: "%s · RealTrack",
+    default: "RealTrack by Ascendya — Track every call. Close every deal.",
+    template: "%s · RealTrack by Ascendya",
   },
   description:
     "RealTrack is the closer's-office OS for real-estate call floors. Track every call, qualify against The Four Pillars, and route Hot leads to acquisitions in seconds. Built for wholesalers and call centers like HMS Realty.",
@@ -46,10 +46,10 @@ export const metadata: Metadata = {
     "acquisitions CRM", "lead intake", "AI call qualification",
     "AI call grading", "wholesaling software", "real estate call center",
   ],
-  applicationName: "RealTrack",
-  authors: [{ name: "RealTrack", url: SITE_URL }],
-  creator: "RealTrack",
-  publisher: "RealTrack",
+  applicationName: "RealTrack by Ascendya",
+  authors: [{ name: "Ascendya", url: SITE_URL }],
+  creator: "Ascendya",
+  publisher: "Ascendya",
   alternates: { canonical: "/" },
   robots: {
     index: true, follow: true,
@@ -57,16 +57,16 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    siteName: "RealTrack",
+    siteName: "RealTrack by Ascendya",
     url: SITE_URL,
     locale: "en_US",
-    title: "RealTrack — Track every call. Close every deal.",
-    description: "Closer's-office OS for real-estate call floors. AI grades every call against The Four Pillars, surfaces Hot leads in seconds, and coaches your floor automatically.",
-    images: [{ url: `${SITE_URL}/og.png`, width: 1200, height: 630, alt: "RealTrack — AI call qualification for real-estate teams" }],
+    title: "RealTrack by Ascendya — Track every call. Close every deal.",
+    description: "An Ascendya product. The closer's OS for real-estate call floors — AI grades every call against The Four Pillars, surfaces Hot leads in seconds, and coaches your floor automatically.",
+    images: [{ url: `${SITE_URL}/og.png`, width: 1200, height: 630, alt: "RealTrack by Ascendya — AI call qualification for real-estate teams" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "RealTrack — Track every call. Close every deal.",
+    title: "RealTrack by Ascendya — Track every call. Close every deal.",
     description: "AI grades every call against The Four Pillars. Hot leads to acquisitions in seconds. realtrack.app",
     images: [`${SITE_URL}/og.png`],
   },
@@ -74,7 +74,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#15302e",
+  themeColor: "#F4F4FF",
 };
 
 // JSON-LD structured data — helps Google understand what RealTrack is and
@@ -85,8 +85,8 @@ const STRUCTURED_DATA = {
     {
       "@type": "Organization",
       "@id": `${SITE_URL}/#org`,
-      name: "RealTrack",
-      alternateName: ["realtrack.app", "RealTrack App"],
+      name: "Ascendya",
+      alternateName: ["RealTrack by Ascendya", "Ascendyaa", "realtrack.app"],
       url: SITE_URL,
       logo: `${SITE_URL}/logo.png`,
       email: "info@realtrack.app",
@@ -95,7 +95,7 @@ const STRUCTURED_DATA = {
     {
       "@type": "SoftwareApplication",
       "@id": `${SITE_URL}/#app`,
-      name: "RealTrack",
+      name: "RealTrack by Ascendya",
       url: SITE_URL,
       applicationCategory: "BusinessApplication",
       operatingSystem: "Web",
@@ -111,7 +111,7 @@ const STRUCTURED_DATA = {
       "@type": "WebSite",
       "@id": `${SITE_URL}/#site`,
       url: SITE_URL,
-      name: "RealTrack",
+      name: "RealTrack by Ascendya",
       publisher: { "@id": `${SITE_URL}/#org` },
     },
   ],
@@ -121,7 +121,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`${hanken.variable} ${spaceMono.variable} ${bricolage.variable}`}
+      className={`${manrope.variable} ${jetbrainsMono.variable} ${sora.variable}`}
       suppressHydrationWarning
     >
       <head>

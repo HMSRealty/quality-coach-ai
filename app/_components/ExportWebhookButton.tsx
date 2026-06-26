@@ -94,7 +94,7 @@ export function ExportWebhookButton({ leadId }: { leadId: string }) {
           <div style={{
             position: "fixed", bottom: 22, right: 22, zIndex: 9999,
             padding: "10px 14px", borderRadius: 10,
-            background: toast.ok ? "#ECFDF5" : "#FBEEE8", color: toast.ok ? "#065F46" : "#991B1B",
+            background: toast.ok ? "rgba(52,211,153,0.12)" : "rgba(251,113,133,0.12)", color: toast.ok ? "#34D399" : "#FB7185",
             border: `1px solid ${toast.ok ? "#A7F3D0" : "#FBCFBE"}`,
             fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", gap: 8,
             boxShadow: "var(--shadow-md)",

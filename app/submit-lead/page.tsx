@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { Send, Loader2, CheckCircle2, AlertCircle, Upload } from "lucide-react";
 
 const NAVY = "var(--text-1)";
-const TEAL = "#0e7c6b";
+const TEAL = "#3B82F6";
 const SLATE = "var(--text-2)";
 
 interface Caller { id: string; name: string; team_id?: string; }
@@ -33,7 +33,7 @@ const labelStyle: React.CSSProperties = {
 function Card({ children, title }: { children: React.ReactNode; title: string }) {
   return (
     <div style={{
-      background: "#FFFFFF", border: "1px solid rgba(35,43,58,0.08)", borderRadius: 14,
+      background: "#0A0A0E", border: "1px solid rgba(35,43,58,0.08)", borderRadius: 14,
       padding: "22px", marginBottom: 18,
       boxShadow: "0 2px 8px rgba(35,43,58,0.04)",
     }}>
@@ -205,14 +205,11 @@ export default function PublicSubmitLeadPage() {
       <div style={{ maxWidth: 720, margin: "0 auto" }}>
         {/* Logo + Header */}
         <div style={{ textAlign: "center", marginBottom: 36 }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
-            <span style={{ display: "flex", alignItems: "flex-end", gap: 3, height: 26 }}>
-              {[{ h: 9, c: TEAL }, { h: 21, c: "var(--coral)" }, { h: 15, c: "var(--amber)" }, { h: 26, c: TEAL }].map((b, i) => (
-                <i key={i} style={{ width: 4, height: b.h, borderRadius: 2, background: b.c, display: "block" }} />
-              ))}
-            </span>
-            <span style={{ fontSize: 24, fontWeight: 700, color: NAVY, letterSpacing: "-0.02em", fontFamily: "var(--font-display)" }}>
-              RealTrack
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+            <img src="/ascendya-mark.svg" alt="Ascendya" style={{ height: 40, width: "auto", display: "block" }} />
+            <span style={{ display: "flex", flexDirection: "column", lineHeight: 1, textAlign: "left" }}>
+              <span style={{ fontSize: 26, fontWeight: 800, color: NAVY, letterSpacing: "-0.02em", fontFamily: "var(--font-display)" }}>RealTrack</span>
+              <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.24em", textTransform: "uppercase", marginTop: 5, background: "linear-gradient(120deg,#6B3FA0,#3B82F6)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>by Ascendya</span>
             </span>
           </div>
           <h1 style={{ fontSize: 28, fontWeight: 900, color: NAVY, marginBottom: 10, letterSpacing: "-0.02em" }}>
@@ -226,9 +223,9 @@ export default function PublicSubmitLeadPage() {
         {success && (
           <div style={{
             padding: "14px 18px", borderRadius: 12, marginBottom: 18,
-            background: "#ECFDF5", border: "1px solid #A7F3D0",
+            background: "rgba(52,211,153,0.12)", border: "1px solid #A7F3D0",
             display: "flex", alignItems: "center", gap: 10,
-            color: "#0a5f52", fontSize: 13, fontWeight: 600,
+            color: "#2563EB", fontSize: 13, fontWeight: 600,
           }}>
             <CheckCircle2 size={16} /> Lead submitted! Processing has started.
           </div>
@@ -236,7 +233,7 @@ export default function PublicSubmitLeadPage() {
         {error && (
           <div style={{
             padding: "14px 18px", borderRadius: 12, marginBottom: 18,
-            background: "#FBEEE8", border: "1px solid #E7B8A6",
+            background: "rgba(251,113,133,0.12)", border: "1px solid #E7B8A6",
             display: "flex", alignItems: "center", gap: 10,
             color: "#DC2626", fontSize: 13, fontWeight: 600,
           }}>
@@ -302,7 +299,7 @@ export default function PublicSubmitLeadPage() {
             {callers.length === 0 && (
               <div style={{
                 marginTop: 12, padding: "10px 12px", borderRadius: 8,
-                background: "#FFFBEB", border: "1px solid #FCD34D",
+                background: "rgba(245,158,11,0.12)", border: "1px solid #FCD34D",
                 fontSize: 12, color: "#92400E",
               }}>
                 ⚠ No cold callers configured yet. Admins must upload a team CSV first.
@@ -384,8 +381,8 @@ export default function PublicSubmitLeadPage() {
                 />
               </div>
               {callFile && (
-                <div style={{ marginTop: 12, padding: "10px 12px", background: "#ECFDF5", borderRadius: 8 }}>
-                  <p style={{ fontSize: 12, color: "#0a5f52", fontWeight: 600 }}>
+                <div style={{ marginTop: 12, padding: "10px 12px", background: "rgba(52,211,153,0.12)", borderRadius: 8 }}>
+                  <p style={{ fontSize: 12, color: "#2563EB", fontWeight: 600 }}>
                     ✓ Ready: {(callFile.size / (1024 * 1024)).toFixed(1)}MB
                   </p>
                 </div>

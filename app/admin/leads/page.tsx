@@ -7,9 +7,9 @@ import Link from "next/link";
 import { T } from "@/app/_components/tokens";
 
 const BG = T.surface3;
-const PANEL = "#FFFFFF";
+const PANEL = "#0A0A0E";
 const PANEL_2 = T.surface3;
-const TEAL = "#0a5f52";
+const TEAL = "#2563EB";
 const TXT = T.navy;
 const MUTED = T.slate;
 
@@ -274,7 +274,7 @@ export default function AdminLeadsPage() {
                           {(secureCalls[l.id] || l.call_recording_url) && (
                             <button onClick={() => downloadCall(l)} disabled={downloadingId === l.id} title="Download call recording" style={{
                               padding: "5px 10px", borderRadius: 7,
-                              background: "#ECFDF5", color: "#0a5f52",
+                              background: "rgba(52,211,153,0.12)", color: "#2563EB",
                               border: "1px solid #A7F3D0",
                               fontSize: 11, fontWeight: 700, cursor: downloadingId === l.id ? "wait" : "pointer",
                               display: "inline-flex", alignItems: "center", gap: 4,

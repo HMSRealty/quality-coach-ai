@@ -11,8 +11,8 @@ import {
 import { TrainingSnippets } from "@/app/_components/TrainingSnippets";
 
 const NAVY = "var(--text-1)";
-const TEAL = "#0e7c6b";
-const GOLD = "#0e7c6b";
+const TEAL = "#3B82F6";
+const GOLD = "#3B82F6";
 const SLATE = "var(--text-2)";
 
 interface Batch {
@@ -46,7 +46,7 @@ interface Session {
 
 const inputStyle: React.CSSProperties = {
   width: "100%", padding: "10px 12px", borderRadius: 9,
-  background: "#F2F5F9", border: "1px solid rgba(35,43,58,0.10)",
+  background: "#101018", border: "1px solid rgba(35,43,58,0.10)",
   fontSize: 13, color: NAVY, outline: "none",
 };
 const labelStyle: React.CSSProperties = {
@@ -232,9 +232,9 @@ export default function TrainersPage() {
       {toast && (
         <div style={{
           padding: "12px 16px", borderRadius: 10,
-          background: toast.type === "ok" ? "#ECFDF5" : "#FBEEE8",
+          background: toast.type === "ok" ? "rgba(52,211,153,0.12)" : "rgba(251,113,133,0.12)",
           border: `1px solid ${toast.type === "ok" ? "#A7F3D0" : "#E7B8A6"}`,
-          color: toast.type === "ok" ? "#0a5f52" : "#DC2626",
+          color: toast.type === "ok" ? "#2563EB" : "#DC2626",
           fontSize: 13, fontWeight: 600, display: "flex", gap: 8, alignItems: "center",
         }}>
           {toast.type === "ok" ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
@@ -379,7 +379,7 @@ export default function TrainersPage() {
                     }}><Trash2 size={13} /></button>
                   </div>
                   {s.notes && (
-                    <p style={{ fontSize: 12, color: SLATE, lineHeight: 1.6, padding: "10px 12px", background: "#F2F5F9", borderRadius: 8, marginLeft: 50 }}>
+                    <p style={{ fontSize: 12, color: SLATE, lineHeight: 1.6, padding: "10px 12px", background: "#101018", borderRadius: 8, marginLeft: 50 }}>
                       {s.notes}
                     </p>
                   )}
@@ -452,7 +452,7 @@ export default function TrainersPage() {
             </div>
             <div onClick={() => matFileInputRef.current?.click()} style={{
               padding: 16, borderRadius: 10, border: `2px dashed ${TEAL}40`,
-              background: "#EEF3FF", textAlign: "center", cursor: "pointer",
+              background: "rgba(59,130,246,0.10)", textAlign: "center", cursor: "pointer",
             }}>
               <Upload size={20} color={TEAL} style={{ margin: "0 auto 6px" }} />
               <p style={{ fontSize: 12, fontWeight: 600, color: NAVY }}>

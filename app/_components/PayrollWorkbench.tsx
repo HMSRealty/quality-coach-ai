@@ -30,7 +30,7 @@ type RoleRate = {
   target_leads: number;
 };
 
-const SKY = "#0e7c6b", SKY600 = "#0a5f52", MONEY = "#0a5f52", NAVY = "#15302e", SLATE = "#475569";
+const SKY = "#3B82F6", SKY600 = "#2563EB", MONEY = "#2563EB", NAVY = "#0A0A0E", SLATE = "#26262F";
 const PAY_METHODS = ["Instapay", "Payoneer", "Vodafone Cash", "Orange Cash", "Etisalat Cash", "Axis Pay", "Bank Transfer", "Cash", "Other"];
 
 type Cfg = {
@@ -380,7 +380,7 @@ export function PayrollWorkbench() {
   };
 
   const dirty = people.some(p => p._dirty);
-  const inp: React.CSSProperties = { width: "100%", padding: "6px 8px", borderRadius: 7, border: "1px solid var(--border-2)", background: "#fff", color: NAVY, fontSize: 12.5, outline: "none" };
+  const inp: React.CSSProperties = { width: "100%", padding: "6px 8px", borderRadius: 7, border: "1px solid var(--border-2)", background: "#0A0A0E", color: NAVY, fontSize: 12.5, outline: "none" };
   const numCell: React.CSSProperties = { ...inp, width: 72, textAlign: "right" };
   const th: React.CSSProperties = { padding: "9px 10px", textAlign: "left", fontSize: 9.5, fontWeight: 800, letterSpacing: "0.05em", color: SLATE, textTransform: "uppercase", whiteSpace: "nowrap" };
   const td: React.CSSProperties = { padding: "7px 10px", fontSize: 12.5, color: NAVY, whiteSpace: "nowrap" };
@@ -404,8 +404,8 @@ export function PayrollWorkbench() {
           <button onClick={syncDialer} className="btn-ghost" style={{ padding: "8px 12px", fontSize: 12 }}><Clock size={13} /> Sync dialer hours</button>
           <button onClick={() => {
             const csv = "Name,Role,Category,Monthly Salary,Hourly Rate,Payable Hours,Email,Color,Payment Method,Payment Info,From,To\n"
-              + '"Jane Doe","RE Telemarketing Agent","Caller","","3","177 Hours 50 Mins.","jane@x.com","#0e7c6b","Instapay","jane@instapay","2026-06-01","2026-06-22"\n'
-              + '"John Manager","Team Leader","Manager","18000","","","john@x.com","#0a5f52","Payoneer","john@payoneer","2026-06-01","2026-06-22"';
+              + '"Jane Doe","RE Telemarketing Agent","Caller","","3","177 Hours 50 Mins.","jane@x.com","#3B82F6","Instapay","jane@instapay","2026-06-01","2026-06-22"\n'
+              + '"John Manager","Team Leader","Manager","18000","","","john@x.com","#2563EB","Payoneer","john@payoneer","2026-06-01","2026-06-22"';
             const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); const a = document.createElement("a"); a.href = url; a.download = "payroll-roster-template.csv"; a.click(); URL.revokeObjectURL(url);
           }} className="btn-ghost" style={{ padding: "8px 12px", fontSize: 12 }}><Download size={13} /> Template</button>
           <button onClick={() => setShowCfg(s => !s)} className="btn-ghost" style={{ padding: "8px 12px", fontSize: 12 }}><Settings2 size={13} /> {showCfg ? "Hide" : "Settings"}</button>
@@ -419,7 +419,7 @@ export function PayrollWorkbench() {
 
       {/* CONFIG — every knob adjustable */}
       {showCfg && (
-        <div style={{ background: "#F8FAFC", border: "1px solid var(--border-2)", borderRadius: 14, padding: 16 }}>
+        <div style={{ background: "#101018", border: "1px solid var(--border-2)", borderRadius: 14, padding: 16 }}>
           <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.05em", color: SKY600, textTransform: "uppercase", marginBottom: 12 }}>Payroll settings (adjust freely)</p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(170px, 1fr))", gap: 12 }}>
             <Field label="Period start"><input type="date" value={cfg.periodStart} onChange={e => setCfgK("periodStart", e.target.value)} style={inp} /></Field>
@@ -442,7 +442,7 @@ export function PayrollWorkbench() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 12 }}>
         <Stat label="Callers (USD)" value={usd(totals.usdT)} accent={SKY600} />
         <Stat label="Spiffs/Referral (EGP)" value={egp(totals.spiffT)} accent="#EA580C" />
-        <Stat label="Managers (EGP)" value={egp(totals.mgrEgp)} accent="#0a5f52" />
+        <Stat label="Managers (EGP)" value={egp(totals.mgrEgp)} accent="#2563EB" />
         <Stat label="Grand net payout (EGP)" value={egp(totals.netEgp)} accent={MONEY} />
       </div>
 
@@ -452,7 +452,7 @@ export function PayrollWorkbench() {
         <button onClick={seedFromCallers} className="btn-ghost" style={{ padding: "6px 10px", fontSize: 11.5 }}>Import agents</button>
       }>
         {Object.keys(roleRates).length === 0 && (
-          <div style={{ padding: "12px 14px", margin: "10px 14px", borderRadius: 8, background: "#FEF3C7", border: "1px solid #FCD34D", color: "#92400E", fontSize: 12.5, fontWeight: 600 }}>
+          <div style={{ padding: "12px 14px", margin: "10px 14px", borderRadius: 8, background: "rgba(245,158,11,0.12)", border: "1px solid #FCD34D", color: "#F59E0B", fontSize: 12.5, fontWeight: 600 }}>
             No roles defined yet. Go to <strong>Role Salaries</strong> and set up at least one role (e.g. Caller, Team Leader) so hourly rates can be computed.
           </div>
         )}

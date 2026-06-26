@@ -134,7 +134,7 @@ export default function PayrollPage() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 14 }}>
         <div>
           <h1 style={{ fontSize: 28, fontWeight: 900, color: NAVY, letterSpacing: "-0.02em", display: "flex", alignItems: "center", gap: 10 }}>
-            <DollarSign size={26} color="#0a5f52" /> Compensation & Hours
+            <DollarSign size={26} color="#2563EB" /> Compensation & Hours
           </h1>
           <p style={{ fontSize: 13, color: SLATE, marginTop: 4 }}>
             Salaries, hours, payroll, and bonuses — everything the floor gets paid for, in one place.
@@ -185,9 +185,9 @@ export default function PayrollPage() {
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14 }}>
-            <SummaryCard label="Total bonus (period)" value={money(totals.bonus)} accent="#0e7c6b" />
-            <SummaryCard label="Production points" value={String(Math.round(totals.points * 10) / 10)} accent="#0a5f52" />
-            <SummaryCard label="Qualified / Calls" value={`${totals.qualified} / ${totals.total}`} accent="#0a5f52" />
+            <SummaryCard label="Total bonus (period)" value={money(totals.bonus)} accent="#3B82F6" />
+            <SummaryCard label="Production points" value={String(Math.round(totals.points * 10) / 10)} accent="#2563EB" />
+            <SummaryCard label="Qualified / Calls" value={`${totals.qualified} / ${totals.total}`} accent="#2563EB" />
             <div style={{ background: "var(--surface-1)", border: "1px solid var(--border-2)", borderRadius: 14, padding: "14px 16px", boxShadow: "var(--shadow-sm)" }}>
               <p style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.06em", color: "var(--text-3)", textTransform: "uppercase", marginBottom: 8 }}>
                 <Calculator size={11} style={{ display: "inline", marginRight: 4 }} /> Bonus rate / point
@@ -202,10 +202,10 @@ export default function PayrollPage() {
           </div>
 
           {loading ? (
-            <div style={{ padding: 80, textAlign: "center" }}><Loader2 size={28} className="animate-spin" style={{ color: "#0a5f52" }} /></div>
+            <div style={{ padding: 80, textAlign: "center" }}><Loader2 size={28} className="animate-spin" style={{ color: "#2563EB" }} /></div>
           ) : rows.length === 0 ? (
             <div style={{ padding: 60, textAlign: "center", background: "var(--surface-1)", borderRadius: 18, border: "1px solid var(--border-2)" }}>
-              <TrendingUp size={36} color="#CBD5E1" style={{ margin: "0 auto 10px" }} />
+              <TrendingUp size={36} color="#33333f" style={{ margin: "0 auto 10px" }} />
               <p style={{ fontSize: 14, color: SLATE }}>No production in this range yet.</p>
             </div>
           ) : (
@@ -231,16 +231,16 @@ export default function PayrollPage() {
                         <td style={{ ...td, textAlign: "center", color: SLATE }}>{r.total}</td>
                         <td style={{ ...td, textAlign: "center", color: "#DC2626", fontWeight: 700 }}>{r.hot}</td>
                         <td style={{ ...td, textAlign: "center", color: "#EA580C", fontWeight: 700 }}>{r.warm}</td>
-                        <td style={{ ...td, textAlign: "center", color: "#0a5f52", fontWeight: 700 }}>{r.cold}</td>
+                        <td style={{ ...td, textAlign: "center", color: "#2563EB", fontWeight: 700 }}>{r.cold}</td>
                         <td style={{ ...td, textAlign: "center", fontWeight: 800 }}>{Math.round(r.points * 10) / 10}</td>
                         <td style={{ ...td, textAlign: "center" }}>
                           <span style={{
                             padding: "2px 9px", borderRadius: 999, fontSize: 11, fontWeight: 800,
-                            background: r.pacePct >= 100 ? "rgba(14,124,107,0.12)" : r.pacePct >= 80 ? "var(--surface-3)" : "rgba(234,88,12,0.12)",
-                            color: r.pacePct >= 100 ? "#0e7c6b" : r.pacePct >= 80 ? "var(--text-2)" : "#EA580C",
+                            background: r.pacePct >= 100 ? "rgba(59,130,246,0.12)" : r.pacePct >= 80 ? "var(--surface-3)" : "rgba(234,88,12,0.12)",
+                            color: r.pacePct >= 100 ? "#3B82F6" : r.pacePct >= 80 ? "var(--text-2)" : "#EA580C",
                           }}>{r.pacePct}%</span>
                         </td>
-                        <td style={{ ...td, textAlign: "right", fontWeight: 900, color: "#0e7c6b" }}>{money(r.bonus)}</td>
+                        <td style={{ ...td, textAlign: "right", fontWeight: 900, color: "#3B82F6" }}>{money(r.bonus)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -251,7 +251,7 @@ export default function PayrollPage() {
                       <td colSpan={3} />
                       <td style={{ ...td, textAlign: "center", fontWeight: 900 }}>{Math.round(totals.points * 10) / 10}</td>
                       <td />
-                      <td style={{ ...td, textAlign: "right", fontWeight: 900, color: "#0e7c6b" }}>{money(totals.bonus)}</td>
+                      <td style={{ ...td, textAlign: "right", fontWeight: 900, color: "#3B82F6" }}>{money(totals.bonus)}</td>
                     </tr>
                   </tfoot>
                 </table>

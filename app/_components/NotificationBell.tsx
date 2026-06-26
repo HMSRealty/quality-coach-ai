@@ -7,8 +7,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Bell, Check, MapPin, Flame, Sparkles } from "lucide-react";
 import { useRealtimeNotifications } from "@/app/_components/useRealtimeNotifications";
 
-const SKY_600 = "#0a5f52";
-const MONEY = "#0a5f52";
+const SKY_600 = "#2563EB";
+const MONEY = "#2563EB";
 const SPRING = { type: "spring", stiffness: 460, damping: 32, mass: 0.7 } as const;
 
 function ago(ts: number): string {
@@ -44,7 +44,7 @@ export function NotificationBell() {
     <div ref={wrapRef} style={{ position: "relative" }}>
       <button title="Notifications" onClick={toggle} style={{
         position: "relative", width: 36, height: 36, borderRadius: 10,
-        background: openMenu ? "#F0F9FF" : "#fff", border: "1px solid var(--border-2)",
+        background: openMenu ? "#0d1626" : "#fff", border: "1px solid var(--border-2)",
         display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
         color: openMenu ? SKY_600 : "#000", transition: "all 160ms ease",
       }}>
@@ -74,12 +74,12 @@ export function NotificationBell() {
             transition={SPRING}
             style={{
               position: "absolute", right: 0, top: 46, zIndex: 100, width: 360, maxWidth: "90vw",
-              background: "#fff", border: "1px solid var(--border-2)", borderRadius: 16,
+              background: "#0A0A0E", border: "1px solid var(--border-2)", borderRadius: 16,
               boxShadow: "0 24px 60px rgba(15,23,42,0.18)", overflow: "hidden",
             }}>
             {/* Header */}
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "13px 16px", borderBottom: "1px solid var(--border-1)" }}>
-              <p style={{ fontSize: 14, fontWeight: 800, color: "#000" }}>Notifications</p>
+              <p style={{ fontSize: 14, fontWeight: 800, color: "#F4F4FF" }}>Notifications</p>
               {notifications.length > 0 && (
                 <button onClick={markAllRead} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "none", border: "none", cursor: "pointer", color: SKY_600, fontSize: 12, fontWeight: 700 }}>
                   <Check size={13} /> Mark all read
@@ -91,8 +91,8 @@ export function NotificationBell() {
             <div data-lenis-prevent="true" style={{ maxHeight: 380, overflowY: "auto", overscrollBehavior: "contain" }}>
               {notifications.length === 0 ? (
                 <div style={{ padding: "40px 20px", textAlign: "center" }}>
-                  <Bell size={28} color="#CBD5E1" style={{ margin: "0 auto 10px" }} />
-                  <p style={{ fontSize: 13, fontWeight: 700, color: "#000" }}>You&apos;re all caught up</p>
+                  <Bell size={28} color="#33333f" style={{ margin: "0 auto 10px" }} />
+                  <p style={{ fontSize: 13, fontWeight: 700, color: "#F4F4FF" }}>You&apos;re all caught up</p>
                   <p style={{ fontSize: 12, color: "var(--text-3)", marginTop: 3 }}>New &amp; Hot leads will appear here instantly.</p>
                 </div>
               ) : (
@@ -105,7 +105,7 @@ export function NotificationBell() {
                         display: "flex", alignItems: "center", gap: 12, width: "100%", textAlign: "left",
                         padding: "12px 16px", border: "none", borderBottom: "1px solid var(--border-1)",
                         borderLeft: `3px solid ${hot ? accent : "transparent"}`,
-                        background: n.read ? "#fff" : hot ? "color-mix(in srgb, #0a5f52 6%, #fff)" : "#F8FBFF",
+                        background: n.read ? "#fff" : hot ? "color-mix(in srgb, #2563EB 6%, #fff)" : "#0A0A0E",
                         cursor: "pointer",
                       }}>
                       <span style={{ width: 32, height: 32, borderRadius: 9, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: `color-mix(in srgb, ${accent} 12%, transparent)`, color: accent }}>

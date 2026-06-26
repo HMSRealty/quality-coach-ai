@@ -16,9 +16,9 @@ import { AddressAutocomplete, type AddressParts } from "@/app/_components/Addres
 
 // Closer's Office. SKY/SKY_600 var names retained so the existing inline
 // styles keep working — the values shift to money-green + deeper money.
-const SKY = "#0e7c6b";
-const SKY_600 = "#0a5f52";
-const MONEY = "#0a5f52";
+const SKY = "#3B82F6";
+const SKY_600 = "#2563EB";
+const MONEY = "#2563EB";
 const SPRING = { type: "spring", stiffness: 460, damping: 32, mass: 0.7 } as const;
 
 interface Campaign { id: string; name: string; }
@@ -29,11 +29,11 @@ const ACCEPT = ".mp3,.wav,.m4a,.mp4,audio/*,video/mp4";
 const MAX_BYTES = 500 * 1024 * 1024;
 const fmtSize = (b: number) => (b > 1024 * 1024 ? `${(b / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(b / 1024))} KB`);
 
-const labelStyle: React.CSSProperties = { display: "block", fontSize: 12, fontWeight: 700, color: "#000", marginBottom: 6 };
+const labelStyle: React.CSSProperties = { display: "block", fontSize: 12, fontWeight: 700, color: "#F4F4FF", marginBottom: 6 };
 const fieldStyle: React.CSSProperties = {
   width: "100%", padding: "11px 13px", borderRadius: 10,
-  background: "#fff", border: "1px solid var(--border-2)",
-  fontSize: 13.5, color: "#000", outline: "none",
+  background: "#0A0A0E", border: "1px solid var(--border-2)",
+  fontSize: 13.5, color: "#F4F4FF", outline: "none",
 };
 
 function slugify(s: string) { return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40); }
@@ -233,7 +233,7 @@ export default function SubmitLeadPage() {
   return (
     <div style={{ maxWidth: 760, margin: "0 auto", display: "flex", flexDirection: "column", gap: 18 }} className="animate-in">
       <div>
-        <h1 style={{ fontSize: 24, fontWeight: 900, color: "#000", letterSpacing: "-0.02em" }}>Submit a Lead</h1>
+        <h1 style={{ fontSize: 24, fontWeight: 900, color: "#F4F4FF", letterSpacing: "-0.02em" }}>Submit a Lead</h1>
         <p style={{ fontSize: 13, color: "var(--text-2)", marginTop: 4 }}>Drop the property, attach the call. The floor gets the verdict back in seconds.</p>
       </div>
 
@@ -243,9 +243,9 @@ export default function SubmitLeadPage() {
           <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={SPRING}
             style={{
               display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", borderRadius: 12, fontSize: 13, fontWeight: 700,
-              background: result.kind === "ok" ? "#ECFDF5" : result.kind === "dup" ? "#FFFBEB" : "#FEF2F2",
+              background: result.kind === "ok" ? "rgba(52,211,153,0.12)" : result.kind === "dup" ? "rgba(245,158,11,0.12)" : "rgba(251,113,133,0.12)",
               border: `1px solid ${result.kind === "ok" ? "#A7F3D0" : result.kind === "dup" ? "#FCD34D" : "#FECACA"}`,
-              color: result.kind === "ok" ? MONEY : result.kind === "dup" ? "#92400E" : "#DC2626",
+              color: result.kind === "ok" ? MONEY : result.kind === "dup" ? "#F59E0B" : "#DC2626",
             }}>
             {result.kind === "ok" ? <CheckCircle2 size={16} /> : <AlertTriangle size={16} />} {result.msg}
           </motion.div>
@@ -254,7 +254,7 @@ export default function SubmitLeadPage() {
 
       {/* ── MAIN FORM CARD ── */}
       <form onSubmit={submit}>
-        <div style={{ background: "#fff", border: "1px solid var(--border-2)", borderRadius: 18, padding: 24, boxShadow: "var(--shadow-sm)", display: "flex", flexDirection: "column", gap: 18 }}>
+        <div style={{ background: "#0A0A0E", border: "1px solid var(--border-2)", borderRadius: 18, padding: 24, boxShadow: "var(--shadow-sm)", display: "flex", flexDirection: "column", gap: 18 }}>
           {/* Address — large prominent */}
           <div>
             <label style={labelStyle}><MapPin size={12} style={{ display: "inline", marginRight: 5, marginBottom: -1, color: SKY_600 }} />Property Address *</label>
@@ -264,7 +264,7 @@ export default function SubmitLeadPage() {
               onSelect={(parts) => setForm(f => ({ ...f, address: parts.formatted, parts }))}
               placeholder="Start typing an address — Google will autocomplete"
               required
-              style={{ ...fieldStyle, padding: "16px 16px", fontSize: 16, fontWeight: 600, borderColor: SKY, boxShadow: "0 0 0 3px rgba(14,124,107,0.10)" }}
+              style={{ ...fieldStyle, padding: "16px 16px", fontSize: 16, fontWeight: 600, borderColor: SKY, boxShadow: "0 0 0 3px rgba(59,130,246,0.10)" }}
             />
             {form.parts && (form.parts.city || form.parts.state) && (
               <p style={{ fontSize: 11, color: "var(--text-3)", marginTop: 6 }}>
@@ -281,14 +281,14 @@ export default function SubmitLeadPage() {
               onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
               onDragLeave={() => setDragOver(false)}
               onDrop={(e) => { e.preventDefault(); setDragOver(false); if (e.dataTransfer.files) addFiles(e.dataTransfer.files); }}
-              animate={{ borderColor: dragOver ? SKY : "rgba(14,124,107,0.35)", backgroundColor: dragOver ? "rgba(14,124,107,0.08)" : "#f3f4f1" }}
+              animate={{ borderColor: dragOver ? SKY : "rgba(59,130,246,0.35)", backgroundColor: dragOver ? "rgba(59,130,246,0.08)" : "#101018" }}
               transition={{ duration: 0.15 }}
               style={{
                 border: "2px dashed", borderRadius: 14, padding: "30px 20px", textAlign: "center", cursor: "pointer",
               }}>
               <motion.div animate={{ y: dragOver ? -3 : 0 }}>
                 <UploadCloud size={34} color={SKY_600} style={{ margin: "0 auto 8px" }} />
-                <p style={{ fontSize: 14, fontWeight: 800, color: "#000" }}>{dragOver ? "Drop to attach" : "Drag & drop audio here"}</p>
+                <p style={{ fontSize: 14, fontWeight: 800, color: "#F4F4FF" }}>{dragOver ? "Drop to attach" : "Drag & drop audio here"}</p>
                 <p style={{ fontSize: 12, color: "var(--text-3)", marginTop: 3 }}>or click to browse · MP3, WAV, M4A, MP4</p>
               </motion.div>
               <input ref={fileInputRef} type="file" multiple accept={ACCEPT} onChange={(e) => { if (e.target.files) addFiles(e.target.files); e.target.value = ""; }} style={{ display: "none" }} />
@@ -298,12 +298,12 @@ export default function SubmitLeadPage() {
             <AnimatePresence initial={false}>
               {files.map((f, i) => (
                 <motion.div key={f.name + f.size} layout initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} transition={SPRING}
-                  style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", marginTop: 8, borderRadius: 10, background: "#F8FAFC", border: "1px solid var(--border-2)" }}>
-                  <span style={{ width: 30, height: 30, borderRadius: 8, background: "rgba(14,124,107,0.14)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", marginTop: 8, borderRadius: 10, background: "#101018", border: "1px solid var(--border-2)" }}>
+                  <span style={{ width: 30, height: 30, borderRadius: 8, background: "rgba(59,130,246,0.14)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                     <Music size={14} color={SKY_600} />
                   </span>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontSize: 12.5, fontWeight: 600, color: "#000", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{f.name}</p>
+                    <p style={{ fontSize: 12.5, fontWeight: 600, color: "#F4F4FF", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{f.name}</p>
                     <p style={{ fontSize: 11, color: "var(--text-3)" }}>{fmtSize(f.size)}</p>
                   </div>
                   <button type="button" onClick={() => removeFile(i)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-3)", display: "flex", padding: 4 }} title="Remove">
@@ -360,12 +360,12 @@ export default function SubmitLeadPage() {
           {/* Submit button — framer-motion loading state */}
           <motion.button type="submit" disabled={submitting}
             whileHover={submitting ? undefined : { scale: 1.01 }} whileTap={submitting ? undefined : { scale: 0.99 }}
-            animate={{ background: submitting ? "#86EFAC" : "linear-gradient(135deg, #0e7c6b, #0a5f52)" }}
+            animate={{ background: submitting ? "#86EFAC" : "linear-gradient(135deg, #3B82F6, #2563EB)" }}
             style={{
               width: "100%", padding: "16px 24px", borderRadius: 12, border: "none",
               color: "#fff", fontSize: 15, fontWeight: 800, cursor: submitting ? "wait" : "pointer",
               display: "flex", alignItems: "center", justifyContent: "center", gap: 9,
-              boxShadow: "0 12px 28px rgba(14,124,107,0.40)", marginTop: 4, overflow: "hidden",
+              boxShadow: "0 12px 28px rgba(59,130,246,0.40)", marginTop: 4, overflow: "hidden",
             }}>
             <AnimatePresence mode="wait" initial={false}>
               {submitting ? (
@@ -383,8 +383,8 @@ export default function SubmitLeadPage() {
       </form>
 
       {/* ── SHARE LINK ── */}
-      <div style={{ background: "#fff", border: "1px solid var(--border-2)", borderRadius: 18, padding: 20, boxShadow: "var(--shadow-sm)" }}>
-        <p style={{ fontSize: 14, fontWeight: 800, color: "#000", marginBottom: 4 }}>Shareable Submission Link</p>
+      <div style={{ background: "#0A0A0E", border: "1px solid var(--border-2)", borderRadius: 18, padding: 20, boxShadow: "var(--shadow-sm)" }}>
+        <p style={{ fontSize: 14, fontWeight: 800, color: "#F4F4FF", marginBottom: 4 }}>Shareable Submission Link</p>
         <p style={{ fontSize: 12, color: "var(--text-2)", marginBottom: 14 }}>
           {me?.role === "admin" ? "Generate a public form link for any user." : "Generate a public form link — submissions land in your dashboard."}
         </p>
@@ -396,17 +396,17 @@ export default function SubmitLeadPage() {
         )}
         <button type="button" onClick={generateLink} disabled={generating} style={{
           display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 18px", borderRadius: 10,
-          background: "#fff", color: SKY_600, border: `1px solid ${SKY}`, fontSize: 13, fontWeight: 700, cursor: generating ? "wait" : "pointer",
+          background: "#0A0A0E", color: SKY_600, border: `1px solid ${SKY}`, fontSize: 13, fontWeight: 700, cursor: generating ? "wait" : "pointer",
         }}>
           {generating ? <Loader2 size={14} className="animate-spin" /> : <Link2 size={14} />} {genLink ? "Regenerate" : "Generate Link"}
         </button>
         {genLink && (
-          <div style={{ marginTop: 14, padding: "12px 14px", borderRadius: 10, background: "#F8FAFC", border: "1px solid var(--border-2)", display: "flex", alignItems: "center", gap: 10 }}>
-            <code style={{ flex: 1, fontSize: 12, color: "#000", fontFamily: "var(--font-mono)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{genLink}</code>
-            <button onClick={() => { navigator.clipboard.writeText(genLink); setCopied(true); setTimeout(() => setCopied(false), 1600); }} style={{ padding: 6, background: "#fff", border: "1px solid var(--border-2)", borderRadius: 7, cursor: "pointer", color: "#000" }}>
+          <div style={{ marginTop: 14, padding: "12px 14px", borderRadius: 10, background: "#101018", border: "1px solid var(--border-2)", display: "flex", alignItems: "center", gap: 10 }}>
+            <code style={{ flex: 1, fontSize: 12, color: "#F4F4FF", fontFamily: "var(--font-mono)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{genLink}</code>
+            <button onClick={() => { navigator.clipboard.writeText(genLink); setCopied(true); setTimeout(() => setCopied(false), 1600); }} style={{ padding: 6, background: "#0A0A0E", border: "1px solid var(--border-2)", borderRadius: 7, cursor: "pointer", color: "#F4F4FF" }}>
               {copied ? <Check size={14} color={MONEY} /> : <Copy size={14} />}
             </button>
-            <a href={genLink} target="_blank" rel="noreferrer" style={{ padding: 6, background: "#fff", border: "1px solid var(--border-2)", borderRadius: 7, color: "#000" }}><ExternalLink size={14} /></a>
+            <a href={genLink} target="_blank" rel="noreferrer" style={{ padding: 6, background: "#0A0A0E", border: "1px solid var(--border-2)", borderRadius: 7, color: "#F4F4FF" }}><ExternalLink size={14} /></a>
           </div>
         )}
       </div>

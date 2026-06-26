@@ -54,8 +54,8 @@ function buildState(matrix: Record<Role, Permission[]>): Record<string, boolean>
   return s;
 }
 
-const SKY_600 = "#0a5f52";
-const MONEY = "#0a5f52";
+const SKY_600 = "#2563EB";
+const MONEY = "#2563EB";
 
 export default function AdminRbacPage() {
   const [matrix, setMatrix] = useState(() => buildState(DEFAULT_MATRIX));
@@ -82,7 +82,7 @@ export default function AdminRbacPage() {
     <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", flexDirection: "column", gap: 24 }} className="animate-in">
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 14 }}>
         <div>
-          <h1 style={{ fontSize: 26, fontWeight: 900, color: "#000", letterSpacing: "-0.02em", display: "flex", alignItems: "center", gap: 10 }}>
+          <h1 style={{ fontSize: 26, fontWeight: 900, color: "#F4F4FF", letterSpacing: "-0.02em", display: "flex", alignItems: "center", gap: 10 }}>
             <Shield size={22} color={SKY_600} /> RBAC Matrix
           </h1>
           <p style={{ fontSize: 13, color: "#4B5563", marginTop: 4 }}>
@@ -103,16 +103,16 @@ export default function AdminRbacPage() {
         </button>
       </div>
 
-      <div style={{ background: "#fff", border: "1px solid #E2E8F0", borderRadius: 16, overflow: "hidden", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+      <div style={{ background: "#0A0A0E", border: "1px solid #22222c", borderRadius: 16, overflow: "hidden", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
         <div style={{ overflowX: "auto" }}>
           <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 700 }}>
             <thead>
-              <tr style={{ background: "#F8FAFC" }}>
-                <th style={{ padding: "12px 16px", textAlign: "left", fontSize: 10, fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase", color: "#64748B", borderBottom: "2px solid #E2E8F0", minWidth: 160 }}>
+              <tr style={{ background: "#101018" }}>
+                <th style={{ padding: "12px 16px", textAlign: "left", fontSize: 10, fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase", color: "#9A9AB0", borderBottom: "2px solid #22222c", minWidth: 160 }}>
                   Permission
                 </th>
                 {ROLES.map(r => (
-                  <th key={r.key} style={{ padding: "12px 16px", textAlign: "center", fontSize: 11, fontWeight: 800, color: "#000", borderBottom: "2px solid #E2E8F0", whiteSpace: "nowrap", minWidth: 100 }}>
+                  <th key={r.key} style={{ padding: "12px 16px", textAlign: "center", fontSize: 11, fontWeight: 800, color: "#F4F4FF", borderBottom: "2px solid #22222c", whiteSpace: "nowrap", minWidth: 100 }}>
                     {r.label}
                     {r.key === "owner" && <span style={{ display: "block", fontSize: 9, fontWeight: 700, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.05em" }}>locked</span>}
                   </th>
@@ -123,13 +123,13 @@ export default function AdminRbacPage() {
               {groups.map(group => (
                 <>
                   <tr key={`g-${group}`}>
-                    <td colSpan={ROLES.length + 1} style={{ padding: "10px 16px 4px", fontSize: 10, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: SKY_600, background: "#F0F9FF", borderTop: "1px solid #E2E8F0", borderBottom: "1px solid #E2E8F0" }}>
+                    <td colSpan={ROLES.length + 1} style={{ padding: "10px 16px 4px", fontSize: 10, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: SKY_600, background: "#0d1626", borderTop: "1px solid #22222c", borderBottom: "1px solid #22222c" }}>
                       {group}
                     </td>
                   </tr>
                   {PERMISSIONS.filter(p => p.group === group).map((perm, pi) => (
-                    <tr key={perm.key} style={{ borderBottom: "1px solid #F1F5F9", background: pi % 2 === 0 ? "#fff" : "#FAFAFA" }}>
-                      <td style={{ padding: "11px 16px", fontSize: 13, color: "#000", fontWeight: 600 }}>
+                    <tr key={perm.key} style={{ borderBottom: "1px solid #101018", background: pi % 2 === 0 ? "#fff" : "#0A0A0E" }}>
+                      <td style={{ padding: "11px 16px", fontSize: 13, color: "#F4F4FF", fontWeight: 600 }}>
                         {perm.label}
                         <span style={{ display: "block", fontSize: 10, color: "#94A3B8", fontFamily: "var(--font-mono)", marginTop: 1 }}>{perm.key}</span>
                       </td>
@@ -145,8 +145,8 @@ export default function AdminRbacPage() {
                               style={{
                                 width: 30, height: 30, borderRadius: 8, border: "none", cursor: isLocked ? "default" : "pointer",
                                 display: "inline-flex", alignItems: "center", justifyContent: "center",
-                                background: hasIt ? (isLocked ? "#D1FAE5" : "color-mix(in srgb, #0a5f52 15%, transparent)") : "#F1F5F9",
-                                color: hasIt ? MONEY : "#CBD5E1",
+                                background: hasIt ? (isLocked ? "#D1FAE5" : "color-mix(in srgb, #2563EB 15%, transparent)") : "#101018",
+                                color: hasIt ? MONEY : "#33333f",
                                 transition: "all 150ms ease",
                                 opacity: isLocked ? 0.8 : 1,
                               }}>
@@ -165,7 +165,7 @@ export default function AdminRbacPage() {
       </div>
 
       <p style={{ fontSize: 12, color: "#94A3B8", lineHeight: 1.6 }}>
-        <strong style={{ color: "#64748B" }}>Note:</strong> This matrix controls the UI experience. The authoritative security boundary is enforced by Postgres Row-Level Security policies. Update your <code style={{ background: "#F1F5F9", padding: "1px 5px", borderRadius: 4, fontSize: 11 }}>0002_rls.sql</code> migration to change RLS rules for real enforcement.
+        <strong style={{ color: "#9A9AB0" }}>Note:</strong> This matrix controls the UI experience. The authoritative security boundary is enforced by Postgres Row-Level Security policies. Update your <code style={{ background: "#101018", padding: "1px 5px", borderRadius: 4, fontSize: 11 }}>0002_rls.sql</code> migration to change RLS rules for real enforcement.
       </p>
     </div>
   );

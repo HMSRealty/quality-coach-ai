@@ -71,7 +71,7 @@ export function OnboardingTour() {
       animation: "fadeIn 200ms ease",
     }}>
       <div style={{
-        maxWidth: 460, width: "100%", background: "#fff",
+        maxWidth: 460, width: "100%", background: "#0A0A0E",
         borderRadius: 18, padding: "28px 28px 22px",
         boxShadow: "0 30px 80px rgba(15,23,42,0.30)",
         position: "relative",
@@ -84,17 +84,17 @@ export function OnboardingTour() {
 
         <div style={{
           width: 52, height: 52, borderRadius: "50%",
-          background: "linear-gradient(135deg, #0e7c6b, #0a5f52)",
+          background: "linear-gradient(135deg, #3B82F6, #2563EB)",
           display: "flex", alignItems: "center", justifyContent: "center",
           margin: "0 auto 14px",
         }}>
           <Icon size={24} color="#fff" />
         </div>
 
-        <h2 style={{ fontSize: 18, fontWeight: 900, color: "#15302e", textAlign: "center", marginBottom: 7 }}>
+        <h2 style={{ fontSize: 18, fontWeight: 900, color: "#F4F4FF", textAlign: "center", marginBottom: 7 }}>
           {s.title}
         </h2>
-        <p style={{ fontSize: 13.5, color: "#475569", textAlign: "center", lineHeight: 1.6, marginBottom: 20 }}>
+        <p style={{ fontSize: 13.5, color: "#9A9AB0", textAlign: "center", lineHeight: 1.6, marginBottom: 20 }}>
           {s.body}
         </p>
 
@@ -103,7 +103,7 @@ export function OnboardingTour() {
           {STEPS.map((_, i) => (
             <div key={i} style={{
               width: i === step ? 18 : 6, height: 6, borderRadius: 3,
-              background: i === step ? "#0e7c6b" : "#CBD5E1",
+              background: i === step ? "#3B82F6" : "#33333f",
               transition: "all 220ms ease",
             }} />
           ))}
@@ -116,7 +116,7 @@ export function OnboardingTour() {
               style={{
                 display: "inline-flex", alignItems: "center", gap: 5,
                 padding: "10px 14px", borderRadius: 10,
-                background: "#fff", border: "1px solid #E2E8F0", color: "#475569",
+                background: "#0A0A0E", border: "1px solid #22222c", color: "#9A9AB0",
                 fontSize: 12.5, fontWeight: 700, cursor: "pointer",
               }}>
               <ArrowLeft size={13} /> Back
@@ -127,7 +127,7 @@ export function OnboardingTour() {
               style={{
                 flex: 1, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6,
                 padding: "10px 14px", borderRadius: 10,
-                background: "#fff", border: "1px solid #E2E8F0", color: "#15302e",
+                background: "#0A0A0E", border: "1px solid #22222c", color: "#F4F4FF",
                 fontSize: 12.5, fontWeight: 800, cursor: "pointer", textDecoration: "none",
               }}>
               {s.cta.label}
@@ -137,7 +137,7 @@ export function OnboardingTour() {
             style={{
               flex: 1, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6,
               padding: "10px 14px", borderRadius: 10, border: "none",
-              background: "linear-gradient(135deg, #0e7c6b, #0a5f52)", color: "#fff",
+              background: "linear-gradient(135deg, #3B82F6, #2563EB)", color: "#fff",
               fontSize: 12.5, fontWeight: 800, cursor: "pointer",
             }}>
             {last ? "Get started" : "Next"} <ArrowRight size={13} />

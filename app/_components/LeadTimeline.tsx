@@ -22,14 +22,14 @@ type Evt = {
 };
 
 const META: Record<string, { icon: typeof Clock; color: string; label: (p: Record<string, unknown>) => string }> = {
-  created:            { icon: Plus, color: "#0a5f52", label: () => "Lead created" },
-  status_changed:     { icon: ArrowRightLeft, color: "#0e7c6b", label: (p) => `Status: ${p.from ?? "—"} → ${p.to ?? "—"}` },
-  stage_changed:      { icon: Columns3, color: "#0a5f52", label: (p) => `Stage: ${p.from ?? "—"} → ${p.to ?? "—"}` },
+  created:            { icon: Plus, color: "#2563EB", label: () => "Lead created" },
+  status_changed:     { icon: ArrowRightLeft, color: "#3B82F6", label: (p) => `Status: ${p.from ?? "—"} → ${p.to ?? "—"}` },
+  stage_changed:      { icon: Columns3, color: "#2563EB", label: (p) => `Stage: ${p.from ?? "—"} → ${p.to ?? "—"}` },
   assignment_changed: { icon: UserCog, color: "#EA580C", label: () => "Reassigned" },
-  call_uploaded:      { icon: Upload, color: "#0a5f52", label: () => "Call recording uploaded" },
-  call_reprocessed:   { icon: RefreshCw, color: "#0a5f52", label: () => "Call re-analyzed" },
-  property_enriched:  { icon: Home, color: "#0a5f52", label: () => "Property data enriched" },
-  followup_set:       { icon: CalendarClock, color: "#92400E", label: () => "Follow-up scheduled" },
+  call_uploaded:      { icon: Upload, color: "#2563EB", label: () => "Call recording uploaded" },
+  call_reprocessed:   { icon: RefreshCw, color: "#2563EB", label: () => "Call re-analyzed" },
+  property_enriched:  { icon: Home, color: "#2563EB", label: () => "Property data enriched" },
+  followup_set:       { icon: CalendarClock, color: "#F59E0B", label: () => "Follow-up scheduled" },
   note:               { icon: StickyNote, color: SLATE, label: (p) => String(p.text ?? "Note added") },
 };
 

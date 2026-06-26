@@ -186,7 +186,7 @@ export default function TeamsPage() {
       {toast && (
         <div style={{
           padding: "10px 14px", borderRadius: 10, display: "flex", gap: 8, alignItems: "center",
-          background: toast.ok ? T.emeraldBg : "#FBEEE8",
+          background: toast.ok ? T.emeraldBg : "rgba(251,113,133,0.12)",
           color: toast.ok ? T.emerald : "#DC2626",
           fontSize: 13, fontWeight: 600, border: `1px solid ${toast.ok ? "#A7F3D0" : "#FBCFBE"}`,
         }}>

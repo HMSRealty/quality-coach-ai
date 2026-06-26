@@ -16,7 +16,7 @@ interface SubUser {
 
 const inputStyle: React.CSSProperties = {
   width: "100%", padding: "10px 12px", borderRadius: 9,
-  background: "#F2F5F9", border: "1px solid rgba(35,43,58,0.10)",
+  background: "#101018", border: "1px solid rgba(35,43,58,0.10)",
   fontSize: 13, color: NAVY, outline: "none",
 };
 
@@ -116,9 +116,9 @@ export default function SubUsersPage() {
       {toast && (
         <div style={{
           padding: "12px 16px", borderRadius: 10,
-          background: toast.type === "ok" ? "#ECFDF5" : "#FBEEE8",
+          background: toast.type === "ok" ? "rgba(52,211,153,0.12)" : "rgba(251,113,133,0.12)",
           border: `1px solid ${toast.type === "ok" ? "#A7F3D0" : "#E7B8A6"}`,
-          color: toast.type === "ok" ? "#0a5f52" : "#DC2626",
+          color: toast.type === "ok" ? "#2563EB" : "#DC2626",
           fontSize: 13, fontWeight: 600, display: "flex", gap: 8, alignItems: "center",
         }}>
           {toast.type === "ok" ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
@@ -188,8 +188,8 @@ export default function SubUsersPage() {
                   style={{
                     display: "inline-flex", alignItems: "center", gap: 6,
                     padding: "7px 12px", borderRadius: 8,
-                    background: u.can_download_calls ? "#ECFDF5" : "#FBEEE8",
-                    color: u.can_download_calls ? "#0a5f52" : "#DC2626",
+                    background: u.can_download_calls ? "rgba(52,211,153,0.12)" : "rgba(251,113,133,0.12)",
+                    color: u.can_download_calls ? "#2563EB" : "#DC2626",
                     border: `1px solid ${u.can_download_calls ? "#A7F3D0" : "#FBCFBE"}`,
                     fontSize: 11, fontWeight: 700, cursor: togglingId === u.id ? "wait" : "pointer",
                   }}>
@@ -199,7 +199,7 @@ export default function SubUsersPage() {
                 <button onClick={() => actAs(u.id)} disabled={actingId === u.id} style={{
                   display: "inline-flex", alignItems: "center", gap: 6,
                   padding: "7px 14px", borderRadius: 8,
-                  background: "#EEF1F6", color: NAVY, border: "1px solid rgba(35,43,58,0.10)",
+                  background: "#101018", color: NAVY, border: "1px solid rgba(35,43,58,0.10)",
                   fontSize: 12, fontWeight: 700, cursor: actingId === u.id ? "wait" : "pointer",
                 }}>
                   {actingId === u.id ? <Loader2 size={12} className="animate-spin" /> : <Eye size={12} />} Act as

@@ -174,7 +174,7 @@ export default function AgentsPage() {
       {toast && (
         <div style={{
           padding: "10px 14px", borderRadius: 10, display: "flex", gap: 8, alignItems: "center",
-          background: toast.ok ? "#ECFDF5" : "#FBEEE8", color: toast.ok ? "#0a5f52" : "#DC2626",
+          background: toast.ok ? "rgba(52,211,153,0.12)" : "rgba(251,113,133,0.12)", color: toast.ok ? "#2563EB" : "#DC2626",
           fontSize: 13, fontWeight: 600, border: `1px solid ${toast.ok ? "#A7F3D0" : "#FBCFBE"}`,
         }}>
           {toast.ok ? <CheckCircle2 size={14} /> : <AlertCircle size={14} />} {toast.msg}
@@ -286,8 +286,8 @@ export default function AgentsPage() {
                           </select>
                         ) : (
                           <span style={{ padding: "3px 9px", borderRadius: 999, fontSize: 10, fontWeight: 800,
-                            background: a.shift_type === "part_time" ? "#FEF3C7" : "#DBEAFE",
-                            color: a.shift_type === "part_time" ? "#92400E" : "#1E40AF",
+                            background: a.shift_type === "part_time" ? "rgba(245,158,11,0.12)" : "#DBEAFE",
+                            color: a.shift_type === "part_time" ? "#F59E0B" : "#1E40AF",
                           }}>{a.shift_type === "part_time" ? "Part-time" : "Full-time"}</span>
                         )}
                       </td>
@@ -312,7 +312,7 @@ export default function AgentsPage() {
                         ) : (
                           <span style={{ padding: "3px 9px", borderRadius: 999, fontSize: 10, fontWeight: 800,
                             background: a.is_active === false ? "#FEE2E2" : "#D1FAE5",
-                            color: a.is_active === false ? "#991B1B" : "#065F46",
+                            color: a.is_active === false ? "#FB7185" : "#34D399",
                           }}>{a.is_active === false ? "Inactive" : "Active"}</span>
                         )}
                       </td>
@@ -327,10 +327,10 @@ export default function AgentsPage() {
                         ) : (
                           <>
                             {subUsers.has(a.name) ? (
-                              <span title="Has login" style={{ padding: "3px 8px", borderRadius: 999, fontSize: 10, fontWeight: 800, background: "#D1FAE5", color: "#065F46" }}>Has login</span>
+                              <span title="Has login" style={{ padding: "3px 8px", borderRadius: 999, fontSize: 10, fontWeight: 800, background: "#D1FAE5", color: "#34D399" }}>Has login</span>
                             ) : (
                               <button onClick={() => createLogin(a)} disabled={busyId === a.id} title="Send invite email to this agent"
-                                style={{ ...iconBtn, color: "#0a5f52", borderColor: "#BAE6FD", gap: 4, fontSize: 11, fontWeight: 700, padding: "5px 10px" }}>
+                                style={{ ...iconBtn, color: "#2563EB", borderColor: "#BAE6FD", gap: 4, fontSize: 11, fontWeight: 700, padding: "5px 10px" }}>
                                 <UserPlus size={12} /> Invite
                               </button>
                             )}

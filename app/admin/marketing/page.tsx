@@ -246,7 +246,7 @@ export default function MarketingPage() {
             style={{
               display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
               padding: "13px", borderRadius: 11, border: "none",
-              background: "var(--accent)", color: "#000",
+              background: "var(--accent)", color: "#F4F4FF",
               fontSize: 14, fontWeight: 800, cursor: "pointer",
               opacity: sending || recipients.length === 0 ? 0.5 : 1,
             }}

@@ -183,7 +183,7 @@ export default function ProfilePage() {
               display: "flex", alignItems: "center", gap: 6,
               padding: "6px 12px", borderRadius: "var(--r-full)",
               background: profile.is_active ? "var(--emerald-dim)" : "var(--rose-dim)",
-              border: `1px solid ${profile.is_active ? "rgba(14,124,107,0.25)" : "rgba(244,63,94,0.25)"}`,
+              border: `1px solid ${profile.is_active ? "rgba(59,130,246,0.25)" : "rgba(244,63,94,0.25)"}`,
               fontSize: 12, fontWeight: 700,
               color: profile.is_active ? "var(--emerald)" : "var(--rose-lt)",
             }}>
@@ -258,7 +258,7 @@ export default function ProfilePage() {
                   <button onClick={() => setTab("api")} style={{
                     display: "flex", alignItems: "center", gap: 5,
                     padding: "7px 14px", borderRadius: "var(--r-md)",
-                    background: "var(--amber)", color: "#000",
+                    background: "var(--amber)", color: "#F4F4FF",
                     fontSize: 12, fontWeight: 700, border: "none", cursor: "pointer", whiteSpace: "nowrap",
                   }}>
                     Add Key <ChevronRight size={12} />
@@ -422,7 +422,7 @@ export default function ProfilePage() {
                   </p>
                   <Link href="/landing#pricing" style={{
                     padding: "7px 14px", borderRadius: "var(--r-md)",
-                    background: "var(--amber)", color: "#000",
+                    background: "var(--amber)", color: "#F4F4FF",
                     fontSize: 12, fontWeight: 700, textDecoration: "none", whiteSpace: "nowrap",
                   }}>
                     Upgrade Plan

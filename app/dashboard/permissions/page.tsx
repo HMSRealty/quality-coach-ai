@@ -163,8 +163,8 @@ export default function PermissionsPage() {
                 <td style={{ padding: "12px 16px" }}>
                   <span style={{
                     padding: "3px 10px", borderRadius: 999, fontSize: 11, fontWeight: 700,
-                    background: u.role === "admin" ? "#EAF0FF" : "#F1F4F9",
-                    color: u.role === "admin" ? "#92400E" : SLATE,
+                    background: u.role === "admin" ? "#EAF0FF" : "#101018",
+                    color: u.role === "admin" ? "#F59E0B" : SLATE,
                   }}>
                     {u.role}
                   </span>
@@ -172,13 +172,13 @@ export default function PermissionsPage() {
                 <td style={{ padding: "12px 16px" }}>
                   {u.form_slug ? (
                     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <code style={{ fontSize: 11, color: TEAL, background: "#E8EFFF", padding: "2px 6px", borderRadius: 4 }}>
+                      <code style={{ fontSize: 11, color: TEAL, background: "rgba(59,130,246,0.10)", padding: "2px 6px", borderRadius: 4 }}>
                         /submit/{u.form_slug}
                       </code>
                       <button onClick={() => copyLink(u)} title="Copy link" style={{
                         padding: 4, background: "transparent", border: "none", cursor: "pointer", color: SLATE,
                       }}>
-                        {copiedId === u.id ? <Check size={13} color="#0a5f52" /> : <Copy size={13} />}
+                        {copiedId === u.id ? <Check size={13} color="#2563EB" /> : <Copy size={13} />}
                       </button>
                       <a href={`/submit/${u.form_slug}`} target="_blank" rel="noreferrer" title="Open" style={{ color: SLATE }}>
                         <ExternalLink size={13} />

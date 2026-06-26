@@ -101,7 +101,7 @@ export function HelpButton() {
         title="What is this page?"
         style={{
           width: 32, height: 32, borderRadius: 9,
-          background: open ? "#EEF1F6" : "#F4EFE7", border: "1px solid #E5E7EB",
+          background: open ? "#101018" : "#101018", border: "1px solid #22222c",
           display: "flex", alignItems: "center", justifyContent: "center",
           cursor: "pointer", color: open ? NAVY : SLATE, transition: "all 120ms ease",
         }}
@@ -130,7 +130,7 @@ export function HelpButton() {
             <ul style={{ margin: "10px 0 0", padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 6 }}>
               {help.tips.map((t, i) => (
                 <li key={i} style={{ display: "flex", gap: 7, fontSize: 12, color: NAVY }}>
-                  <span style={{ color: "#0e7c6b", fontWeight: 800 }}>›</span>{t}
+                  <span style={{ color: "#3B82F6", fontWeight: 800 }}>›</span>{t}
                 </li>
               ))}
             </ul>

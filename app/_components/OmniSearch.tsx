@@ -21,8 +21,8 @@ interface Hit {
 }
 
 const STATUS_DOT: Record<string, string> = {
-  Hot: "#DC2626", Warm: "#EA580C", Cold: "#0a5f52",
-  "Call Back": "#92400E", Disqualified: "#6B7280", Duplicate: "#0a5f52", Processing: "#6B7280",
+  Hot: "#DC2626", Warm: "#EA580C", Cold: "#2563EB",
+  "Call Back": "#F59E0B", Disqualified: "#6B7280", Duplicate: "#2563EB", Processing: "#6B7280",
 };
 
 const StatusIcon = (s: string) => s === "Hot" ? Flame : s === "Warm" ? Sun : s === "Cold" ? Snowflake : null;

@@ -11,10 +11,10 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { UserSearch, Loader2, Phone, Mail, CheckCircle2, ExternalLink, Lock, Search, Copy, AlertCircle } from "lucide-react";
 
-const NAVY = "#15302e";
-const SLATE = "#475569";
-const SKY_600 = "#0a5f52";
-const MONEY = "#0a5f52";
+const NAVY = "#F4F4FF";
+const SLATE = "#9A9AB0";
+const SKY_600 = "#2563EB";
+const MONEY = "#2563EB";
 
 const PROPYTRACE_SITE = "https://propytrace.pages.dev";
 
@@ -83,8 +83,8 @@ export default function PropyTracePage() {
 
   const inp: React.CSSProperties = {
     width: "100%", padding: "10px 12px", borderRadius: 9,
-    border: "1px solid var(--border-2)", background: "#fff",
-    color: "#000", fontSize: 14, outline: "none",
+    border: "1px solid var(--border-2)", background: "#0A0A0E",
+    color: "#F4F4FF", fontSize: 14, outline: "none",
   };
   const lbl: React.CSSProperties = {
     fontSize: 11, fontWeight: 700, textTransform: "uppercase",
@@ -104,12 +104,12 @@ export default function PropyTracePage() {
 
       {!paid && (
         <div style={{
-          background: "linear-gradient(135deg,#FEFCE8,#FEF9C3)", border: "1px solid #FDE68A",
+          background: "linear-gradient(135deg,rgba(245,158,11,0.12),rgba(245,158,11,0.12))", border: "1px solid #FDE68A",
           borderRadius: 14, padding: 24,
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-            <Lock size={18} color="#854D0E" />
-            <p style={{ fontSize: 15, fontWeight: 800, color: "#854D0E" }}>Upgrade to run lookups in RealTrack</p>
+            <Lock size={18} color="#F59E0B" />
+            <p style={{ fontSize: 15, fontWeight: 800, color: "#F59E0B" }}>Upgrade to run lookups in RealTrack</p>
           </div>
           <p style={{ fontSize: 13, color: "#713F12", lineHeight: 1.6, marginBottom: 14 }}>
             PropyTrace lookups are a paid feature. You can still run them &mdash; and process bulk lists in CSV &mdash;
@@ -119,14 +119,14 @@ export default function PropyTracePage() {
             <a href={PROPYTRACE_SITE} target="_blank" rel="noreferrer" style={{
               display: "inline-flex", alignItems: "center", gap: 6,
               padding: "10px 16px", borderRadius: 9, textDecoration: "none",
-              background: "#854D0E", color: "#fff", fontSize: 13, fontWeight: 700,
+              background: "#F59E0B", color: "#fff", fontSize: 13, fontWeight: 700,
             }}>
               <ExternalLink size={13} /> Open PropyTrace.app
             </a>
             <a href="mailto:info@realtrack.app?subject=Upgrade%20for%20PropyTrace%20access" style={{
               display: "inline-flex", alignItems: "center", gap: 6,
               padding: "10px 16px", borderRadius: 9, textDecoration: "none",
-              background: "#fff", color: "#854D0E", border: "1px solid #FDE68A",
+              background: "#0A0A0E", color: "#F59E0B", border: "1px solid #FDE68A",
               fontSize: 13, fontWeight: 700,
             }}>
               Contact us to upgrade
@@ -136,11 +136,11 @@ export default function PropyTracePage() {
       )}
 
       <div style={{
-        background: "#fff", border: "1px solid var(--border-2)",
+        background: "#0A0A0E", border: "1px solid var(--border-2)",
         borderRadius: 14, padding: 22, boxShadow: "var(--shadow-sm)",
         opacity: paid ? 1 : 0.6, pointerEvents: paid ? "auto" : "none",
       }}>
-        <p style={{ fontSize: 14, fontWeight: 800, color: "#000", marginBottom: 14, display: "inline-flex", alignItems: "center", gap: 7 }}>
+        <p style={{ fontSize: 14, fontWeight: 800, color: "#F4F4FF", marginBottom: 14, display: "inline-flex", alignItems: "center", gap: 7 }}>
           <Search size={15} color={SKY_600} /> Run a lookup
         </p>
 
@@ -174,7 +174,7 @@ export default function PropyTracePage() {
         {error && (
           <div style={{
             marginTop: 14, padding: "10px 12px", borderRadius: 8,
-            background: "#FEF2F2", border: "1px solid #FECACA",
+            background: "rgba(251,113,133,0.12)", border: "1px solid #FECACA",
             color: "#DC2626", fontSize: 13, fontWeight: 600,
             display: "flex", alignItems: "center", gap: 7,
           }}>
@@ -184,7 +184,7 @@ export default function PropyTracePage() {
 
         <button onClick={run} disabled={loading || !paid} style={{
           marginTop: 16, padding: "11px 22px", borderRadius: 10, border: "none",
-          background: loading ? "#64748B" : "linear-gradient(135deg,#0e7c6b,#0a5f52)",
+          background: loading ? "#26262F" : "linear-gradient(135deg,#3B82F6,#2563EB)",
           color: "#fff", fontSize: 14, fontWeight: 800, cursor: loading ? "wait" : "pointer",
           display: "inline-flex", alignItems: "center", gap: 7,
         }}>
@@ -194,7 +194,7 @@ export default function PropyTracePage() {
 
       {result && (
         <div style={{
-          background: result.found ? "#F0FDF4" : "#F8FAFC",
+          background: result.found ? "#F0FDF4" : "#101018",
           border: `1px solid ${result.found ? "#A7F3D0" : "var(--border-2)"}`,
           borderRadius: 14, padding: 22,
         }}>
@@ -213,7 +213,7 @@ export default function PropyTracePage() {
                 <div style={{
                   display: "flex", alignItems: "center", gap: 10,
                   padding: "12px 14px", borderRadius: 10,
-                  background: "#fff", border: "1px solid var(--border-1)",
+                  background: "#0A0A0E", border: "1px solid var(--border-1)",
                   marginBottom: 8,
                 }}>
                   <Phone size={16} color={MONEY} />
@@ -232,7 +232,7 @@ export default function PropyTracePage() {
                     <div key={i} style={{
                       display: "flex", alignItems: "center", gap: 8,
                       padding: "8px 12px", borderRadius: 8,
-                      background: "#fff", border: "1px solid var(--border-1)",
+                      background: "#0A0A0E", border: "1px solid var(--border-1)",
                     }}>
                       <Phone size={13} color={SLATE} />
                       <p style={{ fontSize: 13, color: NAVY, fontFamily: "var(--font-mono)", flex: 1 }}>{p}</p>
@@ -247,7 +247,7 @@ export default function PropyTracePage() {
                 <div style={{
                   display: "flex", alignItems: "center", gap: 10,
                   padding: "10px 14px", borderRadius: 10,
-                  background: "#fff", border: "1px solid var(--border-1)",
+                  background: "#0A0A0E", border: "1px solid var(--border-1)",
                   marginTop: 8,
                 }}>
                   <Mail size={14} color={SLATE} />
@@ -271,7 +271,7 @@ export default function PropyTracePage() {
       )}
 
       <div style={{
-        background: "#F8FAFC", border: "1px solid var(--border-1)",
+        background: "#101018", border: "1px solid var(--border-1)",
         borderRadius: 12, padding: 16, fontSize: 12.5, color: SLATE, lineHeight: 1.6,
       }}>
         Need to trace a whole list at once? Bulk CSV skip-tracing lives on the standalone PropyTrace site &mdash;{" "}

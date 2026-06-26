@@ -7,9 +7,9 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { Mail, ArrowLeft, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 
-const NAVY = "#15302e";
-const SLATE = "#475569";
-const SKY = "#0e7c6b";
+const NAVY = "#F4F4FF";
+const SLATE = "#9A9AB0";
+const SKY = "#3B82F6";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -31,14 +31,14 @@ export default function ForgotPasswordPage() {
   return (
     <div style={{
       minHeight: "100vh",
-      background: "linear-gradient(180deg, #F8FAFC 0%, #EFF6FF 100%)",
+      background: "linear-gradient(180deg, #101018 0%, rgba(59,130,246,0.10) 100%)",
       display: "flex", alignItems: "center", justifyContent: "center", padding: 24,
     }}>
       <div style={{
         width: "100%", maxWidth: 420,
-        background: "#fff", borderRadius: 18, padding: "36px 32px",
+        background: "#0A0A0E", borderRadius: 18, padding: "36px 32px",
         boxShadow: "0 20px 60px rgba(15,23,42,0.08)",
-        border: "1px solid #E2E8F0",
+        border: "1px solid #22222c",
       }}>
         <Link href="/login" style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12, color: SLATE, textDecoration: "none", marginBottom: 22 }}>
           <ArrowLeft size={13} /> Back to sign in
@@ -52,7 +52,7 @@ export default function ForgotPasswordPage() {
               display: "flex", alignItems: "center", justifyContent: "center",
               margin: "0 auto 16px",
             }}>
-              <CheckCircle2 size={28} color="#0a5f52" />
+              <CheckCircle2 size={28} color="#2563EB" />
             </div>
             <h1 style={{ fontSize: 22, fontWeight: 900, color: NAVY, textAlign: "center", marginBottom: 8 }}>Check your inbox</h1>
             <p style={{ fontSize: 14, color: SLATE, textAlign: "center", lineHeight: 1.6 }}>
@@ -77,7 +77,7 @@ export default function ForgotPasswordPage() {
                 placeholder="you@example.com" autoFocus
                 style={{
                   width: "100%", padding: "11px 12px 11px 38px", borderRadius: 10,
-                  border: "1px solid #E2E8F0", background: "#F8FAFC",
+                  border: "1px solid #22222c", background: "#101018",
                   fontSize: 14, color: NAVY, outline: "none",
                 }} />
             </div>
@@ -85,7 +85,7 @@ export default function ForgotPasswordPage() {
             {err && (
               <div style={{
                 padding: "10px 12px", borderRadius: 9, marginBottom: 14,
-                background: "#FEF2F2", border: "1px solid #FECACA", color: "#DC2626",
+                background: "rgba(251,113,133,0.12)", border: "1px solid #FECACA", color: "#DC2626",
                 fontSize: 12.5, fontWeight: 600, display: "flex", alignItems: "center", gap: 7,
               }}>
                 <AlertCircle size={14} /> {err}
@@ -94,7 +94,7 @@ export default function ForgotPasswordPage() {
 
             <button type="submit" disabled={busy} style={{
               width: "100%", padding: "12px", borderRadius: 11, border: "none",
-              background: "linear-gradient(135deg, #0e7c6b, #0a5f52)", color: "#fff",
+              background: "linear-gradient(135deg, #3B82F6, #2563EB)", color: "#fff",
               fontSize: 14, fontWeight: 800, cursor: busy ? "wait" : "pointer",
               display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 7,
             }}>

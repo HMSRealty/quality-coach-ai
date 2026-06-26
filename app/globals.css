@@ -11,94 +11,94 @@
 ═══════════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* ═══ RESONA — Deep Pine · Teal · Coral · Amber on cool paper ═══
-     A calm, editorial QA aesthetic. Teal = good / primary action,
-     Coral = attention / needs coaching, Amber = mid, Pine = ink & chrome.
+  /* ═══ ASCENDYA — Black luxury · Purple→Blue gradient ═══
+     RealTrack wears Ascendya's identity: true-black canvas, deep panels,
+     near-white text, and a single purple→blue gradient as the accent.
      CSS variable NAMES are preserved so 100+ files keep working
      unchanged; only the *values* shift to the new identity. */
 
-  /* Sidebar / chrome / text ink → deep pine */
-  --midnight:      #15302e;   /* deep pine — primary ink */
-  --midnight-2:    #1d3a37;
-  --midnight-3:    #2c4642;
-  --midnight-line: rgba(21,48,46,0.10);
+  /* Sidebar / chrome / dark surfaces */
+  --midnight:      #0A0A0E;   /* panel — sidebar / dark chrome base */
+  --midnight-2:    #101018;
+  --midnight-3:    #15151f;
+  --midnight-line: rgba(255,255,255,0.08);
 
-  /* Primary accent → TEAL. (legacy var names kept for token-based code.) */
-  --sky:           #0e7c6b;   /* teal */
-  --sky-600:       #0a5f52;   /* teal-deep (pressed) */
-  --magenta:       #0e7c6b;   /* primary action */
-  --magenta-2:     #129b86;   /* hover  (lighter teal) */
-  --magenta-3:     #0a5f52;   /* pressed (teal-deep) */
-  --magenta-glow:  rgba(14, 124, 107, 0.30);
-  --magenta-dim:   rgba(14, 124, 107, 0.10);
+  /* Primary accent → BLUE (gradient end). (legacy var names kept.) */
+  --sky:           #3B82F6;   /* blue */
+  --sky-600:       #2563EB;   /* deeper blue (pressed) */
+  --magenta:       #3B82F6;   /* primary solid action */
+  --magenta-2:     #60A5FA;   /* hover (lighter blue) */
+  --magenta-3:     #2563EB;   /* pressed */
+  --magenta-glow:  rgba(59, 130, 246, 0.35);
+  --magenta-dim:   rgba(59, 130, 246, 0.14);
 
-  --violet:        #0a5f52;   /* gradient stop → teal-deep */
-  --violet-2:      #084c42;
+  --violet:        #6B3FA0;   /* gradient start → purple */
+  --violet-2:      #573382;
 
-  /* Brand gradient → teal-on-teal for buttons / pills / glints */
-  --grad-primary:  linear-gradient(135deg, #0e7c6b 0%, #0a5f52 100%);
-  --grad-chrome:   linear-gradient(180deg, #fbfbf9 0%, #f3f4f1 100%);
+  /* Brand gradient → purple→blue for buttons / pills / glints / text */
+  --grad-primary:  linear-gradient(120deg, #6B3FA0 0%, #3B82F6 100%);
+  --grad-chrome:   linear-gradient(180deg, #0A0A0E 0%, #000000 100%);
 
-  /* Navy aliases → pine ink so legacy "NAVY" text stays sharp & readable */
-  --navy:        #15302e;
-  --navy-2:      #2c4642;
-  --navy-3:      #3a544f;
-  --navy-light:  #eceee9;
-  --navy-border: #d9ddd6;
-  --navy-glow:   rgba(14,124,107,0.16);
-  --navy-ring:   rgba(14,124,107,0.30);
-  --navy-dim:    rgba(21,48,46,0.05);
+  /* Navy aliases → NEAR-WHITE so legacy "NAVY" text stays sharp on dark */
+  --navy:        #F4F4FF;
+  --navy-2:      #C7C7D6;
+  --navy-3:      #9A9AB0;
+  --navy-light:  #15151f;
+  --navy-border: rgba(255,255,255,0.12);
+  --navy-glow:   rgba(59,130,246,0.20);
+  --navy-ring:   rgba(59,130,246,0.40);
+  --navy-dim:    rgba(255,255,255,0.05);
 
-  /* Teal/gold aliases → on-brand teal & amber for leftover accent code */
+  /* Teal/gold aliases → on-brand blue & purple for leftover accent code */
   --teal:        var(--sky);
   --teal-2:      var(--sky-600);
   --teal-light:  var(--magenta-dim);
-  --teal-border: rgba(14,124,107,0.30);
+  --teal-border: rgba(59,130,246,0.30);
   --teal-glow:   var(--magenta-glow);
-  --gold:        #e3a23a;
-  --gold-2:      #b9801f;
-  --gold-light:  rgba(227,162,58,0.14);
+  --gold:        #6B3FA0;
+  --gold-2:      #8B5CC4;
+  --gold-light:  rgba(107,63,160,0.18);
 
-  /* Coral — attention / needs-coaching brand accent */
-  --coral:       #ef5f3b;
-  --coral-deep:  #d94e2c;
+  /* Purple — secondary brand accent (gradient start) */
+  --coral:       #8B5CF6;
+  --coral-deep:  #6B3FA0;
 
-  /* "red"/destructive → coral (needs-coaching / attention) */
-  --red:         #ef5f3b;
-  --red-hover:   #d94e2c;
-  --red-light:   #fdeee9;
-  --red-border:  rgba(239,95,59,0.30);
-  --red-glow:    rgba(239,95,59,0.30);
-  --red-ring:    rgba(239,95,59,0.30);
-  --red-dim:     rgba(239,95,59,0.08);
+  /* "red"/destructive → rose (readable on black) */
+  --red:         #FB7185;
+  --red-hover:   #F43F5E;
+  --red-light:   rgba(251,113,133,0.12);
+  --red-border:  rgba(251,113,133,0.32);
+  --red-glow:    rgba(251,113,133,0.32);
+  --red-ring:    rgba(251,113,133,0.32);
+  --red-dim:     rgba(251,113,133,0.10);
 
-  /* ── Slate ramp for muted text (pine-tinted) ───────────────────────── */
-  --slate:       #5c6b66;
-  --slate-2:     #74827c;
-  --slate-3:     #9aa6a0;
+  /* ── Slate ramp for muted text (cool grays on black) ───────────────── */
+  --slate:       #9A9AB0;
+  --slate-2:     #6C6C82;
+  --slate-3:     #55556A;
 
-  /* ── Content surfaces ──────────────────────────────────────────────── */
-  --canvas:    #f3f4f1;   /* cool off-white paper */
-  --surface-1: #fbfbf9;   /* card / panel / sidebar */
-  --surface-2: #ffffff;
-  --surface-3: #eceee9;   /* paper-2 — input / subtle row */
-  --surface-4: #e6e8e3;   /* line-soft */
-  --surface-5: #d9ddd6;   /* line */
+  /* ── Content surfaces (black luxury) ───────────────────────────────── */
+  --canvas:    #000000;   /* true black */
+  --surface-1: #0A0A0E;   /* card / panel / sidebar */
+  --surface-2: #101018;
+  --surface-3: #101018;   /* input / subtle row */
+  --surface-4: #1B1B24;   /* hover / raised */
+  --surface-5: #26262F;
 
-  /* ── Borders (pine-paper family) ───────────────────────────────────── */
-  --border-1: #e6e8e3;                /* hairline (line-soft) */
-  --border-2: #d9ddd6;                /* default card border (line) */
-  --border-3: #cfd4cc;
-  --border-4: #b4bcb5;
-  --border-brand: rgba(14,124,107,0.35);
+  /* ── Borders (white hairlines) ─────────────────────────────────────── */
+  --border-1: rgba(255,255,255,0.06);  /* hairline */
+  --border-2: rgba(255,255,255,0.10);  /* default card border (line) */
+  --border-3: rgba(255,255,255,0.16);  /* line-strong */
+  --border-4: rgba(255,255,255,0.24);
+  --border-brand: rgba(59,130,246,0.40);
 
-  /* ── Text — deep pine primary ──────────────────────────────────────── */
-  --text-1: #15302e;   /* deep pine — primary */
-  --text-2: #2c4642;   /* ink-soft — secondary */
-  --text-3: #5c6b66;   /* slate — tertiary */
-  --text-4: #9aa6a0;   /* muted — disabled */
+  /* ── Text — near-white primary ─────────────────────────────────────── */
+  --text-1: #F4F4FF;   /* primary */
+  --text-2: #C7C7D6;   /* secondary */
+  --text-3: #9A9AB0;   /* muted — tertiary */
+  --text-4: #6C6C82;   /* muted-dim — disabled */
 
-  --brand-300: #6fcabb;
+  --brand-300: #93C5FD;
   --brand-400: var(--sky);
   --brand-500: var(--sky);
   --brand-600: var(--sky-600);
@@ -106,23 +106,23 @@
   --brand-glow: var(--magenta-glow);
   --brand-ring: var(--navy-ring);
 
-  /* ── Semantic ──────────────────────────────────────────────────────── */
-  --emerald: #0e7c6b; --emerald-lt: #129b86; --emerald-bg: #e7f3f0;
-  --amber:   #e3a23a; --amber-bg: #fbf3e3;
-  --rose:    #ef5f3b; --rose-bg: #fdeee9; --rose-dim: rgba(239,95,59,0.08); --rose-lt: #f3805f;
-  --sky:     #0e7c6b; --sky-bg: #e7f3f0;
+  /* ── Semantic (tuned for dark) ─────────────────────────────────────── */
+  --emerald: #34D399; --emerald-lt: #6EE7B7; --emerald-bg: rgba(52,211,153,0.12);
+  --amber:   #F59E0B; --amber-bg: rgba(245,158,11,0.12);
+  --rose:    #FB7185; --rose-bg: rgba(251,113,133,0.12); --rose-dim: rgba(251,113,133,0.10); --rose-lt: #FDA4AF;
+  --sky:     #3B82F6; --sky-bg: rgba(59,130,246,0.12);
 
   /* ── Admin layout ──────────────────────────────────────────────────── */
   --sidebar-w: 240px;
   --topbar-h: 52px;
 
-  /* ── Shadows (pine-tinted) ─────────────────────────────────────────── */
-  --shadow-sm: 0 1px 2px rgba(21,48,46,0.06);
-  --shadow-md: 0 6px 18px rgba(21,48,46,0.08);
-  --shadow-lg: 0 18px 44px rgba(21,48,46,0.12);
-  --shadow-xl: 0 32px 80px rgba(21,48,46,0.18);
-  --shadow-brand: 0 12px 32px rgba(14,124,107,0.24);
-  --shadow-chrome: 0 24px 60px rgba(21,48,46,0.28);
+  /* ── Shadows (deep, black-based) ───────────────────────────────────── */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.40);
+  --shadow-md: 0 6px 18px rgba(0,0,0,0.50);
+  --shadow-lg: 0 18px 44px rgba(0,0,0,0.60);
+  --shadow-xl: 0 32px 80px rgba(0,0,0,0.70);
+  --shadow-brand: 0 12px 36px -8px rgba(59,130,246,0.55);
+  --shadow-chrome: 0 24px 60px rgba(0,0,0,0.70);
 
   /* ── Radius (pill-leaning, Gong) ───────────────────────────────────── */
   --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 22px; --r-2xl: 28px;
@@ -134,21 +134,21 @@
   --spring-heavy:  cubic-bezier(0.16, 1, 0.30, 1);
   --ease-out:      cubic-bezier(0.16, 1, 0.30, 1);
 
-  /* Resona type system — Hanken body, Bricolage display, Space Mono metrics. */
-  --font-sans: var(--font-geist-sans), "Hanken Grotesk", ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
-  --font-display: var(--font-bricolage), "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), "Space Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* Ascendya type system — Manrope body, Sora display, JetBrains mono. */
+  --font-sans: var(--font-geist-sans), "Manrope", ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+  --font-display: var(--font-bricolage), "Sora", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
-  /* Navigation / active states → TEAL (Resona). */
-  --brand-purple:      #0e7c6b;
-  --brand-purple-2:    #0a5f52;
-  --brand-purple-soft: rgba(14, 124, 107, 0.12);
-  --brand-purple-glow: rgba(14, 124, 107, 0.40);
+  /* Navigation / active states → BLUE (Ascendya). */
+  --brand-purple:      #3B82F6;
+  --brand-purple-2:    #6B3FA0;
+  --brand-purple-soft: rgba(59, 130, 246, 0.14);
+  --brand-purple-glow: rgba(59, 130, 246, 0.40);
 
-  /* Money / success / Hot badges → teal (var name kept for code reuse). */
-  --money:        #0a5f52;   /* teal-deep — financial numbers */
-  --money-2:      #0e7c6b;   /* teal */
-  --money-soft:   rgba(14, 124, 107, 0.12);
+  /* Money / success / Hot badges → emerald (readable on black). */
+  --money:        #34D399;   /* emerald — financial numbers */
+  --money-2:      #6EE7B7;
+  --money-soft:   rgba(52, 211, 153, 0.12);
 }
 
 /* Dark mode removed — the app is permanently locked to the Clean Enterprise
@@ -171,6 +171,9 @@ html, body {
   letter-spacing: -0.005em;
 }
 ::selection { background: var(--magenta); color: #fff; }
+/* Form controls render light by default; force the dark scheme so native
+   selects, scrollbars, and autofill match the Ascendya black theme. */
+:root { color-scheme: dark; }
 /* ── Lenis smooth-scroll boilerplate ──────────────────────────────────
    Mandatory rules from the Lenis docs. The vertical scroll must own the
    document; never let overflow-x:hidden on html/body fight it (use a wrapper
@@ -242,7 +245,7 @@ button, a, input, select, textarea {
 }
 .btn-brand:hover {
   transform: translateY(-1px);
-  box-shadow: 0 16px 38px rgba(14,124,107,0.34);
+  box-shadow: 0 16px 40px -10px rgba(59,130,246,0.7);
 }
 .btn-brand:active { transform: translateY(0); }
 
@@ -270,8 +273,8 @@ button, a, input, select, textarea {
 @keyframes pulse         { 0%,100% { opacity:1; } 50% { opacity:.5; } }
 @keyframes float         { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
 @keyframes glow          {
-  0%,100% { box-shadow: 0 0 24px rgba(14,124,107,0.25); }
-  50%     { box-shadow: 0 0 44px rgba(14,124,107,0.50); }
+  0%,100% { box-shadow: 0 0 24px rgba(59,130,246,0.25); }
+  50%     { box-shadow: 0 0 44px rgba(59,130,246,0.50); }
 }
 @keyframes iconBounce    { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
 

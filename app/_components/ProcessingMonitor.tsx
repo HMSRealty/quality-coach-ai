@@ -10,9 +10,9 @@ import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Loader2, ChevronUp, ChevronDown, CheckCircle2, Activity, Clock, X, StopCircle } from "lucide-react";
 
-const SKY = "#0e7c6b";
-const SKY_600 = "#0a5f52";
-const MONEY = "#0a5f52";
+const SKY = "#3B82F6";
+const SKY_600 = "#2563EB";
+const MONEY = "#2563EB";
 
 interface Job { id: string; address: string; agent: string | null; since: string | null; pending: boolean; }
 
@@ -128,12 +128,12 @@ export function ProcessingMonitor() {
       {/* Expanded list */}
       {open && count > 0 && (
         <div style={{
-          marginBottom: 8, background: "#fff", borderRadius: 14, border: "1px solid var(--border-2)",
+          marginBottom: 8, background: "#0A0A0E", borderRadius: 14, border: "1px solid var(--border-2)",
           boxShadow: "0 20px 50px rgba(15,23,42,0.22)", overflow: "hidden",
         }}>
           <div style={{ padding: "11px 14px", borderBottom: "1px solid var(--border-1)", display: "flex", alignItems: "center", gap: 8 }}>
             <Activity size={15} color={SKY_600} />
-            <span style={{ fontSize: 12.5, fontWeight: 800, color: "#000", flex: 1 }}>
+            <span style={{ fontSize: 12.5, fontWeight: 800, color: "#F4F4FF", flex: 1 }}>
               {active} analyzing{queued > 0 ? ` · ${queued} queued` : ""}
             </span>
             {count > 0 && (
@@ -143,7 +143,7 @@ export function ProcessingMonitor() {
                 style={{
                   display: "inline-flex", alignItems: "center", gap: 4,
                   padding: "4px 9px", borderRadius: 7,
-                  background: "#FEF2F2", border: "1px solid #FECACA",
+                  background: "rgba(251,113,133,0.12)", border: "1px solid #FECACA",
                   color: "#DC2626", fontSize: 11, fontWeight: 700, cursor: "pointer",
                 }}
               >
@@ -158,7 +158,7 @@ export function ProcessingMonitor() {
                   ? <Clock size={14} style={{ color: "var(--text-3)", flexShrink: 0 }} />
                   : <Loader2 size={14} className="animate-spin" style={{ color: SKY, flexShrink: 0 }} />}
                 <div style={{ minWidth: 0, flex: 1 }}>
-                  <p style={{ fontSize: 12.5, fontWeight: 700, color: "#000", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{j.address}</p>
+                  <p style={{ fontSize: 12.5, fontWeight: 700, color: "#F4F4FF", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{j.address}</p>
                   <p style={{ fontSize: 11, color: "var(--text-3)" }}>
                     {j.pending ? `Queued${typeof i === "number" ? ` · #${i + 1 - active}` : ""}` : `Analyzing${j.agent ? ` · ${j.agent}` : ""} · ${ageLabel(j.since)}`}
                   </p>
@@ -172,7 +172,7 @@ export function ProcessingMonitor() {
                     background: "transparent", border: "1px solid var(--border-2)",
                     color: "var(--text-3)", cursor: "pointer",
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = "#FEF2F2"; e.currentTarget.style.borderColor = "#FECACA"; e.currentTarget.style.color = "#DC2626"; }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(251,113,133,0.12)"; e.currentTarget.style.borderColor = "#FECACA"; e.currentTarget.style.color = "#DC2626"; }}
                   onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.borderColor = "var(--border-2)"; e.currentTarget.style.color = "var(--text-3)"; }}
                 >
                   <X size={13} />
@@ -189,9 +189,9 @@ export function ProcessingMonitor() {
         style={{
           display: "inline-flex", alignItems: "center", gap: 9, padding: "10px 15px",
           borderRadius: 999, border: "none", cursor: "pointer",
-          background: count > 0 ? "linear-gradient(135deg, #0e7c6b, #0a5f52)" : MONEY,
+          background: count > 0 ? "linear-gradient(135deg, #3B82F6, #2563EB)" : MONEY,
           color: "#fff", fontSize: 13, fontWeight: 800,
-          boxShadow: count > 0 ? "0 10px 26px rgba(14,124,107,0.45)" : "0 10px 26px rgba(10,95,82,0.40)",
+          boxShadow: count > 0 ? "0 10px 26px rgba(59,130,246,0.45)" : "0 10px 26px rgba(10,95,82,0.40)",
           float: "right",
         }}
       >

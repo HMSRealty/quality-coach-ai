@@ -9,10 +9,10 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Music, Loader2 } from "lucide-react";
 
-const SKY = "#0e7c6b";
-const NAVY = "#15302e";
-const SLATE = "#475569";
-const MONEY = "#0a5f52";
+const SKY = "#3B82F6";
+const NAVY = "#F4F4FF";
+const SLATE = "#9A9AB0";
+const MONEY = "#2563EB";
 
 export function AutoFetchToggle() {
   const [enabled, setEnabled] = useState(false);
@@ -42,7 +42,7 @@ export function AutoFetchToggle() {
 
   return (
     <div style={{
-      background: "#fff", border: "1px solid var(--border-2)", borderRadius: 14,
+      background: "#0A0A0E", border: "1px solid var(--border-2)", borderRadius: 14,
       padding: 18, boxShadow: "var(--shadow-sm)",
       display: "flex", alignItems: "center", gap: 14,
     }}>
@@ -68,7 +68,7 @@ export function AutoFetchToggle() {
         disabled={loading || saving}
         style={{
           position: "relative", width: 48, height: 26, borderRadius: 999, border: "none", padding: 0,
-          background: enabled ? `linear-gradient(135deg, ${SKY}, #0a5f52)` : "#CBD5E1",
+          background: enabled ? `linear-gradient(135deg, ${SKY}, #2563EB)` : "#33333f",
           cursor: loading || saving ? "wait" : "pointer",
           transition: "background 200ms ease",
         }}
@@ -78,7 +78,7 @@ export function AutoFetchToggle() {
         ) : (
           <span style={{
             position: "absolute", top: 3, left: enabled ? 25 : 3,
-            width: 20, height: 20, borderRadius: "50%", background: "#fff",
+            width: 20, height: 20, borderRadius: "50%", background: "#0A0A0E",
             boxShadow: "0 2px 4px rgba(0,0,0,0.18)",
             transition: "left 240ms cubic-bezier(0.34, 1.56, 0.64, 1)",
           }} />

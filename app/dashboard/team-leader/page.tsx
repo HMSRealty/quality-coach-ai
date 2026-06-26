@@ -10,14 +10,14 @@ import { Users, Loader2, TrendingUp, Target, Phone, AlertCircle } from "lucide-r
 
 // Closer's Office. Names kept (TEAL/GOLD) so the file's chart code stays
 // unchanged — only values flip to money-green + cream surfaces.
-const BG = "#f3f4f1";       // cream canvas
-const PANEL = "#FFFFFF";    // card
-const PANEL_2 = "#eceee9";  // cream-100 subtle row
-const TEAL = "#0e7c6b";     // money primary
-const TEAL_DIM = "rgba(14,124,107,0.14)";
-const TXT = "#15302e";      // jet ink
-const MUTED = "#64748B";    // slate-500 secondary
-const GOLD = "#0a5f52";     // deeper money
+const BG = "#000000";       // cream canvas
+const PANEL = "#0A0A0E";    // card
+const PANEL_2 = "#101018";  // cream-100 subtle row
+const TEAL = "#3B82F6";     // money primary
+const TEAL_DIM = "rgba(59,130,246,0.14)";
+const TXT = "#F4F4FF";      // jet ink
+const MUTED = "#9A9AB0";    // slate-500 secondary
+const GOLD = "#2563EB";     // deeper money
 const ROSE = "#DC2626";     // red — kept for warnings/losses
 
 interface Caller { id: string; name: string; team_id: string | null; aggregate_stats: Record<string, unknown> | null; }
@@ -206,7 +206,7 @@ export default function TeamLeaderPage() {
             {perCallerData.length === 0 ? <Empty /> : (
               <ResponsiveContainer width="100%" height={260}>
                 <BarChart data={perCallerData}>
-                  <CartesianGrid stroke="#E2E8F0" />
+                  <CartesianGrid stroke="#22222c" />
                   <XAxis dataKey="name" stroke={MUTED} style={{ fontSize: 11 }} />
                   <YAxis stroke={MUTED} style={{ fontSize: 11 }} />
                   <Tooltip contentStyle={{ background: PANEL_2, border: `1px solid ${TEAL_DIM}`, borderRadius: 8, fontSize: 12 }} />
@@ -237,7 +237,7 @@ export default function TeamLeaderPage() {
         <DarkPanel title="7-Day Trend">
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={days}>
-              <CartesianGrid stroke="#E2E8F0" />
+              <CartesianGrid stroke="#22222c" />
               <XAxis dataKey="day" stroke={MUTED} style={{ fontSize: 11 }} />
               <YAxis stroke={MUTED} style={{ fontSize: 11 }} />
               <Tooltip contentStyle={{ background: PANEL_2, border: `1px solid ${TEAL_DIM}`, borderRadius: 8, fontSize: 12 }} />

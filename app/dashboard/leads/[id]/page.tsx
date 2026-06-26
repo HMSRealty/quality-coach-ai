@@ -57,18 +57,18 @@ interface ExtractedItem {
 }
 
 const STATUS_CONFIG: Record<string, { bg: string; color: string; icon: typeof CheckCircle2 }> = {
-  Hot:          { bg: "#ECFDF5", color: "#0a5f52", icon: CheckCircle2 },
+  Hot:          { bg: "rgba(52,211,153,0.12)", color: "#2563EB", icon: CheckCircle2 },
   Warm:         { bg: "#FFF7ED", color: "#EA580C", icon: CheckCircle2 },
-  Cold:         { bg: "#F0F9FF", color: "#0a5f52", icon: CheckCircle2 },
-  Disqualified: { bg: "#F1F4F9", color: "#4B5563", icon: XCircle },
-  "Call Back":  { bg: "#FFFBEB", color: "#92400E", icon: Phone },
-  "Needs Call": { bg: "#F0F9FF", color: "#0a5f52", icon: Phone },
-  Processing:   { bg: "#F1F4F9", color: "#4B5563", icon: Clock },
-  Pending:      { bg: "#F5F7FA", color: "#64748B", icon: Clock },
-  Queued:       { bg: "#EFF6FF", color: "#1D4ED8", icon: Clock },
-  Duplicate:    { bg: "#EAF0FF", color: "#92400E", icon: AlertTriangle },
-  Commercial:   { bg: "#F5F3FF", color: "#0a5f52", icon: AlertTriangle },
-  Error:        { bg: "#FBEEE8", color: "#DC2626", icon: AlertTriangle },
+  Cold:         { bg: "#0d1626", color: "#2563EB", icon: CheckCircle2 },
+  Disqualified: { bg: "#101018", color: "#4B5563", icon: XCircle },
+  "Call Back":  { bg: "rgba(245,158,11,0.12)", color: "#F59E0B", icon: Phone },
+  "Needs Call": { bg: "#0d1626", color: "#2563EB", icon: Phone },
+  Processing:   { bg: "#101018", color: "#4B5563", icon: Clock },
+  Pending:      { bg: "#F5F7FA", color: "#9A9AB0", icon: Clock },
+  Queued:       { bg: "rgba(59,130,246,0.10)", color: "#1D4ED8", icon: Clock },
+  Duplicate:    { bg: "#EAF0FF", color: "#F59E0B", icon: AlertTriangle },
+  Commercial:   { bg: "#F5F3FF", color: "#2563EB", icon: AlertTriangle },
+  Error:        { bg: "rgba(251,113,133,0.12)", color: "#DC2626", icon: AlertTriangle },
 };
 
 export default function LeadDetailPage() {
@@ -251,7 +251,7 @@ export default function LeadDetailPage() {
         border: "1px solid var(--border-2)",
       }}>
         <span style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: "var(--grad-primary)" }} />
-        <div style={{ position: "absolute", top: -120, right: -60, width: 360, height: 360, borderRadius: "50%", background: "radial-gradient(circle, rgba(14,124,107,0.10), transparent 70%)", filter: "blur(12px)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", top: -120, right: -60, width: 360, height: 360, borderRadius: "50%", background: "radial-gradient(circle, rgba(59,130,246,0.10), transparent 70%)", filter: "blur(12px)", pointerEvents: "none" }} />
         <div style={{ position: "relative", display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 22, flexWrap: "wrap", gap: 12 }}>
           <div>
             <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", marginBottom: 8, color: "var(--sky-600)" }}>LEAD #{lead.id.slice(0, 8)}</p>
@@ -277,7 +277,7 @@ export default function LeadDetailPage() {
             {lead.extracted_address && (
               <button onClick={fetchZillowData} disabled={fetchingZillow}
                 title="Fetch / refresh Zillow property data"
-                style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 16px", borderRadius: 999, border: "1px solid #0e7c6b40", background: "#F0F9FF", color: "#0a5f52", fontSize: 12.5, fontWeight: 800, cursor: fetchingZillow ? "wait" : "pointer" }}>
+                style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 16px", borderRadius: 999, border: "1px solid #3B82F640", background: "#0d1626", color: "#2563EB", fontSize: 12.5, fontWeight: 800, cursor: fetchingZillow ? "wait" : "pointer" }}>
                 {fetchingZillow ? <Loader2 size={13} className="animate-spin" /> : <RefreshCw size={13} />}
                 {fetchingZillow ? "Fetching Zillow…" : "Refresh Zillow"}
               </button>
@@ -392,7 +392,7 @@ export default function LeadDetailPage() {
         const summary = ((lead.metadata || {}) as Record<string, unknown>).call_summary as string | undefined;
         if (!summary) return null;
         return (
-          <Section icon={MessageSquare} title="What Happened on the Call" accent="#0a5f52">
+          <Section icon={MessageSquare} title="What Happened on the Call" accent="#2563EB">
             <p style={{ fontSize: 13.5, color: "var(--text-1)", lineHeight: 1.8 }}>{summary}</p>
           </Section>
         );
@@ -422,7 +422,7 @@ export default function LeadDetailPage() {
             {lead.ai_coaching_points.map((pt, i) => (
               <li key={i} style={{
                 padding: "12px 14px", borderRadius: 10,
-                background: "#F2F5F9", border: "1px solid rgba(35,43,58,0.06)",
+                background: "#101018", border: "1px solid rgba(35,43,58,0.06)",
                 display: "flex", gap: 10, alignItems: "flex-start",
               }}>
                 <div style={{
@@ -471,7 +471,7 @@ export default function LeadDetailPage() {
             {template && (
               <Section icon={FileText} title="Lead Template (extracted from call)" accent={NAVY}>
                 <pre style={{
-                  margin: 0, padding: 16, borderRadius: 10, background: "#F2F5F9",
+                  margin: 0, padding: 16, borderRadius: 10, background: "#101018",
                   border: "1px solid rgba(35,43,58,0.06)", whiteSpace: "pre-wrap",
                   fontFamily: "var(--font-mono)", fontSize: 12.5, color: "var(--text-1)", lineHeight: 1.7,
                 }}>{template}</pre>
@@ -496,7 +496,7 @@ export default function LeadDetailPage() {
                   {items.map((it, i) => (
                     <div key={i} style={{
                       padding: 14, borderRadius: 10,
-                      background: it.is_deal_breaker ? "#FBEEE8" : "#F2F5F9",
+                      background: it.is_deal_breaker ? "rgba(251,113,133,0.12)" : "#101018",
                       border: `1px solid ${it.is_deal_breaker ? "#E7B8A6" : "rgba(35,43,58,0.06)"}`,
                     }}>
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 6 }}>
@@ -524,12 +524,12 @@ export default function LeadDetailPage() {
 
             {/* Compliance */}
             {compliance && (
-              <Section icon={compliancePassed ? CheckCircle2 : XCircle} title="Compliance Check" accent={compliancePassed ? "#0a5f52" : "#DC2626"}>
+              <Section icon={compliancePassed ? CheckCircle2 : XCircle} title="Compliance Check" accent={compliancePassed ? "#2563EB" : "#DC2626"}>
                 <div style={{
                   display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 10,
                   padding: "4px 12px", borderRadius: 999,
-                  background: compliancePassed ? "#ECFDF5" : "#FBEEE8",
-                  color: compliancePassed ? "#0a5f52" : "#DC2626", fontSize: 12, fontWeight: 800,
+                  background: compliancePassed ? "rgba(52,211,153,0.12)" : "rgba(251,113,133,0.12)",
+                  color: compliancePassed ? "#2563EB" : "#DC2626", fontSize: 12, fontWeight: 800,
                 }}>
                   {compliancePassed ? "PASSED" : "FAILED"}
                 </div>
@@ -539,7 +539,7 @@ export default function LeadDetailPage() {
 
             {/* Next steps */}
             {regen && regen !== "No steps generated." && (
-              <Section icon={TrendingUp} title="Recommended Next Steps" accent="#0a5f52">
+              <Section icon={TrendingUp} title="Recommended Next Steps" accent="#2563EB">
                 <p style={{ fontSize: 13, color: "var(--text-1)", lineHeight: 1.7 }}>{regen}</p>
               </Section>
             )}
@@ -596,13 +596,13 @@ export default function LeadDetailPage() {
             onDrop={handleDrop}
             style={{
               padding: 28, borderRadius: 10,
-              background: dragOver ? "#E0F2FE" : "#F2F5F9",
-              border: `2px dashed ${dragOver ? "#0a5f52" : "rgba(35,43,58,0.10)"}`,
+              background: dragOver ? "#E0F2FE" : "#101018",
+              border: `2px dashed ${dragOver ? "#2563EB" : "rgba(35,43,58,0.10)"}`,
               textAlign: "center", transition: "all 0.15s",
             }}
           >
-            <Upload size={24} color={dragOver ? "#0a5f52" : SLATE} style={{ margin: "0 auto 8px" }} />
-            <p style={{ fontSize: 12, color: dragOver ? "#0a5f52" : SLATE, marginBottom: 10 }}>
+            <Upload size={24} color={dragOver ? "#2563EB" : SLATE} style={{ margin: "0 auto 8px" }} />
+            <p style={{ fontSize: 12, color: dragOver ? "#2563EB" : SLATE, marginBottom: 10 }}>
               {dragOver ? "Drop recording here" : "Drag & drop a recording, or click to browse"}
             </p>
             <input
@@ -629,12 +629,12 @@ export default function LeadDetailPage() {
                 value={driveInput}
                 onChange={e => setDriveInput(e.target.value)}
                 placeholder="Or paste a Google Drive call link (anyone with the link)"
-                style={{ flex: 1, padding: "9px 12px", borderRadius: 9, border: "1px solid rgba(35,43,58,0.15)", background: "#fff", color: NAVY, fontSize: 12.5, outline: "none" }}
+                style={{ flex: 1, padding: "9px 12px", borderRadius: 9, border: "1px solid rgba(35,43,58,0.15)", background: "#0A0A0E", color: NAVY, fontSize: 12.5, outline: "none" }}
               />
               <button onClick={attachDriveLink} disabled={attachingDrive || !driveInput.trim()} style={{
                 display: "inline-flex", alignItems: "center", gap: 6,
                 padding: "9px 16px", borderRadius: 9,
-                background: driveInput.trim() ? "#0a5f52" : "#94A3B8", color: "#fff", border: "none",
+                background: driveInput.trim() ? "#2563EB" : "#94A3B8", color: "#fff", border: "none",
                 fontSize: 12, fontWeight: 700, cursor: attachingDrive ? "wait" : "pointer", whiteSpace: "nowrap",
               }}>
                 {attachingDrive ? <Loader2 size={13} className="animate-spin" /> : <Phone size={13} />}
@@ -652,11 +652,11 @@ export default function LeadDetailPage() {
               value={driveInput}
               onChange={e => setDriveInput(e.target.value)}
               placeholder="Replace the Google Drive link…"
-              style={{ flex: 1, padding: "8px 12px", borderRadius: 9, border: "1px solid rgba(35,43,58,0.12)", background: "#fff", color: NAVY, fontSize: 12, outline: "none" }}
+              style={{ flex: 1, padding: "8px 12px", borderRadius: 9, border: "1px solid rgba(35,43,58,0.12)", background: "#0A0A0E", color: NAVY, fontSize: 12, outline: "none" }}
             />
             <button onClick={attachDriveLink} disabled={attachingDrive || !driveInput.trim()} style={{
               display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 9,
-              background: driveInput.trim() ? "#0a5f52" : "#94A3B8", color: "#fff", border: "none",
+              background: driveInput.trim() ? "#2563EB" : "#94A3B8", color: "#fff", border: "none",
               fontSize: 12, fontWeight: 700, cursor: attachingDrive ? "wait" : "pointer", whiteSpace: "nowrap",
             }}>
               {attachingDrive ? <Loader2 size={13} className="animate-spin" /> : <Phone size={13} />}
@@ -671,7 +671,7 @@ export default function LeadDetailPage() {
         <button onClick={reanalyze} disabled={reanalyzing} style={{
           display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
           width: "100%", padding: "14px 0", borderRadius: 12,
-          background: "linear-gradient(135deg, #0a5f52, #047857)", color: "#fff",
+          background: "linear-gradient(135deg, #2563EB, #047857)", color: "#fff",
           border: "none", fontSize: 14, fontWeight: 800, cursor: reanalyzing ? "wait" : "pointer",
           boxShadow: "0 6px 20px rgba(10,95,82,0.35)",
         }}>
@@ -743,7 +743,7 @@ export default function LeadDetailPage() {
           {reanalyzing ? "Queuing…" : "Re-run Review"}
         </button>
         {reanalyzedMsg && (
-          <span style={{ fontSize: 12, fontWeight: 700, color: "#0a5f52", background: "#ECFDF5", padding: "5px 12px", borderRadius: 999, border: "1px solid #A7F3D0" }}>
+          <span style={{ fontSize: 12, fontWeight: 700, color: "#2563EB", background: "rgba(52,211,153,0.12)", padding: "5px 12px", borderRadius: 999, border: "1px solid #A7F3D0" }}>
             {reanalyzedMsg}
           </span>
         )}
@@ -752,7 +752,7 @@ export default function LeadDetailPage() {
         <button onClick={deleteLead} disabled={deleting} style={{
           display: "inline-flex", alignItems: "center", gap: 8,
           padding: "11px 18px", borderRadius: 10,
-          background: "#fff", color: "#DC2626", border: "1px solid #FECACA",
+          background: "#0A0A0E", color: "#DC2626", border: "1px solid #FECACA",
           fontSize: 13, fontWeight: 700,
           cursor: deleting ? "wait" : "pointer",
         }}>
@@ -806,7 +806,7 @@ function BantBlock({ label, value }: { label: string; value: string | null }) {
   return (
     <div style={{
       padding: 12, borderRadius: 10,
-      background: value ? "#E8EFFF" : "#F2F5F9",
+      background: value ? "rgba(59,130,246,0.10)" : "#101018",
       border: `1px solid ${value ? `${TEAL}30` : "rgba(35,43,58,0.06)"}`,
     }}>
       <p style={{ fontSize: 10, fontWeight: 700, color: value ? TEAL : SLATE, marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>{label}</p>

@@ -478,15 +478,15 @@ export default function DialerPage() {
         <div style={{
           display: "flex", alignItems: "center", gap: 8,
           padding: "8px 14px", borderRadius: 999,
-          background: callState === "connected" ? "#ECFDF5" : "#F1F4F9",
+          background: callState === "connected" ? "rgba(52,211,153,0.12)" : "#101018",
           border: `1px solid ${callState === "connected" ? "#A7F3D0" : "rgba(35,43,58,0.08)"}`,
         }}>
           <div style={{
             width: 8, height: 8, borderRadius: "50%",
-            background: callState === "connected" ? "#0e7c6b" : "#94A3B8",
+            background: callState === "connected" ? "#3B82F6" : "#94A3B8",
             animation: callState === "connected" ? "pulse 2s ease-in-out infinite" : "none",
           }} />
-          <span style={{ fontSize: 12, fontWeight: 700, color: callState === "connected" ? "#0a5f52" : SLATE }}>
+          <span style={{ fontSize: 12, fontWeight: 700, color: callState === "connected" ? "#2563EB" : SLATE }}>
             {callState === "connected" ? "LIVE CALL" : callState === "calling" ? "RINGING" : "Idle"}
           </span>
         </div>
@@ -529,13 +529,13 @@ export default function DialerPage() {
                   style={{
                     display: "flex", alignItems: "center", gap: 10,
                     width: "100%", padding: "10px 12px", borderRadius: 10,
-                    background: selectedPeer?.user_id === peer.user_id ? "#EEF1F6" : "transparent",
+                    background: selectedPeer?.user_id === peer.user_id ? "#101018" : "transparent",
                     border: "none", textAlign: "left",
                     cursor: callState === "idle" ? "pointer" : "not-allowed",
                     opacity: callState === "idle" ? 1 : 0.5,
                     transition: "background 200ms",
                   }}
-                  onMouseEnter={e => { if (callState === "idle") e.currentTarget.style.background = "#F1F4F9"; }}
+                  onMouseEnter={e => { if (callState === "idle") e.currentTarget.style.background = "#101018"; }}
                   onMouseLeave={e => { if (selectedPeer?.user_id !== peer.user_id) e.currentTarget.style.background = "transparent"; }}
                 >
                   <div style={{
@@ -604,7 +604,7 @@ export default function DialerPage() {
                 {callState === "ringing-incoming" && <p style={{ fontSize: 14, color: GOLD, fontWeight: 700 }}>🔔 {statusText}</p>}
                 {callState === "connected" && (
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
-                    <Circle size={8} fill="#0e7c6b" color="#0e7c6b" className="animate-pulse" />
+                    <Circle size={8} fill="#3B82F6" color="#3B82F6" className="animate-pulse" />
                     <span style={{ fontSize: 18, fontWeight: 700, color: NAVY, fontFamily: "var(--font-mono)" }}>
                       {formatDuration(callDuration)}
                     </span>
@@ -626,10 +626,10 @@ export default function DialerPage() {
                   </button>
                   <button onClick={acceptIncoming} style={{
                     padding: "14px 28px", borderRadius: 12,
-                    background: "#0e7c6b", color: "#fff", border: "none",
+                    background: "#3B82F6", color: "#fff", border: "none",
                     fontSize: 14, fontWeight: 800, cursor: "pointer",
                     display: "inline-flex", alignItems: "center", gap: 8,
-                    boxShadow: "0 8px 24px rgba(14,124,107,0.30)",
+                    boxShadow: "0 8px 24px rgba(59,130,246,0.30)",
                   }}>
                     <PhoneIncoming size={16} /> Accept
                   </button>
@@ -638,7 +638,7 @@ export default function DialerPage() {
                 <div style={{ display: "flex", gap: 14, justifyContent: "center" }}>
                   <button onClick={toggleMute} disabled={callState !== "connected"} style={{
                     width: 56, height: 56, borderRadius: "50%",
-                    background: muted ? "#FBEEE8" : "#F1F4F9",
+                    background: muted ? "rgba(251,113,133,0.12)" : "#101018",
                     border: `1px solid ${muted ? "#E7B8A6" : "rgba(35,43,58,0.08)"}`,
                     display: "flex", alignItems: "center", justifyContent: "center",
                     cursor: callState === "connected" ? "pointer" : "not-allowed",

@@ -35,7 +35,7 @@ export function PipelineProgress({ current, steps = DEFAULT_STEPS }: Props) {
         <span style={{
           position: "absolute", top: -2, left: `calc(${pct}% - 7px)`,
           width: 14, height: 10, borderRadius: 999,
-          background: "#fff",
+          background: "#0A0A0E",
           boxShadow: "0 0 14px var(--magenta)",
           transition: "left 700ms cubic-bezier(0.16, 1, 0.30, 1)",
         }} />
