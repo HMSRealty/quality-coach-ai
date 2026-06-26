@@ -1,6 +1,6 @@
-# RealTrack by Ascendya — Brand Kit
+# RealTrack by Ascendyaa — Brand Kit
 
-RealTrack is an **Ascendya** product. The app wears Ascendya's identity: a dark,
+RealTrack is an **Ascendyaa** product. The app wears Ascendyaa's identity: a dark,
 black-luxury aesthetic built on a single purple→blue gradient, with the
 ascending "A" mark as the signature. This is the source of truth for the brand
 as applied in-app.
@@ -8,8 +8,8 @@ as applied in-app.
 ## Name & lockup
 
 - **Product name:** RealTrack
-- **Parent brand:** Ascendya
-- **Lockup:** "RealTrack" wordmark (Sora) with a smaller **"by Ascendya"** tag.
+- **Parent brand:** Ascendyaa
+- **Lockup:** "RealTrack" wordmark (Sora) with a smaller **"by Ascendyaa"** tag.
 - The ascending **"A" mark** (`/ascendya-mark.svg`) sits to the left of the
   wordmark. Favicon / tab icon: the "A" mark on a deep-panel tile (`app/icon.svg`).
 

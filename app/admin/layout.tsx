@@ -103,10 +103,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Logo — clickable */}
         <a href="/admin" style={{ textDecoration: "none", display: "block", padding: "16px 14px 12px", borderBottom: "1px solid var(--border-1)" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 8 }}>
-            <img src="/ascendya-mark.svg" alt="Ascendya" style={{ height: 24, width: "auto", display: "block" }} />
+            <img src="/ascendya-mark.svg" alt="Ascendyaa" style={{ height: 24, width: "auto", display: "block" }} />
             <span style={{ display: "flex", flexDirection: "column", lineHeight: 1 }}>
               <span style={{ fontSize: 16, fontWeight: 800, color: T.navy, fontFamily: "var(--font-display)", letterSpacing: "-0.01em" }}>RealTrack</span>
-              <span style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase", marginTop: 3, background: "linear-gradient(120deg,#6B3FA0,#3B82F6)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>by Ascendya</span>
+              <span style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase", marginTop: 3, background: "linear-gradient(120deg,#6B3FA0,#3B82F6)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>by Ascendyaa</span>
             </span>
           </div>
           <div style={{

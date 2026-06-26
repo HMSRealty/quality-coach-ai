@@ -140,7 +140,7 @@ export default function BrandingPage() {
             <img src={brandLogoUrl} alt="" style={{ height: 36, maxWidth: 180, objectFit: "contain" }} />
           ) : (
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <img src="/ascendya-mark.svg" alt="Ascendya" style={{ height: 22, width: "auto", display: "block" }} />
+              <img src="/ascendya-mark.svg" alt="Ascendyaa" style={{ height: 22, width: "auto", display: "block" }} />
               <span style={{ fontSize: 18, fontWeight: 800, color: NAVY, fontFamily: "var(--font-display)", letterSpacing: "-0.02em" }}>{brandName || "RealTrack"}</span>
             </div>
           )}

@@ -21,7 +21,7 @@ interface Campaign { id: string; name: string; }
 
 const inputStyle: React.CSSProperties = {
   width: "100%", padding: "10px 12px", borderRadius: 9,
-  background: "#F2F5F9", border: "1px solid rgba(35,43,58,0.08)",
+  background: "#101018", border: "1px solid rgba(255,255,255,0.10)",
   fontSize: 13, color: NAVY, outline: "none",
   transition: "all 200ms cubic-bezier(0.16,1,0.30,1)",
 };
@@ -33,7 +33,7 @@ const labelStyle: React.CSSProperties = {
 function Card({ children, title }: { children: React.ReactNode; title: string }) {
   return (
     <div style={{
-      background: "#0A0A0E", border: "1px solid rgba(35,43,58,0.08)", borderRadius: 14,
+      background: "#0A0A0E", border: "1px solid rgba(255,255,255,0.10)", borderRadius: 14,
       padding: "22px", marginBottom: 18,
       boxShadow: "0 2px 8px rgba(35,43,58,0.04)",
     }}>
@@ -199,17 +199,17 @@ export default function PublicSubmitLeadPage() {
   return (
     <div style={{
       minHeight: "100vh",
-      background: `linear-gradient(180deg, #F2F5F9 0%, #FFFFFF 100%)`,
+      background: `linear-gradient(180deg, #101018 0%, #000000 100%)`,
       padding: "40px 24px",
     }} className="animate-in">
       <div style={{ maxWidth: 720, margin: "0 auto" }}>
         {/* Logo + Header */}
         <div style={{ textAlign: "center", marginBottom: 36 }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-            <img src="/ascendya-mark.svg" alt="Ascendya" style={{ height: 40, width: "auto", display: "block" }} />
+            <img src="/ascendya-mark.svg" alt="Ascendyaa" style={{ height: 40, width: "auto", display: "block" }} />
             <span style={{ display: "flex", flexDirection: "column", lineHeight: 1, textAlign: "left" }}>
               <span style={{ fontSize: 26, fontWeight: 800, color: NAVY, letterSpacing: "-0.02em", fontFamily: "var(--font-display)" }}>RealTrack</span>
-              <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.24em", textTransform: "uppercase", marginTop: 5, background: "linear-gradient(120deg,#6B3FA0,#3B82F6)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>by Ascendya</span>
+              <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.24em", textTransform: "uppercase", marginTop: 5, background: "linear-gradient(120deg,#6B3FA0,#3B82F6)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>by Ascendyaa</span>
             </span>
           </div>
           <h1 style={{ fontSize: 28, fontWeight: 900, color: NAVY, marginBottom: 10, letterSpacing: "-0.02em" }}>
@@ -351,16 +351,16 @@ export default function PublicSubmitLeadPage() {
               <div
                 style={{
                   padding: "24px", borderRadius: 12,
-                  border: `2px dashed ${TEAL}40`, background: "#EEF3FF",
+                  border: `2px dashed ${TEAL}40`, background: "rgba(59,130,246,0.08)",
                   textAlign: "center", cursor: "pointer",
                   transition: "all 200ms",
                 }}
                 onClick={() => fileInputRef.current?.click()}
-                onDragOver={e => { e.preventDefault(); e.currentTarget.style.background = "#E8EFFF"; }}
-                onDragLeave={e => { e.currentTarget.style.background = "#EEF3FF"; }}
+                onDragOver={e => { e.preventDefault(); e.currentTarget.style.background = "rgba(59,130,246,0.12)"; }}
+                onDragLeave={e => { e.currentTarget.style.background = "rgba(59,130,246,0.08)"; }}
                 onDrop={e => {
                   e.preventDefault();
-                  e.currentTarget.style.background = "#EEF3FF";
+                  e.currentTarget.style.background = "rgba(59,130,246,0.08)";
                   if (fileInputRef.current && e.dataTransfer.files[0]) {
                     fileInputRef.current.files = e.dataTransfer.files;
                     handleFileSelect(e as unknown as React.ChangeEvent<HTMLInputElement>);

@@ -14,10 +14,10 @@ const RED_L = "rgba(251,113,133,0.12)";
 type Tab = "signin" | "signup";
 
 function RealTrackLogo() {
-  // Ascendya "A" mark + RealTrack wordmark — the "RealTrack by Ascendya" lockup.
+  // Ascendyaa "A" mark + RealTrack wordmark — the "RealTrack by Ascendyaa" lockup.
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-      <img src="/ascendya-mark.svg" alt="Ascendya" style={{ height: 38, width: "auto", display: "block" }} />
+      <img src="/ascendya-mark.svg" alt="Ascendyaa" style={{ height: 38, width: "auto", display: "block" }} />
       <span style={{ display: "flex", flexDirection: "column", lineHeight: 1 }}>
         <span style={{
           fontFamily: "var(--font-display)", fontSize: 24, fontWeight: 800,
@@ -26,7 +26,7 @@ function RealTrackLogo() {
         <span style={{
           fontSize: 10, fontWeight: 700, letterSpacing: "0.24em", textTransform: "uppercase", marginTop: 5,
           background: "linear-gradient(120deg,#6B3FA0,#3B82F6)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent",
-        }}>by Ascendya</span>
+        }}>by Ascendyaa</span>
       </span>
     </div>
   );

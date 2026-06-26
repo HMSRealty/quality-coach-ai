@@ -544,7 +544,7 @@ export default function LandingPage() {
       <nav>
         <div className="wrap nav-inner">
           <div className="brand">
-            <img src="/ascendya-mark.svg" alt="Ascendya" style={{ height: 26, width: "auto" }} />RealTrack <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", marginLeft: 4, background: "linear-gradient(120deg,#6B3FA0,#3B82F6)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>by Ascendya</span>
+            <img src="/ascendya-mark.svg" alt="Ascendyaa" style={{ height: 26, width: "auto" }} />RealTrack <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", marginLeft: 4, background: "linear-gradient(120deg,#6B3FA0,#3B82F6)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>by Ascendyaa</span>
           </div>
           <div className="nav-links">
             <a href="#how">How it works</a>
@@ -750,7 +750,7 @@ export default function LandingPage() {
         <div className="wrap">
           <div className="foot-grid">
             <div className="foot-brand">
-              <div className="brand"><img src="/ascendya-mark.svg" alt="Ascendya" style={{ height: 26, width: "auto" }} />RealTrack <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", marginLeft: 4, background: "linear-gradient(120deg,#6B3FA0,#3B82F6)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>by Ascendya</span></div>
+              <div className="brand"><img src="/ascendya-mark.svg" alt="Ascendyaa" style={{ height: 26, width: "auto" }} />RealTrack <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", marginLeft: 4, background: "linear-gradient(120deg,#6B3FA0,#3B82F6)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>by Ascendyaa</span></div>
               <p>AI call intelligence for real-estate acquisitions. Qualify every call, coach every rep.</p>
             </div>
             <div className="foot-col">

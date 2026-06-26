@@ -91,10 +91,10 @@ function RealTrackMark({ size = 28 }: { size?: number }) {
   if (brand.isCustom && brand.logoUrl) {
     return <img src={brand.logoUrl} alt={brand.name} style={{ height: size * 0.85, maxWidth: 200, objectFit: "contain" }} />;
   }
-  // Ascendya "A" mark + RealTrack wordmark — the "RealTrack by Ascendya" lockup.
+  // Ascendyaa "A" mark + RealTrack wordmark — the "RealTrack by Ascendyaa" lockup.
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
-      <img src="/ascendya-mark.svg" alt="Ascendya" style={{ height: size * 0.98, width: "auto", display: "block" }} />
+      <img src="/ascendya-mark.svg" alt="Ascendyaa" style={{ height: size * 0.98, width: "auto", display: "block" }} />
       <span style={{ display: "flex", flexDirection: "column", lineHeight: 1 }}>
         <span style={{ fontSize: 19, fontWeight: 800, color: "#F4F4FF", letterSpacing: "-0.01em", fontFamily: "var(--font-display)" }}>
           {brand.isCustom ? brand.name : "RealTrack"}
@@ -103,7 +103,7 @@ function RealTrackMark({ size = 28 }: { size?: number }) {
           <span style={{
             fontSize: 9.5, fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase", marginTop: 4,
             background: "linear-gradient(120deg,#6B3FA0,#3B82F6)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent",
-          }}>by Ascendya</span>
+          }}>by Ascendyaa</span>
         )}
       </span>
     </div>
