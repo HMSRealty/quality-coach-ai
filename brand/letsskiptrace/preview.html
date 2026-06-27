@@ -1,68 +1,33 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>LETSSKIPTRACE — Logo Extraction</title>
+<!doctype html><html><head><meta charset="utf-8"><title>LETSSKIPTRACE — Logo Kit</title>
 <style>
-  :root{ --bl:#4F72FF; --cy:#00D4FF; --ink:#0A0C16; }
-  *{box-sizing:border-box}
-  body{margin:0;font-family:'Space Grotesk',-apple-system,Segoe UI,Helvetica,Arial,sans-serif;
-       background:#05060B;color:#E8EAF2;}
-  header{padding:56px 48px 28px;border-bottom:1px solid rgba(255,255,255,.08)}
-  h1{margin:0 0 6px;font-size:13px;letter-spacing:.32em;text-transform:uppercase;color:#7C84A0;font-weight:600}
-  header p{margin:0;font-size:26px;font-weight:700;letter-spacing:-.02em}
-  .grad{background:linear-gradient(120deg,var(--bl),var(--cy));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-  .wrap{padding:40px 48px 80px;max-width:1200px;margin:0 auto}
-  h2{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:#7C84A0;margin:48px 0 16px;font-weight:600}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px}
-  .cell{border:1px solid rgba(255,255,255,.09);border-radius:16px;overflow:hidden;background:#0B0D14}
-  .stage{display:flex;align-items:center;justify-content:center;padding:34px;min-height:150px}
-  .stage.light{background:#EEF0F4}
-  .stage.dark{background:var(--ink)}
-  .stage img{max-width:100%;max-height:120px;display:block}
-  .stage .sm{max-height:64px}
-  .cap{padding:12px 16px;border-top:1px solid rgba(255,255,255,.07);font-size:12px;color:#9AA1B8;
-       display:flex;justify-content:space-between;gap:10px}
-  .cap code{color:#cdd2e6;font-size:11px}
-</style>
-</head>
-<body>
-<header>
-  <h1>Brand Asset Extraction</h1>
-  <p>LETSSKIP<span class="grad">TRACE</span> &nbsp;·&nbsp; Logo system</p>
-</header>
+*{box-sizing:border-box}body{margin:0;font-family:Inter,-apple-system,Segoe UI,sans-serif;background:#000;color:#fff}
+header{padding:48px 40px 24px;border-bottom:1px solid #202020}
+h1{margin:0;font-size:22px;letter-spacing:-.02em;font-weight:700}.g{color:#8A8A8A;font-weight:600}
+.sub{color:#8A8A8A;font-size:13px;margin-top:6px}
+.wrap{padding:32px 40px 80px;max-width:1180px;margin:0 auto}
+h2{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#4A4A4A;margin:40px 0 14px;font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.cell{border:1px solid #202020;border-radius:14px;overflow:hidden;background:#0F0F0F}
+.stage{display:flex;align-items:center;justify-content:center;padding:32px;min-height:140px}
+.dark{background:#000}.light{background:#fff}
+.stage img{max-width:100%;max-height:96px}.sm{max-height:60px!important}
+.cap{padding:11px 14px;border-top:1px solid #1a1a1a;font-size:12px;color:#8A8A8A;display:flex;justify-content:space-between}
+code{color:#cfcfcf;font-size:11px;font-family:ui-monospace,monospace}
+</style></head><body>
+<header><h1>LETSSKIP<span class="g">·</span>TRACE — Logo Kit</h1>
+<div class="sub">Rebuilt from the real brand assets · mark vectorized · wordmark in Inter (LETSSKIP #8A8A8A / TRACE #fff)</div></header>
 <div class="wrap">
-
-  <h2>01 · The mark</h2>
-  <div class="grid">
-    <div class="cell"><div class="stage dark"><img class="sm" src="svg/mark-gradient.svg"></div><div class="cap"><span>Mark · gradient</span><code>mark-gradient.svg</code></div></div>
-    <div class="cell"><div class="stage dark"><img class="sm" src="svg/mark-white.svg"></div><div class="cap"><span>Mark · white</span><code>mark-white.svg</code></div></div>
-    <div class="cell"><div class="stage light"><img class="sm" src="svg/mark-black.svg"></div><div class="cap"><span>Mark · ink</span><code>mark-black.svg</code></div></div>
-    <div class="cell"><div class="stage dark"><img class="sm" src="svg/icon.svg"></div><div class="cap"><span>App icon / favicon</span><code>icon.svg</code></div></div>
-  </div>
-
-  <h2>02 · Brand name (wordmark)</h2>
-  <div class="grid">
-    <div class="cell"><div class="stage dark"><img src="svg/wordmark-white.svg"></div><div class="cap"><span>Wordmark · white</span><code>wordmark-white.svg</code></div></div>
-    <div class="cell"><div class="stage dark"><img src="svg/wordmark-twotone.svg"></div><div class="cap"><span>Wordmark · two-tone</span><code>wordmark-twotone.svg</code></div></div>
-    <div class="cell"><div class="stage light"><img src="svg/wordmark-ink.svg"></div><div class="cap"><span>Wordmark · ink</span><code>wordmark-ink.svg</code></div></div>
-  </div>
-
-  <h2>03 · Lockup — horizontal (mark + name)</h2>
-  <div class="grid">
-    <div class="cell"><div class="stage dark"><img src="svg/lockup-horizontal-gradient.svg"></div><div class="cap"><span>Horizontal · gradient</span><code>lockup-horizontal-gradient.svg</code></div></div>
-    <div class="cell"><div class="stage dark"><img src="svg/lockup-horizontal-white.svg"></div><div class="cap"><span>Horizontal · white</span><code>lockup-horizontal-white.svg</code></div></div>
-    <div class="cell"><div class="stage light"><img src="svg/lockup-horizontal-ink.svg"></div><div class="cap"><span>Horizontal · ink</span><code>lockup-horizontal-ink.svg</code></div></div>
-  </div>
-
-  <h2>04 · Lockup — vertical (mark + name)</h2>
-  <div class="grid">
-    <div class="cell"><div class="stage dark"><img src="svg/lockup-vertical-gradient.svg"></div><div class="cap"><span>Vertical · gradient</span><code>lockup-vertical-gradient.svg</code></div></div>
-    <div class="cell"><div class="stage dark"><img src="svg/lockup-vertical-white.svg"></div><div class="cap"><span>Vertical · white</span><code>lockup-vertical-white.svg</code></div></div>
-    <div class="cell"><div class="stage light"><img src="svg/lockup-vertical-ink.svg"></div><div class="cap"><span>Vertical · ink</span><code>lockup-vertical-ink.svg</code></div></div>
-  </div>
-
-</div>
-</body>
-</html>
+<h2>The mark</h2><div class="grid">
+<div class="cell"><div class="stage dark"><img class="sm" src="svg/mark-white.svg"></div><div class="cap"><span>Mark · white</span><code>mark-white.svg</code></div></div>
+<div class="cell"><div class="stage light"><img class="sm" src="svg/mark-black.svg"></div><div class="cap"><span>Mark · black</span><code>mark-black.svg</code></div></div>
+<div class="cell"><div class="stage dark"><img class="sm" src="svg/icon.svg"></div><div class="cap"><span>App icon</span><code>icon.svg</code></div></div></div>
+<h2>Brand name (wordmark)</h2><div class="grid">
+<div class="cell"><div class="stage dark"><img src="svg/wordmark-white.svg"></div><div class="cap"><span>Wordmark · dark bg</span><code>wordmark-white.svg</code></div></div>
+<div class="cell"><div class="stage light"><img src="svg/wordmark-ink.svg"></div><div class="cap"><span>Wordmark · light bg</span><code>wordmark-ink.svg</code></div></div></div>
+<h2>Horizontal lockup</h2><div class="grid">
+<div class="cell"><div class="stage dark"><img src="svg/lockup-horizontal-white.svg"></div><div class="cap"><span>Horizontal · dark</span><code>lockup-horizontal-white.svg</code></div></div>
+<div class="cell"><div class="stage light"><img src="svg/lockup-horizontal-ink.svg"></div><div class="cap"><span>Horizontal · light</span><code>lockup-horizontal-ink.svg</code></div></div></div>
+<h2>Vertical lockup</h2><div class="grid">
+<div class="cell"><div class="stage dark"><img src="svg/lockup-vertical-white.svg"></div><div class="cap"><span>Vertical · dark</span><code>lockup-vertical-white.svg</code></div></div>
+<div class="cell"><div class="stage light"><img src="svg/lockup-vertical-ink.svg"></div><div class="cap"><span>Vertical · light</span><code>lockup-vertical-ink.svg</code></div></div></div>
+</div></body></html>
