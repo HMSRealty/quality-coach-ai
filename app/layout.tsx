@@ -40,8 +40,7 @@ export const metadata: Metadata = {
   description:
     "RealTrack by Ascendyaa is the all-in-one operations platform for real-estate call floors and wholesalers — qualify leads, coach your floor, track performance with live dashboards, and run disposition, all in one place.",
   keywords: [
-    "realtrack", "realtrack.app", "real track app",
-    "HMS Realty", "hmsrealty", "HMS Realty LLC",
+    "realtrack", "realtrack.app", "RealTrack by Ascendyaa", "Ascendyaa",
     "real estate wholesaling", "cold calling QA", "call analytics",
     "acquisitions CRM", "lead intake", "AI call qualification",
     "AI call grading", "wholesaling software", "real estate call center",
@@ -89,7 +88,7 @@ const STRUCTURED_DATA = {
       name: "Ascendyaa",
       alternateName: ["RealTrack by Ascendyaa", "Ascendyaa", "realtrack.app"],
       url: SITE_URL,
-      logo: `${SITE_URL}/logo.png`,
+      logo: `${SITE_URL}/ascendya-mark.svg`,
       email: "info@realtrack.app",
       sameAs: [SITE_URL],
     },
