@@ -19,7 +19,7 @@ interface ApiKey { id: string; key_prefix: string; revoked: boolean; }
 const FEEDS = [
   { id: "leads",         label: "Leads",          path: "/api/export/leads.csv",         desc: "Every lead with status, address, ask, ARV, MAO, recording URL, reason." },
   { id: "recordings",    label: "Call links",     path: "/api/export/recordings.csv",    desc: "One row per recording with a click-to-play link back into RealTrack." },
-  { id: "dialer-hours",  label: "Dialer hours",   path: "/api/export/dialer-hours.csv",  desc: "Synced Readymode hours, decimal hours, ready for SUM into payroll." },
+  { id: "dialer-hours",  label: "Dialer hours",   path: "/api/export/dialer-hours.csv",  desc: "Synced dialer hours, decimal hours, ready for SUM into payroll." },
 ];
 
 export function SheetsExportPanel() {
@@ -71,7 +71,7 @@ export function SheetsExportPanel() {
           <Sheet size={16} color={MONEY} />
         </span>
         <div style={{ flex: 1, minWidth: 220 }}>
-          <p style={{ fontSize: 14, fontWeight: 800, color: NAVY }}>Pipe data into Google Sheets</p>
+          <p style={{ fontSize: 14, fontWeight: 800, color: NAVY }}>Pipe data into your spreadsheet</p>
           <p style={{ fontSize: 12, color: SLATE, marginTop: 2 }}>
             Paste a formula into any sheet cell. Sheets pulls the CSV live — refreshes hourly, or whenever you edit the cell.
           </p>

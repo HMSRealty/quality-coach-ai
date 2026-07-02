@@ -110,7 +110,7 @@ export function ReadymodeHoursSync() {
       });
       return;
     }
-    setMsg({ type: "ok", text: `Synced ${j.count} agent${j.count === 1 ? "" : "s"} from Readymode.` });
+    setMsg({ type: "ok", text: `Synced ${j.count} agent${j.count === 1 ? "" : "s"} from your dialer.` });
     await loadAll();
   };
 
@@ -153,7 +153,7 @@ export function ReadymodeHoursSync() {
             <Server size={16} color={MONEY} />
           </span>
           <div>
-            <p style={{ fontSize: 14, fontWeight: 800, color: NAVY }}>Auto-fetch from Readymode</p>
+            <p style={{ fontSize: 14, fontWeight: 800, color: NAVY }}>Auto-fetch from your dialer</p>
             <p style={{ fontSize: 11.5, color: SLATE, marginTop: 2 }}>
               Logs into your saved dialer connection and pulls the Agent Report for any date range.
             </p>
@@ -165,7 +165,7 @@ export function ReadymodeHoursSync() {
             padding: 14, borderRadius: 10, background: "rgba(245,158,11,0.12)",
             border: "1px solid #FDE68A", color: "#F59E0B", fontSize: 13,
           }}>
-            No Readymode connection yet. Add one in{" "}
+            No dialer connection yet. Add one in{" "}
             <a href="/dashboard/integrations" style={{ color: MONEY, fontWeight: 700 }}>Integrations</a> first.
           </div>
         ) : (

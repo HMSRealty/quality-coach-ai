@@ -51,7 +51,7 @@ const FIELD_KW: Record<string, string[]> = {
   closing:     ["closing timeline", "closing", "timeline", "how soon", "close date"],
   // Reason for selling
   reason:      ["reason for selling", "reason for sale", "reason", "motivation", "why sell"],
-  // Zestimate / market value from Zillow column
+  // Est. value / market value from Zillow column
   zestimate:   ["zestimate", "zillow estimate", "market value", "zillow value"],
   // Direct Zillow listing URL
   zillow_url:  ["zillow link", "zillow url", "zillow listing", "listing link", "zillow"],
@@ -74,7 +74,7 @@ function scoreCell(val: string): Record<string, number> {
   if (/^\+?[\d\s\-().]{7,18}$/.test(v) && v.replace(/\D/g, "").length >= 7) scores.phone = 9;
   // Asking / price: a clean dollar amount (no long text after)
   if (/^\$?[\d,]+(\.\d{1,2})?k?$/i.test(v.replace(/\s+/g, ""))) scores.asking = 7;
-  // Zestimate cell: number that may be prefixed with $ and followed by "Zestimate"/"Redfin"
+  // Est. value cell: number that may be prefixed with $ and followed by "Est. value"/"Redfin"
   if (/\$[\d,]+/.test(v) && /zestimate|redfin|zillow/i.test(v)) scores.zestimate = 10;
   // Address: has a leading street number + letters, no http
   if (/^\d+\s+[A-Za-z]/.test(v) && v.length > 6 && !v.startsWith("http")) scores.address = 8;
@@ -131,7 +131,7 @@ function mapHeader(header: string[], dataRows: string[][]): Record<string, numbe
   return idx;
 }
 
-// Parse a dollar amount out of messy strings like "$273,500 Zestimate®" or "$459,600 Redfin".
+// Parse a dollar amount out of messy strings like "$273,500 Est. value®" or "$459,600 Redfin".
 function parseMoneyStr(s: string): number | null {
   if (!s || /^na$/i.test(s.trim()) || s.trim() === "--" || s.trim() === "$--") return null;
   const m = s.replace(/,/g, "").match(/\$?([\d]+(?:\.\d+)?)/);
@@ -176,7 +176,7 @@ export function ImportLeads({ onClose, onDone }: { onClose: () => void; onDone: 
     setDetected(det);
 
     if (idx.address < 0 && idx.drive < 0) {
-      setErr("Could not detect an address or call-link column. Check that your CSV has an address column and/or a Google Drive link column.");
+      setErr("Could not detect an address or call-link column. Check that your CSV has an address column and/or a recording-link column.");
       return;
     }
 
@@ -229,8 +229,8 @@ export function ImportLeads({ onClose, onDone }: { onClose: () => void; onDone: 
 
   const template = () => {
     const csv = [
-      "CC Name,Owner Name,Owner Number,Property Address,Asking Price,Zestimate,Zillow Link,Condition,Closing,Reason,Call Recording Link",
-      '"JULIA","William Peyton","501-658-3698","1313 Washington St, Little Rock, AR 72204","42000","$42586 Zestimate","https://www.zillow.com/homedetails/.../","Good","ASAP","Relocating","https://drive.google.com/open?id=XXXX"',
+      "CC Name,Owner Name,Owner Number,Property Address,Asking Price,Est. value,Listing Link,Condition,Closing,Reason,Call Recording Link",
+      '"JULIA","William Peyton","501-658-3698","1313 Washington St, Little Rock, AR 72204","42000","$42586 Est. value","https://www.zillow.com/homedetails/.../","Good","ASAP","Relocating","https://drive.google.com/open?id=XXXX"',
     ].join("\n");
     const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
     const a = document.createElement("a"); a.href = url; a.download = "leads-import-template.csv"; a.click(); URL.revokeObjectURL(url);
@@ -238,7 +238,7 @@ export function ImportLeads({ onClose, onDone }: { onClose: () => void; onDone: 
 
   const FIELD_LABELS: Record<string, string> = {
     cc: "Cold Caller", owner: "Owner Name", phone: "Phone", address: "Address",
-    asking: "Asking Price", zestimate: "Zestimate", zillow_url: "Zillow Link",
+    asking: "Asking Price", zestimate: "Est. value", zillow_url: "Listing Link",
     condition: "Condition", closing: "Closing", reason: "Reason", drive: "Recording Link",
   };
 

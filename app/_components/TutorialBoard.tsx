@@ -100,7 +100,7 @@ const STEPS: Step[] = [
   {
     key: "submit", tab: "3 · Log the lead",
     title: "Log the lead + attach the call",
-    caption: "Callers fill the owner, contact, Zillow & Zestimate, then attach the recording.",
+    caption: "Callers fill the owner, contact, listing link & Est. value, then attach the recording.",
     render: () => (
       <Chrome title="RealTrack — Public Form">
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, maxWidth: 420 }}>
@@ -108,7 +108,7 @@ const STEPS: Step[] = [
           <Field label="Campaign" value="Motivated Sellers" />
           <Field label="Owner Name" value="John Doe" />
           <Field label="Phone" value="(305) 555-0199" />
-          <Field label="Zestimate" value="$275,000" highlight />
+          <Field label="Est. value" value="$275,000" highlight />
           <Field label="Asking Price" value="$210,000" highlight />
         </div>
         <div style={{ marginTop: 12, padding: "10px 12px", borderRadius: 9, border: `2px dashed ${TEAL}55`, background: "rgba(59,130,246,0.10)", fontSize: 11, fontWeight: 700, color: NAVY, maxWidth: 420, textAlign: "center" }}>
@@ -130,7 +130,7 @@ const STEPS: Step[] = [
         </div>
         <div style={{ padding: 12, borderRadius: 9, background: "#FFFFFF", border: "1px solid rgba(35,43,58,0.08)", maxWidth: 420 }}>
           <p style={{ fontSize: 10, fontWeight: 700, color: "#2563EB", marginBottom: 4 }}>WHAT HAPPENED ON THE CALL</p>
-          <p style={{ fontSize: 11, color: NAVY, lineHeight: 1.6 }}>Owner is relocating, motivated to close within 60 days. Asking $210k vs $275k Zestimate — a deep discount with clear motivation.</p>
+          <p style={{ fontSize: 11, color: NAVY, lineHeight: 1.6 }}>Owner is relocating, motivated to close within 60 days. Asking $210k vs $275k Est. value — a deep discount with clear motivation.</p>
         </div>
         <Arrow label="Status + reason + summary" top={20} left={300} />
       </Chrome>

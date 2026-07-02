@@ -168,7 +168,7 @@ function PayInner() {
                 <span className="text-xl font-black" style={{ color: "var(--accent)" }}>{displayPrice}</span>
               </div>
               <div className="pt-3 border-t space-y-2" style={{ borderColor: "var(--border)" }}>
-                {[["Analyses", plan.analyses], ["Campaigns", plan.campaigns], ["AI Engine", "Gemini 2.5"]].map(([k, v]) => (
+                {[["Analyses", plan.analyses], ["Campaigns", plan.campaigns], ["AI Engine", "Built-in"]].map(([k, v]) => (
                   <div key={k} className="flex justify-between text-sm">
                     <span style={{ color: "var(--text-muted)" }}>{k}</span>
                     <span className="font-medium">{v}</span>

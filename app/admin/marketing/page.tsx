@@ -14,7 +14,7 @@ Welcome to Quality Coach AI! Your account is now active and ready.
 Here's how to get started:
 
 1. Sign in at your dashboard
-2. Go to My Profile and add your Gemini API key
+2. Go to My Profile and add your AI engine key
 3. Create your first Campaign with custom qualification rules
 4. Upload a call recording under Analyze Lead
 5. Review AI-scored results on your Dashboard
@@ -31,7 +31,7 @@ Here's what's new on Quality Coach AI:
 
 🚀 Re-analyze calls when your campaign rules change
 📊 Compliance tracking with pass/fail flags per lead
-🔧 Faster Gemini 2.5 Pro processing
+🔧 Faster Advanced AI engine processing
 👤 New profile management dashboard
 
 Tip of the month: Write specific, measurable qualification criteria in your campaign rules for highest AI scoring accuracy.

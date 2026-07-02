@@ -33,13 +33,13 @@ CORE DIRECTIVES (CALL-ONLY MODE):
 QUALIFICATION REQUIREMENTS — these are non-negotiable:
   1. The property MUST NOT be currently listed with a realtor, agent, or broker (by any means — including pocket listings, off-market broker deals, etc.).
   2. The property MUST NOT be under contract, in escrow, or accepting backup offers.
-  3. The spoken asking price MUST be below the Zillow Zestimate.
+  3. The spoken asking price MUST be below the Zillow Est. value.
   4. The property MUST be a residential property OR a vacant lot. Anything else (commercial, retail, industrial) is automatically disqualified.
 
-PRICING MATRIX vs the LIVE Zillow Zestimate provided in context:
-🔥 HOT  — spoken asking ≤ 70% of Zestimate (Deep Discount).
-🟡 WARM — spoken asking ≤ 90% of Zestimate AND has a clear reason for selling.
-🔴 DEAD — fails any of the four Qualification Requirements above, or asking is near/above 100% of Zestimate with no motivation.
+PRICING MATRIX vs the LIVE Zillow Est. value provided in context:
+🔥 HOT  — spoken asking ≤ 70% of Est. value (Deep Discount).
+🟡 WARM — spoken asking ≤ 90% of Est. value AND has a clear reason for selling.
+🔴 DEAD — fails any of the four Qualification Requirements above, or asking is near/above 100% of Est. value with no motivation.
 
 SAVIOR EXCEPTION: If the PRIMARY address hits a Kill rule but the seller volunteers a DIFFERENT off-market property, extract it and qualify the lead based on the volunteered property.`;
 
@@ -47,7 +47,7 @@ const DEFAULT_KILLERS: Killer[] = [
   // Non-negotiable rules from The Four Pillars qualification framework
   { id: "K1", enabled: true, label: "Listed with a realtor / broker / agent", rule: "Property is actively listed with any real estate professional — MLS, pocket listing, off-market broker, or 'my agent is handling it'. FSBO (For Sale By Owner) is the only accepted state." },
   { id: "K2", enabled: true, label: "Under contract", rule: "Property is in escrow, under contract, accepting backup offers, or has any signed agreement in place." },
-  { id: "K3", enabled: true, label: "Asking price at or above Zillow", rule: "The spoken asking price is at or above the Zillow Zestimate. There is no discount." },
+  { id: "K3", enabled: true, label: "Asking price at or above market value", rule: "The spoken asking price is at or above the estimated market value. There is no discount." },
   { id: "K4", enabled: true, label: "Non-residential property", rule: "Commercial, retail, industrial, or any non-residential property type. EXCEPTION: vacant lots, raw land, single-family homes, multifamily, condos, townhomes, and Airbnbs are ACCEPTED." },
   // Editable per-client rules below — these can be turned off / customized per campaign
   { id: "K5", enabled: true, label: "Timeline > 6 months", rule: "Seller explicitly will not sell for over 6 months, 'next year', or any vague far-future timeline." },
@@ -200,7 +200,7 @@ export default function PersonaPage() {
                   resize: "vertical",
                 }} />
               <p style={{ fontSize: 11, color: SLATE, marginTop: 8 }}>
-                The analyze pipeline injects the live Zillow Zestimate + active Kill List underneath this text automatically — don&apos;t hardcode them here.
+                The analyze pipeline injects the live Zillow Est. value + active Kill List underneath this text automatically — don&apos;t hardcode them here.
               </p>
             </div>
           </Card>

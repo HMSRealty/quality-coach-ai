@@ -95,7 +95,7 @@ export default function PropyTracePage() {
     <div style={{ maxWidth: 760, margin: "0 auto", display: "flex", flexDirection: "column", gap: 18 }} className="animate-in">
       <div>
         <h1 style={{ fontSize: 28, fontWeight: 900, color: NAVY, letterSpacing: "-0.02em", display: "flex", alignItems: "center", gap: 10 }}>
-          <UserSearch size={26} color={SKY_600} /> PropyTrace
+          <UserSearch size={26} color={SKY_600} /> Skip Tracing
         </h1>
         <p style={{ fontSize: 14, color: SLATE, marginTop: 4 }}>
           Type an owner&apos;s name and address &mdash; get back the best phone, matched name, and email. One lookup at a time.
@@ -121,9 +121,9 @@ export default function PropyTracePage() {
               padding: "10px 16px", borderRadius: 9, textDecoration: "none",
               background: "#F59E0B", color: "#fff", fontSize: 13, fontWeight: 700,
             }}>
-              <ExternalLink size={13} /> Open PropyTrace.app
+              <ExternalLink size={13} /> Open Full Search
             </a>
-            <a href="mailto:info@realtrack.app?subject=Upgrade%20for%20PropyTrace%20access" style={{
+            <a href="mailto:info@realtrack.app?subject=Upgrade%20for%20skip-tracing%20access" style={{
               display: "inline-flex", alignItems: "center", gap: 6,
               padding: "10px 16px", borderRadius: 9, textDecoration: "none",
               background: "#FFFFFF", color: "#F59E0B", border: "1px solid #FDE68A",

@@ -1,6 +1,6 @@
 "use client";
 
-// Manage multiple Readymode dialer connections per user. Each dialer has its
+// Manage multiple dialer connections per user. Each dialer has its
 // own subdomain + admin login. Recording fetch tries each enabled dialer
 // in turn so a lead can come from any of them.
 
@@ -109,7 +109,7 @@ export function ReadymodeConnectionCard() {
     <div style={card}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
         <p style={{ fontSize: 15, fontWeight: 800, color: "#15131D", display: "inline-flex", alignItems: "center", gap: 8 }}>
-          <LinkIcon size={16} color={SKY_600} /> Readymode Dialers
+          <LinkIcon size={16} color={SKY_600} /> Dialer Connections
         </p>
         <button onClick={() => { setAdding(a => !a); setMsg(null); reset(); }} style={{
           display: "inline-flex", alignItems: "center", gap: 5,
@@ -121,7 +121,7 @@ export function ReadymodeConnectionCard() {
         </button>
       </div>
       <p style={{ fontSize: 12.5, color: "var(--text-2)", marginBottom: 14 }}>
-        Add one connection per Readymode dialer your team uses. Each is stored encrypted and tried in order when fetching recordings.
+        Add one connection per dialer your team uses. Each is stored encrypted and tried in order when fetching recordings.
         {envFallback && " A platform default is currently active — add yours below to override it."}
       </p>
 

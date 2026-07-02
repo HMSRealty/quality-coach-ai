@@ -125,9 +125,9 @@ export function AcquisitionsPanel({
     try {
       const res = await fetch(`/api/zillow?address=${encodeURIComponent(address)}`);
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Zillow fetch failed");
+      if (!res.ok) throw new Error(data.error || "Property data fetch failed");
       const zComps: Array<{ address?: string; sqft?: number; price?: number }> = data.comparables || [];
-      if (!zComps.length) { setCompsErr("No comparables returned from Zillow for this address."); setFetchingComps(false); return; }
+      if (!zComps.length) { setCompsErr("No comparables found for this address."); setFetchingComps(false); return; }
       const mapped: ManualComp[] = zComps.map(c => ({
         address: c.address || "",
         layout: "",
@@ -137,7 +137,7 @@ export function AcquisitionsPanel({
       }));
       setComps(mapped);
     } catch (e) {
-      setCompsErr(e instanceof Error ? e.message : "Failed to fetch from Zillow");
+      setCompsErr(e instanceof Error ? e.message : "Failed to fetch comparables");
     }
     setFetchingComps(false);
   };
@@ -166,7 +166,7 @@ export function AcquisitionsPanel({
       <p class="muted">${today} · Prepared for ${ownerName || "Property Owner"}</p>
       <div class="card">
         <div class="row"><span>Property</span><strong>${address || "—"}</strong></div>
-        ${zestimate ? `<div class="row"><span>Zestimate (Zillow)</span><strong>${money(zestimate)}</strong></div>` : ""}
+        ${zestimate ? `<div class="row"><span>Est. market value</span><strong>${money(zestimate)}</strong></div>` : ""}
         <div class="row"><span>After-Repair Value (manual)</span><strong>${arv ? money(arv) : "—"}</strong></div>
         <div class="row"><span>Estimated Rehab</span><strong>${money(rehab)}</strong></div>
         <div class="row"><span>Wholesale / Assignment Fee</span><strong>${money(fee)}</strong></div>
@@ -210,10 +210,10 @@ export function AcquisitionsPanel({
               </span>
             )}
             {address && (
-              <button onClick={fetchZillowComps} disabled={fetchingComps} title="Auto-fill comps from Zillow"
+              <button onClick={fetchZillowComps} disabled={fetchingComps} title="Auto-fill comparables"
                 style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "5px 12px", borderRadius: 8, border: "1px solid #3B82F633", background: "#EFF5FF", color: SKY_600, fontSize: 11.5, fontWeight: 800, cursor: fetchingComps ? "wait" : "pointer" }}>
                 {fetchingComps ? <Loader2 size={11} className="animate-spin" /> : <Search size={11} />}
-                {fetchingComps ? "Fetching…" : "Fetch from Zillow"}
+                {fetchingComps ? "Fetching…" : "Auto-fill Comps"}
               </button>
             )}
             <button onClick={openGoogleSearch} title="Search Google for comps"
@@ -292,7 +292,7 @@ export function AcquisitionsPanel({
 
         <div style={{ padding: 20, display: "grid", gridTemplateColumns: "minmax(0,1.1fr) minmax(0,0.9fr)", gap: 20 }} className="ci-grid">
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            {zestimate ? <ReadRow label="Zestimate (Zillow)" value={money(zestimate)} sub="Market-value reference" /> : null}
+            {zestimate ? <ReadRow label="Est. market value" value={money(zestimate)} sub="Market-value reference" /> : null}
             {medianValue > 0 && (
               <ReadRow label="Median comp value" value={money(medianValue)} sub={`From ${validComps.length} comp${validComps.length === 1 ? "" : "s"} above`} accent={SKY_600} />
             )}

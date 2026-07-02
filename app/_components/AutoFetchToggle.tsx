@@ -1,6 +1,6 @@
 "use client";
 
-// Per-user toggle: "Auto-fetch recordings from Readymode" — when ON, the
+// Per-user toggle: "Auto-fetch recordings from your dialer" — when ON, the
 // cron looks each new lead up by phone on the dialer's research page and
 // pulls the call audio. When OFF, leads simply land as "Needs Call" with
 // no recording-fetch attempt (and no Readymode login needed).
@@ -59,8 +59,8 @@ export function AutoFetchToggle() {
         </p>
         <p style={{ fontSize: 12, color: SLATE, marginTop: 2, lineHeight: 1.5 }}>
           {enabled
-            ? "On — the cron looks each new lead up on Readymode and pulls the call audio automatically."
-            : "Off — leads land as “Needs Call” with no recording. You can upload audio manually later or turn this on once you've connected a Readymode dialer above."}
+            ? "On — the cron looks each new lead up on your dialer and pulls the call audio automatically."
+            : "Off — leads land as “Needs Call” with no recording. You can upload audio manually later or turn this on once you've connected a dialer above."}
         </p>
       </div>
       <button

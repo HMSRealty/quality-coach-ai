@@ -7,7 +7,7 @@ import { ProfileDetailsCard } from "@/app/_components/ProfileDetailsCard";
 import {
   User, Key, BarChart3, CreditCard, Shield,
   Save, Loader2, CheckCircle2, AlertCircle,
-  Eye, EyeOff, ExternalLink, Zap, ChevronRight,
+  Eye, EyeOff, Zap, ChevronRight,
   TrendingUp, Calendar, Phone, FolderCog,
 } from "lucide-react";
 import Link from "next/link";
@@ -29,8 +29,8 @@ interface Profile {
 
 const PLAN_DETAILS: Record<string, { name: string; price: string; color: string; analyses: string; features: string[] }> = {
   free:         { name: "Free",         price: "$0/mo",    color: "var(--text-3)",    analyses: "10",        features: ["10 analyses/month", "1 campaign", "Basic scoring"] },
-  starter:      { name: "Starter",      price: "$350/mo",    color: "var(--emerald)",   analyses: "500",       features: ["500 analyses/month", "3 campaigns", "Gemini 2.5 Flash", "CSV export"] },
-  professional: { name: "Professional", price: "$750/mo",    color: "var(--brand-400)", analyses: "2,000",     features: ["2,000 analyses/month", "Unlimited campaigns", "Gemini 2.5 Pro", "Compliance trails", "Re-analyze"] },
+  starter:      { name: "Starter",      price: "$350/mo",    color: "var(--emerald)",   analyses: "500",       features: ["500 analyses/month", "3 campaigns", "Standard AI engine", "CSV export"] },
+  professional: { name: "Professional", price: "$750/mo",    color: "var(--brand-400)", analyses: "2,000",     features: ["2,000 analyses/month", "Unlimited campaigns", "Advanced AI engine", "Compliance trails", "Re-analyze"] },
   enterprise:   { name: "Enterprise",   price: "$1,500/mo",  color: "var(--violet)",    analyses: "Unlimited", features: ["Unlimited analyses", "Multi-tenant", "Custom API key", "White-label", "SLA", "Dedicated manager"] },
 };
 
@@ -249,9 +249,9 @@ export default function ProfilePage() {
                   <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
                     <AlertCircle size={16} style={{ color: "var(--amber)", flexShrink: 0, marginTop: 1 }} />
                     <div>
-                      <p style={{ fontSize: 13, fontWeight: 600, color: "var(--amber-lt)" }}>Gemini API Key Required</p>
+                      <p style={{ fontSize: 13, fontWeight: 600, color: "var(--amber-lt)" }}>AI Engine Key Required</p>
                       <p style={{ fontSize: 12, color: "var(--text-3)", marginTop: 2 }}>
-                        Add your Gemini API key to start analyzing calls.
+                        Add your AI engine key to start analyzing calls.
                       </p>
                     </div>
                   </div>
@@ -272,13 +272,9 @@ export default function ProfilePage() {
           {tab === "api" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
               <div>
-                <h3 style={{ fontSize: 15, fontWeight: 700, color: "var(--text-1)", marginBottom: 4 }}>Gemini API Key</h3>
+                <h3 style={{ fontSize: 15, fontWeight: 700, color: "var(--text-1)", marginBottom: 4 }}>AI Engine Key</h3>
                 <p style={{ fontSize: 13, color: "var(--text-3)", lineHeight: 1.65 }}>
-                  Your personal Gemini API key is used to power AI analysis. Get yours free at{" "}
-                  <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer"
-                    style={{ color: "var(--brand-400)", display: "inline-flex", alignItems: "center", gap: 3 }}>
-                    Google AI Studio <ExternalLink size={11} />
-                  </a>
+                  Your engine key powers RealTrack&apos;s built-in call analysis. Need one? Contact support and we&apos;ll provision it for your workspace.
                 </p>
               </div>
 

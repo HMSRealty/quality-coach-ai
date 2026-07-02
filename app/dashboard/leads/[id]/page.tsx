@@ -143,7 +143,7 @@ export default function LeadDetailPage() {
     try {
       const res = await fetch(`/api/zillow?address=${encodeURIComponent(lead.extracted_address)}`);
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Zillow fetch failed");
+      if (!res.ok) throw new Error(data.error || "Property data fetch failed");
       const existing = (lead.metadata || {}) as Record<string, unknown>;
       const norm = data.normalized || {};
       const merged = {
@@ -155,12 +155,12 @@ export default function LeadDetailPage() {
       await supabase.from("leads").update({ metadata: merged }).eq("id", id);
       await load();
     } catch (e) {
-      setZillowErr(e instanceof Error ? e.message : "Zillow fetch failed");
+      setZillowErr(e instanceof Error ? e.message : "Property data fetch failed");
     }
     setFetchingZillow(false);
   };
 
-  // Attach (or replace) a Google Drive call link on this lead, then re-qualify.
+  // Attach (or replace) a call recording link on this lead, then re-qualify.
   const [driveInput, setDriveInput] = useState("");
   const [attachingDrive, setAttachingDrive] = useState(false);
   const attachDriveLink = async () => {
@@ -276,10 +276,10 @@ export default function LeadDetailPage() {
             </div>
             {lead.extracted_address && (
               <button onClick={fetchZillowData} disabled={fetchingZillow}
-                title="Fetch / refresh Zillow property data"
+                title="Fetch / refresh property data"
                 style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 16px", borderRadius: 999, border: "1px solid #3B82F640", background: "#EFF5FF", color: "#2563EB", fontSize: 12.5, fontWeight: 800, cursor: fetchingZillow ? "wait" : "pointer" }}>
                 {fetchingZillow ? <Loader2 size={13} className="animate-spin" /> : <RefreshCw size={13} />}
-                {fetchingZillow ? "Fetching Zillow…" : "Refresh Zillow"}
+                {fetchingZillow ? "Fetching data…" : "Refresh Data"}
               </button>
             )}
             {zillowErr && <span style={{ fontSize: 12, color: "#DC2626", fontWeight: 600 }}>{zillowErr}</span>}
@@ -329,7 +329,7 @@ export default function LeadDetailPage() {
           ["Owner Name", ms("owner_name") || "—"],
           ["Phone Number", ms("phone_number") || "—"],
           ["Address", lead.extracted_address || "—"],
-          ["Zestimate", zestDisplay],
+          ["Est. value", zestDisplay],
           ["Asking Price", lead.asking_price ? `$${lead.asking_price.toLocaleString()}` : "—"],
           ["Reason for Selling", ms("reason") || "—"],
         ];
@@ -352,7 +352,7 @@ export default function LeadDetailPage() {
               ))}
               {zillow && (
                 <div>
-                  <p style={{ fontSize: 10, fontWeight: 700, color: SLATE, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 3 }}>Zillow Link</p>
+                  <p style={{ fontSize: 10, fontWeight: 700, color: SLATE, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 3 }}>Listing Link</p>
                   <a href={zillow} target="_blank" rel="noreferrer" style={{ fontSize: 13, color: TEAL, fontWeight: 600, wordBreak: "break-all" }}>Open ↗</a>
                 </div>
               )}
@@ -373,7 +373,7 @@ export default function LeadDetailPage() {
                     <div key={i} style={{ fontSize: 12.5, color: "var(--text-1)", padding: "6px 0", borderBottom: i < extra.length - 1 ? "1px solid rgba(35,43,58,0.05)" : "none" }}>
                       <strong>{p.address || "—"}</strong>
                       {(p.zestimate || p.asking_price) && (
-                        <span style={{ color: SLATE }}> · Zestimate {p.zestimate || "—"} · Asking {p.asking_price ? `$${Number(p.asking_price).toLocaleString()}` : "—"}</span>
+                        <span style={{ color: SLATE }}> · Est. value {p.zestimate || "—"} · Asking {p.asking_price ? `$${Number(p.asking_price).toLocaleString()}` : "—"}</span>
                       )}
                     </div>
                   ))}
@@ -580,13 +580,13 @@ export default function LeadDetailPage() {
               leadId={lead.id}
               segments={segments}
               registerSeek={(fn) => { seekRef.current = fn; }}
-              title="Call Recording (Google Drive)"
+              title="Call Recording"
             />
             <a href={driveLink} target="_blank" rel="noopener noreferrer" style={{
               display: "inline-flex", alignItems: "center", gap: 6, alignSelf: "flex-start",
               fontSize: 11.5, fontWeight: 600, color: SLATE, textDecoration: "none",
             }}>
-              <Phone size={12} /> Open in Google Drive
+              <Phone size={12} /> Open Recording
             </a>
           </div>
         ) : (
@@ -628,7 +628,7 @@ export default function LeadDetailPage() {
                 type="url"
                 value={driveInput}
                 onChange={e => setDriveInput(e.target.value)}
-                placeholder="Or paste a Google Drive call link (anyone with the link)"
+                placeholder="Or paste a call recording link (anyone with the link)"
                 style={{ flex: 1, padding: "9px 12px", borderRadius: 9, border: "1px solid rgba(35,43,58,0.15)", background: "#FFFFFF", color: NAVY, fontSize: 12.5, outline: "none" }}
               />
               <button onClick={attachDriveLink} disabled={attachingDrive || !driveInput.trim()} style={{
@@ -651,7 +651,7 @@ export default function LeadDetailPage() {
               type="url"
               value={driveInput}
               onChange={e => setDriveInput(e.target.value)}
-              placeholder="Replace the Google Drive link…"
+              placeholder="Replace the recording link…"
               style={{ flex: 1, padding: "8px 12px", borderRadius: 9, border: "1px solid rgba(35,43,58,0.12)", background: "#FFFFFF", color: NAVY, fontSize: 12, outline: "none" }}
             />
             <button onClick={attachDriveLink} disabled={attachingDrive || !driveInput.trim()} style={{

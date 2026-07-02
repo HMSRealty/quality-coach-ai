@@ -44,7 +44,7 @@ function GoogleDriveCard() {
   };
   useEffect(() => {
     const p = new URLSearchParams(window.location.search).get("google");
-    if (p === "connected") setFlash("Google Drive connected.");
+    if (p === "connected") setFlash("Recording storage connected.");
     else if (p === "denied") setFlash("Connection cancelled.");
     else if (p === "norefresh") setFlash("Please re-connect and allow access (no refresh token returned).");
     else if (p) setFlash("Connection failed — try again.");
@@ -61,7 +61,7 @@ function GoogleDriveCard() {
     setBusy(false); setFlash(j.error || "Could not start Google connection.");
   };
   const disconnect = async () => {
-    if (!confirm("Disconnect Google Drive?")) return;
+    if (!confirm("Disconnect recording storage?")) return;
     setBusy(true);
     const { data: { session } } = await supabase.auth.getSession();
     await fetch("/api/google/status", { method: "DELETE", headers: { Authorization: `Bearer ${session?.access_token}` } });
@@ -71,7 +71,7 @@ function GoogleDriveCard() {
   const card: React.CSSProperties = { background: "#FFFFFF", border: "1px solid var(--border-2)", borderRadius: 16, padding: 22, boxShadow: "var(--shadow-sm)" };
   return (
     <div style={card}>
-      <p style={{ fontSize: 15, fontWeight: 800, color: "#15131D", display: "inline-flex", alignItems: "center", gap: 8 }}><ShieldCheck size={16} color={SKY_600} /> Google Drive</p>
+      <p style={{ fontSize: 15, fontWeight: 800, color: "#15131D", display: "inline-flex", alignItems: "center", gap: 8 }}><ShieldCheck size={16} color={SKY_600} /> Recording Storage</p>
       <p style={{ fontSize: 12.5, color: "var(--text-2)", margin: "4px 0 14px" }}>Connect Drive so the AI can qualify leads from <strong>private</strong> call-recording links (public links already work without this).</p>
       {flash && <p style={{ fontSize: 12.5, fontWeight: 700, color: MONEY, marginBottom: 10 }}>{flash}</p>}
       {loading ? <Loader2 size={16} className="animate-spin" style={{ color: SKY_600 }} /> : connected ? (
@@ -81,7 +81,7 @@ function GoogleDriveCard() {
         </div>
       ) : (
         <button onClick={connect} disabled={busy} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 16px", borderRadius: 10, background: "linear-gradient(135deg, #3B82F6, #2563EB)", color: "#fff", border: "none", fontSize: 13, fontWeight: 800, cursor: busy ? "wait" : "pointer", boxShadow: "0 8px 20px rgba(59,130,246,0.35)" }}>
-          {busy ? <Loader2 size={14} className="animate-spin" /> : <ShieldCheck size={14} />} Connect Google Drive
+          {busy ? <Loader2 size={14} className="animate-spin" /> : <ShieldCheck size={14} />} Connect Storage
         </button>
       )}
     </div>
@@ -329,7 +329,7 @@ export default function ApiIntegrationsPage() {
         {/* Two-step flow explainer */}
         <div style={{ marginTop: 14, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 10 }}>
           <div style={{ padding: "12px 14px", borderRadius: 10, background: "#EFF5FF", border: "1px solid #BAE6FD" }}>
-            <p style={{ fontSize: 12, fontWeight: 800, color: "#0C4A6E", marginBottom: 6 }}>1 · Lead Push (Readymode → RealTrack)</p>
+            <p style={{ fontSize: 12, fontWeight: 800, color: "#0C4A6E", marginBottom: 6 }}>1 · Lead Push (Your dialer → RealTrack)</p>
             <p style={{ fontSize: 11.5, color: "#0C4A6E", lineHeight: 1.55 }}>
               When the dialer loads/posts a new lead, send: <code style={{ background: "#FFFFFF", padding: "1px 5px", borderRadius: 4 }}>address</code>, <code style={{ background: "#FFFFFF", padding: "1px 5px", borderRadius: 4 }}>city</code>, <code style={{ background: "#FFFFFF", padding: "1px 5px", borderRadius: 4 }}>state</code>, <code style={{ background: "#FFFFFF", padding: "1px 5px", borderRadius: 4 }}>zip</code>, <code style={{ background: "#FFFFFF", padding: "1px 5px", borderRadius: 4 }}>firstName</code>, <code style={{ background: "#FFFFFF", padding: "1px 5px", borderRadius: 4 }}>lastName</code>, <code style={{ background: "#FFFFFF", padding: "1px 5px", borderRadius: 4 }}>phone</code>, <code style={{ background: "#FFFFFF", padding: "1px 5px", borderRadius: 4 }}>campaign</code>, <code style={{ background: "#FFFFFF", padding: "1px 5px", borderRadius: 4 }}>agent_name</code>.
             </p>
@@ -349,7 +349,7 @@ export default function ApiIntegrationsPage() {
       {/* Per-tenant Readymode admin connections (multiple dialers supported) */}
       <ReadymodeConnectionCard />
 
-      {/* Gemini API key rotation pool */}
+      {/* AI engine key rotation pool */}
       <GeminiKeysCard />
 
       {/* Test webhook */}

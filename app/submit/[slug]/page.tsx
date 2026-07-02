@@ -43,7 +43,7 @@ export default function DynamicSubmitPage() {
   const [zData, setZData] = useState<Record<string, unknown> | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Shared helper — fetch property data for one address (or Zillow URL).
+  // Shared helper — fetch property data for one address (or listing URL).
   // Returns the full API response so callers can read normalized + warning.
   const fetchZillow = async (address: string, zillowUrl?: string) => {
     const params = new URLSearchParams();
@@ -60,7 +60,7 @@ export default function DynamicSubmitPage() {
     const addr = formData.property_address.trim();
     const link = formData.zillow_link.trim();
     if (!addr && !link) {
-      setZLookup({ busy: false, msg: "Enter an address (or paste a Zillow link) first." });
+      setZLookup({ busy: false, msg: "Enter an address (or paste a listing link) first." });
       return;
     }
     setZLookup({ busy: true, msg: "Fetching property data…" });
@@ -77,7 +77,7 @@ export default function DynamicSubmitPage() {
       }));
       if (resp.warning) { setZLookup({ busy: false, msg: "⚠ " + resp.warning }); return; }
       const bits: string[] = [];
-      if (zest) bits.push(`Zestimate $${zest.toLocaleString()}`);
+      if (zest) bits.push(`Est. value $${zest.toLocaleString()}`);
       if (n.beds) bits.push(`${n.beds} bd`);
       if (n.baths) bits.push(`${n.baths} ba`);
       if (n.sqft) bits.push(`${(n.sqft as number).toLocaleString()} sqft`);
@@ -126,7 +126,7 @@ export default function DynamicSubmitPage() {
       const n = resp.normalized;
       const zest = n.zestimate as number | undefined;
       const bits: string[] = [];
-      if (zest) bits.push(`Zestimate $${zest.toLocaleString()}`);
+      if (zest) bits.push(`Est. value $${zest.toLocaleString()}`);
       if (n.beds) bits.push(`${n.beds} bd`);
       if (n.baths) bits.push(`${n.baths} ba`);
       if (n.sqft) bits.push(`${(n.sqft as number).toLocaleString()} sqft`);
@@ -336,7 +336,7 @@ export default function DynamicSubmitPage() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "linear-gradient(180deg, #F1F2F8 0%, #000000 100%)", padding: "40px 24px" }} className="animate-in">
+    <div style={{ minHeight: "100vh", background: "linear-gradient(180deg, #F1F2F8 0%, #FFFFFF 100%)", padding: "40px 24px" }} className="animate-in">
       <div style={{ maxWidth: 640, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 32 }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 11, marginBottom: 18 }}>
@@ -444,10 +444,10 @@ export default function DynamicSubmitPage() {
             Property details + ARV are fetched automatically when you submit.
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
-            <input type="text" placeholder="Zestimate (optional)" value={formData.zestimate} onChange={e => setForm({ ...formData, zestimate: e.target.value })} style={inputStyle} />
+            <input type="text" placeholder="Est. value (optional)" value={formData.zestimate} onChange={e => setForm({ ...formData, zestimate: e.target.value })} style={inputStyle} />
             <input type="number" placeholder="Asking Price (optional)" value={formData.asking_price} onChange={e => setForm({ ...formData, asking_price: e.target.value })} style={inputStyle} />
           </div>
-          <input type="url" placeholder="Zillow Link (optional)" value={formData.zillow_link} onChange={e => setForm({ ...formData, zillow_link: e.target.value })} style={{ ...inputStyle, marginBottom: 14 }} />
+          <input type="url" placeholder="Listing Link (optional)" value={formData.zillow_link} onChange={e => setForm({ ...formData, zillow_link: e.target.value })} style={{ ...inputStyle, marginBottom: 14 }} />
 
           {/* Extra properties */}
           {extraProps.map((p, i) => (
@@ -461,7 +461,7 @@ export default function DynamicSubmitPage() {
                 Auto-fetched on submit.
               </p>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                <input type="text" placeholder="Zestimate" value={p.zestimate} onChange={e => updateProperty(i, "zestimate", e.target.value)} style={inputStyle} />
+                <input type="text" placeholder="Est. value" value={p.zestimate} onChange={e => updateProperty(i, "zestimate", e.target.value)} style={inputStyle} />
                 <input type="number" placeholder="Asking Price" value={p.asking_price} onChange={e => updateProperty(i, "asking_price", e.target.value)} style={inputStyle} />
               </div>
             </div>
@@ -497,11 +497,11 @@ export default function DynamicSubmitPage() {
               <input ref={fileInputRef} type="file" multiple accept="audio/*,video/mp4" onChange={handleFileSelect} style={{ display: "none" }} />
             </div>
           )}
-          {/* Google Drive call link — works whether uploads are enabled or not */}
+          {/* call recording link — works whether uploads are enabled or not */}
           <div style={{ marginBottom: 14 }}>
             <input
               type="url"
-              placeholder="Or paste a Google Drive call link (anyone with the link)"
+              placeholder="Or paste a call recording link (anyone with the link)"
               value={formData.call_link}
               onChange={e => setForm({ ...formData, call_link: e.target.value })}
               style={inputStyle}

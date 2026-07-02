@@ -47,7 +47,7 @@ export function SetupBanner() {
   if (done === required.length) return null;
 
   const next = !status.gemini
-    ? { label: "Add a Gemini API key", href: "/dashboard/settings/api" }
+    ? { label: "Add a AI engine key", href: "/dashboard/settings/api" }
     : !status.campaign
     ? { label: "Create your first campaign", href: "/dashboard/campaigns" }
     : null;
@@ -73,7 +73,7 @@ export function SetupBanner() {
         </p>
         <div style={{ display: "flex", gap: 10, marginTop: 5, flexWrap: "wrap" }}>
           <span style={{ fontSize: 11.5, color: status.gemini ? "#2563EB" : "#D7DAE6", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
-            <CheckCircle2 size={11} color={status.gemini ? "#2563EB" : "#33333f"} /> Gemini key
+            <CheckCircle2 size={11} color={status.gemini ? "#2563EB" : "#33333f"} /> AI engine key
           </span>
           <span style={{ fontSize: 11.5, color: status.campaign ? "#2563EB" : "#D7DAE6", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
             <CheckCircle2 size={11} color={status.campaign ? "#2563EB" : "#33333f"} /> First campaign

@@ -19,8 +19,8 @@ const STEPS = [
   },
   {
     icon: Sparkles,
-    title: "Step 1 — Add a Gemini API key",
-    body: "RealTrack uses Google's Gemini AI to qualify your calls. Get a free key from Google AI Studio and paste it in Settings → API.",
+    title: "Step 1 — Activate the AI engine",
+    body: "RealTrack's built-in AI engine scores and qualifies every call. Activate it by adding an engine key in Settings → API.",
     cta: { label: "Open Settings", href: "/dashboard/settings/api" },
   },
   {

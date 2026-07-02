@@ -57,17 +57,16 @@ export default function OnboardingPage() {
     {
       done: status.has_gemini_key,
       icon: Sparkles,
-      title: "Add a Gemini API key",
-      desc: "Get one free from Google AI Studio. RealTrack uses it to analyze your calls and qualify leads.",
-      cta: "Add Gemini Key",
+      title: "Activate the AI engine",
+      desc: "RealTrack's built-in AI engine analyzes your calls and qualifies leads. Add an engine key to activate it.",
+      cta: "Add Engine Key",
       href: "/dashboard/integrations",
-      external: "https://aistudio.google.com/apikey",
     },
     {
       done: status.has_dialer,
       icon: Server,
       title: "Connect your dialer (optional)",
-      desc: "Add your Readymode credentials if you want recordings pulled automatically. Skip this if you'll send leads-only or upload calls manually.",
+      desc: "Add your dialer credentials if you want recordings pulled automatically. Skip this if you'll send leads-only or upload calls manually.",
       cta: "Connect Dialer",
       href: "/dashboard/integrations",
     },
@@ -131,11 +130,6 @@ export default function OnboardingPage() {
                 Step {i + 1}: {s.title}
               </p>
               <p style={{ fontSize: 12.5, color: SLATE, marginTop: 2, lineHeight: 1.5 }}>{s.desc}</p>
-              {s.external && !s.done && (
-                <a href={s.external} target="_blank" rel="noreferrer" style={{ fontSize: 11.5, color: SKY_600, fontWeight: 700, textDecoration: "none" }}>
-                  → Get a key from aistudio.google.com/apikey
-                </a>
-              )}
             </div>
             {!s.done && (
               <Link href={s.href} style={{

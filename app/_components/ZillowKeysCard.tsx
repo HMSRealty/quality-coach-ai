@@ -62,7 +62,7 @@ export function ZillowKeysCard() {
   };
 
   const add = async () => {
-    if (!keyValue.trim()) { setMsg({ type: "err", text: "Paste a RapidAPI / Zillow key." }); return; }
+    if (!keyValue.trim()) { setMsg({ type: "err", text: "Paste a property data key." }); return; }
     setBusy(true); setMsg(null);
     const { data: { session } } = await supabase.auth.getSession();
     const r = await fetch("/api/zillow/keys", {
@@ -115,7 +115,7 @@ export function ZillowKeysCard() {
     <div style={card}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6, flexWrap: "wrap", gap: 8 }}>
         <p style={{ fontSize: 15, fontWeight: 800, color: "#15131D", display: "inline-flex", alignItems: "center", gap: 8 }}>
-          <Home size={16} color={SKY_600} /> Zillow / Property Data
+          <Home size={16} color={SKY_600} /> Property Data Keys
         </p>
         <button onClick={() => setAdding(a => !a)} style={{
           display: "inline-flex", alignItems: "center", gap: 5,
@@ -127,14 +127,14 @@ export function ZillowKeysCard() {
         </button>
       </div>
       <p style={{ fontSize: 12.5, color: "var(--text-2)", marginBottom: 14 }}>
-        Used for property value (Zestimate), ARV calculation, and nearby comparables. Get a key at <a href="https://rapidapi.com" target="_blank" rel="noreferrer" style={{ color: SKY_600 }}>rapidapi.com</a> and subscribe to the &quot;Private Zillow&quot; API. Add multiple keys to rotate when one hits a limit.
+        Powers market value estimates, ARV calculation, and nearby comparables. Add multiple data keys to rotate automatically when one hits a limit — contact support to provision keys for your workspace.
       </p>
 
       {adding && (
         <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr 1fr auto", gap: 9, marginBottom: 14, alignItems: "end" }}>
           <input value={label} onChange={e => setLabel(e.target.value)} placeholder="Label (optional)" style={{ ...inp, fontFamily: "inherit" }} />
           <div style={{ position: "relative" }}>
-            <input value={keyValue} onChange={e => setKeyValue(e.target.value)} type={showKey ? "text" : "password"} placeholder="RapidAPI key" style={{ ...inp, paddingRight: 38 }} />
+            <input value={keyValue} onChange={e => setKeyValue(e.target.value)} type={showKey ? "text" : "password"} placeholder="Property data key" style={{ ...inp, paddingRight: 38 }} />
             <button type="button" onClick={() => setShowKey(s => !s)}
               style={{ position: "absolute", right: 7, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "var(--text-3)", cursor: "pointer", padding: 4 }}>
               {showKey ? <EyeOff size={14} /> : <Eye size={14} />}

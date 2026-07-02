@@ -199,7 +199,7 @@ export default function PublicSubmitLeadPage() {
   return (
     <div style={{
       minHeight: "100vh",
-      background: `linear-gradient(180deg, #F1F2F8 0%, #000000 100%)`,
+      background: `linear-gradient(180deg, #F1F2F8 0%, #FFFFFF 100%)`,
       padding: "40px 24px",
     }} className="animate-in">
       <div style={{ maxWidth: 720, margin: "0 auto" }}>
@@ -329,8 +329,8 @@ export default function PublicSubmitLeadPage() {
           <Card title="Property Details">
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14, marginBottom: 14 }}>
               <input type="number" placeholder="Asking Price" value={formData.asking_price} onChange={e => setForm({ ...formData, asking_price: e.target.value })} style={inputStyle} />
-              <input type="text" placeholder="Zestimate" value={formData.zestimate} onChange={e => setForm({ ...formData, zestimate: e.target.value })} style={inputStyle} />
-              <input type="url" placeholder="Zillow Link" value={formData.zillow_link} onChange={e => setForm({ ...formData, zillow_link: e.target.value })} style={inputStyle} />
+              <input type="text" placeholder="Est. value" value={formData.zestimate} onChange={e => setForm({ ...formData, zestimate: e.target.value })} style={inputStyle} />
+              <input type="url" placeholder="Listing Link" value={formData.zillow_link} onChange={e => setForm({ ...formData, zillow_link: e.target.value })} style={inputStyle} />
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
               <input type="text" placeholder="Occupancy?" value={formData.occupancy} onChange={e => setForm({ ...formData, occupancy: e.target.value })} style={inputStyle} />

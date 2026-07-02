@@ -14,7 +14,7 @@ interface Health { ok: boolean; timestamp: string; checks: Check[]; }
 const LABELS: Record<string, string> = {
   supabase: "Database",
   storage: "File Storage",
-  gemini_key: "AI (Gemini)",
+  gemini_key: "AI engine",
   encryption_key: "Encryption",
   sentry_dsn: "Error Tracking",
 };

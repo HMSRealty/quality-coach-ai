@@ -11,13 +11,13 @@ const STEPS = [
   },
   {
     icon: Key,
-    title: "2. Add your Gemini API key",
-    body: "RealTrack uses Google's Gemini AI to grade calls. Get a free key from aistudio.google.com/apikey, then paste it under Settings → API → Gemini API Key Pool. You can add multiple — the system rotates between them automatically if one hits rate limits.",
+    title: "2. Add your AI engine key",
+    body: "RealTrack's built-in AI engine grades every call. Activate it under Settings → API → AI Engine Keys — you can add multiple engine keys and the system rotates between them automatically.",
   },
   {
     icon: Server,
     title: "3. Connect your dialer (optional)",
-    body: "If you use Readymode, add your admin credentials under Settings → API → Readymode Dialers. We'll automatically pull call recordings for every lead. Skip this step if you'll send leads via webhook only, or upload recordings manually.",
+    body: "If you use Readymode, add your admin credentials under Settings → API → Dialer Connections. We'll automatically pull call recordings for every lead. Skip this step if you'll send leads via webhook only, or upload recordings manually.",
   },
   {
     icon: Webhook,
@@ -48,12 +48,12 @@ const STEPS = [
 
 const FAQS = [
   {
-    q: "Do I need a Readymode dialer to use RealTrack?",
+    q: "Do I need a dialer to use RealTrack?",
     a: "No. RealTrack works with any source that can POST to our webhook — Readymode, BatchDialer, Aircall, Five9, even a Zapier hookup. Recordings can be attached via URL or uploaded manually.",
   },
   {
     q: "How is the AI qualifying calls?",
-    a: "Every call is evaluated against The Four Pillars: Asking Price, Condition, Closing timeline, and Reason for selling. Plus non-negotiable rules: not listed with a realtor, not under contract, asking below Zillow, and residential or vacant lot only. The rest of the persona is fully editable under Dashboard → Persona, and you can override it per campaign.",
+    a: "Every call is evaluated against The Four Pillars: Asking Price, Condition, Closing timeline, and Reason for selling. Plus non-negotiable rules: not listed with a realtor, not under contract, asking below market value, and residential or vacant lot only. The rest of the persona is fully editable under Dashboard → Persona, and you can override it per campaign.",
   },
   {
     q: "What happens if a call has no recording?",

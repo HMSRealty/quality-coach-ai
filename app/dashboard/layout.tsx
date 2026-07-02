@@ -51,7 +51,7 @@ const NAV_GROUPS: { section: string; items: { label: string; href: string; icon:
     items: [
       { label: "Hot Leads Alert", href: "/dashboard/deals",        icon: Flame },
       { label: "Cash Buyers",     href: "/dashboard/dispositions", icon: Users2 },
-      { label: "PropyTrace",      href: "/dashboard/propytrace",   icon: UserSearch },
+      { label: "Skip Tracing",      href: "/dashboard/propytrace",   icon: UserSearch },
     ],
   },
   {

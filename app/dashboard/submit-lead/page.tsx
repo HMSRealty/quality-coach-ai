@@ -294,11 +294,11 @@ export default function SubmitLeadPage() {
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
             <div>
-              <label style={labelStyle}>Zestimate</label>
+              <label style={labelStyle}>Est. value</label>
               <input type="text" value={formData.zestimate} onChange={e => setForm({ ...formData, zestimate: e.target.value })} placeholder="$275,000" style={inputStyle} />
             </div>
             <div>
-              <label style={labelStyle}>Zillow Link</label>
+              <label style={labelStyle}>Listing Link</label>
               <input type="url" value={formData.zillow_link} onChange={e => setForm({ ...formData, zillow_link: e.target.value })} placeholder="https://zillow.com/..." style={inputStyle} />
             </div>
           </div>

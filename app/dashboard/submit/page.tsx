@@ -136,7 +136,7 @@ export default function SubmitLeadPage() {
     const metadata: Record<string, unknown> = {
       ...(form.parts ? { addr_street: form.parts.street, addr_city: form.parts.city, addr_state: form.parts.state, addr_zip: form.parts.zip } : {}),
       ...(enriched || {}),
-      // Google Drive call link — the analyzer downloads it (public link) and
+      // call recording link — the analyzer downloads it (public link) and
       // qualifies from it, same as an uploaded file.
       ...(form.driveLink.trim() ? { source_audio_url: form.driveLink.trim() } : {}),
     };
@@ -313,9 +313,9 @@ export default function SubmitLeadPage() {
               ))}
             </AnimatePresence>
 
-            {/* OR: paste a Google Drive call link (shared with "anyone with the link") */}
+            {/* OR: paste a call recording link (shared with "anyone with the link") */}
             <div style={{ marginTop: 10 }}>
-              <label style={{ ...labelStyle, fontSize: 11 }}>Or paste a Google Drive call link</label>
+              <label style={{ ...labelStyle, fontSize: 11 }}>Or paste a call recording link</label>
               <input type="url" value={form.driveLink}
                 onChange={e => setForm(f => ({ ...f, driveLink: e.target.value }))}
                 placeholder="https://drive.google.com/file/d/…  (anyone with the link)"
@@ -351,7 +351,7 @@ export default function SubmitLeadPage() {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }} className="ci-grid">
             <div><label style={labelStyle}>Asking Price</label>
               <input type="number" value={form.askingPrice} onChange={e => setForm(f => ({ ...f, askingPrice: e.target.value }))} placeholder="250000" style={fieldStyle} /></div>
-            <div><label style={labelStyle}>Zillow Link</label>
+            <div><label style={labelStyle}>Listing Link</label>
               <input type="url" value={form.zillowLink} onChange={e => setForm(f => ({ ...f, zillowLink: e.target.value }))} placeholder="https://zillow.com/…" style={fieldStyle} /></div>
           </div>
           <div><label style={labelStyle}>Notes</label>

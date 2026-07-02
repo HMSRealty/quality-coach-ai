@@ -125,7 +125,7 @@ export default function IntegrationsPage() {
         </div>
         <p style={{ fontSize: 12.5, color: "var(--text-2)", marginBottom: 12 }}>
           Point your dialer or CRM at this URL with the key as a Bearer token. We accept JSON, form-urlencoded,
-          and Readymode&apos;s native format.
+          and your dialer&apos;s native format.
         </p>
         <div style={{ background: "#F1F2F8", border: "1px solid #22222c", borderRadius: 9, padding: "10px 14px", fontFamily: "var(--font-mono)", fontSize: 12.5, color: NAVY, overflowX: "auto", whiteSpace: "nowrap" }}>
           {webhookUrl}
@@ -209,9 +209,9 @@ function ReadOnlyIntegrationsView() {
   }, []);
 
   const rows: { name: string; count: number; desc: string }[] = [
-    { name: "AI provider (Gemini)", count: status?.gemini ?? 0, desc: "Powers call analysis and qualification." },
-    { name: "Zillow / Property data", count: status?.zillow ?? 0, desc: "Pulls Zestimate, comps, and ARV." },
-    { name: "Readymode dialer", count: status?.readymode ?? 0, desc: "Fetches your call recordings." },
+    { name: "AI engine", count: status?.gemini ?? 0, desc: "Powers call analysis and qualification." },
+    { name: "Property data", count: status?.zillow ?? 0, desc: "Pulls market value, comps, and ARV." },
+    { name: "dialer", count: status?.readymode ?? 0, desc: "Fetches your call recordings." },
   ];
 
   return (

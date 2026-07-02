@@ -31,7 +31,7 @@ export default function AnalyzePage() {
   const [step, setStep]               = useState<"idle" | "uploading" | "analyzing" | "saving">("idle");
 
   const STEPS: Record<string, string> = {
-    uploading: "Uploading audio to Gemini...",
+    uploading: "Uploading audio to the AI engine...",
     analyzing: "AI analyzing call content...",
     saving:    "Saving results to database...",
   };

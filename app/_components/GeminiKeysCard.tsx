@@ -1,6 +1,6 @@
 "use client";
 
-// Manage a pool of Gemini API keys per user. Multiple keys reduce risk
+// Manage a pool of AI engine keys per user. Multiple keys reduce risk
 // of hitting rate limits — the analyzer rotates through them and disables
 // any key with 5 consecutive errors.
 
@@ -62,7 +62,7 @@ export function GeminiKeysCard() {
   };
 
   const add = async () => {
-    if (!keyValue.trim()) { setMsg({ type: "err", text: "Paste a Gemini API key." }); return; }
+    if (!keyValue.trim()) { setMsg({ type: "err", text: "Paste a AI engine key." }); return; }
     setBusy(true); setMsg(null);
     const { data: { session } } = await supabase.auth.getSession();
     const r = await fetch("/api/gemini/keys", {
@@ -115,7 +115,7 @@ export function GeminiKeysCard() {
     <div style={card}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
         <p style={{ fontSize: 15, fontWeight: 800, color: "#15131D", display: "inline-flex", alignItems: "center", gap: 8 }}>
-          <Sparkles size={16} color={SKY_600} /> Gemini API Key Pool
+          <Sparkles size={16} color={SKY_600} /> AI Engine Keys
         </p>
         <button onClick={() => setAdding(a => !a)} style={{
           display: "inline-flex", alignItems: "center", gap: 5,
@@ -127,7 +127,7 @@ export function GeminiKeysCard() {
         </button>
       </div>
       <p style={{ fontSize: 12.5, color: "var(--text-2)", marginBottom: 14 }}>
-        Add as many Gemini keys as you have. The analyzer rotates through them automatically — when one hits rate limits, the next takes over. Keys with 5 consecutive errors auto-disable. Get keys at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer" style={{ color: SKY_600 }}>aistudio.google.com/apikey</a>.
+        Add as many engine keys as you have. The analyzer rotates through them automatically — when one hits rate limits, the next takes over. Keys with 5 consecutive errors auto-disable. Need more capacity? Contact support and we'll provision additional keys for your workspace.
       </p>
 
       {adding && (
