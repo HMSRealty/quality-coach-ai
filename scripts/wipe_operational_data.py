@@ -79,9 +79,12 @@ BUCKET = "call-recordings"
 
 
 def load_env() -> None:
+    # utf-8-sig: strips a BOM if one is present. PowerShell's
+    # `Set-Content -Encoding utf8` writes one, which silently corrupts the
+    # first key in the file.
     if not ENV_FILE.exists():
         return
-    for line in ENV_FILE.read_text(encoding="utf-8").splitlines():
+    for line in ENV_FILE.read_text(encoding="utf-8-sig").splitlines():
         line = line.strip()
         if not line or line.startswith("#") or "=" not in line:
             continue

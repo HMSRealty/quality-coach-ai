@@ -36,10 +36,15 @@ create table if not exists public.schema_migrations (
 
 
 def load_env() -> None:
-    """Read .env.local into os.environ without clobbering real env vars."""
+    """Read .env.local into os.environ without clobbering real env vars.
+
+    utf-8-sig, not utf-8: PowerShell's `Set-Content -Encoding utf8` writes a
+    BOM, which otherwise turns the first key into "﻿NEXT_PUBLIC_..." and
+    produces a "not set" error for a variable that is plainly right there.
+    """
     if not ENV_FILE.exists():
         return
-    for line in ENV_FILE.read_text(encoding="utf-8").splitlines():
+    for line in ENV_FILE.read_text(encoding="utf-8-sig").splitlines():
         line = line.strip()
         if not line or line.startswith("#") or "=" not in line:
             continue
@@ -61,6 +66,14 @@ def main() -> int:
     ap.add_argument("--dry", action="store_true", help="Show what would run; execute nothing.")
     ap.add_argument("--status", action="store_true", help="Show applied vs pending; execute nothing.")
     ap.add_argument("--only", help="Only consider files whose name starts with this prefix.")
+    ap.add_argument(
+        "--baseline",
+        action="store_true",
+        help=(
+            "Record matching migrations as applied WITHOUT executing them. For adopting a "
+            "database whose schema predates this ledger. Combine with --only."
+        ),
+    )
     args = ap.parse_args()
 
     load_env()
@@ -116,6 +129,24 @@ def main() -> int:
                     for f in pending:
                         print(f"\n-- ==== {f.name} ====")
                         print(f.read_text(encoding="utf-8"))
+                return 0
+
+            if args.baseline:
+                # Adopting an existing database: its schema already reflects these
+                # files, so executing them would re-run real work (0004_bridge_backfill
+                # rewrites live rows). Record them as history instead.
+                if not pending:
+                    print("Nothing to baseline — all matching migrations already ledgered.")
+                    return 0
+                print("Recording as applied WITHOUT executing:\n")
+                for f in pending:
+                    cur.execute(
+                        "insert into public.schema_migrations(filename, checksum) values (%s, %s) "
+                        "on conflict (filename) do nothing",
+                        (f.name, checksum(f.read_text(encoding="utf-8"))),
+                    )
+                    print(f"  baselined  {f.name}")
+                print(f"\n{len(pending)} migration(s) baselined. Nothing was executed.")
                 return 0
 
             if not pending:
