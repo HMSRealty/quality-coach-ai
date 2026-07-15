@@ -1,4 +1,6 @@
-name = "quality-coach-ai"
+# Must match the Cloudflare Pages project that serves realtrack.app.
+# This previously read "quality-coach-ai", which is not the live project.
+name = "realtrack"
 compatibility_date = "2026-06-01"
 compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = ".vercel/output/static"

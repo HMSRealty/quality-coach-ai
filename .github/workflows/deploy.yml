@@ -1,0 +1,70 @@
+name: Deploy to Cloudflare Pages
+
+# Why this exists: @cloudflare/next-on-pages shells out to the Vercel CLI and
+# spawns `npx` (not `npx.cmd`) without a shell, so it cannot build on Windows
+# without WSL. Its own docs recommend WSL. Rather than require every developer
+# to install WSL, we build on Ubuntu here — the same place Cloudflare would.
+#
+# Required GitHub repo secrets (Settings -> Secrets and variables -> Actions):
+#   CLOUDFLARE_API_TOKEN          Cloudflare -> My Profile -> API Tokens
+#                                 Template: "Edit Cloudflare Workers", or a
+#                                 custom token with Account | Cloudflare Pages | Edit
+#   CLOUDFLARE_ACCOUNT_ID         d10ce2a16211d6f53850e54c5e052700
+#   NEXT_PUBLIC_SUPABASE_URL      inlined into the client bundle at BUILD time,
+#   NEXT_PUBLIC_SUPABASE_ANON_KEY so they must exist here, not just in Pages.
+#
+# Server-side secrets (SUPABASE_SERVICE_ROLE_KEY, GEMINI_API_KEY, ENC_KEY,
+# READYMODE_*) are NOT set here. They are runtime values configured on the
+# Pages project itself and must never enter the build output.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  # A newer push supersedes an in-flight deploy, but never cancel a deploy
+  # midway — a half-uploaded Pages deployment is worse than a queued one.
+  group: deploy-pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      deployments: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      # Fail the deploy on a type error rather than shipping it. The build
+      # below would surface most of these anyway, but this fails faster and
+      # with a clearer message.
+
+      - name: Build for Cloudflare Pages
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+        run: npx @cloudflare/next-on-pages@1
+
+      - name: Deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          # Project is "realtrack" — the name package.json carried
+          # ("quality-coach-ai") was stale and pointed at a different project.
+          command: pages deploy .vercel/output/static --project-name=realtrack --branch=main
