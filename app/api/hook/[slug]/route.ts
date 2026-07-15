@@ -166,11 +166,11 @@ export async function POST(req: Request): Promise<Response> {
       payload: { ingest_event_id: event.id },
     });
 
-    // Best-effort telemetry; must never fail the request.
-    sb.from("webhook_endpoints")
-      .update({ last_seen_at: new Date().toISOString() })
-      .eq("id", endpoint.id)
-      .then(() => {});
+    // last_seen_at / events_received are maintained by the
+    // trg_ingest_touch_endpoint trigger on ingest_events. Doing it here meant
+    // either an extra awaited round trip in the hot path, or a fire-and-forget
+    // that the edge runtime cancels the moment we return — which is what it
+    // did: after a successful POST, last_seen_at was still null.
 
     return Response.json({ ok: true, event_id: event.id });
   } catch (e) {
