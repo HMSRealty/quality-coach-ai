@@ -20,60 +20,72 @@ import { QuickHelp } from "@/app/_components/QuickHelp";
 import { BrandProvider, useBrand } from "@/app/_components/BrandContext";
 import { T } from "@/app/_components/tokens";
 import {
-  LayoutDashboard, PhoneCall, FolderCog, Zap,
+  LayoutDashboard, PhoneCall, FolderCog,
   UserCircle, LogOut, ChevronRight, Shield,
-  Send, Users2, Network,
+  Users2, Network,
   Flag, Power, UserCog, Eye, Search,
-  Settings as SettingsIcon, Webhook, Wallet, Target, Trophy, Palette,
-  GitBranch, Flame, Rocket, Menu, X, UserSearch,
+  Settings as SettingsIcon, Webhook, Target, Trophy, Palette,
+  Flame, Rocket, Menu, X,
+  Activity, HeartPulse, Bell, LifeBuoy, BarChart3,
 } from "lucide-react";
 
-// Corporate Command Center — navigation grouped by company department.
-const NAV_GROUPS: { section: string; items: { label: string; href: string; icon: typeof PhoneCall }[] }[] = [
+// Navigation for the Performance OS.
+//
+// Reorganised around what a manager actually does — read the feed, drill into
+// performance, act — rather than around company departments. The old grouping
+// ("Acquisitions", "HR & Accounting") described an org chart, not a job.
+//
+// Removed in the pivot: Skip Tracing, Cash Buyers, Hot Leads Alert (the
+// real-estate "deals" page), Compensation/payroll, Trainers, The Matrix.
+// Real estate is now one campaign vertical, not the product.
+//
+// Owner-only sections are filtered at render time: clients never see setup.
+const NAV_GROUPS: {
+  section: string;
+  ownerOnly?: boolean;
+  items: { label: string; href: string; icon: typeof PhoneCall }[];
+}[] = [
   {
-    section: "Floor Operations",
+    section: "Command",
     items: [
-      { label: "The Matrix",     href: "/dashboard/matrix",      icon: Network },
-      { label: "Leads Pipeline", href: "/dashboard",             icon: GitBranch },
-      { label: "Campaigns",      href: "/dashboard/campaigns",   icon: FolderCog },
-      { label: "Submit Lead",    href: "/dashboard/submit", icon: Send },
+      { label: "Performance Feed", href: "/dashboard",           icon: Activity },
+      { label: "Executive",        href: "/dashboard/executive", icon: LayoutDashboard },
+      { label: "Company Health",   href: "/dashboard/health",    icon: HeartPulse },
+      { label: "Alerts",           href: "/dashboard/alerts",    icon: Bell },
     ],
   },
   {
-    section: "QA & Training",
+    section: "Performance",
     items: [
-      { label: "Leads",       href: "/dashboard/calls",    icon: PhoneCall },
-      { label: "QA Persona",  href: "/dashboard/persona",  icon: Zap },
+      // /dashboard/callers is the real agent roster (cold_callers); it links
+      // through to /dashboard/agents/[name] for the individual profile.
+      { label: "Agents",       href: "/dashboard/callers",     icon: Users2 },
+      { label: "Teams",        href: "/dashboard/teams",       icon: Network },
+      { label: "Leaderboard",  href: "/dashboard/leaderboard", icon: Trophy },
+      { label: "Action Plans", href: "/dashboard/action-plans", icon: LifeBuoy },
+      { label: "Goals",        href: "/dashboard/goals",       icon: Target },
     ],
   },
   {
-    section: "Acquisitions",
+    section: "Intelligence",
     items: [
-      { label: "Hot Leads Alert", href: "/dashboard/deals",        icon: Flame },
-      { label: "Cash Buyers",     href: "/dashboard/dispositions", icon: Users2 },
-      { label: "Skip Tracing",      href: "/dashboard/propytrace",   icon: UserSearch },
+      { label: "Campaigns", href: "/dashboard/campaigns", icon: FolderCog },
+      { label: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
+      { label: "Calls",     href: "/dashboard/calls",     icon: PhoneCall },
+      { label: "Hot Leads", href: "/dashboard/hot-leads", icon: Flame },
     ],
   },
   {
-    section: "HR & Accounting",
+    // Owner-only. "Clients never see setup pages."
+    section: "Setup",
+    ownerOnly: true,
     items: [
-      { label: "Floor Agents",    href: "/dashboard/callers",      icon: Users2 },
-      { label: "Teams",           href: "/dashboard/teams",        icon: Network },
-      { label: "Team Leader",     href: "/dashboard/team-leader",  icon: Flag },
-      { label: "Shift Targets",   href: "/dashboard/shift-targets", icon: Target },
-      { label: "Compensation",    href: "/dashboard/payroll",      icon: Wallet },
-      { label: "Leaderboard",     href: "/dashboard/leaderboard",  icon: Trophy },
-    ],
-  },
-  {
-    section: "IT & Administration",
-    items: [
-      { label: "Setup Wizard",            href: "/dashboard/onboarding",  icon: Rocket },
-      { label: "Settings",                href: "/dashboard/settings",    icon: SettingsIcon },
-      { label: "Integrations",            href: "/dashboard/integrations",      icon: Webhook },
-      { label: "Branding",                href: "/dashboard/settings/branding", icon: Palette },
-      { label: "Sub-Users",               href: "/dashboard/sub-users",   icon: UserCog },
-      { label: "Permissions",             href: "/dashboard/permissions", icon: Power },
+      { label: "Setup Wizard",  href: "/dashboard/onboarding",        icon: Rocket },
+      { label: "Integrations",  href: "/dashboard/integrations",      icon: Webhook },
+      { label: "Users",         href: "/dashboard/sub-users",         icon: UserCog },
+      { label: "Permissions",   href: "/dashboard/permissions",       icon: Power },
+      { label: "Branding",      href: "/dashboard/settings/branding", icon: Palette },
+      { label: "Settings",      href: "/dashboard/settings",          icon: SettingsIcon },
     ],
   },
 ];
@@ -165,6 +177,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
   const [plan, setPlan]       = useState("free");
   const [initials, setInit]   = useState("?");
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
   const [isCaller, setIsCaller] = useState(false);
   const [actingAs, setActingAs] = useState<string | null>(null);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -186,6 +199,13 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
         if (data.full_name) setFullName(data.full_name as string);
         const callerRole = data.role === "caller" || (data.role === "user" && data.parent_user_id);
         setIsCaller(!!callerRole);
+        // Mirrors current_app_role() in 0002_rls.sql: a legacy 'user' with no
+        // parent IS the workspace owner. Keep the two in step — if they drift,
+        // the sidebar shows links the API will refuse.
+        setIsOwner(
+          data.role === "owner" || data.role === "admin" ||
+          (data.role === "user" && !data.parent_user_id),
+        );
         // Approval gate: top-level signups (no parent) need admin approval
         // before they can use the dashboard. Admins are always allowed.
         const onPendingPage = window.location.pathname === "/dashboard/pending";
@@ -270,7 +290,11 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
             );
           }
           const seen = new Set<string>();
-          return NAV_GROUPS.map((group, gi) => (
+          // "Only the Owner can configure ... Clients never see setup pages."
+          // Filtering here is presentation only — the API and RLS are what
+          // actually enforce this. A hidden link is not a permission.
+          const visible = NAV_GROUPS.filter((g) => !g.ownerOnly || isOwner);
+          return visible.map((group, gi) => (
             <div key={group.section} style={{ padding: gi === 0 ? "16px 8px 4px" : "4px 8px" }}>
               <SectionLabel>{group.section}</SectionLabel>
               <nav style={{ display: "flex", flexDirection: "column", gap: 2, padding: "0 8px" }}>

@@ -5,7 +5,6 @@ import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { LeadTimeline } from "@/app/_components/LeadTimeline";
 import { GongPlayer } from "@/app/_components/GongPlayer";
-import { AcquisitionsPanel } from "@/app/_components/AcquisitionsPanel";
 import { ExportWebhookButton } from "@/app/_components/ExportWebhookButton";
 import { AgentScorecard } from "@/app/_components/AgentScorecard";
 import { TcpaShield, ScriptComplianceTimeline, BehavioralScorecard, InteractiveTranscript, DataVerificationAlert } from "@/app/_components/CallIntel";
@@ -712,19 +711,10 @@ export default function LeadDetailPage() {
               notes={(md.discrepancy_notes as string) ?? null}
             />
 
-            {/* Acquisitions & Deal Math engine */}
-            <AcquisitionsPanel
-              leadId={lead.id}
-              address={lead.extracted_address}
-              ownerName={owner}
-              zestimate={zestimateNum}
-              rent={Number(md.estimated_monthly_rent) || null}
-              defaultRehab={rehab}
-              askingPrice={lead.asking_price}
-              personality={(md.seller_personality as string) ?? null}
-              painPoint={(md.seller_pain_point as string) ?? null}
-              bottomLine={(md.seller_bottom_line as string) ?? null}
-            />
+            {/* Acquisitions / Deal Math panel removed in the pivot: ARV,
+                rehab, and zestimate arithmetic are real-estate-specific.
+                Vertical-specific fields now live on campaigns_v2.signal_schema
+                and leads_v2.attributes rather than baked into the UI. */}
             <AgentScorecard agentName={lead.agent_name} />
           </>
         );

@@ -10,7 +10,6 @@ import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { Plug, Lock, Loader2, Webhook, Sparkles, Home, Link as LinkIcon, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { GeminiKeysCard } from "@/app/_components/GeminiKeysCard";
-import { ZillowKeysCard } from "@/app/_components/ZillowKeysCard";
 import { ReadymodeConnectionCard } from "@/app/_components/ReadymodeConnectionCard";
 import { AutoFetchToggle } from "@/app/_components/AutoFetchToggle";
 import { SheetsExportPanel } from "@/app/_components/SheetsExportPanel";
@@ -182,8 +181,8 @@ export default function IntegrationsPage() {
       {/* AI / GEMINI KEYS */}
       <GeminiKeysCard />
 
-      {/* ZILLOW / PROPERTY DATA KEYS */}
-      <ZillowKeysCard />
+      {/* Property-data (Zillow) keys removed in the pivot: market value / ARV
+          is real-estate-specific and RealTrack is vertical-agnostic now. */}
 
       {/* DIALER CONNECTIONS */}
       <ReadymodeConnectionCard />
@@ -198,20 +197,20 @@ export default function IntegrationsPage() {
 // Read-only view for end-users. Calls a tiny status endpoint to learn which
 // providers their assigned keys cover — never sees the keys themselves.
 function ReadOnlyIntegrationsView() {
-  const [status, setStatus] = useState<{ gemini: number; zillow: number; readymode: number } | null>(null);
+  const [status, setStatus] = useState<{ gemini: number; readymode: number } | null>(null);
   useEffect(() => {
     (async () => {
       const { data: { session } } = await supabase.auth.getSession();
       const r = await fetch("/api/integrations/status", { headers: { Authorization: `Bearer ${session?.access_token}` } });
       const j = await r.json().catch(() => ({}));
-      setStatus({ gemini: j.gemini || 0, zillow: j.zillow || 0, readymode: j.readymode || 0 });
+      setStatus({ gemini: j.gemini || 0, readymode: j.readymode || 0 });
     })();
   }, []);
 
+  // "Property data" row dropped with the real-estate pivot — no ARV, no comps.
   const rows: { name: string; count: number; desc: string }[] = [
     { name: "AI engine", count: status?.gemini ?? 0, desc: "Powers call analysis and qualification." },
-    { name: "Property data", count: status?.zillow ?? 0, desc: "Pulls market value, comps, and ARV." },
-    { name: "dialer", count: status?.readymode ?? 0, desc: "Fetches your call recordings." },
+    { name: "Dialer", count: status?.readymode ?? 0, desc: "Fetches your call recordings." },
   ];
 
   return (
